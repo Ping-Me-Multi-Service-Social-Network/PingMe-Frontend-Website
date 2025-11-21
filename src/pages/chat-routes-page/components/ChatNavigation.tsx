@@ -4,6 +4,7 @@ import {
   Home,
   BookOpen,
   NotebookPen,
+  Music4Icon,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -18,14 +19,14 @@ const topNavigationItems = [
   {
     title: "Tin nhắn",
     icon: MessageCircle,
-    href: "messages",
+    href: "/chat/messages",
     description: "Trò chuyện với bạn bè",
     external: false,
   },
   {
     title: "Danh bạ",
     icon: Users,
-    href: "contacts",
+    href: "/chat/contacts",
     description: "Quản lý danh bạ",
     external: false,
   },
@@ -55,6 +56,16 @@ const middleNavigationItems = [
   },
 ];
 
+const middleInternalNavigationItems = [
+  {
+    title: "Ping Music",
+    icon: Music4Icon,
+    href: "/music",
+    description: "Đắm chìm trong âm nhạc",
+    external: false,
+  },
+];
+
 export default function ChatNavigation() {
   const location = useLocation();
   const currentPath = location.pathname.split("/").pop();
@@ -71,7 +82,7 @@ export default function ChatNavigation() {
         {/* Top Section - Chat Navigation */}
         <div className="flex flex-col space-y-2 pb-4">
           {topNavigationItems.map((item) => {
-            const isActive = currentPath === item.href;
+            const isActive = currentPath === item.href.split("/").pop();
             return (
               <Tooltip key={item.title}>
                 <TooltipTrigger asChild>
@@ -130,6 +141,36 @@ export default function ChatNavigation() {
               </TooltipContent>
             </Tooltip>
           ))}
+          {middleInternalNavigationItems.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Tooltip key={item.title}>
+                <TooltipTrigger asChild>
+                  <NavLink
+                    to={item.href}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                      isActive
+                        ? "bg-white text-purple-600 shadow-lg scale-110"
+                        : "text-purple-200 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white hover:scale-105 hover:shadow-lg"
+                    }`}
+                  >
+                    <item.icon className="w-6 h-6" />
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
+                >
+                  <div>
+                    <div className="font-semibold">{item.title}</div>
+                    <div className="text-xs text-purple-100 mt-0.5">
+                      {item.description}
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
         </div>
 
         {/* Divider */}

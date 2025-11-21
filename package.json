@@ -39,6 +39,7 @@
     "react": "^19.1.0",
     "react-day-picker": "^9.8.1",
     "react-dom": "^19.1.0",
+    "react-h5-audio-player": "^3.10.1",
     "react-quill-new": "^3.6.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.7.1",

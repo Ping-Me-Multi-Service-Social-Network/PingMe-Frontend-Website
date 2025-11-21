@@ -18,6 +18,8 @@ import StatisticsManagementPage from "@/pages/admin-route-pages/statistics-manag
 import UpsertBlogPage from "@/pages/main-routes-page/blog-page/upsert-blog-page";
 import BlogDetailsPage from "@/pages/main-routes-page/blog-page/blog-details-page";
 import { AdminRoute } from "@/pages/commons/AdminRoute";
+import MusicPage from "@/pages/music-page";
+import SharedChatMusicLayout from "@/pages/chat-routes-page/components/SharedChatMusicLayout";
 
 export const router = createBrowserRouter([
   {
@@ -65,6 +67,15 @@ export const router = createBrowserRouter([
       { path: "messages", element: <MessagesPage /> },
       { path: "contacts", element: <ContactsPage /> },
     ],
+  },
+  {
+    path: "music",
+    element: (
+      <ProtectedRoute>
+        <SharedChatMusicLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <MusicPage /> }],
   },
   {
     path: "admin",
