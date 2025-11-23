@@ -16,6 +16,7 @@ import {
   getHistoryMessagesApi,
   sendMessageApi,
   sendFileMessageApi,
+  sendWeatherMessage,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
@@ -165,6 +166,24 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       }
     };
 
+    const handleSendWeather = async (latitude: number, longitude: number) => {
+      try {
+        const weatherRequest = {
+          roomId: selectedChat.roomId,
+          lat: latitude,
+          lon: longitude,
+          clientMsgId: crypto.randomUUID(),
+        };
+
+        const response = await sendWeatherMessage(weatherRequest);
+        const sentMessage = response.data.data;
+
+        setMessages((prev) => [...prev, sentMessage]);
+      } catch (err) {
+        toast.error(getErrorMessage(err, "Không thể gửi thông tin thời tiết"));
+      }
+    };
+
     const handleIncomingMessage = useCallback(
       (message: MessageResponse) => {
         if (message.roomId !== selectedChat.roomId) {
@@ -259,6 +278,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
             setNewMessage={setNewMessage}
             onSendMessage={handleSendMessage}
             onSendFile={handleSendFile}
+            onSendWeather={handleSendWeather}
             disabled={isLoadingMessages}
           />
         </div>

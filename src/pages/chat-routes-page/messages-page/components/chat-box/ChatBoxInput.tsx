@@ -13,8 +13,11 @@ import {
   X,
   FileText,
   Video,
+  CloudSun,
 } from "lucide-react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 interface FilePreview {
   file: File;
@@ -23,20 +26,22 @@ interface FilePreview {
 }
 
 interface ChatInputProps {
-  selectedChat: RoomResponse; // Add selectedChat to get theme
+  selectedChat: RoomResponse;
   newMessage: string;
   setNewMessage: (message: string) => void;
   onSendMessage: () => void;
   onSendFile: (file: File, type: "IMAGE" | "VIDEO" | "FILE") => Promise<void>;
+  onSendWeather: (lat: number, lon: number) => Promise<void>;
   disabled?: boolean;
 }
 
 export function ChatBoxInput({
-  selectedChat, // Receive selectedChat prop
+  selectedChat,
   newMessage,
   setNewMessage,
   onSendMessage,
   onSendFile,
+  onSendWeather,
   disabled = false,
 }: ChatInputProps) {
   const theme = getTheme(selectedChat.theme);
@@ -170,6 +175,36 @@ export function ChatBoxInput({
     setSelectedFiles([]);
   };
 
+  const handleWeatherClick = () => {
+    if ("geolocation" in navigator) {
+      toast.info("Đang lấy vị trí của bạn...");
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            setIsSending(true);
+            await onSendWeather(latitude, longitude);
+            toast.success("Đã gửi thông tin thời tiết");
+          } catch (error) {
+            toast.error(
+              getErrorMessage(error, "Không thể gửi thông tin thời tiết")
+            );
+          } finally {
+            setIsSending(false);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast.error(
+            "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí."
+          );
+        }
+      );
+    } else {
+      toast.error("Trình duyệt không hỗ trợ định vị");
+    }
+  };
+
   return (
     <div className="border-t bg-white">
       <div
@@ -209,6 +244,17 @@ export function ChatBoxInput({
           className="hidden"
           onChange={handleFileChange}
         />
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
+          onClick={handleWeatherClick}
+          disabled={disabled || isSending}
+          title="Gửi thông tin thời tiết"
+        >
+          <CloudSun className="w-5 h-5" />
+        </Button>
       </div>
 
       {selectedFiles.length > 0 && (

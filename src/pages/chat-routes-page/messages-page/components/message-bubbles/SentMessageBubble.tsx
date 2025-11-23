@@ -1,7 +1,9 @@
 import type { MessageResponse } from "@/types/chat/message";
+import type { WeatherResponse } from "@/types/weather";
 import MessageImage from "./MessageImage";
 import MessageVideo from "./MessageVideo";
 import MessageFile from "./MessageFile";
+import WeatherMessageBubble from "./WeatherMessageBubble";
 import { formatMessageTime } from "../../utils/formatMessageTime";
 import { MoreHorizontal, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ export default function SentMessageBubble({
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
     message.type === "FILE";
+  const isWeatherMessage = message.type === "WEATHER";
 
   const handleRecallMessage = async () => {
     const messageDate = new Date(message.createdAt);
@@ -74,6 +77,26 @@ export default function SentMessageBubble({
           />
         );
       }
+      case "WEATHER": {
+        try {
+          const weatherData: WeatherResponse = JSON.parse(message.content);
+          return (
+            <WeatherMessageBubble
+              weather={weatherData}
+              createdAt={message.createdAt}
+              isSent={true}
+              theme={theme}
+            />
+          );
+        } catch (error) {
+          console.error("Failed to parse weather data:", error);
+          return (
+            <p className="text-sm text-red-500">
+              Không thể hiển thị thông tin thời tiết
+            </p>
+          );
+        }
+      }
       case "TEXT":
       default:
         return (
@@ -83,6 +106,10 @@ export default function SentMessageBubble({
         );
     }
   };
+
+  if (isWeatherMessage && message.isActive) {
+    return <>{renderMessageContent()}</>;
+  }
 
   return (
     <div className="flex justify-end mb-4 group">

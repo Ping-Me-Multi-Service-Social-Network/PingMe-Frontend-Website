@@ -10,6 +10,7 @@ import type {
   MessageRecalledResponse,
   MessageResponse,
   SendMessageRequest,
+  SendWeatherMessageRequest,
 } from "@/types/chat/message";
 import type {
   AddGroupMembersRequest,
@@ -102,6 +103,13 @@ export const sendMessageApi = (data: SendMessageRequest) => {
 export const sendFileMessageApi = (data: FormData) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
     "/messages/files",
+    data
+  );
+};
+
+export const sendWeatherMessage = (data: SendWeatherMessageRequest) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>(
+    "/messages/weather",
     data
   );
 };

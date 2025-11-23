@@ -4,7 +4,7 @@ export interface MessageResponse {
   clientMsgId: string;
   senderId: number;
   content: string;
-  type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM";
+  type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
   createdAt: string;
   isActive: boolean;
 }
@@ -24,6 +24,13 @@ export interface SendMessageRequest {
   clientMsgId: string;
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE";
   roomId: number;
+}
+
+export interface SendWeatherMessageRequest {
+  roomId: number;
+  lat: number;
+  lon: number;
+  clientMsgId: string;
 }
 
 export interface ReadStateResponse {

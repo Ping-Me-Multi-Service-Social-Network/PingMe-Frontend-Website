@@ -1,7 +1,9 @@
 import type { MessageResponse } from "@/types/chat/message";
+import type { WeatherResponse } from "@/types/weather";
 import MessageImage from "./MessageImage";
 import MessageVideo from "./MessageVideo";
 import MessageFile from "./MessageFile";
+import WeatherMessageBubble from "./WeatherMessageBubble";
 import { formatMessageTime } from "../../utils/formatMessageTime";
 import { RotateCcw } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +29,7 @@ export default function ReceivedMessageBubble({
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
     message.type === "FILE";
+  const isWeatherMessage = message.type === "WEATHER"; // Added weather message check
 
   const renderMessageContent = () => {
     if (!message.isActive) {
@@ -53,6 +56,26 @@ export default function ReceivedMessageBubble({
           />
         );
       }
+      case "WEATHER": {
+        try {
+          const weatherData: WeatherResponse = JSON.parse(message.content);
+          return (
+            <WeatherMessageBubble
+              weather={weatherData}
+              createdAt={message.createdAt}
+              isSent={false}
+              theme={theme}
+            />
+          );
+        } catch (error) {
+          console.error("Failed to parse weather data:", error);
+          return (
+            <p className="text-sm text-red-500">
+              Không thể hiển thị thông tin thời tiết
+            </p>
+          );
+        }
+      }
       case "TEXT":
       default:
         return (
@@ -62,6 +85,30 @@ export default function ReceivedMessageBubble({
         );
     }
   };
+
+  if (isWeatherMessage && message.isActive) {
+    return (
+      <div className="flex items-start mb-4 group">
+        <Avatar
+          className={`w-10 h-10 mr-3 flex-shrink-0 ring-2 ${theme.messages.avatarRing}`}
+        >
+          <AvatarImage
+            src={senderAvatar || "/placeholder.svg"}
+            alt={senderName}
+          />
+          <UserAvatarFallback name={senderName} size="md" />
+        </Avatar>
+        <div className="max-w-[80%]">
+          {roomType === "GROUP" && senderName && (
+            <div className="text-xs font-medium text-gray-600 mb-1 ml-1">
+              {senderName}
+            </div>
+          )}
+          {renderMessageContent()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-start mb-4 group">
