@@ -8,8 +8,9 @@ export type Song = {
   duration: number;
   songUrl: string;
   coverImageUrl: string;
+  playCount: number;
   mainArtist: ArtistSummary;
-  featuredArtists: ArtistSummaryDto;
-  genre: Genre;
+  featuredArtists: ArtistSummaryDto[];
+  genre: Genre[];
   album: AlbumSummary;
 };
