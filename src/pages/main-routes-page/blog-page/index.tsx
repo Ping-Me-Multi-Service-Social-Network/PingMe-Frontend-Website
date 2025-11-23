@@ -8,7 +8,10 @@ import { SearchAndFilterSection } from "./components/SearchAndFilterSection";
 import { BlogGrid } from "./components/BlogGrid";
 import { Plus } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { getAllApprovedBlogs, getCurrentUserBlogs } from "@/services/blog/blogApi.ts";
+import {
+  getAllApprovedBlogs,
+  getCurrentUserBlogs,
+} from "@/services/blog/blogApi.ts";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePagination } from "@/hooks/use-pagination";
@@ -173,7 +176,7 @@ export default function BlogPage() {
       {isLogin && (
         <div className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur-md shadow-sm">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-2 px-12">
               <div className="flex gap-2">
                 <Button
                   variant="ghost"

@@ -23,9 +23,9 @@ export function SearchAndFilterSection({
   onCategoryChange,
 }: SearchAndFilterSectionProps) {
   return (
-    <div className="border-y border-border bg-card/50 backdrop-blur-sm shadow-md">
-      <div className="container mx-auto px-4 py-10">
-        <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+    <div className="w-3/4 mx-auto flex justify-center items-center my-4">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
           {/* Search Input */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

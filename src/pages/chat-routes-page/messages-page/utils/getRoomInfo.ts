@@ -58,6 +58,9 @@ export const getLastMessagePreview = (
     case "FILE":
       messageContent = "[File]";
       break;
+    case "WEATHER":
+      messageContent = "[Thời Tiết]";
+      break;
     case "TEXT":
     default:
       messageContent = room.lastMessage.preview;
