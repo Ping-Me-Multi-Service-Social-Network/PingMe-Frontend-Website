@@ -51,7 +51,7 @@ export interface ChatTheme {
 export const chatThemes: Record<string, ChatTheme> = {
   DEFAULT: {
     name: "Mặc định (Tím)",
-    backgroundImage: "/chat-themes/abstract-purple-pink-gradient.png",
+    backgroundImage: "",
     header: {
       background: "bg-gradient-to-r from-purple-50 to-blue-50",
       textColor: "text-gray-900",

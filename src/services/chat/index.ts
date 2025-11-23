@@ -67,6 +67,16 @@ export const changeTheme = (roomId: number, theme: string) => {
   );
 };
 
+export const updateGroupImage = (roomId: number, roomImage: File | null) => {
+  const formDataToSend = new FormData();
+  if (roomImage) formDataToSend.append("file", roomImage);
+
+  return axiosClient.put<ApiResponse<RoomResponse>>(
+    `/rooms/group/${roomId}/image`,
+    formDataToSend
+  );
+};
+
 export const getCurrentUserRoomsApi = ({
   page = 0,
   size = 10,

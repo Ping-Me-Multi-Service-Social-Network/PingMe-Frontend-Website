@@ -16,11 +16,13 @@ import {
   Phone,
   Video,
   Pencil,
+  Camera,
 } from "lucide-react";
 import { useState } from "react";
 import MemberList from "./member-list";
 import RenameGroupModal from "./rename-group-modal";
 import ThemeSelectionModal from "./theme-selection-modal";
+import UpdateGroupImageModal from "./update-group-image-modal";
 import { getTheme } from "../../utils/chatThemes";
 
 interface ConversationSidebarProps {
@@ -38,6 +40,7 @@ const ConversationSidebar = ({
   const [currentView, setCurrentView] = useState<"main" | "members">("main");
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
 
   const theme = getTheme(selectedChat.theme);
 
@@ -94,25 +97,41 @@ const ConversationSidebar = ({
         <div
           className={`p-6 border-b flex flex-col items-center ${theme.sidebar.cardBg} ${theme.sidebar.borderColor}`}
         >
-          <Avatar
-            className={`w-20 h-20 mb-3 ring-2 ${theme.header.avatarRing}`}
-          >
-            <AvatarImage
-              src={otherParticipant?.avatarUrl || "/placeholder.svg"}
-              alt={
-                selectedChat.roomType === "DIRECT"
-                  ? otherParticipant?.name
-                  : selectedChat.name || ""
-              }
-            />
-            <AvatarFallback
-              className={`text-2xl font-semibold ${theme.sidebar.cardBg} ${theme.sidebar.textPrimary}`}
+          <div className="relative group">
+            <Avatar
+              className={`w-20 h-20 mb-3 ring-2 ${theme.header.avatarRing}`}
             >
-              {selectedChat.roomType === "DIRECT"
-                ? otherParticipant?.name?.charAt(0).toUpperCase()
-                : selectedChat.name?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+              <AvatarImage
+                src={
+                  selectedChat.roomType === "GROUP"
+                    ? selectedChat.roomImgUrl || "/placeholder.svg"
+                    : otherParticipant?.avatarUrl || "/placeholder.svg"
+                }
+                alt={
+                  selectedChat.roomType === "DIRECT"
+                    ? otherParticipant?.name
+                    : selectedChat.name || ""
+                }
+              />
+              <AvatarFallback
+                className={`text-2xl font-semibold ${theme.sidebar.cardBg} ${theme.sidebar.textPrimary}`}
+              >
+                {selectedChat.roomType === "DIRECT"
+                  ? otherParticipant?.name?.charAt(0).toUpperCase()
+                  : selectedChat.name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            {selectedChat.roomType === "GROUP" && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className={`absolute bottom-2 right-0 h-8 w-8 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity ${theme.header.iconHoverBg}`}
+                onClick={() => setIsUpdateImageModalOpen(true)}
+              >
+                <Camera className={`h-4 w-4 ${theme.header.iconColor}`} />
+              </Button>
+            )}
+          </div>
 
           {selectedChat.roomType === "GROUP" ? (
             <div className="relative w-full max-w-xs group">
@@ -249,6 +268,15 @@ const ConversationSidebar = ({
         onClose={() => setIsThemeModalOpen(false)}
         roomId={selectedChat.roomId}
         currentTheme={selectedChat.theme}
+      />
+
+      {/* Update Group Image Modal */}
+      <UpdateGroupImageModal
+        isOpen={isUpdateImageModalOpen}
+        onClose={() => setIsUpdateImageModalOpen(false)}
+        roomId={selectedChat.roomId}
+        currentImageUrl={selectedChat.roomImgUrl}
+        groupName={selectedChat.name || ""}
       />
     </div>
   );
