@@ -2,43 +2,111 @@ import type React from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  MessageCircle,
+  Users,
+  Music,
+  Film,
+  BookOpen,
+  Wallet,
+  ChevronDown,
+} from "lucide-react";
 import { useAppSelector } from "@/features/hooks";
 import UserMenu from "./UserMenu";
 import { Link, useLocation } from "react-router-dom";
 
+const navigationGroups = [
+  {
+    id: "social",
+    label: "Kết nối",
+    icon: MessageCircle,
+    items: [
+      {
+        name: "Chat",
+        href: "/chat/messages",
+        icon: MessageCircle,
+        description: "Trò chuyện với bạn bè",
+        requireAuth: true,
+        openInNewTab: true,
+      },
+      {
+        name: "Danh Bạ",
+        href: "/chat/contacts",
+        icon: Users,
+        description: "Quản lý danh bạ của bạn",
+        requireAuth: true,
+        openInNewTab: true,
+      },
+    ],
+  },
+  {
+    id: "media",
+    label: "Giải trí",
+    icon: Music,
+    items: [
+      {
+        name: "Music",
+        href: "/music",
+        icon: Music,
+        description: "Nghe nhạc thư giãn",
+        requireAuth: true,
+        openInNewTab: true,
+      },
+      {
+        name: "Reels",
+        href: "/reels",
+        icon: Film,
+        description: "Xem video ngắn",
+        requireAuth: true,
+        openInNewTab: true,
+      },
+    ],
+  },
+  {
+    id: "content",
+    label: "Nội dung",
+    icon: BookOpen,
+    items: [
+      {
+        name: "Blog",
+        href: "/blogs",
+        icon: BookOpen,
+        description: "Đọc và viết blog",
+        requireAuth: true,
+      },
+      {
+        name: "Expense Tracker",
+        href: "/expenses",
+        icon: Wallet,
+        description: "Quản lý chi tiêu",
+        requireAuth: true,
+      },
+    ],
+  },
+];
+
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
   const location = useLocation();
 
   const { isLogin } = useAppSelector((state) => state.auth);
-
-  const navigationItems = [
-    { name: "Trang chủ", href: "/" },
-    { name: "Nhật ký", href: "/diary", requireAuth: true },
-    { name: "Blog", href: "/blogs", requireAuth: true },
-    {
-      name: "Trò chuyện",
-      href: "/chat/messages",
-      requireAuth: true,
-      openInNewTab: true,
-    },
-    {
-      name: "Danh bạ",
-      href: "/chat/contacts",
-      requireAuth: true,
-      openInNewTab: true,
-    },
-  ];
 
   const isActiveLink = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
   };
 
+  const isGroupActive = (items: (typeof navigationGroups)[0]["items"]) => {
+    return items.some((item) => isActiveLink(item.href));
+  };
+
   const handleNavClick = (
     e: React.MouseEvent,
-    item: (typeof navigationItems)[0]
+    item: { openInNewTab?: boolean; href: string }
   ) => {
     if (item.openInNewTab) {
       e.preventDefault();
@@ -69,36 +137,130 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-2">
-            {navigationItems.map((item) => {
-              if (!isLogin && item.requireAuth) {
-                return null;
-              }
-              const isActive = isActiveLink(item.href);
+          <nav className="hidden md:flex items-center space-x-1">
+            {/* Home Link */}
+            <Link
+              to="/"
+              className={`
+                relative px-4 py-2 font-medium transition-all duration-300 rounded-lg flex items-center gap-2
+                ${
+                  location.pathname === "/"
+                    ? "text-purple-600 bg-purple-50"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
+                }
+                group
+              `}
+            >
+              <Home className="w-4 h-4" />
+              Trang chủ
+              <span
+                className={`
+                  absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-300
+                  ${
+                    location.pathname === "/"
+                      ? "w-3/4"
+                      : "w-0 group-hover:w-3/4"
+                  }
+                `}
+              />
+            </Link>
+
+            {/* Navigation Groups with Dropdown */}
+            {navigationGroups.map((group) => {
+              if (!isLogin) return null;
+
+              const GroupIcon = group.icon;
+              const isActive = isGroupActive(group.items);
+
               return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={(e) => handleNavClick(e, item)}
-                  className={`
-                    relative px-4 py-2 font-medium transition-all duration-300 rounded-lg
-                    ${
-                      isActive
-                        ? "text-purple-600 bg-purple-50"
-                        : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
-                    }
-                    group
-                  `}
+                <div
+                  key={group.id}
+                  className="relative"
+                  onMouseEnter={() => setHoveredGroup(group.id)}
+                  onMouseLeave={() => setHoveredGroup(null)}
                 >
-                  {item.name}
-                  <span
+                  <button
                     className={`
-                      absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-300
-                      ${isActive ? "w-3/4" : "w-0 group-hover:w-3/4"}
+                      relative px-4 py-2 font-medium transition-all duration-300 rounded-lg flex items-center gap-2
+                      ${
+                        isActive || hoveredGroup === group.id
+                          ? "text-purple-600 bg-purple-50"
+                          : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
+                      }
+                      group
                     `}
-                  />
-                </Link>
+                  >
+                    <GroupIcon className="w-4 h-4" />
+                    {group.label}
+                    <ChevronDown
+                      className={`w-3 h-3 transition-transform duration-300 ${
+                        hoveredGroup === group.id ? "rotate-180" : ""
+                      }`}
+                    />
+                    <span
+                      className={`
+                        absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-300
+                        ${
+                          isActive || hoveredGroup === group.id
+                            ? "w-3/4"
+                            : "w-0 group-hover:w-3/4"
+                        }
+                      `}
+                    />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {hoveredGroup === group.id && (
+                    <div className="absolute top-full left-0 pt-2">
+                      <div className="w-72 bg-white rounded-lg shadow-xl border border-purple-100/50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="p-2">
+                          {group.items.map((item) => {
+                            const ItemIcon = item.icon;
+                            const isItemActive = isActiveLink(item.href);
+
+                            return (
+                              <Link
+                                key={item.name}
+                                to={item.href}
+                                onClick={(e) => handleNavClick(e, item)}
+                                className={`
+                                  flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 group/item
+                                  ${
+                                    isItemActive
+                                      ? "bg-gradient-to-r from-purple-50 to-pink-50 text-purple-600"
+                                      : "hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50/50 text-gray-700 hover:text-purple-600"
+                                  }
+                                `}
+                              >
+                                <ItemIcon
+                                  className={`w-5 h-5 mt-0.5 flex-shrink-0 transition-all duration-200 ${
+                                    isItemActive
+                                      ? "text-purple-600"
+                                      : "text-gray-500 group-hover/item:text-purple-600 group-hover/item:scale-110"
+                                  }`}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p
+                                    className={`font-medium transition-colors duration-200 ${
+                                      isItemActive
+                                        ? "text-purple-600"
+                                        : "text-gray-900 group-hover/item:text-purple-600"
+                                    }`}
+                                  >
+                                    {item.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-0.5 transition-colors duration-200 group-hover/item:text-gray-600">
+                                    {item.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
 
@@ -141,36 +303,66 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="md:hidden animate-in slide-in-from-top duration-300">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white/95 backdrop-blur-lg border-t border-purple-100/50">
-              {navigationItems.map((item) => {
-                if (!isLogin && item.requireAuth) {
-                  return null;
-                }
-                const isActive = isActiveLink(item.href);
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={(e) => {
-                      handleNavClick(e, item);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`
-                      block px-4 py-3 text-base font-medium rounded-lg transition-all duration-300
-                      ${
-                        isActive
-                          ? "text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600"
-                          : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
-                      }
-                    `}
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
+            <div className="px-2 pt-2 pb-3 space-y-3 bg-white/95 backdrop-blur-lg border-t border-purple-100/50">
+              {/* Home Link Mobile */}
+              <Link
+                to="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`
+                  flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg transition-all duration-300
+                  ${
+                    location.pathname === "/"
+                      ? "text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600"
+                      : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
+                  }
+                `}
+              >
+                <Home className="w-5 h-5" />
+                Trang chủ
+              </Link>
+
+              {/* Navigation Groups Mobile */}
+              {isLogin &&
+                navigationGroups.map((group) => (
+                  <div key={group.id} className="space-y-1">
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                      <group.icon className="w-4 h-4" />
+                      {group.label}
+                    </div>
+                    {group.items.map((item) => {
+                      const ItemIcon = item.icon;
+                      const isActive = isActiveLink(item.href);
+                      return (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          onClick={(e) => {
+                            handleNavClick(e, item);
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className={`
+                          flex items-center gap-3 px-4 py-3 ml-4 text-base font-medium rounded-lg transition-all duration-300
+                          ${
+                            isActive
+                              ? "text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600"
+                              : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"
+                          }
+                        `}
+                        >
+                          <ItemIcon className="w-5 h-5" />
+                          <div>
+                            <p>{item.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {item.description}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                ))}
 
               {!isLogin && (
                 <div className="flex flex-col gap-3 px-3 pt-4 border-t border-purple-100 mt-4">

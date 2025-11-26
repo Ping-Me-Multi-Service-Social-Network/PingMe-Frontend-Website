@@ -20,6 +20,7 @@ import BlogDetailsPage from "@/pages/main-routes-page/blog-page/blog-details-pag
 import { AdminRoute } from "@/pages/commons/AdminRoute";
 import MusicPage from "@/pages/music-page";
 import SharedChatMusicLayout from "@/pages/chat-routes-page/components/SharedChatMusicLayout";
+import ExpensePage from "@/pages/main-routes-page/expense-page";
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <UpsertBlogPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "expenses",
+        element: (
+          <ProtectedRoute>
+            <ExpensePage />
           </ProtectedRoute>
         ),
       },
