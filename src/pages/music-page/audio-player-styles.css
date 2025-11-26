@@ -1,0 +1,79 @@
+/* Custom styles for react-h5-audio-player to match dark theme */
+.audio-player-wrapper .rhap_container {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.audio-player-wrapper .rhap_main {
+  color: #ffffff !important;
+}
+
+.audio-player-wrapper .rhap_progress-filled,
+.audio-player-wrapper .rhap_progress-indicator {
+  background-color: #3b82f6 !important;
+}
+
+.audio-player-wrapper .rhap_progress-bar {
+  background-color: #3f3f46 !important;
+}
+
+.audio-player-wrapper .rhap_time {
+  color: #a1a1aa !important;
+}
+
+.audio-player-wrapper .rhap_button-clear {
+  color: #ffffff !important;
+}
+
+.audio-player-wrapper .rhap_button-clear:hover {
+  color: #3b82f6 !important;
+}
+
+.audio-player-wrapper .rhap_volume-bar {
+  background-color: #3f3f46 !important;
+}
+
+.audio-player-wrapper .rhap_volume-indicator {
+  background-color: #3b82f6 !important;
+}
+
+/* Styles for global minimized player */
+.audio-player-wrapper-global .rhap_container {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.audio-player-wrapper-global .rhap_main {
+  color: #ffffff !important;
+}
+
+.audio-player-wrapper-global .rhap_progress-filled,
+.audio-player-wrapper-global .rhap_progress-indicator {
+  background-color: #3b82f6 !important;
+}
+
+.audio-player-wrapper-global .rhap_progress-bar {
+  background-color: #3f3f46 !important;
+}
+
+.audio-player-wrapper-global .rhap_time {
+  color: #a1a1aa !important;
+}
+
+.audio-player-wrapper-global .rhap_button-clear {
+  color: #ffffff !important;
+}
+
+.audio-player-wrapper-global .rhap_button-clear:hover {
+  color: #3b82f6 !important;
+}
+
+.audio-player-wrapper-global .rhap_volume-bar {
+  background-color: #3f3f46 !important;
+}
+
+.audio-player-wrapper-global .rhap_volume-indicator {
+  background-color: #3b82f6 !important;
+}
