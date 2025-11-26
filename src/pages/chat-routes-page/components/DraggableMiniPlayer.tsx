@@ -107,7 +107,7 @@ const DraggableMiniPlayer: React.FC = () => {
     }
 
     //MẶC KỆ LỖI, NÓ CHẠY LÀ ĐƯỢC, MAI MỐT FIX SAU
-    playSong(null);
+    playSong(null as unknown as Song);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
