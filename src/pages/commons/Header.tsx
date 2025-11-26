@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 
 import { useState } from "react";
@@ -17,6 +19,7 @@ export default function Header() {
     { name: "Trang chủ", href: "/" },
     { name: "Nhật ký", href: "/diary", requireAuth: true },
     { name: "Blog", href: "/blogs", requireAuth: true },
+    { name: "Chi tiêu", href: "/expenses", requireAuth: true },
     {
       name: "Trò chuyện",
       href: "/chat/messages",
