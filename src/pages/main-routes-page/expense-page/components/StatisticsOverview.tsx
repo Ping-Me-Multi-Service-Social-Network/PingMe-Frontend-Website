@@ -34,16 +34,15 @@ import type {
   TopCategoryResponse,
   CategoryType,
 } from "@/types/transaction";
-
 const COLORS = [
-  "#a855f7", // purple-500
-  "#d946ef", // fuchsia-500
-  "#ec4899", // pink-500
-  "#f472b6", // pink-400
-  "#c084fc", // purple-400
-  "#e879f9", // fuchsia-400
-  "#a78bfa", // violet-400
-  "#f0abfc", // fuchsia-300
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+  "#f472b6",
+  "#c084fc",
+  "#e879f9",
+  "#a78bfa",
+  "#f0abfc",
 ];
 
 const CATEGORY_LABELS: Record<CategoryType, string> = {
@@ -64,6 +63,26 @@ const CATEGORY_LABELS: Record<CategoryType, string> = {
   EDUCATION: "Giáo Dục",
   TRAVEL: "Du Lịch",
   OTHER: "Khác",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  FOOD_AND_BEVERAGE: "#a855f7",
+  COFFEE: "#d946ef",
+  TRANSPORTATION: "#ec4899",
+  GAS: "#f472b6",
+  SHOPPING: "#c084fc",
+  HOUSEHOLD: "#e879f9",
+  ELECTRICITY: "#a78bfa",
+  WATER: "#f0abfc",
+  INTERNET: "#e9d5ff",
+  PHONE: "#ddd6fe",
+  ENTERTAINMENT: "#c7d2fe",
+  HEALTHCARE: "#a5b4fc",
+  PETS: "#93c5fd",
+  GIFTS: "#7dd3fc",
+  EDUCATION: "#06b6d4",
+  TRAVEL: "#10b981",
+  OTHER: "#6b7280",
 };
 
 export default function StatisticsOverview() {
@@ -111,6 +130,40 @@ export default function StatisticsOverview() {
       style: "currency",
       currency: "VND",
     }).format(amount);
+  };
+
+  const CustomPieTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: Array<{ payload: { name: string; value: number } }>;
+  }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      const total = categoryData.reduce(
+        (sum: number, item: { name: string; value: number }) =>
+          sum + item.value,
+        0
+      );
+      const percentage =
+        total > 0 ? ((data.value / total) * 100).toFixed(1) : 0;
+
+      return (
+        <div className="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-purple-300 dark:border-purple-600 shadow-lg">
+          <p className="font-semibold text-gray-900 dark:text-white text-sm">
+            {data.name}
+          </p>
+          <p className="text-sm text-purple-600 dark:text-purple-400">
+            {formatCurrency(data.value)}
+          </p>
+          <p className="text-sm text-purple-500 dark:text-purple-300 font-medium">
+            {percentage}%
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   const categoryData = categoryStats
@@ -297,11 +350,16 @@ export default function StatisticsOverview() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={comparisonData}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart
+                    data={comparisonData}
+                    margin={{ left: 80, right: 20, top: 20, bottom: 20 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
-                    <YAxis />
+                    <YAxis
+                      tickFormatter={(value) => formatCurrency(value as number)}
+                    />
                     <Tooltip
                       formatter={(value) => formatCurrency(value as number)}
                     />
@@ -322,32 +380,71 @@ export default function StatisticsOverview() {
             </CardHeader>
             <CardContent>
               {categoryData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) =>
-                        `${name}: ${(value / 1000000).toFixed(1)}M`
-                      }
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {categoryData.map((_, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
+                <div>
+                  <div className="relative w-full h-[200px]">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={categoryData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {categoryData.map((_item, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={
+                                CATEGORY_COLORS[
+                                  Object.keys(categoryStats!.totalByCategory)[
+                                    index
+                                  ]
+                                ] || COLORS[index % COLORS.length]
+                              }
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          content={<CustomPieTooltip />}
+                          cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
                         />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => formatCurrency(value as number)}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {categoryData.map((_, index) => {
+                      const categoryKey = Object.keys(
+                        categoryStats!.totalByCategory
+                      )[index];
+                      const item = categoryData[index];
+                      const color =
+                        CATEGORY_COLORS[categoryKey] ||
+                        COLORS[index % COLORS.length];
+                      return (
+                        <div
+                          key={item.name}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: color }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">
+                              {item.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatCurrency(item.value)}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               ) : (
                 <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                   <p className="text-base">Chưa có dữ liệu</p>
@@ -368,10 +465,15 @@ export default function StatisticsOverview() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dailyStats}>
+                  <LineChart
+                    data={dailyStats}
+                    margin={{ left: 80, right: 20, top: 20, bottom: 20 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="day" />
-                    <YAxis />
+                    <YAxis
+                      tickFormatter={(value) => formatCurrency(value as number)}
+                    />
                     <Tooltip
                       formatter={(value) => formatCurrency(value as number)}
                     />
@@ -397,7 +499,10 @@ export default function StatisticsOverview() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={topCategories}>
+                  <BarChart
+                    data={topCategories}
+                    margin={{ left: 80, right: 20, top: 20, bottom: 20 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                       dataKey="category"
@@ -405,7 +510,9 @@ export default function StatisticsOverview() {
                         CATEGORY_LABELS[cat as CategoryType] || cat
                       }
                     />
-                    <YAxis />
+                    <YAxis
+                      tickFormatter={(value) => formatCurrency(value as number)}
+                    />
                     <Tooltip
                       formatter={(value) => formatCurrency(value as number)}
                     />
