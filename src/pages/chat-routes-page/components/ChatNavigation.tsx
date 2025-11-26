@@ -5,6 +5,7 @@ import {
   BookOpen,
   NotebookPen,
   Music4Icon,
+  Wallet,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -62,6 +63,13 @@ const middleInternalNavigationItems = [
     icon: Music4Icon,
     href: "/music",
     description: "Đắm chìm trong âm nhạc",
+    external: false,
+  },
+  {
+    title: "Chi tiêu",
+    icon: Wallet,
+    href: "/expenses",
+    description: "Quản lý chi tiêu",
     external: false,
   },
 ];
