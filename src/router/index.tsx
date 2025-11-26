@@ -56,26 +56,27 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "chat",
-    element: (
-      <ProtectedRoute>
-        <ChatPage />
-      </ProtectedRoute>
-    ),
-    children: [
-      { index: true, element: <Navigate to="/chat/messages" /> },
-      { path: "messages", element: <MessagesPage /> },
-      { path: "contacts", element: <ContactsPage /> },
-    ],
-  },
-  {
-    path: "music",
+    path: "",
     element: (
       <ProtectedRoute>
         <SharedChatMusicLayout />
       </ProtectedRoute>
     ),
-    children: [{ index: true, element: <MusicPage /> }],
+    children: [
+      {
+        path: "chat",
+        element: <ChatPage />,
+        children: [
+          { index: true, element: <Navigate to="/chat/messages" /> },
+          { path: "messages", element: <MessagesPage /> },
+          { path: "contacts", element: <ContactsPage /> },
+        ],
+      },
+      {
+        path: "music",
+        element: <MusicPage />,
+      },
+    ],
   },
   {
     path: "admin",
