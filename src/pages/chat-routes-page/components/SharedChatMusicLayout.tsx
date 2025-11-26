@@ -1,15 +1,28 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import ChatNavigation from "./ChatNavigation";
+import { AudioPlayerProvider } from "@/contexts/AudioPlayerProvider";
+import GlobalAudioPlayer from "./GlobalAudioPlayer";
+import DraggableMiniPlayer from "./DraggableMiniPlayer";
 
 export default function SharedChatMusicLayout() {
-  return (
-    <div className="h-full bg-gray-100 flex">
-      <ChatNavigation />
+  const location = useLocation();
+  const isMusicPage = location.pathname === "/music";
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <Outlet />
+  return (
+    <AudioPlayerProvider>
+      <div className="h-screen bg-gray-100 flex overflow-hidden">
+        <div className="flex-shrink-0">
+          <ChatNavigation />
+        </div>
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Outlet />
+        </div>
+
+        {isMusicPage && <GlobalAudioPlayer />}
+
+        {!isMusicPage && <DraggableMiniPlayer />}
       </div>
-    </div>
+    </AudioPlayerProvider>
   );
 }

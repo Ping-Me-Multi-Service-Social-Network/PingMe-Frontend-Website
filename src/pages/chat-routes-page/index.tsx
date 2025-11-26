@@ -1,5 +1,5 @@
-import SharedChatMusicLayout from "./components/SharedChatMusicLayout";
+import { Outlet } from "react-router-dom";
 
 export default function ChatPage() {
-  return <SharedChatMusicLayout />;
+  return <Outlet />;
 }
