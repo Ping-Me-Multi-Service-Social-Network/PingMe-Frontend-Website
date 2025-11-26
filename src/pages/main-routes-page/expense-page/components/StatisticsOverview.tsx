@@ -393,7 +393,7 @@ export default function StatisticsOverview() {
                           fill="#8884d8"
                           dataKey="value"
                         >
-                          {categoryData.map((item, index) => (
+                          {categoryData.map((_item, index) => (
                             <Cell
                               key={`cell-${index}`}
                               fill={
