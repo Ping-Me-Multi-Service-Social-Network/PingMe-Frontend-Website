@@ -1,3 +1,5 @@
+"use client";
+
 import {
   MessageCircle,
   Users,
@@ -78,7 +80,7 @@ export default function ChatNavigation() {
 
   return (
     <TooltipProvider>
-      <div className="w-16 bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800 flex flex-col items-center py-4 shadow-xl">
+      <div className="w-16 h-screen bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800 flex flex-col items-center py-4 shadow-xl">
         {/* Top Section - Chat Navigation */}
         <div className="flex flex-col space-y-2 pb-4">
           {topNavigationItems.map((item) => {
