@@ -124,9 +124,11 @@ export default function BudgetManager() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Current Budget Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ngân Sách Hiện Tại</CardTitle>
+      <Card className="border-purple-200 dark:border-purple-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <CardHeader className="border-b border-purple-100 dark:border-purple-900">
+          <CardTitle className="text-purple-700 dark:text-purple-400">
+            Ngân Sách Hiện Tại
+          </CardTitle>
           <CardDescription>
             Tháng {currentMonth}/{currentYear}
           </CardDescription>
@@ -192,9 +194,11 @@ export default function BudgetManager() {
       </Card>
 
       {/* Edit Budget Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Chỉnh Sửa Ngân Sách</CardTitle>
+      <Card className="border-pink-200 dark:border-pink-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <CardHeader className="border-b border-pink-100 dark:border-pink-900">
+          <CardTitle className="text-pink-700 dark:text-pink-400">
+            Chỉnh Sửa Ngân Sách
+          </CardTitle>
           <CardDescription>Đặt mục tiêu chi tiêu hàng tháng</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -213,7 +217,10 @@ export default function BudgetManager() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleSetBudget} className="flex-1">
+                <Button
+                  onClick={handleSetBudget}
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                >
                   Lưu
                 </Button>
                 <Button
@@ -237,7 +244,10 @@ export default function BudgetManager() {
                   : "Chưa Đặt"}
               </p>
               <div className="flex gap-2">
-                <Button onClick={() => setIsEditing(true)} className="flex-1">
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                >
                   Chỉnh Sửa
                 </Button>
                 {monthlyStats?.targetAmount && (

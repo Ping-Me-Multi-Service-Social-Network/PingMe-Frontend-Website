@@ -43,7 +43,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Eye, Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Eye,
+  Edit2,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+} from "lucide-react";
 import {
   createTransaction,
   getTransactionsByMonth,
@@ -246,19 +253,24 @@ export default function TransactionTable() {
 
   return (
     <>
-      <Card>
+      <Card className="border-emerald-200 dark:border-emerald-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
         <CardHeader>
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Danh Sách Giao Dịch</CardTitle>
+                <CardTitle className="text-emerald-700 dark:text-emerald-400">
+                  Danh Sách Giao Dịch
+                </CardTitle>
                 <CardDescription>
                   Tháng {filterMonth}/{filterYear}
                 </CardDescription>
               </div>
               <Dialog open={openAdd} onOpenChange={setOpenAdd}>
                 <DialogTrigger asChild>
-                  <Button>Thêm Giao Dịch</Button>
+                  <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 gap-2">
+                    <Plus className="h-4 w-4" />
+                    Thêm Giao Dịch
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -353,7 +365,10 @@ export default function TransactionTable() {
                       />
                     </div>
 
-                    <Button onClick={handleAddTransaction} className="w-full">
+                    <Button
+                      onClick={handleAddTransaction}
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                    >
                       Lưu Giao Dịch
                     </Button>
                   </div>
@@ -362,7 +377,7 @@ export default function TransactionTable() {
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3 p-4 bg-muted/30 rounded-lg border">
+              <div className="flex flex-col gap-3 p-4 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold">Bộ Lọc</h3>
                   <Button

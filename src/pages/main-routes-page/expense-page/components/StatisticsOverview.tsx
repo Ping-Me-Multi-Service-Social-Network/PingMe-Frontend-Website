@@ -36,14 +36,14 @@ import type {
 } from "@/types/transaction";
 
 const COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
-  "#06b6d4",
-  "#f97316",
+  "#a855f7", // purple-500
+  "#d946ef", // fuchsia-500
+  "#ec4899", // pink-500
+  "#f472b6", // pink-400
+  "#c084fc", // purple-400
+  "#e879f9", // fuchsia-400
+  "#a78bfa", // violet-400
+  "#f0abfc", // fuchsia-300
 ];
 
 const CATEGORY_LABELS: Record<CategoryType, string> = {
@@ -154,9 +154,11 @@ export default function StatisticsOverview() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-purple-200 dark:border-purple-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Lọc Thống Kê</CardTitle>
+          <CardTitle className="text-purple-700 dark:text-purple-400">
+            Lọc Thống Kê
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
@@ -203,9 +205,11 @@ export default function StatisticsOverview() {
       {!loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {comparison && (
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 border-purple-200 dark:border-purple-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>So Sánh Tháng</CardTitle>
+                <CardTitle className="text-purple-700 dark:text-purple-400">
+                  So Sánh Tháng
+                </CardTitle>
                 <CardDescription>
                   Chi tiêu tháng này vs tháng trước
                 </CardDescription>
@@ -283,9 +287,11 @@ export default function StatisticsOverview() {
           )}
 
           {comparisonData.length > 0 && (
-            <Card>
+            <Card className="border-pink-200 dark:border-pink-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Biểu Đồ So Sánh</CardTitle>
+                <CardTitle className="text-pink-700 dark:text-pink-400">
+                  Biểu Đồ So Sánh
+                </CardTitle>
                 <CardDescription>
                   Thu nhập và chi tiêu so sánh tháng
                 </CardDescription>
@@ -299,7 +305,7 @@ export default function StatisticsOverview() {
                     <Tooltip
                       formatter={(value) => formatCurrency(value as number)}
                     />
-                    <Bar dataKey="income" fill="#10b981" name="Thu Nhập" />
+                    <Bar dataKey="income" fill="#a855f7" name="Thu Nhập" />
                     <Bar dataKey="expense" fill="#ef4444" name="Chi Tiêu" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -307,9 +313,11 @@ export default function StatisticsOverview() {
             </Card>
           )}
 
-          <Card>
+          <Card className="border-purple-200 dark:border-purple-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Phân Bố Theo Danh Mục</CardTitle>
+              <CardTitle className="text-purple-700 dark:text-purple-400">
+                Phân Bố Theo Danh Mục
+              </CardTitle>
               <CardDescription>Chi tiêu theo từng danh mục</CardDescription>
             </CardHeader>
             <CardContent>
@@ -349,9 +357,11 @@ export default function StatisticsOverview() {
           </Card>
 
           {dailyStats.length > 0 && (
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 border-pink-200 dark:border-pink-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Thống Kê Theo Ngày</CardTitle>
+                <CardTitle className="text-pink-700 dark:text-pink-400">
+                  Thống Kê Theo Ngày
+                </CardTitle>
                 <CardDescription>
                   Chi tiêu hàng ngày trong tháng
                 </CardDescription>
@@ -368,7 +378,7 @@ export default function StatisticsOverview() {
                     <Line
                       type="monotone"
                       dataKey="total"
-                      stroke="#3b82f6"
+                      stroke="#a855f7"
                       strokeWidth={2}
                     />
                   </LineChart>
@@ -378,9 +388,11 @@ export default function StatisticsOverview() {
           )}
 
           {topCategories.length > 0 && (
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 border-purple-200 dark:border-purple-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Top Danh Mục</CardTitle>
+                <CardTitle className="text-purple-700 dark:text-purple-400">
+                  Top Danh Mục
+                </CardTitle>
                 <CardDescription>Danh mục chi tiêu nhiều nhất</CardDescription>
               </CardHeader>
               <CardContent>
@@ -397,7 +409,7 @@ export default function StatisticsOverview() {
                     <Tooltip
                       formatter={(value) => formatCurrency(value as number)}
                     />
-                    <Bar dataKey="total" fill="#3b82f6" />
+                    <Bar dataKey="total" fill="#a855f7" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

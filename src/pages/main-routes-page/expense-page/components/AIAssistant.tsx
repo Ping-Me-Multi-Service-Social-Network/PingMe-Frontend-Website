@@ -130,16 +130,18 @@ export default function AIAssistant() {
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
-      <CardHeader className="shrink-0">
-        <CardTitle>AI Trợ Lý Chi Tiêu</CardTitle>
+    <Card className="h-[600px] flex flex-col border-pink-200 dark:border-pink-800 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+      <CardHeader className="shrink-0 border-b border-pink-100 dark:border-pink-900">
+        <CardTitle className="text-pink-700 dark:text-pink-400">
+          AI Trợ Lý Chi Tiêu
+        </CardTitle>
         <CardDescription>Nhắn tin với AI để quản lý chi tiêu</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 flex flex-col gap-4">
         <div
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className="flex-1 min-h-0 border rounded-lg p-4 overflow-y-auto space-y-4 relative"
+          className="flex-1 min-h-0 border border-pink-200 dark:border-pink-800 rounded-lg p-4 overflow-y-auto space-y-4 relative bg-gradient-to-br from-purple-50/30 to-pink-50/30 dark:from-purple-950/20 dark:to-pink-950/20"
         >
           {isLoadingMore && (
             <div className="flex justify-center py-2">
@@ -166,8 +168,8 @@ export default function AIAssistant() {
                 <div
                   className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                     msg.role === "USER"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md"
+                      : "bg-white dark:bg-gray-800 text-foreground border border-purple-200 dark:border-purple-800"
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap break-words">
@@ -196,6 +198,7 @@ export default function AIAssistant() {
             <Button
               onClick={handleSendMessage}
               disabled={loading || !input.trim()}
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
             >
               Gửi
             </Button>
