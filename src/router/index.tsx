@@ -21,6 +21,8 @@ import { AdminRoute } from "@/pages/commons/AdminRoute";
 import MusicPage from "@/pages/music-page";
 import SharedChatMusicLayout from "@/pages/chat-routes-page/components/SharedChatMusicLayout";
 import ExpensePage from "@/pages/main-routes-page/expense-page";
+import ReelsPage from "@/pages/chat-routes-page/reels-page";
+import VideoManagerPage from "@/pages/chat-routes-page/reels-page/video-manager";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +86,14 @@ export const router = createBrowserRouter([
       {
         path: "music",
         element: <MusicPage />,
+      },
+      {
+        path: "reels",
+        element: <ReelsPage />,
+      },
+      {
+        path: "reels/video-manager",
+        element: <VideoManagerPage />,
       },
     ],
   },

@@ -1,0 +1,91 @@
+export interface Reel {
+  id: number;
+  videoUrl: string;
+  caption: string;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  shareCount: number;
+  isLikedByMe: boolean;
+  userId: number;
+  userName: string;
+  userAvatarUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReelResponse {
+  id: number;
+  videoUrl: string;
+  caption: string;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  isLikedByMe: boolean;
+  userId: number;
+  userName: string;
+  userAvatarUrl: string | null;
+  createdAt: string;
+}
+
+export interface ReelComment {
+  id: number;
+  content: string;
+  reelId: number;
+  userId: number;
+  userName: string;
+  userAvatarUrl: string | null;
+  createdAt: string;
+  reactionCount: number;
+  reactionSummary: Record<string, number>;
+  myReaction: ReactionType | null;
+  isPinned: boolean;
+  parentId: number | null;
+  isReelOwner?: boolean;
+}
+
+export interface ReelCommentResponse {
+  content: ReelComment[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+export type ReactionType = "LIKE" | "LOVE" | "HAHA" | "WOW" | "SAD" | "ANGRY";
+
+export interface CreateReelRequest {
+  caption: string;
+  video: File;
+}
+
+export interface UpdateReelRequest {
+  caption: string;
+  video?: File;
+}
+
+export interface ReelFeedResponse {
+  content: Reel[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+  parentId?: number;
+}
+
+export interface LikeResponse {
+  id: number;
+  isLikedByMe: boolean;
+  likeCount: number;
+}
+
+export interface ReelDetailResponse extends Reel {
+  comments: ReelComment[];
+  userFollowed: boolean;
+}
