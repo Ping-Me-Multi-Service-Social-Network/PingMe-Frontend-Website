@@ -1,8 +1,9 @@
+import type { ArtistSummaryDto } from ".";
 import type { AlbumSummary } from "./albumSummary";
 import type { ArtistSummary } from "./artistSummary";
 import type { Genre } from "./genre";
 
-export type Song = {
+export type SongWithAllAlbum = {
   id: number;
   title: string;
   duration: number;
