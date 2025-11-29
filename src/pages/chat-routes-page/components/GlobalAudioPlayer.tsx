@@ -147,7 +147,7 @@ const GlobalAudioPlayer: React.FC = () => {
                 </p>
                 <p className="text-xs text-gray-400 truncate">
                   {currentSong.mainArtist.name}
-                  {currentSong.featuredArtists.length > 0 &&
+                  {currentSong.featuredArtists?.length > 0 &&
                     `, ${currentSong.featuredArtists
                       .map((a) => a.name)
                       .join(", ")}`}

@@ -1,6 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Users, FileText, BarChart3, Shield } from "lucide-react";
+import {
+  Users,
+  FileText,
+  BarChart3,
+  Shield,
+  Music,
+  Disc3,
+  User,
+  Tag,
+} from "lucide-react";
 
 const navItems = [
   {
@@ -18,6 +27,26 @@ const navItems = [
     label: "Thống kê",
     icon: BarChart3,
   },
+  {
+    path: "/admin/music",
+    label: "Quản lý nhạc",
+    icon: Music,
+  },
+  {
+    path: "/admin/albums",
+    label: "Quản lý album",
+    icon: Disc3,
+  },
+  {
+    path: "/admin/artists",
+    label: "Quản lý nghệ sĩ",
+    icon: User,
+  },
+  {
+    path: "/admin/genres",
+    label: "Quản lý thể loại",
+    icon: Tag,
+  },
 ];
 
 export default function AdminNavigation() {
@@ -34,7 +63,7 @@ export default function AdminNavigation() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
