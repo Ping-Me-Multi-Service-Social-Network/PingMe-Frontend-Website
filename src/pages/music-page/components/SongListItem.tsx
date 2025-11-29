@@ -60,7 +60,7 @@ export default function SongListItem({
         </p>
       </div>
       <div className="hidden sm:block text-sm text-zinc-500">
-        {song.album?.title || "Unknown Album"}
+        {/* {song.album?.title || "Unknown Album"} */}
       </div>
       <div className="text-sm text-zinc-500 text-right">
         <div>{formatDuration(song.duration)}</div>
