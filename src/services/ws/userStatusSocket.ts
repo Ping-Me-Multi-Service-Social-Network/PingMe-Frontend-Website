@@ -54,7 +54,7 @@ export async function connectUserStatusSocket(opts: userStatusWSOptions) {
         };
         opts.onStatus?.(ev); // thêm callback mới
       } catch (e) {
-        console.error("[PresenceWS] parse error:", e, msg.body);
+        console.error("[PingMe] parse error:", e, msg.body);
       }
     });
   };
