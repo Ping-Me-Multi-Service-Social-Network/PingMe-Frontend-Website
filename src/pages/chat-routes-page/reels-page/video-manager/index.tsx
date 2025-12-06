@@ -26,22 +26,34 @@ export default function VideoManagerPage() {
   );
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const fetchUserReels = useCallback(async (page: number) => {
+  const fetchUserReels = useCallback(async (page: number, append = false) => {
     if (!currentUserId) return;
     
     try {
-      setIsLoading(true);
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
       const res = await reelsApi.getMyCreatedReels(page, 10);
-      setUserReels(res.content);
+      
+      if (append) {
+        setUserReels((prev) => [...prev, ...res.content]);
+      } else {
+        setUserReels(res.content);
+      }
+      
       setCurrentPage(res.page);
-      setTotalPages(res.totalPages);
+      setHasMore(res.hasMore);
     } catch (err) {
       console.error("[v0] Error fetching user reels:", err);
       toast.error("Không thể tải danh sách video");
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   }, [currentUserId]);
 
@@ -65,17 +77,17 @@ export default function VideoManagerPage() {
   };
 
   const handleEditSuccess = () => {
-    fetchUserReels(currentPage);
+    fetchUserReels(0, false);
     setEditingReel(undefined);
   };
 
   const handleCreateSuccess = () => {
-    fetchUserReels(0);
+    fetchUserReels(0, false);
     setShowCreateModal(false);
   };
 
-  const handlePageChange = (newPage: number) => {
-    fetchUserReels(newPage);
+  const handleLoadMore = () => {
+    fetchUserReels(currentPage + 1, true);
   };
 
   return (
@@ -189,25 +201,16 @@ export default function VideoManagerPage() {
         )}
       </div>
 
-      {/* Pagination */}
-      {!isLoading && userReels.length > 0 && (
-        <div className="flex items-center justify-center gap-2 p-6 border-t border-gray-700">
+      {/* Load More Button */}
+      {!isLoading && userReels.length > 0 && hasMore && (
+        <div className="flex items-center justify-center p-6 border-t border-gray-700">
           <Button
             variant="outline"
-            disabled={currentPage === 0}
-            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={isLoadingMore}
+            onClick={handleLoadMore}
+            className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
           >
-            Trước
-          </Button>
-          <span className="text-gray-400">
-            Trang {currentPage + 1} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            disabled={currentPage >= totalPages - 1}
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            Sau
+            {isLoadingMore ? "Đang tải..." : "Xem thêm"}
           </Button>
         </div>
       )}

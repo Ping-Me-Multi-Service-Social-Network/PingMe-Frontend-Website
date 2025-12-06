@@ -27,6 +27,7 @@ import MusicManagementPage from "@/pages/admin-route-pages/music-management-page
 import AlbumManagementPage from "@/pages/admin-route-pages/album-management-page";
 import ArtistManagementPage from "@/pages/admin-route-pages/artist-management-page";
 import GenreManagementPage from "@/pages/admin-route-pages/genre-management-page";
+import ReelManagementPage from "@/pages/admin-route-pages/reel-management-page";
 import SongListPage from "@/pages/music-page/components/SongListPage";
 
 export const router = createBrowserRouter([
@@ -122,6 +123,7 @@ export const router = createBrowserRouter([
       { path: "albums", element: <AlbumManagementPage /> },
       { path: "artists", element: <ArtistManagementPage /> },
       { path: "genres", element: <GenreManagementPage /> },
+      { path: "reels", element: <ReelManagementPage /> },
     ],
   },
 ]);

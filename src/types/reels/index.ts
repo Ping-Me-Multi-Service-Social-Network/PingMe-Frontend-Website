@@ -117,3 +117,45 @@ export interface SearchHistoryResponse {
   totalPages: number
   hasMore: boolean
 }
+
+// Admin Reel types
+export interface AdminReel {
+  id: number
+  videoUrl: string
+  caption: string
+  viewCount: number
+  likeCount: number
+  commentCount: number
+  saveCount: number
+  userId: number
+  userName: string
+  userAvatarUrl: string | null
+  status: string | null
+  adminNote: string | null
+  createdAt: string
+}
+
+export interface AdminReelResponse {
+  content: AdminReel[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasMore: boolean
+}
+
+export interface AdminReelDetail {
+  id: number
+  videoUrl: string
+  caption: string
+  viewCount: number
+  likeCount: number
+  commentCount: number
+  saveCount: number
+  userId: number
+  userName: string
+  userAvatarUrl: string | null
+  status: string | null
+  adminNote: string | null
+  createdAt: string
+}

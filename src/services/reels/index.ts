@@ -11,6 +11,8 @@ import type {
   ReelDetailResponse,
   SaveResponse,
   SearchHistoryResponse,
+  AdminReelResponse,
+  AdminReelDetail,
 } from "@/types/reels"
 import type { ApiResponse } from "@/types/common/apiResponse"
 
@@ -196,5 +198,55 @@ export const reelsApi = {
   deleteAllSearchHistory: async () => {
     const response = await axiosClient.delete<ApiResponse<void>>(`/reels/me/search-history`)
     return response.data
+  },
+
+  // Admin: Get all reels with pagination and filter
+  getAdminReels: async (
+    page = 0, 
+    size = 10, 
+    caption?: string, 
+    userId?: number, 
+    minViews?: number, 
+    maxViews?: number,
+    from?: string,
+    to?: string
+  ) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    })
+    
+    if (caption && caption.trim()) {
+      params.append('caption', caption.trim())
+    }
+    
+    if (userId) {
+      params.append('userId', userId.toString())
+    }
+    
+    if (minViews !== undefined && minViews >= 0) {
+      params.append('minViews', minViews.toString())
+    }
+    
+    if (maxViews !== undefined && maxViews >= 0) {
+      params.append('maxViews', maxViews.toString())
+    }
+    
+    if (from && from.trim()) {
+      params.append('from', from.trim())
+    }
+    
+    if (to && to.trim()) {
+      params.append('to', to.trim())
+    }
+    
+    const response = await axiosClient.get<ApiResponse<AdminReelResponse>>(`/admin/reels?${params.toString()}`)
+    return response.data.data
+  },
+
+  // Admin: Get reel detail by ID
+  getAdminReelDetail: async (reelId: number) => {
+    const response = await axiosClient.get<ApiResponse<AdminReelDetail>>(`/admin/reels/${reelId}`)
+    return response.data.data
   },
 }
