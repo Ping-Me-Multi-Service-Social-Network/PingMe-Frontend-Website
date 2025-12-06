@@ -17,6 +17,7 @@ interface CommentsSectionProps {
   onCommentTextChange: (text: string) => void;
   onSubmitComment: (e: React.FormEvent) => void;
   isLoadingComments: boolean;
+  currentUserId?: number;
 }
 
 export default function CommentsSection({
@@ -27,6 +28,7 @@ export default function CommentsSection({
   onCommentTextChange,
   onSubmitComment,
   isLoadingComments,
+  currentUserId,
 }: CommentsSectionProps) {
   const [likedComments, setLikedComments] = useState<Set<number>>(new Set());
 
@@ -132,6 +134,29 @@ export default function CommentsSection({
                       </Button>
                     </div>
                   </div>
+
+                  {/* Three Dots Menu - Only for current user's comments */}
+                  {currentUserId && comment.userId === currentUserId && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        // Handle menu open logic here
+                      }}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                      >
+                        <circle cx="8" cy="3" r="1.5" />
+                        <circle cx="8" cy="8" r="1.5" />
+                        <circle cx="8" cy="13" r="1.5" />
+                      </svg>
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
