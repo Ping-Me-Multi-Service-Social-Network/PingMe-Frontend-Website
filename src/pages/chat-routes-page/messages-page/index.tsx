@@ -258,7 +258,7 @@ export default function MessagesPage() {
   // =======================================================================
   const handleMemberRemoved = useCallback(
     (event: RoomMemberRemovedEventPayload) => {
-      console.log("Test");
+      console.log("[PingMe] Member removed event:", event);
 
       const isCurrentUserRemoved = event.targetUserId === userSession?.id;
 
@@ -381,7 +381,7 @@ export default function MessagesPage() {
   // =======================================================================
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-900">
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
         <SharedTopBar
           onFriendAdded={refetchRooms}

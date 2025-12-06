@@ -34,7 +34,7 @@ function createFormDataForArtist(
     formData.append("imgFile", imgFile);
   }
 
-  console.log("[v0] FormData for artist:", formData);
+  console.log("[PingMe] FormData for artist:", formData);
   return formData;
 }
 
@@ -45,8 +45,8 @@ function createFormDataForAlbum(
 
   const { imgFile, ...requestData } = data;
 
-  console.log("[v0] Creating FormData for album with data:", data);
-  console.log("[v0] Request data (without file):", requestData);
+  console.log("[PingMe] Creating FormData for album with data:", data);
+  console.log("[PingMe] Request data (without file):", requestData);
 
   const jsonBlob = new Blob([JSON.stringify(requestData)], {
     type: "application/json",
@@ -54,15 +54,15 @@ function createFormDataForAlbum(
   formData.append("albumRequest", jsonBlob);
 
   if (imgFile) {
-    console.log("[v0] Adding album cover image file:", imgFile.name);
+    console.log("[PingMe] Adding album cover image file:", imgFile.name);
     formData.append("albumCoverImg", imgFile);
   } else {
-    console.log("[v0] No album cover image provided");
+    console.log("[PingMe] No album cover image provided");
   }
 
-  console.log("[v0] Final FormData entries:");
+  console.log("[PingMe] Final FormData entries:");
   for (const pair of formData.entries()) {
-    console.log("[v0]", pair[0], ":", pair[1]);
+    console.log("[PingMe]", pair[0], ":", pair[1]);
   }
 
   return formData;
@@ -75,8 +75,8 @@ function createFormDataForSong(
 
   const { musicFile, imgFile, ...requestData } = data;
 
-  console.log("[v0] Creating FormData for song with data:", data);
-  console.log("[v0] Request data (without files):", requestData);
+  console.log("[PingMe] Creating FormData for song with data:", data);
+  console.log("[PingMe] Request data (without files):", requestData);
 
   const jsonBlob = new Blob([JSON.stringify(requestData)], {
     type: "application/json",
@@ -84,22 +84,22 @@ function createFormDataForSong(
   formData.append("songRequest", jsonBlob);
 
   if (musicFile) {
-    console.log("[v0] Adding music file:", musicFile.name);
+    console.log("[PingMe] Adding music file:", musicFile.name);
     formData.append("musicFile", musicFile);
   } else {
-    console.log("[v0] No music file provided");
+    console.log("[PingMe] No music file provided");
   }
 
   if (imgFile) {
-    console.log("[v0] Adding cover image file:", imgFile.name);
+    console.log("[PingMe] Adding cover image file:", imgFile.name);
     formData.append("imgFile", imgFile);
   } else {
-    console.log("[v0] No cover image provided");
+    console.log("[PingMe] No cover image provided");
   }
 
-  console.log("[v0] Final FormData entries for song:");
+  console.log("[PingMe] Final FormData entries for song:");
   for (const pair of formData.entries()) {
-    console.log("[v0]", pair[0], ":", pair[1]);
+    console.log("[PingMe]", pair[0], ":", pair[1]);
   }
 
   return formData;
@@ -154,7 +154,7 @@ export const songService = {
   },
 
   create: async (data: SongRequest): Promise<SongResponseWithAllAlbum> => {
-    console.log("[v0] Creating song with data:", data);
+    console.log("[PingMe] Creating song with data:", data);
     const formData = createFormDataForSong(data);
     const response = await axiosClient.post<SongResponseWithAllAlbum[]>(
       `${BASE_URL}/songs/save`,
@@ -163,7 +163,7 @@ export const songService = {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    console.log("[v0] Song create response:", response.data);
+    console.log("[PingMe] Song create response:", response.data);
     // Backend returns List, so return first item
     return Array.isArray(response.data) ? response.data[0] : response.data;
   },
@@ -172,7 +172,7 @@ export const songService = {
     id: number,
     data: Partial<SongRequest>
   ): Promise<SongResponseWithAllAlbum> => {
-    console.log("[v0] Updating song", id, "with data:", data);
+    console.log("[PingMe] Updating song", id, "with data:", data);
     const formData = createFormDataForSong(data);
     const response = await axiosClient.put<SongResponseWithAllAlbum[]>(
       `${BASE_URL}/songs/update/${id}`,
@@ -181,7 +181,7 @@ export const songService = {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    console.log("[v0] Song update response:", response.data);
+    console.log("[PingMe] Song update response:", response.data);
     // Backend returns List, so return first item
     return Array.isArray(response.data) ? response.data[0] : response.data;
   },

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -44,7 +42,7 @@ export function EditReelModal({
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.log("[v0] Update reel error:", error);
+      console.log("[PingMe] Update reel error:", error);
       toast.error("Không thể cập nhật reel");
     } finally {
       setIsLoading(false);

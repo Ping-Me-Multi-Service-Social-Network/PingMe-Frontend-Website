@@ -4,7 +4,6 @@ import { AccountSearchFilters } from "./components/AccountSearchFilters";
 import { AccountManagementTable } from "./components/AccountManagementTable";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 
-// Mock data
 const mockUsers: UserSummaryResponse[] = [
   {
     id: 1,
@@ -41,7 +40,7 @@ export default function AccountManagementPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
 
   const handleViewDetails = (userId: number) => {
-    console.log("View details for user ID:", userId);
+    console.log("[PingMe] View details for user ID:", userId);
   };
 
   return (

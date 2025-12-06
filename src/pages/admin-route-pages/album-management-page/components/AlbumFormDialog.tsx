@@ -79,24 +79,24 @@ export function AlbumFormDialog({
       return;
     }
 
-    console.log("[v0] Submitting album form with data:", formData);
-    console.log("[v0] Is update?", !!album);
-    console.log("[v0] Album ID:", album?.id);
+    console.log("[PingMe] Submitting album form with data:", formData);
+    console.log("[PingMe] Is update?", !!album);
+    console.log("[PingMe] Album ID:", album?.id);
 
     try {
       setLoading(true);
       if (album) {
-        console.log("[v0] Calling albumService.update");
+        console.log("[PingMe] Calling albumService.update");
         await albumService.update(album.id, formData);
         toast.success("Cập nhật album thành công");
       } else {
-        console.log("[v0] Calling albumService.create");
+        console.log("[PingMe] Calling albumService.create");
         await albumService.create(formData);
         toast.success("Thêm album thành công");
       }
       onSuccess();
     } catch (error) {
-      console.error("[v0] Album form submission error:", error);
+      console.error("[PingMe] Album form submission error:", error);
       toast.error(album ? "Không thể cập nhật album" : "Không thể thêm album");
       console.error(error);
     } finally {

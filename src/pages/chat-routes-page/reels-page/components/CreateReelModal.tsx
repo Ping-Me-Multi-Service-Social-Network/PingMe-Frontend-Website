@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState, useRef } from "react";
@@ -90,7 +88,9 @@ export function CreateReelModal({
     }
   };
 
-  const handleHashtagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleHashtagInputKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddHashtag();
@@ -112,7 +112,7 @@ export function CreateReelModal({
     try {
       // Combine caption with hashtags
       const fullCaption = `${caption.trim()} ${hashtags.join(" ")}`;
-      
+
       await reelsApi.createReel({
         video: videoFile,
         caption: fullCaption,
@@ -126,7 +126,7 @@ export function CreateReelModal({
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.log("[v0] Create reel error:", error);
+      console.log("[PingMe] Create reel error:", error);
       toast.error("Không thể tạo reel");
     } finally {
       setIsLoading(false);
@@ -202,7 +202,7 @@ export function CreateReelModal({
               Hashtags
               <span className="text-red-500">*</span>
             </label>
-            
+
             {/* Selected Hashtags */}
             {hashtags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
@@ -239,7 +239,7 @@ export function CreateReelModal({
                 onClick={handleAddHashtag}
                 variant="outline"
                 size="sm"
-                className="px-4"
+                className="px-4 bg-transparent"
               >
                 Thêm
               </Button>

@@ -88,18 +88,17 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
       if (currentSong && audio.duration > 0) {
         const progress = audio.currentTime / audio.duration;
 
-        // If user has listened to more than 50% and we haven't tracked this song yet
         if (
           progress > 0.5 &&
           !playCountTrackedRef.current.has(currentSong.id)
         ) {
           playCountTrackedRef.current.add(currentSong.id);
           console.log(
-            "[v0] User listened to >50% of song, increasing play count for:",
+            "[PingMe] User listened to >50% of song, increasing play count for:",
             currentSong.title
           );
           songService.increasePlayCount(currentSong.id).catch((error) => {
-            console.error("[v0] Failed to increase play count:", error);
+            console.error("[PingMe] Failed to increase play count:", error);
           });
         }
       }

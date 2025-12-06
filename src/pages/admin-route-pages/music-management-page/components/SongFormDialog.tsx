@@ -70,13 +70,13 @@ export function SongFormDialog({
     if (open) {
       fetchData();
       if (song) {
-        console.log("[v0] Song data received:", song);
-        console.log("[v0] Song otherArtists:", song.otherArtists);
+        console.log("[PingMe] Song data received:", song);
+        console.log("[PingMe] Song otherArtists:", song.otherArtists);
 
         const mappedOtherArtists =
           song.otherArtists?.map((a) => {
             console.log(
-              "[v0] Mapping artist - id:",
+              "[PingMe] Mapping artist - id:",
               a.id,
               "name:",
               a.name,
@@ -89,7 +89,10 @@ export function SongFormDialog({
             };
           }) || [];
 
-        console.log("[v0] Mapped otherArtists for form:", mappedOtherArtists);
+        console.log(
+          "[PingMe] Mapped otherArtists for form:",
+          mappedOtherArtists
+        );
 
         setFormData({
           title: song.title,
@@ -277,17 +280,17 @@ export function SongFormDialog({
               {formData.otherArtists.length > 0 ? (
                 formData.otherArtists.map((artist, index) => {
                   console.log(
-                    "[v0] Rendering otherArtist at index",
+                    "[PingMe] Rendering otherArtist at index",
                     index,
                     ":",
                     artist
                   );
                   console.log(
-                    "[v0] Artist value for Select:",
+                    "[PingMe] Artist value for Select:",
                     artist.artistId.toString()
                   );
                   console.log(
-                    "[v0] Available artists:",
+                    "[PingMe] Available artists:",
                     artists.map((a) => a.id)
                   );
 
