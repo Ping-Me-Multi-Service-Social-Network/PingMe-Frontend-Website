@@ -205,7 +205,7 @@ export function connectChatWS(opts: ChatWSOptions) {
           // FALLBACK
           // ============================================
           default:
-            console.warn("[ChatWS] Unknown event:", ev);
+            console.warn("[PingMe] Unknown event:", ev);
         }
       } catch (err) {
         toast.error(getErrorMessage(err, "Lỗi xử lý dữ liệu từ máy chủ"));
@@ -222,14 +222,14 @@ export function connectChatWS(opts: ChatWSOptions) {
   // Chưa hoàn thiện
   client.onStompError = (frame) => {
     console.error(
-      "[ChatWS] STOMP error:",
+      "[PingMe] STOMP error:",
       frame.headers["message"],
       frame.body
     );
   };
 
   client.onWebSocketError = (ev) => {
-    console.error("[ChatWS] WebSocket error:", ev);
+    console.error("[PingMe] WebSocket error:", ev);
   };
   // ---------------------------------------------------------------------------------------------------------
 
@@ -243,7 +243,7 @@ export function connectChatWS(opts: ChatWSOptions) {
         roomMsgSub?.unsubscribe();
         roomReadSub?.unsubscribe();
       } catch (e) {
-        console.warn("[ChatWS] cleanup subs err:", e);
+        console.warn("[PingMe] cleanup subs err:", e);
       }
       roomMsgSub = null;
       roomReadSub = null;
@@ -266,7 +266,7 @@ export function disconnectChatWS() {
     roomReadSub = null;
     currentRoomIdRef = null;
   } catch (e) {
-    console.warn("[ChatWS] unsubscribe on disconnect err:", e);
+    console.warn("[PingMe] unsubscribe on disconnect err:", e);
   }
   client?.deactivate();
   client = null;
@@ -319,7 +319,7 @@ function _subscribeRoomMessages(roomId: number) {
   try {
     roomMsgSub?.unsubscribe();
   } catch (e) {
-    console.warn("[ChatWS] _subscribeRoomMessages old unsub err:", e);
+    console.warn("[PingMe] _subscribeRoomMessages old unsub err:", e);
   }
 
   const dest = `/topic/rooms/${roomId}/messages`;
@@ -339,7 +339,7 @@ function _subscribeRoomMessages(roomId: number) {
           break;
       }
     } catch (e) {
-      console.error("[ChatWS] parse MESSAGE event error:", e, msg.body);
+      console.error("[PingMe] parse MESSAGE event error:", e, msg.body);
     }
   });
 }
@@ -350,7 +350,7 @@ function _subscribeRoomReadStates(roomId: number) {
   try {
     roomReadSub?.unsubscribe();
   } catch (e) {
-    console.warn("[ChatWS] _subscribeRoomReadStates old unsub err:", e);
+    console.warn("[PingMe] _subscribeRoomReadStates old unsub err:", e);
   }
 
   const dest = `/topic/rooms/${roomId}/read-states`;
@@ -361,7 +361,7 @@ function _subscribeRoomReadStates(roomId: number) {
         lastOpts?.onReadStateChanged?.(ev);
       }
     } catch (e) {
-      console.error("[ChatWS] parse READ_STATE_CHANGED error:", e, msg.body);
+      console.error("[PingMe] parse READ_STATE_CHANGED error:", e, msg.body);
     }
   });
 }

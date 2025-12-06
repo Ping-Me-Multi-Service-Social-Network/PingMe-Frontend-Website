@@ -8,6 +8,7 @@ import {
 import { AudioPlayerContext } from "./AudioPlayerContext";
 import type { Song } from "@/types/music/song";
 import type { RepeatMode } from "./audioPlayerTypes";
+import { songService } from "@/services/music/musicService";
 
 interface AudioPlayerProviderProps {
   children: ReactNode;
@@ -23,9 +24,12 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("off");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const playCountTrackedRef = useRef<Set<number>>(new Set());
+
   const playSong = useCallback((song: Song) => {
     setCurrentSong(song);
     setIsPlaying(true);
+    playCountTrackedRef.current.delete(song.id);
     if (audioRef.current) {
       audioRef.current.src = song.songUrl;
       audioRef.current.play().catch(console.error);
@@ -80,6 +84,25 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
+
+      if (currentSong && audio.duration > 0) {
+        const progress = audio.currentTime / audio.duration;
+
+        // If user has listened to more than 50% and we haven't tracked this song yet
+        if (
+          progress > 0.5 &&
+          !playCountTrackedRef.current.has(currentSong.id)
+        ) {
+          playCountTrackedRef.current.add(currentSong.id);
+          console.log(
+            "[v0] User listened to >50% of song, increasing play count for:",
+            currentSong.title
+          );
+          songService.increasePlayCount(currentSong.id).catch((error) => {
+            console.error("[v0] Failed to increase play count:", error);
+          });
+        }
+      }
     };
 
     const handleDurationChange = () => {
@@ -98,6 +121,7 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
           const nextIndex = (currentIndex + 1) % playlist.length;
           const nextSong = playlist[nextIndex];
           setCurrentSong(nextSong);
+          playCountTrackedRef.current.delete(nextSong.id);
           audio.src = nextSong.songUrl;
           audio.play().catch(console.error);
         }

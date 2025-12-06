@@ -76,7 +76,7 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
         const ev = JSON.parse(msg.body) as FriendshipEventPayload;
         opts.onEvent(ev);
       } catch (e) {
-        console.error("[FriendshipWS] parse error:", e, msg.body);
+        console.error("[PingMeWS] parse error:", e, msg.body);
       }
     });
 
@@ -93,14 +93,14 @@ export async function connectFriendshipWS(opts: FriendshipWSOptions) {
 
   client.onStompError = (frame) => {
     console.error(
-      "[FriendshipWS] STOMP error:",
+      "[PingMeWS] STOMP error:",
       frame.headers["message"],
       frame.body
     );
   };
 
   client.onWebSocketError = (ev) => {
-    console.error("[FriendshipWS] WebSocket error:", ev);
+    console.error("[PingMeWS] WebSocket error:", ev);
   };
 
   client.onDisconnect = () => {
