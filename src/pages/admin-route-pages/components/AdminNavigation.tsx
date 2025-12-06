@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  Video,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -65,6 +66,16 @@ const navGroups = [
         path: "/admin/genres",
         label: "Quản lý thể loại",
         icon: Tag,
+      },
+    ],
+  },
+  {
+    name: "Ping Reel",
+    items: [
+      {
+        path: "/admin/reels",
+        label: "Quản lý reels",
+        icon: Video,
       },
     ],
   },
