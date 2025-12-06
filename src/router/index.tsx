@@ -99,6 +99,8 @@ export const router = createBrowserRouter([
       {
         path: "reels/video-manager",
         element: <VideoManagerPage />,
+      },
+      {
         path: "music/songs",
         element: <SongListPage />,
       },
