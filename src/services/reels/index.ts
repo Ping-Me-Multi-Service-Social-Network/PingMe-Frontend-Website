@@ -10,6 +10,7 @@ import type {
   ReactionType,
   ReelDetailResponse,
   SaveResponse,
+  SearchHistoryResponse,
 } from "@/types/reels"
 import type { ApiResponse } from "@/types/common/apiResponse"
 
@@ -169,5 +170,19 @@ export const reelsApi = {
   getUserViewedReels: async (page = 0, size = 20) => {
     const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(`/reels/me/views?page=${page}&size=${size}`)
     return response.data.data
+  },
+
+  // Get search history
+  getSearchHistory: async (page = 0, size = 20) => {
+    const response = await axiosClient.get<ApiResponse<SearchHistoryResponse>>(
+      `/reels/me/search-history?page=${page}&size=${size}`,
+    )
+    return response.data.data
+  },
+
+  // Delete search history item
+  deleteSearchHistory: async (id: number) => {
+    const response = await axiosClient.delete<ApiResponse<void>>(`/reels/me/search-history/${id}`)
+    return response.data
   },
 }

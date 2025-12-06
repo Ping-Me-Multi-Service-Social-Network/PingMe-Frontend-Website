@@ -101,3 +101,19 @@ export interface ReelDetailResponse extends Reel {
   comments: ReelComment[]
   userFollowed: boolean
 }
+
+export interface SearchHistoryItem {
+  id: number
+  query: string
+  searchedAt: string
+  userId: number
+}
+
+export interface SearchHistoryResponse {
+  content: SearchHistoryItem[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasMore: boolean
+}
