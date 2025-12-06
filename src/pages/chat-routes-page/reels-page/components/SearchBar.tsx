@@ -155,6 +155,17 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
     }
   }
 
+  const handleDeleteAllHistory = async () => {
+    try {
+      await reelsApi.deleteAllSearchHistory()
+      setSearchHistory([])
+      toast.success("Đã xóa toàn bộ lịch sử tìm kiếm")
+    } catch (err) {
+      console.error("Error deleting all search history:", err)
+      toast.error("Không thể xóa toàn bộ lịch sử tìm kiếm")
+    }
+  }
+
   return (
     <div ref={searchBoxRef} className="relative w-full">
       <div className="relative flex items-center">
@@ -183,9 +194,19 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
           {showHistory && !query ? (
             // Show search history
             <div className="py-2">
-              <div className="px-4 py-2 flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase">
-                <History className="w-4 h-4" />
-                Lịch sử tìm kiếm
+              <div className="px-4 py-2 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase">
+                  <History className="w-4 h-4" />
+                  Lịch sử tìm kiếm
+                </div>
+                {searchHistory.length > 0 && (
+                  <button
+                    onClick={handleDeleteAllHistory}
+                    className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors"
+                  >
+                    Xóa tất cả
+                  </button>
+                )}
               </div>
               {isLoadingHistory ? (
                 <div className="p-4 text-center text-gray-400 text-sm">Đang tải...</div>

@@ -172,6 +172,12 @@ export const reelsApi = {
     return response.data.data
   },
 
+  // Get my created reels
+  getMyCreatedReels: async (page = 0, size = 10) => {
+    const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(`/reels/me/created?page=${page}&size=${size}`)
+    return response.data.data
+  },
+
   // Get search history
   getSearchHistory: async (page = 0, size = 20) => {
     const response = await axiosClient.get<ApiResponse<SearchHistoryResponse>>(
@@ -183,6 +189,12 @@ export const reelsApi = {
   // Delete search history item
   deleteSearchHistory: async (id: number) => {
     const response = await axiosClient.delete<ApiResponse<void>>(`/reels/me/search-history/${id}`)
+    return response.data
+  },
+
+  // Delete all search history
+  deleteAllSearchHistory: async () => {
+    const response = await axiosClient.delete<ApiResponse<void>>(`/reels/me/search-history`)
     return response.data
   },
 }

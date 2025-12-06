@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 import { Edit2, Trash2, ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { reelsApi } from "@/services/reels";
@@ -15,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function VideoManagerPage() {
   const navigate = useNavigate();
+  const currentUserId = useSelector((state: any) => state.auth.userSession?.id);
   const [userReels, setUserReels] = useState<Reel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingReel, setEditingReel] = useState<Reel | undefined>();
@@ -27,9 +29,11 @@ export default function VideoManagerPage() {
   const [totalPages, setTotalPages] = useState(0);
 
   const fetchUserReels = useCallback(async (page: number) => {
+    if (!currentUserId) return;
+    
     try {
       setIsLoading(true);
-      const res = await reelsApi.getReelFeed(page, 10);
+      const res = await reelsApi.getMyCreatedReels(page, 10);
       setUserReels(res.content);
       setCurrentPage(res.page);
       setTotalPages(res.totalPages);
@@ -39,7 +43,7 @@ export default function VideoManagerPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
     fetchUserReels(0);
