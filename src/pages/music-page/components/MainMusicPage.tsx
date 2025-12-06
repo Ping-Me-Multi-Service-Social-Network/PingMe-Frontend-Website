@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -143,7 +141,7 @@ export default function MainMusicPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 pb-32">
+    <div className="flex-1 overflow-y-auto bg-gray-900 pb-32">
       <div className="max-w-7xl mx-auto px-8 py-8 space-y-10">
         <section className="relative">
           <div className="relative flex items-center">

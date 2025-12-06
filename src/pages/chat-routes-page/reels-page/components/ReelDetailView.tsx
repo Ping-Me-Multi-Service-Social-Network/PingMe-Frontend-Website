@@ -1,22 +1,31 @@
-"use client"
-
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { useSelector } from "react-redux"
-import { Heart, MessageCircle, Share2, User, Bookmark, BookMarked, Play, Pause, Volume2, VolumeX } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { Reel, ReelComment } from "@/types/reels"
-import { reelsApi } from "@/services/reels"
-import { formatDistanceToNow } from "date-fns"
-import { vi } from "date-fns/locale"
-import { toast } from "sonner"
-import CommentsModal from "./CommentsModal"
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  User,
+  Bookmark,
+  BookMarked,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { Reel, ReelComment } from "@/types/reels";
+import { reelsApi } from "@/services/reels";
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
+import { toast } from "sonner";
+import CommentsModal from "./CommentsModal";
+import { useAppSelector } from "@/features/hooks";
 
 interface ReelDetailViewProps {
-  reel: Reel
-  onUpdate?: (reel: Reel) => void
-  onDelete?: (reelId: number) => void
-  onEdit?: (reel: Reel) => void
+  reel: Reel;
+  onUpdate?: (reel: Reel) => void;
+  onDelete?: (reelId: number) => void;
+  onEdit?: (reel: Reel) => void;
 }
 
 export default function ReelDetailView({
@@ -26,199 +35,217 @@ export default function ReelDetailView({
   isActive,
   togglePlaySignal,
 }: ReelDetailViewProps & { isActive?: boolean; togglePlaySignal?: number }) {
-  const currentUserId = useSelector((state: any) => state.auth.userSession?.id)
-  const [isVideoHovered, setIsVideoHovered] = useState(false)
-  const [isLiking, setIsLiking] = useState(false)
-  const [comments, setComments] = useState<ReelComment[]>([])
-  const [isLoadingComments, setIsLoadingComments] = useState(false)
-  const [commentText, setCommentText] = useState("")
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
-  const [showComments, setShowComments] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const currentUserId = useAppSelector((state) => state.auth.userSession.id);
+  const [isVideoHovered, setIsVideoHovered] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [comments, setComments] = useState<ReelComment[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const [isPlaying, setIsPlaying] = useState(true)
-  const [isMuted, setIsMuted] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [playbackSpeed, setPlaybackSpeed] = useState(1)
-  const [lastClickTime, setLastClickTime] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const [isSavedByMe, setIsSavedByMe] = useState(reel.isSavedByMe || false)
-  const [isTogglingSave, setIsTogglingSave] = useState(false)
+  const [isSavedByMe, setIsSavedByMe] = useState(reel.isSavedByMe || false);
+  const [isTogglingSave, setIsTogglingSave] = useState(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleLike = async () => {
-    setIsLiking(true)
+    setIsLiking(true);
     try {
-      const updated = await reelsApi.toggleLike(reel.id)
+      const updated = await reelsApi.toggleLike(reel.id);
       if (onUpdate) {
         onUpdate({
           ...reel,
           isLikedByMe: updated.isLikedByMe,
           likeCount: updated.likeCount,
-        })
+        });
       }
     } catch (err) {
-      console.error("[v0] Error toggling like:", err)
+      console.error("[v0] Error toggling like:", err);
     } finally {
-      setIsLiking(false)
+      setIsLiking(false);
     }
-  }
+  };
 
   const handleToggleSave = async () => {
-    setIsTogglingSave(true)
+    setIsTogglingSave(true);
     try {
-      const result = await reelsApi.toggleSave(reel.id)
-      setIsSavedByMe(result.isSavedByMe)
+      const result = await reelsApi.toggleSave(reel.id);
+      setIsSavedByMe(result.isSavedByMe);
       if (onUpdate) {
         onUpdate({
           ...reel,
           isSavedByMe: result.isSavedByMe,
-        })
+        });
       }
     } catch (err) {
-      console.error("[v0] Error toggling save:", err)
+      console.error("[v0] Error toggling save:", err);
     } finally {
-      setIsTogglingSave(false)
+      setIsTogglingSave(false);
     }
-  }
+  };
 
   const handleLoadComments = async () => {
     if (comments.length === 0 && !isLoadingComments) {
-      setIsLoadingComments(true)
+      setIsLoadingComments(true);
       try {
-        const res = await reelsApi.getComments(reel.id, 0, 20)
-        setComments(res.content)
+        const res = await reelsApi.getComments(reel.id, 0, 20);
+        setComments(res.content);
       } catch (err) {
-        console.error("[v0] Error loading comments:", err)
+        console.error("[v0] Error loading comments:", err);
       } finally {
-        setIsLoadingComments(false)
+        setIsLoadingComments(false);
       }
     }
-    setShowComments(true)
-  }
+    setShowComments(true);
+  };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!commentText.trim()) return
+    e.preventDefault();
+    if (!commentText.trim()) return;
 
-    setIsSubmittingComment(true)
+    setIsSubmittingComment(true);
     try {
       const newComment = await reelsApi.createComment(reel.id, {
         content: commentText,
-      })
-      setComments((prev) => [newComment, ...prev])
-      setCommentText("")
+      });
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText("");
 
       if (onUpdate) {
         onUpdate({
           ...reel,
           commentCount: reel.commentCount + 1,
-        })
+        });
       }
     } catch (err) {
-      console.error("[v0] Error submitting comment:", err)
+      console.error("[v0] Error submitting comment:", err);
     } finally {
-      setIsSubmittingComment(false)
+      setIsSubmittingComment(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      await reelsApi.deleteReel(reel.id)
-      toast.success("Xóa reel thành công")
-      onDelete?.(reel.id)
+      await reelsApi.deleteReel(reel.id);
+      toast.success("Xóa reel thành công");
+      onDelete?.(reel.id);
     } catch (err) {
-      console.error("[v0] Error deleting reel:", err)
-      toast.error("Không thể xóa reel")
+      console.error("[v0] Error deleting reel:", err);
+      toast.error("Không thể xóa reel");
     } finally {
-      setIsDeleting(false)
-      setShowDeleteConfirm(false)
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
-  }
+  };
 
-  const handleVideoDoubleClick = () => {
-    const now = Date.now()
-    const timeDiff = now - lastClickTime
-
-    if (timeDiff < 300) {
-      handleLike()
+  const handleVideoDoubleClickModified = () => {
+    // Clear single click timeout since this is a double click
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      setClickTimeout(null);
     }
-    setLastClickTime(now)
-  }
+
+    handleLike();
+  };
+
+  const handleVideoClick = () => {
+    // Clear any existing timeout
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      setClickTimeout(null);
+    }
+
+    // Set a timeout to detect single click (not double click)
+    const timeout = setTimeout(() => {
+      handlePlayPause();
+      setClickTimeout(null);
+    }, 250); // Wait 250ms to see if it's a double click
+
+    setClickTimeout(timeout);
+  };
 
   const handlePlayPause = () => {
-    if (!videoRef.current) return
-    if (isPlaying) videoRef.current.pause()
-    else videoRef.current.play()
-    setIsPlaying(!isPlaying)
-  }
+    if (!videoRef.current) return;
+    if (isPlaying) videoRef.current.pause();
+    else videoRef.current.play();
+    setIsPlaying(!isPlaying);
+  };
 
   const handleMuteToggle = () => {
-    if (!videoRef.current) return
-    videoRef.current.muted = !isMuted
-    setIsMuted(!isMuted)
-  }
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
 
   const handleSpeedChange = () => {
-    if (!videoRef.current) return
-    const speeds = [0.5, 1, 1.5, 2]
-    const currentIndex = speeds.indexOf(playbackSpeed)
-    const nextSpeed = speeds[(currentIndex + 1) % speeds.length]
-    videoRef.current.playbackRate = nextSpeed
-    setPlaybackSpeed(nextSpeed)
-  }
+    if (!videoRef.current) return;
+    const speeds = [0.5, 1, 1.5, 2];
+    const currentIndex = speeds.indexOf(playbackSpeed);
+    const nextSpeed = speeds[(currentIndex + 1) % speeds.length];
+    videoRef.current.playbackRate = nextSpeed;
+    setPlaybackSpeed(nextSpeed);
+  };
 
   const handleSeek = (time: number) => {
-    if (!videoRef.current) return
-    videoRef.current.currentTime = time
-    setCurrentTime(time)
-  }
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = time;
+    setCurrentTime(time);
+  };
 
   const handleStop = () => {
-    if (!videoRef.current) return
-    videoRef.current.currentTime = 0
-    videoRef.current.pause()
-    setIsPlaying(false)
-    setCurrentTime(0)
-  }
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = 0;
+    videoRef.current.pause();
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const video = videoRef.current;
+    if (!video) return;
 
     if (isActive) {
-      video.play().catch(() => {})
-      reelsApi.incrementViewCount(reel.id).catch((err) => console.error("[v0] Error incrementing views:", err))
+      video.play().catch(() => {});
+      reelsApi
+        .incrementViewCount(reel.id)
+        .catch((err) => console.error("[v0] Error incrementing views:", err));
     } else {
-      video.pause()
+      video.pause();
       try {
-        video.currentTime = 0
+        video.currentTime = 0;
       } catch {
         // Ignore errors on setting currentTime
       }
-      setIsPlaying(false)
+      setIsPlaying(false);
     }
-  }, [reel.id, isActive])
+  }, [reel.id, isActive]);
 
   // Respond to global togglePlaySignal: toggle play/pause for the active reel
   useEffect(() => {
-    if (typeof togglePlaySignal === "undefined") return
-    if (!isActive) return
-    const video = videoRef.current
-    if (!video) return
+    if (typeof togglePlaySignal === "undefined") return;
+    if (!isActive) return;
+    const video = videoRef.current;
+    if (!video) return;
 
     if (video.paused) {
-      video.play().catch(() => {})
-      setIsPlaying(true)
+      video.play().catch(() => {});
+      setIsPlaying(true);
     } else {
-      video.pause()
-      setIsPlaying(false)
+      video.pause();
+      setIsPlaying(false);
     }
-  }, [togglePlaySignal, isActive])
+  }, [togglePlaySignal, isActive]);
 
   return (
     <div className="relative w-full h-full flex bg-gray-900">
@@ -229,27 +256,33 @@ export default function ReelDetailView({
           Mọi UI khác giữ nguyên vị trí như cũ.
         */}
         <div
-          className="relative inline-block h-full w-auto max-w-full"
+          className="relative inline-block h-full w-auto max-w-full max-h-[90vh]"
           onMouseEnter={() => setIsVideoHovered(true)}
           onMouseLeave={() => setIsVideoHovered(false)}
         >
           <video
             ref={videoRef}
             src={reel.videoUrl}
-            className="h-full w-auto max-w-full object-contain cursor-pointer"
-            onDoubleClick={handleVideoDoubleClick}
-            onClick={(e) => e.stopPropagation()}
+            className="max-h-full w-auto max-w-full object-contain cursor-pointer"
+            onDoubleClick={handleVideoDoubleClickModified}
+            onClick={handleVideoClick}
             controlsList="nodownload"
             loop
-            onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
-            onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
+            onTimeUpdate={(e) =>
+              setCurrentTime((e.target as HTMLVideoElement).currentTime)
+            }
+            onLoadedMetadata={(e) =>
+              setDuration((e.target as HTMLVideoElement).duration)
+            }
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />
 
           <div
             className={`absolute bottom-2 left-2 right-2 transition-opacity z-10 ${
-              isVideoHovered ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              isVideoHovered
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none"
             }`}
           >
             {/* Progress Bar */}
@@ -275,7 +308,11 @@ export default function ReelDetailView({
                 className="h-8 w-8 text-white hover:bg-white/20 p-0"
                 onClick={handlePlayPause}
               >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isPlaying ? (
+                  <Pause className="w-4 h-4" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
               </Button>
 
               <Button
@@ -284,7 +321,11 @@ export default function ReelDetailView({
                 className="h-8 w-8 text-white hover:bg-white/20 p-0"
                 onClick={handleMuteToggle}
               >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                {isMuted ? (
+                  <VolumeX className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
               </Button>
 
               <Button
@@ -338,7 +379,9 @@ export default function ReelDetailView({
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Xóa Reel?</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Xóa Reel?
+              </h3>
               <p className="text-gray-600 text-sm mb-6">
                 Bạn có chắc muốn xóa reel này? Hành động này không thể hoàn tác.
               </p>
@@ -351,7 +394,12 @@ export default function ReelDetailView({
                 >
                   Hủy
                 </Button>
-                <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="flex-1">
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="flex-1"
+                >
                   {isDeleting ? "Đang xóa..." : "Xóa"}
                 </Button>
               </div>
@@ -362,8 +410,12 @@ export default function ReelDetailView({
         {/* Caption and Content Info - GIỮ NGUYÊN như cũ */}
         <div className="absolute top-22 left-6 right-20 opacity-0 group-hover:opacity-100 transition-opacity max-w-sm z-10 pointer-events-none">
           <div className="pointer-events-auto">
-            <div className="text-white text-xs mb-2 px-2 py-1 bg-blue-600 rounded-full w-fit">Nội dung video</div>
-            <p className="text-white text-sm leading-relaxed line-clamp-3">{reel.caption || "Không có mô tả"}</p>
+            <div className="text-white text-xs mb-2 px-2 py-1 bg-blue-600 rounded-full w-fit">
+              Nội dung video
+            </div>
+            <p className="text-white text-sm leading-relaxed line-clamp-3">
+              {reel.caption || "Không có mô tả"}
+            </p>
           </div>
         </div>
 
@@ -378,9 +430,15 @@ export default function ReelDetailView({
               onClick={handleLike}
               disabled={isLiking}
             >
-              <Heart className={`w-6 h-6 ${reel.isLikedByMe ? "fill-red-600 text-red-600" : ""}`} />
+              <Heart
+                className={`w-6 h-6 ${
+                  reel.isLikedByMe ? "fill-red-600 text-red-600" : ""
+                }`}
+              />
             </Button>
-            <span className="text-xs text-white font-semibold">{reel.likeCount}</span>
+            <span className="text-xs text-white font-semibold">
+              {reel.likeCount}
+            </span>
           </div>
 
           {/* Comment Button */}
@@ -389,13 +447,17 @@ export default function ReelDetailView({
               variant="ghost"
               size="icon"
               className={`h-12 w-12 rounded-full shadow-lg ${
-                showComments ? "bg-blue-500 text-white" : "bg-white/90 hover:bg-white text-gray-900"
+                showComments
+                  ? "bg-blue-500 text-white"
+                  : "bg-white/90 hover:bg-white text-gray-900"
               }`}
               onClick={handleLoadComments}
             >
               <MessageCircle className="w-6 h-6" />
             </Button>
-            <span className="text-xs text-white font-semibold">{reel.commentCount}</span>
+            <span className="text-xs text-white font-semibold">
+              {reel.commentCount}
+            </span>
           </div>
 
           {/* Share Button */}
@@ -443,5 +505,5 @@ export default function ReelDetailView({
         />
       )}
     </div>
-  )
+  );
 }
