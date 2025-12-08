@@ -130,7 +130,7 @@ export default function SongListPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
+      <div className="flex-1 flex items-center justify-center bg-gray-900 min-h-full">
         <LoadingSpinner />
       </div>
     );
@@ -138,7 +138,7 @@ export default function SongListPage() {
 
   if (error) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
+      <div className="flex-1 flex items-center justify-center bg-gray-900 min-h-full">
         <div className="text-center">
           <p className="text-red-400 mb-4">{error}</p>
           <button
@@ -156,19 +156,19 @@ export default function SongListPage() {
     type === "album"
       ? albumDetails?.coverImgUrl
       : type === "artist"
-      ? artistDetails?.imgUrl
-      : imageUrl;
+        ? artistDetails?.imgUrl
+        : imageUrl;
   const displayName =
     type === "album"
       ? albumDetails?.title
       : type === "artist"
-      ? artistDetails?.name
-      : name;
+        ? artistDetails?.name
+        : name;
   const displayInfo = type === "artist" ? artistDetails?.bio : null;
   const playCount = type === "album" ? albumDetails?.playCount : null;
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 pb-32">
+    <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
       <div className="max-w-7xl mx-auto px-8 py-8">
         <div className="mb-8">
           <button
@@ -185,15 +185,13 @@ export default function SongListPage() {
               <img
                 src={displayImage || "/placeholder.svg"}
                 alt={displayName || ""}
-                className={`w-48 h-48 ${
-                  type === "artist" ? "rounded-full" : "rounded-lg"
-                } object-cover shadow-2xl`}
+                className={`w-48 h-48 ${type === "artist" ? "rounded-full" : "rounded-lg"
+                  } object-cover shadow-2xl`}
               />
             ) : (
               <div
-                className={`w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${
-                  type === "artist" ? "rounded-full" : "rounded-lg"
-                } flex items-center justify-center shadow-2xl`}
+                className={`w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"
+                  } flex items-center justify-center shadow-2xl`}
               >
                 {type === "album" ? (
                   <Disc3 className="w-20 h-20 text-zinc-600" />
@@ -211,8 +209,8 @@ export default function SongListPage() {
                 {type === "album"
                   ? "Album"
                   : type === "artist"
-                  ? "Artist"
-                  : "Genre"}
+                    ? "Artist"
+                    : "Genre"}
               </p>
               <h1 className="text-5xl font-bold text-white mb-4 text-balance">
                 {displayName || "Unknown"}

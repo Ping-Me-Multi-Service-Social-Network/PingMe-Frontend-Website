@@ -30,6 +30,10 @@ import ArtistManagementPage from "@/pages/admin-route-pages/artist-management-pa
 import GenreManagementPage from "@/pages/admin-route-pages/genre-management-page";
 import ReelManagementPage from "@/pages/admin-route-pages/reel-management-page";
 import SongListPage from "@/pages/music-page/components/SongListPage";
+import AlbumsPage from "@/pages/music-page/components/AlbumsPage";
+import ArtistsPage from "@/pages/music-page/components/ArtistsPage";
+import RankingsPage from "@/pages/music-page/components/RankingsPage";
+import MusicLayout from "@/pages/music-page/components/MusicLayout";
 
 export const router = createBrowserRouter([
   {
@@ -92,7 +96,14 @@ export const router = createBrowserRouter([
       },
       {
         path: "music",
-        element: <MusicPage />,
+        element: <MusicLayout />,
+        children: [
+          { index: true, element: <MusicPage /> },
+          { path: "songs", element: <SongListPage /> },
+          { path: "albums", element: <AlbumsPage /> },
+          { path: "artists", element: <ArtistsPage /> },
+          { path: "rankings", element: <RankingsPage /> },
+        ],
       },
       {
         path: "reels",
@@ -105,10 +116,6 @@ export const router = createBrowserRouter([
       {
         path: "reels/video-manager",
         element: <VideoManagerPage />,
-      },
-      {
-        path: "music/songs",
-        element: <SongListPage />,
       },
     ],
   },
