@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useRef, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Search, X, Clock, History, Trash2 } from "lucide-react"
 import { reelsApi } from "@/services/reels"
@@ -14,9 +15,11 @@ interface SearchBarProps {
   onSearchResults: (reels: Reel[]) => void
   onSearchChange: (isSearching: boolean) => void
   onReelClick?: (reel: Reel) => void
+  triggerSearch?: string  // External trigger to set query
 }
 
-export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: SearchBarProps) {
+export function SearchBar({ onSearchResults, onSearchChange, onReelClick, triggerSearch }: SearchBarProps) {
+  const navigate = useNavigate()
   const [query, setQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
   const [results, setResults] = useState<Reel[]>([])
@@ -27,6 +30,54 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
   const [showHistory, setShowHistory] = useState(false)
   const searchBoxRef = useRef<HTMLDivElement>(null)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Handle search with debounce
+  const handleSearch = useCallback(
+    async (searchQuery: string) => {
+      if (!searchQuery.trim()) {
+        setResults([])
+        setIsOpen(false)
+        onSearchResults([])
+        onSearchChange(false)
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const data = await reelsApi.searchReels(searchQuery, 0, 20)
+        
+        // Client-side filtering: check if caption or hashtags match search query
+        const searchLower = searchQuery.toLowerCase().replace(/^#/, '') // Remove # if present
+        const filteredResults = data.content.filter((reel) => {
+          // Check caption
+          const captionMatch = reel.caption?.toLowerCase().includes(searchLower)
+          
+          // Check hashtags
+          const hashtagMatch = reel.hashtags?.some(tag => 
+            tag.toLowerCase().includes(searchLower)
+          )
+          
+          // Check username
+          const userMatch = reel.userName?.toLowerCase().includes(searchLower)
+          
+          return captionMatch || hashtagMatch || userMatch
+        })
+        
+        setResults(filteredResults)
+        setIsOpen(true)
+        onSearchResults(filteredResults)
+        onSearchChange(true)
+      } catch (err) {
+        setError(getErrorMessage(err))
+        setResults([])
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [onSearchResults, onSearchChange],
+  )
 
   // Load search history
   useEffect(() => {
@@ -48,35 +99,13 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
     loadSearchHistory()
   }, [])
 
-  // Handle search with debounce
-  const handleSearch = useCallback(
-    async (searchQuery: string) => {
-      if (!searchQuery.trim()) {
-        setResults([])
-        setIsOpen(false)
-        onSearchResults([])
-        onSearchChange(false)
-        return
-      }
-
-      setIsLoading(true)
-      setError(null)
-
-      try {
-        const data = await reelsApi.searchReels(searchQuery, 0, 20)
-        setResults(data.content)
-        setIsOpen(true)
-        onSearchResults(data.content)
-        onSearchChange(true)
-      } catch (err) {
-        setError(getErrorMessage(err))
-        setResults([])
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [onSearchResults, onSearchChange],
-  )
+  // Handle external trigger search
+  useEffect(() => {
+    if (triggerSearch) {
+      setQuery(triggerSearch)
+      handleSearch(triggerSearch)
+    }
+  }, [triggerSearch, handleSearch])
 
   // Debounce search
   useEffect(() => {
@@ -129,9 +158,8 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
   }
 
   const handleHistoryClick = (historyQuery: string) => {
-    setQuery(historyQuery)
-    setShowHistory(false)
-    handleSearch(historyQuery)
+    navigate(`/reels/search?q=${encodeURIComponent(historyQuery)}`)
+    setIsOpen(false)
   }
 
   const handleInputFocus = () => {
@@ -166,6 +194,14 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && query.trim()) {
+      e.preventDefault()
+      navigate(`/reels/search?q=${encodeURIComponent(query.trim())}`)
+      setIsOpen(false)
+    }
+  }
+
   return (
     <div ref={searchBoxRef} className="relative w-full">
       <div className="relative flex items-center">
@@ -179,6 +215,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick }: Sear
             setShowHistory(false)
           }}
           onFocus={handleInputFocus}
+          onKeyDown={handleKeyDown}
           className="pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         />
         {query && (

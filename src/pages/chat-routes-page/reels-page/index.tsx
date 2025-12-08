@@ -27,6 +27,7 @@ export default function ReelsPage() {
   const [selectedReel, setSelectedReel] = useState<Reel | undefined>()
   const [searchResults, setSearchResults] = useState<Reel[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [searchTrigger, setSearchTrigger] = useState<string>("")
 
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -216,6 +217,13 @@ export default function ReelsPage() {
     }
   }
 
+  const handleHashtagClick = (hashtag: string) => {
+    // Trigger search with hashtag (with # prefix for display)
+    setSearchTrigger(`#${hashtag}`)
+    // Reset trigger after a short delay to allow new searches
+    setTimeout(() => setSearchTrigger(""), 100)
+  }
+
   return (
     <div ref={containerRef} className="flex h-screen bg-gray-900 flex-col overflow-hidden">
       <ReelsTopBar
@@ -223,6 +231,7 @@ export default function ReelsPage() {
         onSearchResults={handleSearchResults}
         onSearchChange={handleSearchChange}
         onReelClick={handleReelClick}
+        triggerSearch={searchTrigger}
       />
 
       {/* Full-Screen Reels Feed */}
@@ -252,6 +261,7 @@ export default function ReelsPage() {
                     onUpdate={handleReelUpdate}
                     onDelete={handleReelDeleted}
                     onEdit={handleReelEdit}
+                    onHashtagClick={handleHashtagClick}
                   />
                 </div>
               ))}

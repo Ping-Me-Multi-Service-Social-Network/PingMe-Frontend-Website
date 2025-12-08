@@ -23,6 +23,7 @@ import SharedChatMusicLayout from "@/pages/chat-routes-page/components/SharedCha
 import ExpensePage from "@/pages/main-routes-page/expense-page";
 import ReelsPage from "@/pages/chat-routes-page/reels-page";
 import VideoManagerPage from "@/pages/chat-routes-page/reels-page/video-manager";
+import SearchResultsPage from "@/pages/chat-routes-page/reels-page/search-results";
 import MusicManagementPage from "@/pages/admin-route-pages/music-management-page";
 import AlbumManagementPage from "@/pages/admin-route-pages/album-management-page";
 import ArtistManagementPage from "@/pages/admin-route-pages/artist-management-page";
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
       {
         path: "reels",
         element: <ReelsPage />,
+      },
+      {
+        path: "reels/search",
+        element: <SearchResultsPage />,
       },
       {
         path: "reels/video-manager",

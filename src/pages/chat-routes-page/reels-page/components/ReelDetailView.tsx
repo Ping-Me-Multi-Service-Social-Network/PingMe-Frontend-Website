@@ -26,6 +26,7 @@ interface ReelDetailViewProps {
   onUpdate?: (reel: Reel) => void;
   onDelete?: (reelId: number) => void;
   onEdit?: (reel: Reel) => void;
+  onHashtagClick?: (hashtag: string) => void;
 }
 
 export default function ReelDetailView({
@@ -34,6 +35,7 @@ export default function ReelDetailView({
   onDelete,
   isActive,
   togglePlaySignal,
+  onHashtagClick,
 }: ReelDetailViewProps & { isActive?: boolean; togglePlaySignal?: number }) {
   const currentUserId = useAppSelector((state) => state.auth.userSession.id);
   const [isVideoHovered, setIsVideoHovered] = useState(false);
@@ -407,15 +409,33 @@ export default function ReelDetailView({
           </div>
         )}
 
-        {/* Caption and Content Info - GIỮ NGUYÊN như cũ */}
+        {/* Caption and Content Info - GIẮ NGUYÊN như cũ */}
         <div className="absolute top-22 left-6 right-20 opacity-0 group-hover:opacity-100 transition-opacity max-w-sm z-10 pointer-events-none">
           <div className="pointer-events-auto">
             <div className="text-white text-xs mb-2 px-2 py-1 bg-blue-600 rounded-full w-fit">
               Nội dung video
             </div>
-            <p className="text-white text-sm leading-relaxed line-clamp-3">
-              {reel.caption || "Không có mô tả"}
-            </p>
+            <div className="space-y-2">
+              <p className="text-white text-sm leading-relaxed line-clamp-3">
+                {reel.caption || "Không có mô tả"}
+              </p>
+              {reel.hashtags && reel.hashtags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {reel.hashtags.map((tag, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onHashtagClick?.(tag);
+                      }}
+                      className="text-blue-400 font-bold hover:text-blue-300 hover:underline cursor-pointer transition-colors text-sm"
+                    >
+                      #{tag}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

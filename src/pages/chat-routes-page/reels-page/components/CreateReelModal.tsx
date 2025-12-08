@@ -110,12 +110,15 @@ export function CreateReelModal({
 
     setIsLoading(true);
     try {
-      // Combine caption with hashtags
-      const fullCaption = `${caption.trim()} ${hashtags.join(" ")}`;
+      // Normalize hashtags: remove '#', lowercase, ensure distinct
+      const normalizedHashtags = hashtags.map(tag => 
+        tag.startsWith('#') ? tag.substring(1).toLowerCase() : tag.toLowerCase()
+      );
 
       await reelsApi.createReel({
         video: videoFile,
-        caption: fullCaption,
+        caption: caption.trim(),
+        hashtags: normalizedHashtags,
       });
       toast.success("Tạo reel thành công");
       setCaption("");
@@ -197,7 +200,7 @@ export function CreateReelModal({
 
           {/* Hashtag Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
               <Hash className="w-4 h-4" />
               Hashtags
               <span className="text-red-500">*</span>

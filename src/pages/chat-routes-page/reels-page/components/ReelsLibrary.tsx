@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Bookmark, Eye, Play } from "lucide-react";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { EmptyState } from "@/components/custom/EmptyState";
+import { formatRelativeTime } from "@/utils/dateFormatter";
 
 interface ReelsLibraryProps {
   isOpen: boolean;
@@ -15,13 +16,15 @@ interface ReelsLibraryProps {
 const ReelThumbnail = ({
   reel,
   onClick,
+  timestamp,
 }: {
   reel: Reel;
   onClick?: () => void;
+  timestamp?: string;
 }) => {
   return (
     <div
-      className="relative aspect-[3/4] bg-gray-800 rounded overflow-hidden cursor-pointer group hover:opacity-80"
+      className="relative aspect-[3/4] bg-gray-800 rounded overflow-hidden cursor-pointer group hover:opacity-90 transition-opacity"
       onClick={onClick}
     >
       <video
@@ -29,8 +32,30 @@ const ReelThumbnail = ({
         className="w-full h-full object-cover"
         preload="metadata"
       />
-      <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+      
+      {/* Play icon on hover */}
+      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
         <Play className="w-12 h-12 text-white" fill="white" />
+      </div>
+
+      {/* Stats overlay */}
+      <div className="absolute bottom-0 left-0 right-0 p-2 text-white text-xs space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1">
+            <Eye className="w-3 h-3" />
+            {reel.viewCount}
+          </span>
+          <span className="flex items-center gap-1">
+            <Heart className="w-3 h-3" />
+            {reel.likeCount}
+          </span>
+        </div>
+        {timestamp && (
+          <div className="text-gray-300 text-[10px]">
+            {formatRelativeTime(timestamp)}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -95,9 +120,9 @@ export function ReelsLibrary({
             onValueChange={(v) =>
               setActiveTab(v as "likes" | "saves" | "views")
             }
-            className="flex-1 flex flex-col"
+            className="flex-1 flex flex-col overflow-hidden"
           >
-            <TabsList className="w-full rounded-none bg-gray-800 border-b border-gray-700">
+            <TabsList className="w-full rounded-none bg-gray-800 border-b border-gray-700 flex-shrink-0">
               <TabsTrigger
                 value="likes"
                 className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
@@ -121,19 +146,22 @@ export function ReelsLibrary({
               </TabsTrigger>
             </TabsList>
 
-            <div className="flex-1 overflow-y-auto">
-              <TabsContent value="likes" className="m-0 p-4">
-                {likedReels.length === 0 ? (
+            <TabsContent value="likes" className="m-0 flex-1 overflow-y-auto">
+              {likedReels.length === 0 ? (
+                <div className="h-full flex items-center justify-center p-4">
                   <EmptyState
                     title="Chưa có reel yêu thích"
                     description="Những reel bạn thích sẽ hiển thị ở đây"
                   />
-                ) : (
-                  <div className="grid grid-cols-5 gap-2">
+                </div>
+              ) : (
+                <div className="p-4">
+                  <div className="grid grid-cols-5 gap-3">
                     {likedReels.map((reel) => (
                       <ReelThumbnail
                         key={reel.id}
                         reel={reel}
+                        timestamp={reel.createdAt}
                         onClick={() => {
                           onReelClick?.(reel);
                           onClose();
@@ -141,21 +169,26 @@ export function ReelsLibrary({
                       />
                     ))}
                   </div>
-                )}
-              </TabsContent>
+                </div>
+              )}
+            </TabsContent>
 
-              <TabsContent value="saves" className="m-0 p-4">
-                {savedReels.length === 0 ? (
+            <TabsContent value="saves" className="m-0 flex-1 overflow-y-auto">
+              {savedReels.length === 0 ? (
+                <div className="h-full flex items-center justify-center p-4">
                   <EmptyState
                     title="Chưa có reel được lưu"
                     description="Những reel bạn lưu sẽ hiển thị ở đây"
                   />
-                ) : (
-                  <div className="grid grid-cols-5 gap-2">
+                </div>
+              ) : (
+                <div className="p-4">
+                  <div className="grid grid-cols-5 gap-3">
                     {savedReels.map((reel) => (
                       <ReelThumbnail
                         key={reel.id}
                         reel={reel}
+                        timestamp={reel.createdAt}
                         onClick={() => {
                           onReelClick?.(reel);
                           onClose();
@@ -163,21 +196,26 @@ export function ReelsLibrary({
                       />
                     ))}
                   </div>
-                )}
-              </TabsContent>
+                </div>
+              )}
+            </TabsContent>
 
-              <TabsContent value="views" className="m-0 p-4">
-                {viewedReels.length === 0 ? (
+            <TabsContent value="views" className="m-0 flex-1 overflow-y-auto">
+              {viewedReels.length === 0 ? (
+                <div className="h-full flex items-center justify-center p-4">
                   <EmptyState
                     title="Chưa có reel được xem"
                     description="Những reel bạn xem sẽ hiển thị ở đây"
                   />
-                ) : (
-                  <div className="grid grid-cols-5 gap-2">
+                </div>
+              ) : (
+                <div className="p-4">
+                  <div className="grid grid-cols-5 gap-3">
                     {viewedReels.map((reel) => (
                       <ReelThumbnail
                         key={reel.id}
                         reel={reel}
+                        timestamp={reel.createdAt}
                         onClick={() => {
                           onReelClick?.(reel);
                           onClose();
@@ -185,9 +223,9 @@ export function ReelsLibrary({
                       />
                     ))}
                   </div>
-                )}
-              </TabsContent>
-            </div>
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         )}
       </div>

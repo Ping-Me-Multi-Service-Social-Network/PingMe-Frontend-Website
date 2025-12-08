@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Play, Eye, Heart, MessageCircle, Bookmark, Calendar, User, Search, Filter, Info } from "lucide-react"
+import { Play, Eye, Heart, MessageCircle, Bookmark, Calendar, User, Search, Filter, Info, Trash2, EyeOff, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { reelsApi } from "@/services/reels"
@@ -25,6 +25,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import Pagination from "@/components/custom/Pagination"
 import ReelDetailModal from "./ReelDetailModal"
 
@@ -44,6 +64,11 @@ export default function ReelManagementPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null)
   const [selectedReelId, setSelectedReelId] = useState<number | null>(null)
+  const [deleteReelId, setDeleteReelId] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [hideReelId, setHideReelId] = useState<number | null>(null)
+  const [hideReason, setHideReason] = useState("")
+  const [isHiding, setIsHiding] = useState(false)
 
   const fetchReels = useCallback(async (
     page: number, 
@@ -115,6 +140,73 @@ export default function ReelManagementPage() {
   const handleToDateFilterChange = (value: string) => {
     setToDateFilter(value)
     setCurrentPage(0)
+  }
+
+  const handleHardDelete = async () => {
+    if (!deleteReelId) return
+
+    try {
+      setIsDeleting(true)
+      await reelsApi.hardDeleteAdminReel(deleteReelId)
+      toast.success("Đã xóa vĩnh viễn reel thành công")
+      setDeleteReelId(null)
+      // Refresh danh sách
+      const caption = captionFilter.trim() || undefined
+      const userId = userIdFilter ? Number(userIdFilter) : undefined
+      const minViews = minViewsFilter ? Number(minViewsFilter) : undefined
+      const maxViews = maxViewsFilter ? Number(maxViewsFilter) : undefined
+      const from = fromDateFilter ? `${fromDateFilter}T00:00:00` : undefined
+      const to = toDateFilter ? `${toDateFilter}T23:59:59` : undefined
+      fetchReels(currentPage, pageSize, caption, userId, minViews, maxViews, from, to)
+    } catch (error) {
+      console.error("Error deleting reel:", error)
+      toast.error("Không thể xóa reel")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const handleHideReel = async () => {
+    if (!hideReelId) return
+
+    try {
+      setIsHiding(true)
+      await reelsApi.hideAdminReel(hideReelId, hideReason.trim() || undefined)
+      toast.success("Đã ẩn reel thành công")
+      setHideReelId(null)
+      setHideReason("")
+      // Refresh danh sách
+      const caption = captionFilter.trim() || undefined
+      const userId = userIdFilter ? Number(userIdFilter) : undefined
+      const minViews = minViewsFilter ? Number(minViewsFilter) : undefined
+      const maxViews = maxViewsFilter ? Number(maxViewsFilter) : undefined
+      const from = fromDateFilter ? `${fromDateFilter}T00:00:00` : undefined
+      const to = toDateFilter ? `${toDateFilter}T23:59:59` : undefined
+      fetchReels(currentPage, pageSize, caption, userId, minViews, maxViews, from, to)
+    } catch (error) {
+      console.error("Error hiding reel:", error)
+      toast.error("Không thể ẩn reel")
+    } finally {
+      setIsHiding(false)
+    }
+  }
+
+  const handleUnhideReel = async (reelId: number) => {
+    try {
+      await reelsApi.unhideAdminReel(reelId)
+      toast.success("Đã hiển thị lại reel thành công")
+      // Refresh danh sách
+      const caption = captionFilter.trim() || undefined
+      const userId = userIdFilter ? Number(userIdFilter) : undefined
+      const minViews = minViewsFilter ? Number(minViewsFilter) : undefined
+      const maxViews = maxViewsFilter ? Number(maxViewsFilter) : undefined
+      const from = fromDateFilter ? `${fromDateFilter}T00:00:00` : undefined
+      const to = toDateFilter ? `${toDateFilter}T23:59:59` : undefined
+      fetchReels(currentPage, pageSize, caption, userId, minViews, maxViews, from, to)
+    } catch (error) {
+      console.error("Error unhiding reel:", error)
+      toast.error("Không thể hiển thị lại reel")
+    }
   }
 
   const filteredReels = reels.filter((reel) => {
@@ -374,15 +466,41 @@ export default function ReelManagementPage() {
 
                     {/* Actions */}
                     <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedReelId(reel.id)}
-                        >
-                          <Info className="w-4 h-4 mr-1" />
-                          Chi tiết
-                        </Button>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedReelId(reel.id)}
+                          >
+                            <Info className="w-4 h-4" />
+                          </Button>
+                          {reel.status === "HIDDEN" ? (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleUnhideReel(reel.id)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => setHideReelId(reel.id)}
+                            >
+                              <EyeOff className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setDeleteReelId(reel.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -438,8 +556,86 @@ export default function ReelManagementPage() {
         <ReelDetailModal
           reelId={selectedReelId}
           onClose={() => setSelectedReelId(null)}
+          onDeleted={() => {
+            const caption = captionFilter.trim() || undefined
+            const userId = userIdFilter ? Number(userIdFilter) : undefined
+            const minViews = minViewsFilter ? Number(minViewsFilter) : undefined
+            const maxViews = maxViewsFilter ? Number(maxViewsFilter) : undefined
+            const from = fromDateFilter ? `${fromDateFilter}T00:00:00` : undefined
+            const to = toDateFilter ? `${toDateFilter}T23:59:59` : undefined
+            fetchReels(currentPage, pageSize, caption, userId, minViews, maxViews, from, to)
+          }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteReelId} onOpenChange={() => setDeleteReelId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa vĩnh viễn</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa vĩnh viễn reel này không? Hành động này không thể hoàn tác.
+              Tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn khỏi hệ thống.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleHardDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Đang xóa..." : "Xóa vĩnh viễn"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Hide Reel Dialog */}
+      <Dialog open={!!hideReelId} onOpenChange={() => {
+        setHideReelId(null)
+        setHideReason("")
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ẩn Reel</DialogTitle>
+            <DialogDescription>
+              Reel sẽ bị ẩn khỏi người dùng. Bạn có thể thêm lý do (không bắt buộc).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="hideReason">Lý do ẩn (tùy chọn)</Label>
+              <Textarea
+                id="hideReason"
+                placeholder="Nhập lý do ẩn reel này..."
+                value={hideReason}
+                onChange={(e) => setHideReason(e.target.value)}
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setHideReelId(null)
+                setHideReason("")
+              }}
+              disabled={isHiding}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleHideReel}
+              disabled={isHiding}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {isHiding ? "Đang ẩn..." : "Ẩn Reel"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
