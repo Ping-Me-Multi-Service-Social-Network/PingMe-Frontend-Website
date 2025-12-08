@@ -206,7 +206,7 @@ export default function SearchResultsPage() {
         </div>
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
-            message={error || `Không tìm thấy kết quả cho "${query}"`}
+            title={error || `Không tìm thấy kết quả cho "${query}"`}
             description="Thử tìm kiếm với từ khóa khác"
           />
         </div>
