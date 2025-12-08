@@ -6,7 +6,7 @@ import DraggableMiniPlayer from "./DraggableMiniPlayer";
 
 export default function SharedChatMusicLayout() {
   const location = useLocation();
-  const isMusicPage = location.pathname === "/music";
+  const isMusicPage = location.pathname.startsWith("/music");
 
   return (
     <AudioPlayerProvider>

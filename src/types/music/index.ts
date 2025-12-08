@@ -6,6 +6,10 @@ export type ArtistRole =
   | "PRODUCER"
   | "VOCALIST";
 
+// Export types from separate files
+export * from './favorite';
+export * from './playlist';
+
 // Base Types
 export interface GenreDto {
   id: number;

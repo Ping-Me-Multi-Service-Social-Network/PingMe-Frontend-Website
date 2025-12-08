@@ -33,6 +33,9 @@ import SongListPage from "@/pages/music-page/components/SongListPage";
 import AlbumsPage from "@/pages/music-page/components/AlbumsPage";
 import ArtistsPage from "@/pages/music-page/components/ArtistsPage";
 import RankingsPage from "@/pages/music-page/components/RankingsPage";
+import FavoritesPage from "@/pages/music-page/components/FavoritesPage";
+import PlaylistsPage from "@/pages/music-page/components/PlaylistsPage";
+import PlaylistDetailPage from "@/pages/music-page/components/PlaylistDetailPage";
 import MusicLayout from "@/pages/music-page/components/MusicLayout";
 
 export const router = createBrowserRouter([
@@ -103,6 +106,9 @@ export const router = createBrowserRouter([
           { path: "albums", element: <AlbumsPage /> },
           { path: "artists", element: <ArtistsPage /> },
           { path: "rankings", element: <RankingsPage /> },
+          { path: "favorites", element: <FavoritesPage /> },
+          { path: "playlists", element: <PlaylistsPage /> },
+          { path: "playlists/:id", element: <PlaylistDetailPage /> },
         ],
       },
       {
