@@ -2,7 +2,7 @@ import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import "../audio-player-styles.css";
 import { useState, useEffect, useRef } from "react";
-import { Heart, ListPlus } from "lucide-react";
+import { Heart, ListPlus, Plus } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer";
 import { favoriteApi } from "@/services/music/favoriteApi";
@@ -13,7 +13,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface AudioPlayerComponentProps {
   currentSong?: Song | null;
@@ -30,6 +42,10 @@ export default function AudioPlayerComponent({
   const [isFavorite, setIsFavorite] = useState(false);
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
+  const [creating, setCreating] = useState(false);
   const audioPlayerRef = useRef<AudioPlayer | null>(null);
   const { audioRef, setIsPlaying } = useAudioPlayer();
 
@@ -48,9 +64,36 @@ export default function AudioPlayerComponent({
     checkFavorite();
   }, [currentSong]);
 
-  // Load playlists
+  // Listen for favorite updates from other components
+  useEffect(() => {
+    const handleFavoriteAdded = (event: Event) => {
+      const customEvent = event as CustomEvent<{ songId: number }>;
+      if (currentSong && customEvent.detail.songId === currentSong.id) {
+        setIsFavorite(true);
+      }
+    };
+
+    const handleFavoriteRemoved = (event: Event) => {
+      const customEvent = event as CustomEvent<{ songId: number }>;
+      if (currentSong && customEvent.detail.songId === currentSong.id) {
+        setIsFavorite(false);
+      }
+    };
+
+    window.addEventListener('favorite-added', handleFavoriteAdded);
+    window.addEventListener('favorite-removed', handleFavoriteRemoved);
+
+    return () => {
+      window.removeEventListener('favorite-added', handleFavoriteAdded);
+      window.removeEventListener('favorite-removed', handleFavoriteRemoved);
+    };
+  }, [currentSong]);
+
+  // Load playlists when dropdown opens
   useEffect(() => {
     const loadPlaylists = async () => {
+      if (!showPlaylistMenu) return;
+
       try {
         const data = await playlistApi.getPlaylists();
         setPlaylists(data);
@@ -59,7 +102,7 @@ export default function AudioPlayerComponent({
       }
     };
     loadPlaylists();
-  }, []);
+  }, [showPlaylistMenu]);
 
   const handleToggleFavorite = async () => {
     if (!currentSong) return;
@@ -68,12 +111,51 @@ export default function AudioPlayerComponent({
       if (isFavorite) {
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
+        // Dispatch event to notify FavoritesPage to refresh
+        window.dispatchEvent(new CustomEvent('favorite-removed', {
+          detail: { songId: currentSong.id }
+        }));
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
+        // Dispatch event to notify FavoritesPage to refresh
+        window.dispatchEvent(new CustomEvent('favorite-added', {
+          detail: { songId: currentSong.id }
+        }));
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
+    }
+  };
+
+  const handleCreatePlaylist = async () => {
+    if (!newPlaylistName.trim() || !currentSong) return;
+
+    try {
+      setCreating(true);
+      const newPlaylist = await playlistApi.createPlaylist({
+        name: newPlaylistName,
+        isPublic: isPublic,
+      });
+
+      // Add current song to the newly created playlist
+      await playlistApi.addSongToPlaylist(newPlaylist.id, currentSong.id);
+
+      setPlaylists(prev => [...prev, newPlaylist]);
+      setShowCreateDialog(false);
+      setNewPlaylistName("");
+      setIsPublic(false);
+      toast.success(`Playlist "${newPlaylist.name}" created and "${currentSong.title}" added!`);
+
+      // Dispatch event to refresh playlist detail page
+      window.dispatchEvent(new CustomEvent('playlist-updated', {
+        detail: { playlistId: newPlaylist.id, songId: currentSong.id }
+      }));
+    } catch (err) {
+      console.error("Error creating playlist:", err);
+      toast.error("Failed to create playlist");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -81,14 +163,24 @@ export default function AudioPlayerComponent({
     if (!currentSong) return;
 
     try {
-      await playlistApi.addSongToPlaylist(playlistId, currentSong.id);
+      const result = await playlistApi.addSongToPlaylist(playlistId, currentSong.id);
+      const playlist = playlists.find(p => p.id === playlistId);
+
+      if (result?.alreadyExists) {
+        toast.error(`"${currentSong.title}" is already in playlist "${playlist?.name}"`);
+      } else {
+        toast.success(`Added "${currentSong.title}" to playlist "${playlist?.name}"`);
+        // Dispatch custom event to notify PlaylistDetailPage to refresh
+        window.dispatchEvent(new CustomEvent('playlist-updated', {
+          detail: { playlistId, songId: currentSong.id }
+        }));
+      }
       setShowPlaylistMenu(false);
     } catch (err) {
       console.error("Error adding to playlist:", err);
+      toast.error("Failed to add song to playlist");
     }
-  };
-
-  useEffect(() => {
+  }; useEffect(() => {
     if (currentSong && playlist.length > 0) {
       const index = playlist.findIndex((t) => t && t.id === currentSong.id);
       if (index >= 0) {
@@ -236,20 +328,29 @@ export default function AudioPlayerComponent({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-zinc-800 border-zinc-700">
-                {playlists.length === 0 ? (
-                  <div className="p-3 text-sm text-zinc-400 text-center">
-                    No playlists available. Create one first!
-                  </div>
-                ) : (
-                  playlists.map((playlist) => (
-                    <DropdownMenuItem
-                      key={playlist.id}
-                      onClick={() => handleAddToPlaylist(playlist.id)}
-                      className="cursor-pointer hover:bg-zinc-700 text-zinc-200"
-                    >
-                      {playlist.name}
-                    </DropdownMenuItem>
-                  ))
+                <DropdownMenuItem
+                  onClick={() => {
+                    setShowPlaylistMenu(false);
+                    setShowCreateDialog(true);
+                  }}
+                  className="cursor-pointer hover:bg-zinc-700 text-blue-400 font-medium"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Playlist
+                </DropdownMenuItem>
+                {playlists.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator className="bg-zinc-700" />
+                    {playlists.map((playlist) => (
+                      <DropdownMenuItem
+                        key={playlist.id}
+                        onClick={() => handleAddToPlaylist(playlist.id)}
+                        className="cursor-pointer hover:bg-zinc-700 text-zinc-200"
+                      >
+                        {playlist.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -268,6 +369,57 @@ export default function AudioPlayerComponent({
           />
         </div>
       </div>
+
+      {/* Create Playlist Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Create New Playlist</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="playlist-name" className="text-zinc-200">
+                Playlist Name
+              </Label>
+              <Input
+                id="playlist-name"
+                placeholder="Enter playlist name"
+                value={newPlaylistName}
+                onChange={(e) => setNewPlaylistName(e.target.value)}
+                className="bg-zinc-800 border-zinc-700 text-white"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is-public"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <Label htmlFor="is-public" className="text-zinc-200 cursor-pointer">
+                Make this playlist public
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+              className="bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreatePlaylist}
+              disabled={!newPlaylistName.trim() || creating}
+              className="bg-blue-600 hover:bg-blue-500 text-white"
+            >
+              {creating ? "Creating..." : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
