@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Music, Lock, Globe, Trash2, Edit2 } from "lucide-react";
+import { ArrowLeft, Plus, Music, Lock, Globe, Trash2, Edit2, Compass } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi";
 import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { EmptyState } from "@/components/custom/EmptyState";
@@ -56,7 +56,12 @@ export default function PlaylistsPage() {
                 name: newPlaylistName,
                 isPublic: isPublic,
             });
-            setPlaylists(prev => [...prev, newPlaylist]);
+            console.log("Created playlist:", newPlaylist);
+            setPlaylists(prev => {
+                const updated = [...prev, newPlaylist];
+                console.log("Updated playlists:", updated);
+                return updated;
+            });
             setShowCreateDialog(false);
             setNewPlaylistName("");
             setIsPublic(false);
@@ -138,13 +143,23 @@ export default function PlaylistsPage() {
 
                     <div className="flex items-center justify-between">
                         <h1 className="text-4xl font-bold text-white">Your Playlists</h1>
-                        <Button
-                            onClick={() => setShowCreateDialog(true)}
-                            className="flex items-center gap-2"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Create Playlist
-                        </Button>
+                        <div className="flex items-center gap-3">
+                            <Button
+                                onClick={() => navigate("/music/playlists/discover")}
+                                variant="outline"
+                                className="flex items-center gap-2 bg-green-900/20 border-green-700 text-green-400 hover:bg-green-900/40 hover:text-green-300"
+                            >
+                                <Compass className="w-5 h-5" />
+                                Discover Public Playlists
+                            </Button>
+                            <Button
+                                onClick={() => setShowCreateDialog(true)}
+                                className="flex items-center gap-2"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Create Playlist
+                            </Button>
+                        </div>
                     </div>
                 </div>
 

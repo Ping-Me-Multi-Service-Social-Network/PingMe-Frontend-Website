@@ -144,7 +144,7 @@ export default function MainMusicPage() {
     <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
       <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
         {/* Quick Links Section */}
-        <section className="grid grid-cols-2 gap-4">
+        <section className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <button
             onClick={() => navigate("/music/favorites")}
             className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-900/40 via-pink-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
@@ -165,6 +165,17 @@ export default function MainMusicPage() {
               <p className="text-sm text-gray-300">Custom collections</p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+
+          <button
+            onClick={() => navigate("/music/playlists/discover")}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-green-900/40 via-teal-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
+          >
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold text-white mb-2">Discover Playlists</h3>
+              <p className="text-sm text-gray-300">Community shared</p>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-teal-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         </section>
 

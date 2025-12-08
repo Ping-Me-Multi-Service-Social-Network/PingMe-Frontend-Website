@@ -22,6 +22,21 @@ export default function PlaylistDetailPage() {
         }
     }, [id]);
 
+    // Listen for playlist updates from GlobalAudioPlayer
+    useEffect(() => {
+        const handlePlaylistUpdate = (event: Event) => {
+            const customEvent = event as CustomEvent<{ playlistId: number; songId: number }>;
+            if (id && customEvent.detail.playlistId === parseInt(id)) {
+                fetchPlaylistDetail(parseInt(id));
+            }
+        };
+
+        window.addEventListener('playlist-updated', handlePlaylistUpdate);
+        return () => {
+            window.removeEventListener('playlist-updated', handlePlaylistUpdate);
+        };
+    }, [id]);
+
     const fetchPlaylistDetail = async (playlistId: number) => {
         try {
             setLoading(true);

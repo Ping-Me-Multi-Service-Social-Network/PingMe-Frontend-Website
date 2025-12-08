@@ -19,6 +19,25 @@ export default function FavoritesPage() {
         fetchFavorites();
     }, []);
 
+    // Listen for favorite updates from audio players
+    useEffect(() => {
+        const handleFavoriteAdded = () => {
+            fetchFavorites();
+        };
+
+        const handleFavoriteRemoved = () => {
+            fetchFavorites();
+        };
+
+        window.addEventListener('favorite-added', handleFavoriteAdded);
+        window.addEventListener('favorite-removed', handleFavoriteRemoved);
+
+        return () => {
+            window.removeEventListener('favorite-added', handleFavoriteAdded);
+            window.removeEventListener('favorite-removed', handleFavoriteRemoved);
+        };
+    }, []);
+
     const fetchFavorites = async () => {
         try {
             setLoading(true);
@@ -37,6 +56,10 @@ export default function FavoritesPage() {
         try {
             await favoriteApi.removeFavorite(songId);
             setFavorites(prev => prev.filter(fav => fav.songId !== songId));
+            // Dispatch event to update heart icon in audio players
+            window.dispatchEvent(new CustomEvent('favorite-removed', {
+                detail: { songId }
+            }));
         } catch (err) {
             console.error("Error removing favorite:", err);
         }

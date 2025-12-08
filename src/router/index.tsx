@@ -36,6 +36,7 @@ import RankingsPage from "@/pages/music-page/components/RankingsPage";
 import FavoritesPage from "@/pages/music-page/components/FavoritesPage";
 import PlaylistsPage from "@/pages/music-page/components/PlaylistsPage";
 import PlaylistDetailPage from "@/pages/music-page/components/PlaylistDetailPage";
+import DiscoverPlaylistsPage from "@/pages/music-page/components/DiscoverPlaylistsPage";
 import MusicLayout from "@/pages/music-page/components/MusicLayout";
 
 export const router = createBrowserRouter([
@@ -108,6 +109,7 @@ export const router = createBrowserRouter([
           { path: "rankings", element: <RankingsPage /> },
           { path: "favorites", element: <FavoritesPage /> },
           { path: "playlists", element: <PlaylistsPage /> },
+          { path: "playlists/discover", element: <DiscoverPlaylistsPage /> },
           { path: "playlists/:id", element: <PlaylistDetailPage /> },
         ],
       },
