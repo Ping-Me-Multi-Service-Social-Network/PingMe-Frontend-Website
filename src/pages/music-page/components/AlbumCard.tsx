@@ -1,4 +1,5 @@
 import type { AlbumResponse } from "@/services/music/albumApi";
+import { useNavigate } from "react-router-dom";
 import { Disc3 } from "lucide-react";
 
 interface AlbumCardProps {
@@ -6,8 +7,21 @@ interface AlbumCardProps {
 }
 
 export default function AlbumCard({ album }: AlbumCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(
+      `/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
+        album.title
+      )}&imageUrl=${encodeURIComponent(album.coverImgUrl || "")}`
+    );
+  };
+
   return (
-    <div className="group bg-zinc-900/50 rounded-lg border border-zinc-800 overflow-hidden hover:bg-zinc-800/80 hover:border-zinc-700 transition-all duration-200 cursor-pointer">
+    <div
+      onClick={handleClick}
+      className="group bg-zinc-900/50 rounded-lg border border-zinc-800 overflow-hidden hover:bg-zinc-800/80 hover:border-zinc-700 transition-all duration-200 cursor-pointer"
+    >
       <div className="relative aspect-square overflow-hidden bg-zinc-800">
         {album.coverImgUrl ? (
           <img

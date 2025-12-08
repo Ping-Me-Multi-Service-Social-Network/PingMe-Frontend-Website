@@ -45,6 +45,13 @@ export interface AlbumResponse {
   albumOwnerId?: number;
 }
 
+export interface TopSongPlayCounter {
+  songId: number;
+  title: string;
+  imgUrl: string;
+  playCount: number;
+}
+
 export interface SongResponse {
   id: number;
   title: string;
