@@ -13,9 +13,10 @@ interface ReelsTopBarProps {
   onSearchResults?: (reels: Reel[]) => void
   onSearchChange?: (isSearching: boolean) => void
   onReelClick?: (reel: Reel) => void
+  triggerSearch?: string
 }
 
-export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, onReelClick }: ReelsTopBarProps) {
+export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, onReelClick, triggerSearch }: ReelsTopBarProps) {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false)
 
   return (
@@ -29,6 +30,7 @@ export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, on
               onSearchResults={onSearchResults || (() => {})} 
               onSearchChange={onSearchChange || (() => {})} 
               onReelClick={onReelClick}
+              triggerSearch={triggerSearch}
             />
           </div>
 

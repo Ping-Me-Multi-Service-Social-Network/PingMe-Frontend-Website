@@ -2,6 +2,7 @@ export interface Reel {
   id: number
   videoUrl: string
   caption: string
+  hashtags?: string[]
   viewCount: number
   likeCount: number
   commentCount: number
@@ -19,10 +20,12 @@ export interface ReelResponse {
   id: number
   videoUrl: string
   caption: string
+  hashtags?: string[]
   viewCount: number
   likeCount: number
   commentCount: number
   isLikedByMe: boolean
+  isSavedByMe?: boolean
   userId: number
   userName: string
   userAvatarUrl: string | null
@@ -58,11 +61,13 @@ export type ReactionType = "LIKE" | "LOVE" | "HAHA" | "WOW" | "SAD" | "ANGRY"
 
 export interface CreateReelRequest {
   caption: string
+  hashtags: string[]
   video: File
 }
 
 export interface UpdateReelRequest {
   caption: string
+  hashtags?: string[]
   video?: File
 }
 
@@ -158,4 +163,17 @@ export interface AdminReelDetail {
   status: string | null
   adminNote: string | null
   createdAt: string
+}
+
+export type ReelStatus = "ACTIVE" | "HIDDEN"
+
+export interface HideReelRequest {
+  reason?: string
+}
+
+export interface HideReelResponse {
+  id: number
+  status: ReelStatus
+  adminNote: string | null
+  updatedAt: string
 }

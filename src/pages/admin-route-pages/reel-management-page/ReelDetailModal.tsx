@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { X, Eye, Heart, MessageCircle, Bookmark, Calendar, User, Clock } from "lucide-react"
+import { X, Eye, Heart, MessageCircle, Bookmark, Calendar, User, Clock, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { reelsApi } from "@/services/reels"
 import type { AdminReelDetail } from "@/types/reels"
@@ -8,15 +8,28 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner"
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface ReelDetailModalProps {
   reelId: number
   onClose: () => void
+  onDeleted?: () => void
 }
 
-export default function ReelDetailModal({ reelId, onClose }: ReelDetailModalProps) {
+export default function ReelDetailModal({ reelId, onClose, onDeleted }: ReelDetailModalProps) {
   const [reel, setReel] = useState<AdminReelDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const fetchReelDetail = async () => {
@@ -45,6 +58,22 @@ export default function ReelDetailModal({ reelId, onClose }: ReelDetailModalProp
         return <Badge className="bg-red-500">Từ chối</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
+    }
+  }
+
+  const handleHardDelete = async () => {
+    try {
+      setIsDeleting(true)
+      await reelsApi.hardDeleteAdminReel(reelId)
+      toast.success("Đã xóa vĩnh viễn reel thành công")
+      setShowDeleteDialog(false)
+      onClose()
+      onDeleted?.()
+    } catch (error) {
+      console.error("Error deleting reel:", error)
+      toast.error("Không thể xóa reel")
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -203,12 +232,42 @@ export default function ReelDetailModal({ reelId, onClose }: ReelDetailModalProp
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50">
+        <div className="flex justify-between items-center gap-2 p-4 border-t bg-gray-50">
+          <Button 
+            variant="destructive" 
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Xóa vĩnh viễn
+          </Button>
           <Button variant="outline" onClick={onClose}>
             Đóng
           </Button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa vĩnh viễn</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa vĩnh viễn reel này không? Hành động này không thể hoàn tác.
+              Tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn khỏi hệ thống.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleHardDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Đang xóa..." : "Xóa vĩnh viễn"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

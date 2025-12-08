@@ -13,6 +13,7 @@ import type {
   SearchHistoryResponse,
   AdminReelResponse,
   AdminReelDetail,
+  HideReelResponse,
 } from "@/types/reels"
 import type { ApiResponse } from "@/types/common/apiResponse"
 
@@ -32,7 +33,10 @@ export const reelsApi = {
   // Create new reel
   createReel: async (data: CreateReelRequest) => {
     const formData = new FormData()
-    formData.append("data", JSON.stringify({ caption: data.caption }))
+    formData.append("data", JSON.stringify({ 
+      caption: data.caption,
+      hashtags: data.hashtags 
+    }))
     formData.append("video", data.video)
 
     const response = await axiosClient.post<ApiResponse<Reel>>("/reels", formData, {
@@ -45,8 +49,12 @@ export const reelsApi = {
   updateReel: async (reelId: number, data: UpdateReelRequest) => {
     const formData = new FormData()
 
-    // Add caption as JSON in "data" field
-    formData.append("data", JSON.stringify({ caption: data.caption }))
+    // Add caption and hashtags as JSON in "data" field
+    const jsonData: { caption: string; hashtags?: string[] } = { caption: data.caption }
+    if (data.hashtags) {
+      jsonData.hashtags = data.hashtags
+    }
+    formData.append("data", JSON.stringify(jsonData))
 
     // Only add video if it's provided (optional update)
     if (data.video) {
@@ -247,6 +255,29 @@ export const reelsApi = {
   // Admin: Get reel detail by ID
   getAdminReelDetail: async (reelId: number) => {
     const response = await axiosClient.get<ApiResponse<AdminReelDetail>>(`/admin/reels/${reelId}`)
+    return response.data.data
+  },
+
+  // Admin: Hard delete reel
+  hardDeleteAdminReel: async (reelId: number) => {
+    const response = await axiosClient.delete<ApiResponse<void>>(`/admin/reels/${reelId}/hard`)
+    return response.data
+  },
+
+  // Admin: Hide reel (change status to HIDDEN)
+  hideAdminReel: async (reelId: number, reason?: string) => {
+    const response = await axiosClient.patch<ApiResponse<HideReelResponse>>(
+      `/admin/reels/${reelId}/hide`,
+      { reason }
+    )
+    return response.data.data
+  },
+
+  // Admin: Unhide reel (change status to ACTIVE)
+  unhideAdminReel: async (reelId: number) => {
+    const response = await axiosClient.patch<ApiResponse<HideReelResponse>>(
+      `/admin/reels/${reelId}/unhide`
+    )
     return response.data.data
   },
 }
