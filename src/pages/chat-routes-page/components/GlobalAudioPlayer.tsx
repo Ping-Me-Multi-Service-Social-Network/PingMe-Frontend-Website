@@ -77,16 +77,24 @@ const GlobalAudioPlayer: React.FC = () => {
   const handleToggleFavorite = async () => {
     if (!currentSong) return;
 
+    console.log("Toggle favorite - Current state:", isFavorite, "Song ID:", currentSong.id);
+
     try {
       if (isFavorite) {
+        console.log("Removing from favorites...");
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
+        console.log("Successfully removed from favorites");
       } else {
+        console.log("Adding to favorites...");
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
+        console.log("Successfully added to favorites");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error toggling favorite:", err);
+      console.error("Error response:", err.response?.data);
+      console.error("Error status:", err.response?.status);
     }
   };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Trash2 } from "lucide-react";
+import { ArrowLeft, Heart, Play } from "lucide-react";
 import { favoriteApi } from "@/services/music/favoriteApi";
 import { songApi } from "@/services/music/songApi";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer";
@@ -57,6 +57,20 @@ export default function FavoritesPage() {
         }
     };
 
+    const handlePlayAll = async () => {
+        if (favorites.length === 0) return;
+
+        try {
+            const allSongs = await Promise.all(
+                favorites.map(fav => songApi.getSongById(fav.songId))
+            );
+            setPlaylist(allSongs);
+            playSong(allSongs[0]);
+        } catch (err) {
+            console.error("Error playing all favorites:", err);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-96 bg-gray-900">
@@ -95,6 +109,17 @@ export default function FavoritesPage() {
                             <p className="text-zinc-400">{favorites.length} {favorites.length === 1 ? 'song' : 'songs'}</p>
                         </div>
                     </div>
+
+                    {/* Play All Button */}
+                    {favorites.length > 0 && (
+                        <button
+                            onClick={handlePlayAll}
+                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-full text-white font-semibold transition-colors"
+                        >
+                            <Play className="w-5 h-5 fill-white" />
+                            Play All
+                        </button>
+                    )}
                 </div>
 
                 {/* Favorites List */}
@@ -128,10 +153,10 @@ export default function FavoritesPage() {
 
                                 <button
                                     onClick={() => handleRemoveFavorite(favorite.songId)}
-                                    className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+                                    className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
                                     title="Remove from favorites"
                                 >
-                                    <Trash2 className="w-5 h-5" />
+                                    <Heart className="w-5 h-5 fill-current" />
                                 </button>
                             </div>
                         ))}
