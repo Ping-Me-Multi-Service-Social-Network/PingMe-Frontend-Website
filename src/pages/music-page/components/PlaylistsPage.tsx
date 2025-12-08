@@ -154,10 +154,11 @@ export default function PlaylistsPage() {
                         icon={Music}
                         title="No playlists yet"
                         description="Create your first playlist to get started"
-                        action={{
-                            label: "Create Playlist",
-                            onClick: () => setShowCreateDialog(true),
-                        }}
+                        action={
+                            <Button onClick={() => setShowCreateDialog(true)}>
+                                Create Playlist
+                            </Button>
+                        }
                     />
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
