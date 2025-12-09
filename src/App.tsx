@@ -1,3 +1,5 @@
+"use client";
+
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { Provider } from "react-redux";
@@ -9,6 +11,7 @@ import { useEffect } from "react";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
 import { updateTokenManually } from "./features/slices/authSlice";
 import { logout } from "./features/slices/authThunk";
+import { CallProvider } from "./components/call/CallProvider";
 
 function App() {
   useEffect(() => {
@@ -22,9 +25,11 @@ function App() {
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>
-        <ScrollArea className="min-h-screen">
-          <RouterProvider router={router}></RouterProvider>
-        </ScrollArea>
+        <CallProvider>
+          <ScrollArea className="min-h-screen">
+            <RouterProvider router={router}></RouterProvider>
+          </ScrollArea>
+        </CallProvider>
         <Toaster
           duration={3000}
           closeButton
