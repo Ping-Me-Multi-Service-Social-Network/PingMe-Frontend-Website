@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getTheme } from "../../utils/chatThemes";
+import { CallButton } from "@/components/call/CallButton";
 
 interface ChatBoxHeaderProps {
   selectedChat: RoomResponse;
@@ -54,14 +55,26 @@ const ChatBoxHeader = ({
           </h3>
         </div>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onToggleSidebar}
-        className={theme.header.iconHoverBg}
-      >
-        <Info className={`h-5 w-5 ${theme.header.iconColor}`} />
-      </Button>
+
+      <div className="flex items-center gap-3">
+        {selectedChat.roomType === "DIRECT" && otherParticipant && (
+          <CallButton
+            targetUserId={otherParticipant.userId}
+            roomId={selectedChat.roomId}
+            isTargetOnline={otherParticipant.status === "ONLINE"}
+            targetName={otherParticipant.name}
+          />
+        )}
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSidebar}
+          className={theme.header.iconHoverBg}
+        >
+          <Info className={`h-5 w-5 ${theme.header.iconColor}`} />
+        </Button>
+      </div>
     </div>
   );
 };
