@@ -1,4 +1,3 @@
-import type { UserStatusPayload } from "@/types/common/userStatus";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
@@ -6,7 +5,7 @@ import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 
 // =================================================================
-// Type
+// Type Definitions
 // =================================================================
 export type FriendshipEventType =
   | "INVITED"
@@ -17,108 +16,175 @@ export type FriendshipEventType =
 
 export interface FriendshipEventPayload {
   type: FriendshipEventType;
-  userSummaryResponse: UserSummaryResponse;
+  userSummaryResponse: UserSummaryResponse; // Thay any bằng type chuẩn của bạn
 }
 
-//Thêm interface cho DTO UserOnlineStatusRespone (bên phía Back End) trả về
-export interface FriendShipPresenceEventPayload {
+export interface UserStatusPayload {
   userId: string;
   name: string;
   isOnline: boolean;
 }
 
-export interface FriendshipWSOptions {
-  baseUrl: string;
-  onEvent: (ev: FriendshipEventPayload) => void;
-  onStatus: (ev: FriendShipPresenceEventPayload) => void;
+export interface SignalingPayload {
+  type: "INVITE" | "ACCEPT" | "REJECT" | "HANGUP";
+  senderId: number;
+  roomId: number;
+  payload?: {
+    callType?: "AUDIO" | "VIDEO";
+    targetUserId?: number;
+    reason?: string;
+  };
 }
 
-//Thêm interface FriendStatusWS (tách ra từ FriendshipWSOptions) để chỉ chuyên nhận payload status người dùng.
-export interface FriendStatusWS {
+// Đổi tên Interface cho chuẩn nghĩa Global
+export interface GlobalWSOptions {
   baseUrl: string;
-  onStatus: (ev: FriendShipPresenceEventPayload) => void;
+  onFriendEvent: (ev: FriendshipEventPayload) => void;
+  onStatus: (ev: UserStatusPayload) => void;
+  onSignalEvent: (ev: SignalingPayload) => void;
 }
 
 // =================================================================
-// Internal state
+// Internal State (Singleton Pattern)
 // =================================================================
 let client: Client | null = null;
 let manualDisconnect = false;
 
-let sub: StompSubscription | null = null;
+// Các biến Subscription
+let subFriendship: StompSubscription | null = null;
 let subStatus: StompSubscription | null = null;
+let subSignal: StompSubscription | null = null;
 
 // ================================================================
-// Connect / Disconnect
+// Helper: Clean up subscriptions
 // ================================================================
-export async function connectFriendshipWS(opts: FriendshipWSOptions) {
-  if (client?.connected) return;
+const clearSubscriptions = () => {
+  try {
+    if (subFriendship) {
+      subFriendship.unsubscribe();
+      subFriendship = null;
+    }
+    if (subStatus) {
+      subStatus.unsubscribe();
+      subStatus = null;
+    }
+    if (subSignal) {
+      subSignal.unsubscribe();
+      subSignal = null;
+    }
+  } catch (error) {
+    console.warn("[GlobalWS] Error clearing subscriptions", error);
+  }
+};
+
+// ================================================================
+// Connect Function
+// ================================================================
+export async function connectGlobalWS(opts: GlobalWSOptions) {
+  // Nếu đã kết nối và client đang active thì không connect lại
+  if (client?.connected && client?.active) return;
+
   manualDisconnect = false;
 
   client = new Client({
     webSocketFactory: () => {
       const token = localStorage.getItem("access_token") ?? "";
+      // Encode token là thói quen tốt
       const url = `${opts.baseUrl}/ws?access_token=${encodeURIComponent(
         token
       )}`;
       return new SockJS(url);
     },
-    heartbeatIncoming: 15000,
-    heartbeatOutgoing: 15000,
-    reconnectDelay: 3000,
-    maxWebSocketChunkSize: 8 * 1024,
+    // Config Heartbeat để giữ kết nối không bị timeout qua Nginx/LoadBalancer
+    heartbeatIncoming: 20000,
+    heartbeatOutgoing: 20000,
+    reconnectDelay: 5000, // Tăng delay chút để đỡ spam server nếu sập
   });
 
   client.onConnect = () => {
-    sub?.unsubscribe();
-    sub = client!.subscribe("/user/queue/friendship", (msg: IMessage) => {
-      try {
-        const ev = JSON.parse(msg.body) as FriendshipEventPayload;
-        opts.onEvent(ev);
-      } catch (e) {
-        console.error("[FriendshipWS] parse error:", e, msg.body);
-      }
-    });
+    // 1. Reset sạch subscription cũ trước khi sub mới (Phòng trường hợp re-connect)
+    clearSubscriptions();
 
-    subStatus?.unsubscribe();
+    console.log("[GlobalWS] Connected!");
+
+    // 2. Subscribe Friendship
+    subFriendship = client!.subscribe(
+      "/user/queue/friendship",
+      (msg: IMessage) => {
+        try {
+          const ev = JSON.parse(msg.body) as FriendshipEventPayload;
+          opts.onFriendEvent(ev);
+        } catch (e) {
+          console.error("[GlobalWS] Friendship parse error:", e);
+        }
+      }
+    );
+
+    // 3. Subscribe Status
     subStatus = client!.subscribe("/user/queue/status", (msg: IMessage) => {
       try {
         const ev = JSON.parse(msg.body) as UserStatusPayload;
-        opts.onStatus?.(ev);
+        opts.onStatus(ev);
       } catch (e) {
-        console.error("[PresenceWS] parse error:", e, msg.body);
+        console.error("[GlobalWS] Status parse error:", e);
+      }
+    });
+
+    // 4. Subscribe Signaling (Voice/Video Call)
+    console.log("[v0] GlobalWS: Subscribing to /user/queue/signaling");
+    subSignal = client!.subscribe("/user/queue/signaling", (msg: IMessage) => {
+      try {
+        console.log("[v0] GlobalWS: Received raw signaling message:", msg.body);
+        const ev = JSON.parse(msg.body) as SignalingPayload;
+        console.log("[v0] GlobalWS: Parsed signaling event:", ev);
+        opts.onSignalEvent(ev);
+      } catch (e) {
+        console.error("[GlobalWS] Signaling parse error:", e);
       }
     });
   };
 
   client.onStompError = (frame) => {
     console.error(
-      "[FriendshipWS] STOMP error:",
+      "[GlobalWS] STOMP error:",
       frame.headers["message"],
       frame.body
     );
   };
 
-  client.onWebSocketError = (ev) => {
-    console.error("[FriendshipWS] WebSocket error:", ev);
-  };
-
   client.onDisconnect = () => {
-    sub = null;
-    if (manualDisconnect) return;
+    console.log("[GlobalWS] Disconnected");
+    // Nếu rớt mạng tự nhiên (không phải do user logout), cần clear sub để tránh lỗi trạng thái
+    if (!manualDisconnect) {
+      clearSubscriptions();
+    }
   };
 
   client.activate();
 }
 
-export function disconnectFriendshipWS() {
+// ================================================================
+// Disconnect Function (Dùng khi Logout)
+// ================================================================
+export function disconnectGlobalWS() {
   manualDisconnect = true;
-  try {
-    sub?.unsubscribe();
-    sub = null;
-  } catch (err) {
-    toast.error(getErrorMessage(err, "Không thể ngắt kết nối"));
+
+  // 1. Clear toàn bộ subscription
+  clearSubscriptions();
+
+  // 2. Deactivate Client
+  if (client) {
+    try {
+      client.deactivate();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Không thể ngắt kết nối"));
+      console.error("Error deactivating client", err);
+    }
+    client = null;
   }
-  client?.deactivate();
-  client = null;
 }
+
+// ================================================================
+// Send Signal Message Function
+// ================================================================
+// Removed sendSignalMessage function since we're using REST API now
