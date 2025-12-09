@@ -5,8 +5,8 @@ import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
 import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
 import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
 import {
-  connectFriendshipWS,
-  disconnectFriendshipWS,
+  connectGlobalWS,
+  disconnectGlobalWS,
   type FriendshipEventPayload,
 } from "@/services/ws/friendshipSocket.ts";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
@@ -15,7 +15,8 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
-import type { UserStatusPayload } from "@/types/common/userStatus"; // Fixed import to use inline type keyword for erasableSyntaxOnly compatibility
+import type { UserStatusPayload } from "@/types/common/userStatus";
+import type { SignalingPayload } from "@/types/call/call";
 
 const tabs = [
   {
@@ -73,11 +74,13 @@ export default function ContactsPage() {
     newInvitation: (user: UserSummaryResponse) => void;
   }>(null);
 
+  // const { handleSignalingEvent } = useCallContext();
+
   useEffect(() => {
     const connectWebSocket = () => {
-      connectFriendshipWS({
+      connectGlobalWS({
         baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
-        onEvent: (event: FriendshipEventPayload) => {
+        onFriendEvent: (event: FriendshipEventPayload) => {
           try {
             switch (event.type) {
               // Có lời mời kết bạn mới
@@ -172,6 +175,11 @@ export default function ContactsPage() {
         onStatus: ({ userId, name, isOnline }) => {
           setStatusPayload({ userId, name, isOnline }); //  update state khi có event
         },
+
+        onSignalEvent: (event: SignalingPayload) => {
+          console.log("[ContactPage] Received signaling event:", event.type);
+          // CallProvider will handle this globally, no need to process here
+        },
       });
     };
 
@@ -188,7 +196,7 @@ export default function ContactsPage() {
     fetchStats();
 
     return () => {
-      disconnectFriendshipWS();
+      disconnectGlobalWS();
     };
   }, [activeTab, userSession?.id]);
 
