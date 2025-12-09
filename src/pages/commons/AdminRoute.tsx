@@ -15,7 +15,7 @@ export const AdminRoute = ({ children }: AdminRouteProps) => {
     return <Navigate to="/auth" />;
   }
 
-  console.log(userSession.roleName);
+  console.log("[PingMe] User role:", userSession.roleName);
 
   if (userSession.roleName !== "ADMIN") {
     toast.error("Bạn không có quyền truy cập trang này");

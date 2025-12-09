@@ -258,7 +258,7 @@ export default function MessagesPage() {
   // =======================================================================
   const handleMemberRemoved = useCallback(
     (event: RoomMemberRemovedEventPayload) => {
-      console.log("Test");
+      console.log("[PingMe] Member removed event:", event);
 
       const isCurrentUserRemoved = event.targetUserId === userSession?.id;
 

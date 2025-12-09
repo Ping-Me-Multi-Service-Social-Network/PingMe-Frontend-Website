@@ -21,11 +21,23 @@ import { AdminRoute } from "@/pages/commons/AdminRoute";
 import MusicPage from "@/pages/music-page";
 import SharedChatMusicLayout from "@/pages/chat-routes-page/components/SharedChatMusicLayout";
 import ExpensePage from "@/pages/main-routes-page/expense-page";
+import ReelsPage from "@/pages/chat-routes-page/reels-page";
+import VideoManagerPage from "@/pages/chat-routes-page/reels-page/video-manager";
+import SearchResultsPage from "@/pages/chat-routes-page/reels-page/search-results";
 import MusicManagementPage from "@/pages/admin-route-pages/music-management-page";
 import AlbumManagementPage from "@/pages/admin-route-pages/album-management-page";
 import ArtistManagementPage from "@/pages/admin-route-pages/artist-management-page";
 import GenreManagementPage from "@/pages/admin-route-pages/genre-management-page";
+import ReelManagementPage from "@/pages/admin-route-pages/reel-management-page";
 import SongListPage from "@/pages/music-page/components/SongListPage";
+import AlbumsPage from "@/pages/music-page/components/AlbumsPage";
+import ArtistsPage from "@/pages/music-page/components/ArtistsPage";
+import RankingsPage from "@/pages/music-page/components/RankingsPage";
+import FavoritesPage from "@/pages/music-page/components/FavoritesPage";
+import PlaylistsPage from "@/pages/music-page/components/PlaylistsPage";
+import PlaylistDetailPage from "@/pages/music-page/components/PlaylistDetailPage";
+import DiscoverPlaylistsPage from "@/pages/music-page/components/DiscoverPlaylistsPage";
+import MusicLayout from "@/pages/music-page/components/MusicLayout";
 
 export const router = createBrowserRouter([
   {
@@ -88,11 +100,30 @@ export const router = createBrowserRouter([
       },
       {
         path: "music",
-        element: <MusicPage />,
+        element: <MusicLayout />,
+        children: [
+          { index: true, element: <MusicPage /> },
+          { path: "songs", element: <SongListPage /> },
+          { path: "albums", element: <AlbumsPage /> },
+          { path: "artists", element: <ArtistsPage /> },
+          { path: "rankings", element: <RankingsPage /> },
+          { path: "favorites", element: <FavoritesPage /> },
+          { path: "playlists", element: <PlaylistsPage /> },
+          { path: "playlists/discover", element: <DiscoverPlaylistsPage /> },
+          { path: "playlists/:id", element: <PlaylistDetailPage /> },
+        ],
       },
       {
-        path: "music/songs",
-        element: <SongListPage />,
+        path: "reels",
+        element: <ReelsPage />,
+      },
+      {
+        path: "reels/search",
+        element: <SearchResultsPage />,
+      },
+      {
+        path: "reels/video-manager",
+        element: <VideoManagerPage />,
       },
     ],
   },
@@ -112,6 +143,7 @@ export const router = createBrowserRouter([
       { path: "albums", element: <AlbumManagementPage /> },
       { path: "artists", element: <ArtistManagementPage /> },
       { path: "genres", element: <GenreManagementPage /> },
+      { path: "reels", element: <ReelManagementPage /> },
     ],
   },
 ]);

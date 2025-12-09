@@ -9,8 +9,12 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Navigate to artist detail page if available
-    navigate(`/artist/${artist.id}`);
+    // Navigate to artist's songs page
+    navigate(
+      `/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
+        artist.name
+      )}&imageUrl=${encodeURIComponent(artist.imgUrl || "")}`
+    );
   };
 
   return (

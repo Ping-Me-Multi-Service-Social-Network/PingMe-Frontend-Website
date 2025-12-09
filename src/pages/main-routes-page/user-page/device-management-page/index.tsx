@@ -28,7 +28,9 @@ import {
 
 const DeviceManagementPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [sessions, setSessions] = useState<CurrentUserSessionMetaResponse[]>([]);
+  const [sessions, setSessions] = useState<CurrentUserSessionMetaResponse[]>(
+    []
+  );
   const [deletingSessionId, setDeletingSessionId] = useState<string | null>(
     null
   );
@@ -63,7 +65,10 @@ const DeviceManagementPage = () => {
       const data = res.data.data;
 
       const sortedSessions = data.sort(
-        (a: CurrentUserSessionMetaResponse, b: CurrentUserSessionMetaResponse) => {
+        (
+          a: CurrentUserSessionMetaResponse,
+          b: CurrentUserSessionMetaResponse
+        ) => {
           if (a.current && !b.current) return -1;
           if (!a.current && b.current) return 1;
           return (
@@ -84,7 +89,7 @@ const DeviceManagementPage = () => {
   }, []);
 
   const handleDeleteSession = async (sessionId: string) => {
-    console.log(sessionId);
+    console.log("[PingMe] Delete session:", sessionId);
     try {
       setDeletingSessionId(sessionId);
       await deleteCurrentUserDeviceMetaApi(sessionId);
@@ -256,7 +261,7 @@ const DeviceManagementPage = () => {
                         variant="outline"
                         size="sm"
                         disabled={deletingSessionId === session.sessionId}
-                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 ml-4"
+                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 ml-4 bg-transparent"
                       >
                         {deletingSessionId === session.sessionId ? (
                           <>

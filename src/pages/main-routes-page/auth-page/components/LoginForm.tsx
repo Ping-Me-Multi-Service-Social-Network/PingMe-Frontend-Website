@@ -40,7 +40,7 @@ export default function LoginForm() {
   };
 
   const handleForgotPassword = () => {
-    console.log("Forgot password clicked");
+    console.log("[PingMe] Forgot password clicked");
   };
 
   return (
@@ -165,7 +165,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                  className="text-sm text-purple-600 hover:text-purple-700 font-medium hover:underline transition-colors"
                 >
                   Quên mật khẩu?
                 </button>

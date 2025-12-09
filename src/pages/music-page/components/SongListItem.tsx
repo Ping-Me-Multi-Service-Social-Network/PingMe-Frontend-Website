@@ -1,5 +1,3 @@
-"use client";
-
 import type { Song } from "@/types/music/song";
 import { Play, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
