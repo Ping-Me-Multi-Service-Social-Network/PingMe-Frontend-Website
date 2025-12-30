@@ -53,8 +53,7 @@ axiosClient.interceptors.response.use(
       | undefined;
     const payload = error.response?.data as ApiResponse<unknown> | undefined;
     const code = payload?.errorCode ?? "";
-    const isUnauthorized =
-      error.response?.status === 401 && code.includes?.("INVALID_JWT_TOKEN");
+    const isUnauthorized = error.response?.status === 401 && code == 1102;
 
     if (!original || original._retry || !isUnauthorized)
       return Promise.reject(error);
