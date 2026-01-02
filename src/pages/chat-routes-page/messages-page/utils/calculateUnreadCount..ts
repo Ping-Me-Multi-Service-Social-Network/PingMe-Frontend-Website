@@ -22,8 +22,8 @@ export function calculateUnreadCount(
     return 0;
   }
 
-  const unreadCount =
-    room.lastMessage.messageId - currentUserParticipant.lastReadMessageId;
+  const unreadCount = 0;
+  // room.lastMessage.messageId - currentUserParticipant.lastReadMessageId;
 
   return Math.max(0, unreadCount);
 }
