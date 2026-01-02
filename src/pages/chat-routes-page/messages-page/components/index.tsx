@@ -30,7 +30,7 @@ interface ChatBoxProps {
 
 export interface ChatBoxRef {
   handleIncomingMessage: (message: MessageResponse) => void;
-  handleRecallMessage: (messageId: number) => void;
+  handleRecallMessage: (messageId: string) => void;
 }
 
 export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
@@ -58,7 +58,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const fetchMessages = useCallback(
-      async (beforeMessageId?: number, size = 20, append = false) => {
+      async (beforeMessageId?: string, size = 20, append = false) => {
         try {
           if (!append) setIsLoadingMessages(true);
           else setIsLoadingMore(true);
@@ -73,7 +73,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           const newMessages = historyResponse.messageResponses;
           const hasMore = historyResponse.hasMore;
 
-          const sortedMessages = newMessages.sort((a, b) => a.id - b.id);
+          const sortedMessages = newMessages;
 
           if (append) {
             setMessages((prev) => {
@@ -81,7 +81,6 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
               const uniqueNewMessages = sortedMessages.filter(
                 (msg) => !existingIds.has(msg.id)
               );
-              // Chỉ thêm messages mới vào đầu (load more = messages cũ hơn)
               return [...uniqueNewMessages, ...prev];
             });
           } else {
@@ -108,7 +107,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     }, [selectedChat.roomId, fetchMessages]);
 
     const handleLoadMore = useCallback(
-      (beforeMessageId?: number) => {
+      (beforeMessageId?: string) => {
         fetchMessages(beforeMessageId, 20, true);
       },
       [fetchMessages]
@@ -234,7 +233,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
       ]
     );
 
-    const handleRecallMessage = useCallback((messageId: number) => {
+    const handleRecallMessage = useCallback((messageId: string) => {
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === messageId ? { ...msg, isActive: false } : msg

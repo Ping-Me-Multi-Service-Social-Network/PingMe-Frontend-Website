@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
@@ -14,9 +14,9 @@ interface ChatBoxContentProps {
   isLoadingMessages: boolean;
   isLoadingMore: boolean;
   hasMoreMessages: boolean;
-  onLoadMore: (beforeId?: number) => void;
+  onLoadMore: (beforeId?: string) => void;
   isCurrentUserMessage: (senderId: number) => boolean;
-  onMessageRecalled: (messageId: number) => void;
+  onMessageRecalled: (messageId: string) => void;
 }
 
 export const ChatBoxContent = ({
@@ -34,6 +34,8 @@ export const ChatBoxContent = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const prevScrollHeightRef = useRef<number>(0);
+
   const theme = getTheme(selectedChat.theme);
 
   useEffect(() => {
@@ -46,27 +48,33 @@ export const ChatBoxContent = ({
     setShouldScrollToBottom(true);
   }, [selectedChat.roomId]);
 
+  useLayoutEffect(() => {
+    if (messagesContainerRef.current && prevScrollHeightRef.current > 0) {
+      const container = messagesContainerRef.current;
+      const newScrollHeight = container.scrollHeight;
+
+      const heightDifference = newScrollHeight - prevScrollHeightRef.current;
+
+      if (heightDifference > 0) {
+        container.scrollTop = heightDifference;
+      }
+
+      prevScrollHeightRef.current = 0;
+    }
+  }, [messages]);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
 
     if (scrollTop === 0 && hasMoreMessages && !isLoadingMore) {
-      const container = e.currentTarget;
-      const currentScrollHeight = container.scrollHeight;
-      const currentScrollTop = container.scrollTop;
-
       setShouldScrollToBottom(false);
 
+      if (messagesContainerRef.current) {
+        prevScrollHeightRef.current = messagesContainerRef.current.scrollHeight;
+      }
+
       const beforeId = messages.length > 0 ? messages[0].id : undefined;
-
       onLoadMore(beforeId);
-
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          const newScrollHeight = container.scrollHeight;
-          const heightDifference = newScrollHeight - currentScrollHeight;
-          container.scrollTop = currentScrollTop + heightDifference;
-        });
-      }, 100);
     }
   };
 

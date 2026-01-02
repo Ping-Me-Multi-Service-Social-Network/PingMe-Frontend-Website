@@ -20,7 +20,7 @@ import type { ChatTheme } from "../../utils/chatThemes";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
-  onMessageRecalled?: (messageId: number) => void;
+  onMessageRecalled?: (messageId: string) => void;
   theme: ChatTheme;
 }
 

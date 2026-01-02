@@ -35,7 +35,7 @@ export interface ReadStateChangedEvent {
   chatEventType: "READ_STATE_CHANGED";
   roomId: number;
   userId?: number;
-  lastReadMessageId: number;
+  lastReadMessageId: string;
   lastReadAt: string;
 }
 
