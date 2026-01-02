@@ -21,12 +21,12 @@ export interface RoomParticipantResponse {
 
   status: UserStatus;
   role: "OWNER" | "ADMIN" | "MEMBER";
-  lastReadMessageId: number | null;
+  lastReadMessageId: string | null;
   lastReadAt: string | null;
 }
 
 export interface LastMessage {
-  messageId: number;
+  messageId: string;
   senderId: number;
   preview: string;
   messageType: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "WEATHER";

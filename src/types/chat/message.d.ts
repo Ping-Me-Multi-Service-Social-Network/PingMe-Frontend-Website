@@ -1,5 +1,5 @@
 export interface MessageResponse {
-  id: number;
+  id: string;
   roomId: number;
   clientMsgId: string;
   senderId: number;
@@ -10,13 +10,13 @@ export interface MessageResponse {
 }
 
 export interface MessageRecalledResponse {
-  id: number;
+  id: string;
 }
 
 export interface HistoryMessageResponse {
   messageResponses: MessageResponse[];
   hasMore: boolean;
-  nextBeforeId: number;
+  nextBeforeId: string;
 }
 
 export interface SendMessageRequest {
@@ -36,12 +36,12 @@ export interface SendWeatherMessageRequest {
 export interface ReadStateResponse {
   roomId: number;
   userId: number;
-  lastReadMessageId: number | null;
+  lastReadMessageId: string | null;
   lastReadAt: string | null;
   unreadCount: number;
 }
 
 export interface MarkReadRequest {
-  lastReadMessageId: number;
+  lastReadMessageId: string;
   roomId: number;
 }

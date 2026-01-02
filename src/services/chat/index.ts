@@ -114,7 +114,7 @@ export const sendWeatherMessage = (data: SendWeatherMessageRequest) => {
   );
 };
 
-export const recallMessageApi = (messageId: number) => {
+export const recallMessageApi = (messageId: string) => {
   return axiosClient.delete<ApiResponse<MessageRecalledResponse>>(
     `/messages/${messageId}/recall`
   );
@@ -126,14 +126,14 @@ export const markAsReadApi = (data: MarkReadRequest) => {
 
 export const getHistoryMessagesApi = (
   roomId: number,
-  beforeId?: number,
+  beforeId?: string,
   size: number = 20
 ) => {
   const params = new URLSearchParams();
   params.append("roomId", roomId.toString());
   params.append("size", size.toString());
   if (beforeId !== undefined) {
-    params.append("beforeId", beforeId.toString());
+    params.append("beforeId", beforeId);
   }
 
   return axiosClient.get<ApiResponse<HistoryMessageResponse>>(

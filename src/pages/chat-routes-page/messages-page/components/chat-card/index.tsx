@@ -6,7 +6,6 @@ import {
 import { Badge } from "@/components/ui/badge.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
-import { calculateUnreadCount } from "../../utils/calculateUnreadCount..ts";
 import {
   getLastMessagePreview,
   getOtherParticipant,
@@ -27,9 +26,7 @@ export function ChatCard({
   isSelected,
   onClick,
 }: ChatCardProps) {
-  const unreadCount = userSession
-    ? calculateUnreadCount(room, userSession.id)
-    : 0;
+  const unreadCount = 0;
 
   return (
     <div
