@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { searchService } from "@/services/music/musicService";
 import type {
-  SongResponseWithAllAlbum,
+  SongResponse,
   AlbumResponse,
   ArtistResponse,
 } from "@/types/music";
@@ -11,7 +11,7 @@ import { Music2, Disc3, User2 } from "lucide-react";
 interface SearchDropdownProps {
   query: string;
   isOpen: boolean;
-  onSongSelect?: (song: SongResponseWithAllAlbum) => void;
+  onSongSelect?: (song: SongResponse) => void;
   onAlbumSelect?: (album: AlbumResponse) => void;
   onArtistSelect?: (artist: ArtistResponse) => void;
   onViewMoreSongs?: () => void;
@@ -29,7 +29,7 @@ export default function SearchDropdown({
   onViewMoreAlbums,
   onViewMoreArtists,
 }: SearchDropdownProps) {
-  const [songs, setSongs] = useState<SongResponseWithAllAlbum[]>([]);
+  const [songs, setSongs] = useState<SongResponse[]>([]);
   const [albums, setAlbums] = useState<AlbumResponse[]>([]);
   const [artists, setArtists] = useState<ArtistResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export default function SearchDropdown({
       setLoading(true);
       try {
         const [songsData, albumsData, artistsData] = await Promise.all([
-          searchService.searchSongs(query),
+          searchService.searchSongs(query, 0, 5), // Chỉ lấy 5 kết quả đầu tiên cho quick search
           searchService.searchAlbums(query),
           searchService.searchArtists(query),
         ]);
