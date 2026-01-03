@@ -28,9 +28,9 @@ export default function AlbumsPage() {
                 await Promise.all(
                     albumsData.slice(0, 10).map(async (album) => {
                         try {
-                            const songs = await searchService.getSongsByAlbum(album.id);
-                            if (songs.length > 0) {
-                                songsMap.set(album.id, [songs[0]]);
+                            const response = await searchService.getSongsByAlbum(album.id, 0, 1);
+                            if (response.content.length > 0) {
+                                songsMap.set(album.id, response.content);
                             }
                         } catch (err) {
                             console.error(`Error fetching songs for album ${album.id}:`, err);
