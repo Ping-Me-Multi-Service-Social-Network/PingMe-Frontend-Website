@@ -37,8 +37,6 @@ export default function SongListPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [totalElements, setTotalElements] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,88 +48,42 @@ export default function SongListPage() {
 
       try {
         setLoading(true);
-
-        // Spring Boot uses 0-based page index
-        const pageIndex = currentPage - 1;
+        let songsData: SongResponseWithAllAlbum[] = [];
 
         if (type === "album") {
-          const [paginatedData, albumInfo] = await Promise.all([
-            searchService.getSongsByAlbum(Number(id), pageIndex, itemsPerPage),
+          const [albumData, albumInfo] = await Promise.all([
+            searchService.getSongsByAlbum(Number(id)),
             albumService.getById(Number(id)),
           ]);
-          setSongs(paginatedData.content);
-          setTotalElements(paginatedData.totalElements);
-          setTotalPages(paginatedData.totalPages);
+          songsData = albumData;
           setAlbumDetails(albumInfo);
-
-          // Set full playlist once (for play all functionality)
-          if (pageIndex === 0) {
-            const fullData = await searchService.getSongsByAlbum(Number(id), 0, 1000);
-            const playlist: Song[] = fullData.content.map((song) => ({
-              id: song.id,
-              title: song.title,
-              duration: song.duration,
-              playCount: song.playCount,
-              songUrl: song.songUrl,
-              coverImageUrl: song.coverImageUrl,
-              mainArtist: song.mainArtist,
-              featuredArtists: song.otherArtists,
-              genre: song.genres,
-              album: song.albums,
-            }));
-            setPlaylist(playlist);
-          }
         } else if (type === "artist") {
-          const [paginatedData, artistInfo] = await Promise.all([
-            searchService.getSongsByArtist(Number(id), pageIndex, itemsPerPage),
+          const [artistData, artistInfo] = await Promise.all([
+            searchService.getSongsByArtist(Number(id)),
             artistService.getById(Number(id)),
           ]);
-          setSongs(paginatedData.content);
-          setTotalElements(paginatedData.totalElements);
-          setTotalPages(paginatedData.totalPages);
+          songsData = artistData;
           setArtistDetails(artistInfo);
-
-          // Set full playlist once (for play all functionality)
-          if (pageIndex === 0) {
-            const fullData = await searchService.getSongsByArtist(Number(id), 0, 1000);
-            const playlist: Song[] = fullData.content.map((song) => ({
-              id: song.id,
-              title: song.title,
-              duration: song.duration,
-              playCount: song.playCount,
-              songUrl: song.songUrl,
-              coverImageUrl: song.coverImageUrl,
-              mainArtist: song.mainArtist,
-              featuredArtists: song.otherArtists,
-              genre: song.genres,
-              album: song.albums,
-            }));
-            setPlaylist(playlist);
-          }
         } else if (type === "genre") {
-          const paginatedData = await searchService.getSongsByGenre(Number(id), pageIndex, itemsPerPage);
-          setSongs(paginatedData.content);
-          setTotalElements(paginatedData.totalElements);
-          setTotalPages(paginatedData.totalPages);
-
-          // Set full playlist once (for play all functionality)
-          if (pageIndex === 0) {
-            const fullData = await searchService.getSongsByGenre(Number(id), 0, 1000);
-            const playlist: Song[] = fullData.content.map((song) => ({
-              id: song.id,
-              title: song.title,
-              duration: song.duration,
-              playCount: song.playCount,
-              songUrl: song.songUrl,
-              coverImageUrl: song.coverImageUrl,
-              mainArtist: song.mainArtist,
-              featuredArtists: song.otherArtists,
-              genre: song.genres,
-              album: song.albums,
-            }));
-            setPlaylist(playlist);
-          }
+          songsData = await searchService.getSongsByGenre(Number(id));
         }
+
+        setSongs(songsData);
+
+        // Convert to Song format for playlist
+        const playlist: Song[] = songsData.map((song) => ({
+          id: song.id,
+          title: song.title,
+          duration: song.duration,
+          playCount: song.playCount,
+          songUrl: song.songUrl,
+          coverImageUrl: song.coverImageUrl,
+          mainArtist: song.mainArtist,
+          featuredArtists: song.otherArtists,
+          genre: song.genres,
+          album: song.albums,
+        }));
+        setPlaylist(playlist);
 
         setError(null);
       } catch (err) {
@@ -143,7 +95,7 @@ export default function SongListPage() {
     };
 
     fetchData();
-  }, [type, id, currentPage, itemsPerPage, setPlaylist]);
+  }, [type, id, setPlaylist]);
 
   const convertToSong = (song: SongResponseWithAllAlbum): Song => {
     return {
@@ -170,6 +122,11 @@ export default function SongListPage() {
       playSong(firstSong);
     }
   };
+
+  const totalPages = Math.ceil(songs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSongs = songs.slice(startIndex, endIndex);
 
   if (loading) {
     return (
@@ -269,7 +226,7 @@ export default function SongListPage() {
               {/* Stats */}
               <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
                 <span>
-                  {totalElements} {totalElements === 1 ? "song" : "songs"}
+                  {songs.length} {songs.length === 1 ? "song" : "songs"}
                 </span>
                 {playCount !== null && playCount !== undefined && (
                   <>
@@ -299,23 +256,23 @@ export default function SongListPage() {
           {songs.length > 0 ? (
             <>
               <div className="space-y-2 mb-4">
-                {songs.map((song, index) => (
+                {paginatedSongs.map((song, index) => (
                   <SongListItem
                     key={song.id}
                     song={convertToSong(song)}
                     onPlay={handleSongPlay}
-                    index={(currentPage - 1) * itemsPerPage + index + 1}
+                    index={startIndex + index + 1}
                   />
                 ))}
               </div>
 
-              {totalPages > 1 && (
+              {songs.length > itemsPerPage && (
                 <div className="bg-zinc-800/50 rounded-lg p-4 [&_.flex]:!bg-zinc-800/50 [&_.flex]:border-zinc-700 [&_button]:!bg-zinc-700 [&_button]:!text-zinc-200 [&_button]:!border-zinc-600 [&_button:hover]:!bg-zinc-600 [&_button.bg-purple-600]:!bg-zinc-300 [&_button.bg-purple-600]:!text-zinc-900 [&_button.bg-purple-600:hover]:!bg-white [&_span]:!text-zinc-300 [&_select]:!bg-zinc-700 [&_select]:!text-zinc-200 [&_select]:!border-zinc-600">
                   <Pagination
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
                     totalPages={totalPages}
-                    totalElements={totalElements}
+                    totalElements={songs.length}
                     itemsPerPage={itemsPerPage}
                     setItemsPerPage={setItemsPerPage}
                     showItemsPerPageSelect={true}
