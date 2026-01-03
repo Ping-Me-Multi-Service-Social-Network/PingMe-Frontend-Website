@@ -28,9 +28,9 @@ export default function ArtistsPage() {
                 await Promise.all(
                     artistsData.slice(0, 10).map(async (artist) => {
                         try {
-                            const songs = await searchService.getSongsByArtist(artist.id);
-                            if (songs.length > 0) {
-                                songsMap.set(artist.id, [songs[0]]);
+                            const response = await searchService.getSongsByArtist(artist.id, 0, 1);
+                            if (response.content.length > 0) {
+                                songsMap.set(artist.id, response.content);
                             }
                         } catch (err) {
                             console.error(`Error fetching songs for artist ${artist.id}:`, err);
