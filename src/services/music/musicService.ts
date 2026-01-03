@@ -1,6 +1,4 @@
 import axiosClient from "@/lib/axiosClient";
-import { songApi } from "./songApi";
-import type { PaginatedResponse } from "./songApi";
 import type {
   SongResponse,
   SongResponseWithAllAlbum,
@@ -402,16 +400,15 @@ export const commonService = {
 
 // Search Services
 export const searchService = {
-  searchSongs: async (title: string, page: number = 0, size: number = 10): Promise<SongResponse[]> => {
+  searchSongs: async (title: string): Promise<SongResponseWithAllAlbum[]> => {
     if (!title.trim()) return [];
-    const response = await songApi.searchSongByTitle(title, { page, size });
-    return response.content;
-  },
-
-  // For full search results with pagination info
-  searchSongsPaginated: async (title: string, page: number = 0, size: number = 10): Promise<PaginatedResponse<SongResponse>> => {
-    if (!title.trim()) return { content: [], totalElements: 0, totalPages: 0, size: 0, number: 0, first: true, last: true };
-    return await songApi.searchSongByTitle(title, { page, size });
+    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+      `${BASE_URL}/songs/search`,
+      {
+        params: { title },
+      }
+    );
+    return response.data;
   },
 
   searchAlbums: async (title: string): Promise<AlbumResponse[]> => {
@@ -437,26 +434,38 @@ export const searchService = {
   },
 
   getSongsByAlbum: async (
-    albumId: number,
-    page: number = 0,
-    size: number = 5
-  ): Promise<PaginatedResponse<SongResponseWithAllAlbum>> => {
-    return await songApi.getSongsByAlbum(albumId, { page, size });
+    albumId: number
+  ): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+      `${BASE_URL}/songs/search-by-album`,
+      {
+        params: { id: albumId },
+      }
+    );
+    return response.data;
   },
 
   getSongsByArtist: async (
-    artistId: number,
-    page: number = 0,
-    size: number = 5
-  ): Promise<PaginatedResponse<SongResponseWithAllAlbum>> => {
-    return await songApi.getSongsByArtist(artistId, { page, size });
+    artistId: number
+  ): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+      `${BASE_URL}/songs/search-by-artist`,
+      {
+        params: { id: artistId },
+      }
+    );
+    return response.data;
   },
 
   getSongsByGenre: async (
-    genreId: number,
-    page: number = 0,
-    size: number = 5
-  ): Promise<PaginatedResponse<SongResponseWithAllAlbum>> => {
-    return await songApi.getSongsByGenre(genreId, { page, size });
+    genreId: number
+  ): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+      `${BASE_URL}/songs/genre`,
+      {
+        params: { id: genreId },
+      }
+    );
+    return response.data;
   },
 };
