@@ -93,7 +93,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
 
         <DropdownMenuItem>
           <Link
-            to={"/profile/user-info"}
+            to={"/app/profile/user-info"}
             target={openInNewTab ? "_blank" : undefined}
             rel={openInNewTab ? "noopener noreferrer" : undefined}
             className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
