@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
 import { updateTokenManually } from "./features/slices/authSlice";
 import { logout } from "./features/slices/authThunk";
-import { CallProvider } from "./components/call/CallProvider";
+import { CallProvider } from "@/pages/app-routes-page/chat-page/components/call/CallProvider";
 
 function App() {
   useEffect(() => {
