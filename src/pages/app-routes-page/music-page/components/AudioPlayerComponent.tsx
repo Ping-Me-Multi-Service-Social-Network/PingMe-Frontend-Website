@@ -195,7 +195,7 @@ export default function AudioPlayerComponent({
         setCurrentTrackIndex(0);
       }
     }
-  }, [currentSong, audioRef, setIsPlaying]);
+  }, [currentSong, audioRef, playlist, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
