@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import {
   Music2,
@@ -163,16 +163,18 @@ const GlobalAudioPlayer: React.FC = () => {
       console.error("Error adding to playlist:", err);
       toast.error("Failed to add song to playlist");
     }
-  }; const handleClickNext = () => {
+  };
+
+  const handleClickNext = useCallback(() => {
     if (!currentSong || playlist.length === 0) return;
     const currentIndex = playlist.findIndex(
       (song: Song) => song.id === currentSong.id
     );
     const nextIndex = (currentIndex + 1) % playlist.length;
     playSong(playlist[nextIndex]);
-  };
+  }, [currentSong, playlist, playSong]);
 
-  const handleClickPrevious = () => {
+  const handleClickPrevious = useCallback(() => {
     if (!currentSong || playlist.length === 0) return;
     const currentIndex = playlist.findIndex(
       (song: Song) => song.id === currentSong.id
@@ -180,7 +182,7 @@ const GlobalAudioPlayer: React.FC = () => {
     const prevIndex =
       currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
     playSong(playlist[prevIndex]);
-  };
+  }, [currentSong, playlist, playSong]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -194,7 +196,7 @@ const GlobalAudioPlayer: React.FC = () => {
     return () => {
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [currentSong, playlist, audioRef]);
+  }, [currentSong, playlist, audioRef, handleClickNext]);
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
