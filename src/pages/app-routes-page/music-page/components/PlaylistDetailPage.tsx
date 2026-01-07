@@ -118,15 +118,15 @@ export default function PlaylistDetailPage() {
                 {/* Header */}
                 <div className="mb-8">
                     <button
-                        onClick={() => navigate("/music/playlists")}
+                        onClick={() => navigate("/app/music/playlists")}
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Back to Playlists
+                        Quay Lại Danh Sách
                     </button>
 
                     <div className="flex items-start gap-6 mb-6">
-                        <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center flex-shrink-0">
                             <Music2 className="w-24 h-24 text-white" />
                         </div>
 
@@ -138,17 +138,17 @@ export default function PlaylistDetailPage() {
                                     {playlistDetail.isPublic ? (
                                         <>
                                             <Globe className="w-4 h-4" />
-                                            <span>Public</span>
+                                            <span>Công khai</span>
                                         </>
                                     ) : (
                                         <>
                                             <Lock className="w-4 h-4" />
-                                            <span>Private</span>
+                                            <span>Riêng tư</span>
                                         </>
                                     )}
                                 </div>
                                 <span>•</span>
-                                <span>{playlistDetail.items.length} {playlistDetail.items.length === 1 ? 'song' : 'songs'}</span>
+                                <span>{playlistDetail.items.length} {playlistDetail.items.length === 1 ? 'bài hát' : 'bài hát'}</span>
                             </div>
                         </div>
                     </div>
@@ -157,10 +157,10 @@ export default function PlaylistDetailPage() {
                     {playlistDetail.items.length > 0 && (
                         <button
                             onClick={handlePlayAll}
-                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-full text-white font-semibold transition-colors"
+                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-full text-white font-semibold transition-colors"
                         >
                             <Play className="w-5 h-5 fill-white" />
-                            Play All
+                            Phát Tất Cả
                         </button>
                     )}
                 </div>
@@ -169,8 +169,8 @@ export default function PlaylistDetailPage() {
                 {playlistDetail.items.length === 0 ? (
                     <EmptyState
                         icon={Music2}
-                        title="No songs in this playlist"
-                        description="Add songs to start building your playlist"
+                        title="Không có bài hát trong playlist"
+                        description="Thêm bài hát để bắt đầu xây dựng playlist của bạn"
                     />
                 ) : (
                     <div className="space-y-2">
@@ -192,7 +192,7 @@ export default function PlaylistDetailPage() {
                                         className="flex-1 flex items-center gap-4 text-left"
                                     >
                                         <div className="flex-1">
-                                            <h3 className="text-white font-medium group-hover:text-blue-400 transition-colors">
+                                            <h3 className="text-white font-medium group-hover:text-purple-400 transition-colors">
                                                 {item.title}
                                             </h3>
                                         </div>
@@ -201,7 +201,7 @@ export default function PlaylistDetailPage() {
                                     <button
                                         onClick={() => handleRemoveSong(item.songId)}
                                         className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
-                                        title="Remove from playlist"
+                                        title="Xóa khỏi playlist"
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>

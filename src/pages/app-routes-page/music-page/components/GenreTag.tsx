@@ -8,10 +8,10 @@ interface GenreTagProps {
 const genreColors: { [key: string]: string } = {
   Pop: "from-pink-500 to-pink-700",
   Rock: "from-red-600 to-red-800",
-  Jazz: "from-blue-500 to-blue-700",
+  Jazz: "from-purple-500 to-purple-700",
   Classical: "from-purple-500 to-purple-700",
   "Hip-Hop": "from-orange-500 to-orange-700",
-  Electronic: "from-cyan-500 to-cyan-700",
+  Electronic: "from-purple-500 to-violet-700",
   "R&B": "from-rose-500 to-rose-700",
   Country: "from-amber-600 to-amber-800",
   Indie: "from-teal-500 to-teal-700",
@@ -25,7 +25,7 @@ const genreColors: { [key: string]: string } = {
   "K-Pop": "from-pink-400 to-rose-600",
   Latin: "from-red-500 to-orange-600",
   Synthwave: "from-purple-600 to-pink-600",
-  Electropop: "from-blue-600 to-purple-600",
+  Electropop: "from-purple-600 to-purple-700",
 };
 
 const getGenreColor = (genreName: string): string => {

@@ -100,12 +100,12 @@ export default function AlbumsPage() {
                 />
                 <div className="relative max-w-7xl mx-auto px-8 h-full flex flex-col justify-end pb-8">
                     <button
-                        onClick={() => navigate("/music")}
+                        onClick={() => navigate("/app/music")}
                         className="absolute top-8 left-8 p-2 hover:bg-zinc-800/50 rounded-full transition"
                     >
                         <ArrowLeft className="w-6 h-6 text-white" />
                     </button>
-                    <h1 className="text-5xl font-bold text-white mb-2">Popular Albums</h1>
+                    <h1 className="text-5xl font-bold text-white mb-2">Album Phổ Biến</h1>
                     <p className="text-zinc-300">Cập nhật vào lúc {new Date().toLocaleDateString("vi-VN")}</p>
                 </div>
             </div>

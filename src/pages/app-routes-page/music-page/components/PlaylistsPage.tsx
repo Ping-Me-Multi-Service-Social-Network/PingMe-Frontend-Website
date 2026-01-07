@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Label } from "@/components/ui/label.tsx";
 
 export default function PlaylistsPage() {
     const navigate = useNavigate();
@@ -134,30 +133,30 @@ export default function PlaylistsPage() {
                 {/* Header */}
                 <div className="mb-8">
                     <button
-                        onClick={() => navigate("/music")}
+                        onClick={() => navigate("/app/music")}
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Back to Music
+                        Quay Lại
                     </button>
 
                     <div className="flex items-center justify-between">
-                        <h1 className="text-4xl font-bold text-white">Your Playlists</h1>
+                        <h1 className="text-4xl font-bold text-white">Danh Sách Phát Của Bạn</h1>
                         <div className="flex items-center gap-3">
                             <Button
-                                onClick={() => navigate("/music/playlists/discover")}
+                                onClick={() => navigate("/app/music/playlists/discover")}
                                 variant="outline"
                                 className="flex items-center gap-2 bg-green-900/20 border-green-700 text-green-400 hover:bg-green-900/40 hover:text-green-300"
                             >
                                 <Compass className="w-5 h-5" />
-                                Discover Public Playlists
+                                Khám Phá Playlist Công Khai
                             </Button>
                             <Button
                                 onClick={() => setShowCreateDialog(true)}
                                 className="flex items-center gap-2"
                             >
                                 <Plus className="w-5 h-5" />
-                                Create Playlist
+                                Tạo Playlist
                             </Button>
                         </div>
                     </div>
@@ -167,11 +166,11 @@ export default function PlaylistsPage() {
                 {playlists.length === 0 ? (
                     <EmptyState
                         icon={Music}
-                        title="No playlists yet"
-                        description="Create your first playlist to get started"
+                        title="Chưa có playlist nào"
+                        description="Tạo playlist đầu tiên của bạn để bắt đầu"
                         action={
                             <Button onClick={() => setShowCreateDialog(true)}>
-                                Create Playlist
+                                Tạo Playlist
                             </Button>
                         }
                     />
@@ -181,9 +180,9 @@ export default function PlaylistsPage() {
                             <div
                                 key={playlist.id}
                                 className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-colors cursor-pointer"
-                                onClick={() => navigate(`/music/playlists/${playlist.id}`)}
+                                onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
                             >
-                                <div className="aspect-square rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4">
+                                <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4">
                                     <Music className="w-12 h-12 text-white" />
                                 </div>
 
@@ -196,12 +195,12 @@ export default function PlaylistsPage() {
                                         {playlist.isPublic ? (
                                             <>
                                                 <Globe className="w-3 h-3" />
-                                                <span>Public</span>
+                                                <span>Công khai</span>
                                             </>
                                         ) : (
                                             <>
                                                 <Lock className="w-3 h-3" />
-                                                <span>Private</span>
+                                                <span>Riêng tư</span>
                                             </>
                                         )}
                                     </div>
@@ -209,8 +208,8 @@ export default function PlaylistsPage() {
                                     <div className="flex items-center gap-1">
                                         <button
                                             onClick={(e) => handleEditPlaylist(playlist, e)}
-                                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 transition-all"
-                                            title="Edit playlist"
+                                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 transition-all"
+                                            title="Chỉnh sửa playlist"
                                         >
                                             <Edit2 className="w-4 h-4" />
                                         </button>
@@ -220,7 +219,7 @@ export default function PlaylistsPage() {
                                                 handleDeletePlaylist(playlist.id);
                                             }}
                                             className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
-                                            title="Delete playlist"
+                                            title="Xóa playlist"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -234,50 +233,95 @@ export default function PlaylistsPage() {
 
             {/* Create Playlist Dialog */}
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                <DialogContent>
+                <DialogContent
+                    className=" bg-zinc-900 
+                                border border-zinc-800 
+                                text-white
+                                shadow-2xl
+                                backdrop-blur-xl
+                                rounded-2xl
+                                max-w-md  
+                                data-[state=open]:animate-in
+                                data-[state=closed]:animate-out
+                                data-[state=open]:fade-in-0
+                                data-[state=closed]:fade-out-0
+                                data-[state=open]:zoom-in-95
+                                data-[state=closed]:zoom-out-95
+                                duration-200"
+                >
                     <DialogHeader>
-                        <DialogTitle>Create New Playlist</DialogTitle>
+                        <DialogTitle className="text-xl font-semibold tracking-tight">
+                            Tạo Playlist Mới
+                        </DialogTitle>
                     </DialogHeader>
 
-                    <div className="space-y-4 py-4">
+                    <div className="space-y-5 py-4">
+                        {/* Playlist Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="playlist-name">Playlist Name</Label>
+                            <label
+                                htmlFor="playlist-name"
+                                className="text-sm font-medium text-zinc-300"
+                            >
+                                Tên Playlist
+                            </label>
+
                             <Input
                                 id="playlist-name"
-                                placeholder="My Awesome Playlist"
+                                placeholder="Playlist Tuyệt Vời Của Tôi"
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleCreatePlaylist()}
+                                onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
+                                className=" bg-zinc-800
+                                        border border-zinc-700
+                                        text-white
+                                        placeholder:text-zinc-500
+                                        focus-visible:ring-2
+                                        focus-visible:ring-purple-600
+                                        focus-visible:ring-offset-0
+                                        rounded-lg"
                             />
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* Public Checkbox */}
+                        <div className="flex items-center gap-3">
                             <input
                                 type="checkbox"
                                 id="is-public"
                                 checked={isPublic}
                                 onChange={(e) => setIsPublic(e.target.checked)}
-                                className="rounded"
+                                className="h-4 w-4 rounded border-zinc-600accent-purple-600"
                             />
-                            <Label htmlFor="is-public" className="cursor-pointer">
-                                Make this playlist public
-                            </Label>
+                            <label
+                                htmlFor="is-public"
+                                className="text-sm text-zinc-300 cursor-pointer select-none"
+                            >
+                                Chia sẻ playlist này công khai
+                            </label>
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-2">
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => setShowCreateDialog(false)}
                             disabled={creating}
+                            className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
                         >
-                            Cancel
+                            Hủy
                         </Button>
+
                         <Button
                             onClick={handleCreatePlaylist}
                             disabled={!newPlaylistName.trim() || creating}
+                            className="bg-purple-600
+                                    hover:bg-purple-500
+                                    text-white
+                                    rounded-full
+                                    px-6
+                                    font-medium
+                                    disabled:opacity-50"
                         >
-                            {creating ? "Creating..." : "Create"}
+                            {creating ? "Đang tạo..." : "Tạo"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -285,40 +329,53 @@ export default function PlaylistsPage() {
 
             {/* Edit Playlist Dialog */}
             <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                <DialogContent>
+                <DialogContent className="bg-zinc-900 border border-zinc-800 text-white shadow-2xl backdrop-blur-xl rounded-2xl max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Edit Playlist</DialogTitle>
+                        <DialogTitle className="text-xl font-semibold tracking-tight">
+                            Chỉnh sửa Playlist
+                        </DialogTitle>
                     </DialogHeader>
 
-                    <div className="space-y-4 py-4">
+                    <div className="space-y-5 py-4">
+                        {/* Playlist Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="edit-playlist-name">Playlist Name</Label>
+                            <label
+                                htmlFor="edit-playlist-name"
+                                className="text-sm font-medium text-zinc-300"
+                            >
+                                Tên Playlist
+                            </label>
                             <Input
                                 id="edit-playlist-name"
-                                placeholder="My Awesome Playlist"
+                                placeholder="Playlist Tuyệt Vời Của Tôi"
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleUpdatePlaylist()}
+                                onKeyDown={(e) => e.key === "Enter" && handleUpdatePlaylist()}
+                                className="bg-zinc-800 border border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-purple-600 focus-visible:ring-offset-0 rounded-lg"
                             />
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* Public Checkbox */}
+                        <div className="flex items-center gap-3">
                             <input
                                 type="checkbox"
                                 id="edit-is-public"
                                 checked={isPublic}
                                 onChange={(e) => setIsPublic(e.target.checked)}
-                                className="rounded"
+                                className="h-4 w-4 rounded border-zinc-600 accent-purple-600"
                             />
-                            <Label htmlFor="edit-is-public" className="cursor-pointer">
-                                Make this playlist public
-                            </Label>
+                            <label
+                                htmlFor="edit-is-public"
+                                className="text-sm text-zinc-300 cursor-pointer select-none"
+                            >
+                                Chia sẻ playlist này công khai
+                            </label>
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-2">
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => {
                                 setShowEditDialog(false);
                                 setEditingPlaylist(null);
@@ -326,14 +383,16 @@ export default function PlaylistsPage() {
                                 setIsPublic(false);
                             }}
                             disabled={updating}
+                            className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
                         >
-                            Cancel
+                            Hủy
                         </Button>
                         <Button
                             onClick={handleUpdatePlaylist}
                             disabled={!newPlaylistName.trim() || updating}
+                            className="bg-purple-600 hover:bg-purple-500 text-white rounded-full px-6 font-medium disabled:opacity-50"
                         >
-                            {updating ? "Updating..." : "Update"}
+                            {updating ? "Đang cập nhật..." : "Cập nhật"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

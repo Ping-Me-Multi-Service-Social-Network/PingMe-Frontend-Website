@@ -88,7 +88,7 @@ export default function SongListPage() {
         setError(null);
       } catch (err) {
         console.error("Error fetching data:", err);
-        setError("Failed to load data");
+        setError("Đã xảy ra lỗi khi tải dữ liệu");
       } finally {
         setLoading(false);
       }
@@ -142,10 +142,10 @@ export default function SongListPage() {
         <div className="text-center">
           <p className="text-red-400 mb-4">{error}</p>
           <button
-            onClick={() => navigate("/music")}
+            onClick={() => navigate("/app/music")}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition"
           >
-            Back to Music
+            Quay Lại
           </button>
         </div>
       </div>
@@ -172,11 +172,11 @@ export default function SongListPage() {
       <div className="max-w-7xl mx-auto px-8 py-8">
         <div className="mb-8">
           <button
-            onClick={() => navigate("/music")}
+            onClick={() => navigate("/app/music")}
             className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back to Music
+            Quay Lại
           </button>
 
           <div className="flex items-start gap-6">
@@ -209,11 +209,11 @@ export default function SongListPage() {
                 {type === "album"
                   ? "Album"
                   : type === "artist"
-                    ? "Artist"
-                    : "Genre"}
+                    ? "Nghệ Sĩ"
+                    : "Thể Loại"}
               </p>
               <h1 className="text-5xl font-bold text-white mb-4 text-balance">
-                {displayName || "Unknown"}
+                {displayName || "Không rõ"}
               </h1>
 
               {/* Artist Bio */}
@@ -226,12 +226,12 @@ export default function SongListPage() {
               {/* Stats */}
               <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
                 <span>
-                  {songs.length} {songs.length === 1 ? "song" : "songs"}
+                  {songs.length} {songs.length === 1 ? "bài hát" : "bài hát"}
                 </span>
                 {playCount !== null && playCount !== undefined && (
                   <>
                     <span>•</span>
-                    <span>{playCount.toLocaleString()} plays</span>
+                    <span>{playCount.toLocaleString()} lượt nghe</span>
                   </>
                 )}
               </div>
@@ -240,10 +240,10 @@ export default function SongListPage() {
               {songs.length > 0 && (
                 <button
                   onClick={handlePlayAll}
-                  className="flex items-center gap-2 px-6 py-3 bg-white text-black font-semibold rounded-full hover:scale-105 transition-transform"
+                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
                 >
                   <Play className="w-5 h-5 fill-current" />
-                  Play All
+                  Phát Tất Cả
                 </button>
               )}
             </div>
@@ -252,7 +252,7 @@ export default function SongListPage() {
 
         {/* Songs List */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Songs</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">Bài Hát</h2>
           {songs.length > 0 ? (
             <>
               <div className="space-y-2 mb-4">
@@ -267,7 +267,7 @@ export default function SongListPage() {
               </div>
 
               {songs.length > itemsPerPage && (
-                <div className="bg-zinc-800/50 rounded-lg p-4 [&_.flex]:!bg-zinc-800/50 [&_.flex]:border-zinc-700 [&_button]:!bg-zinc-700 [&_button]:!text-zinc-200 [&_button]:!border-zinc-600 [&_button:hover]:!bg-zinc-600 [&_button.bg-purple-600]:!bg-zinc-300 [&_button.bg-purple-600]:!text-zinc-900 [&_button.bg-purple-600:hover]:!bg-white [&_span]:!text-zinc-300 [&_select]:!bg-zinc-700 [&_select]:!text-zinc-200 [&_select]:!border-zinc-600">
+                <div className="bg-zinc-800/50 rounded-lg p-4 [&_.flex]:!bg-zinc-800/50 [&_.flex]:border-zinc-700 [&_button]:!bg-zinc-700 [&_button]:!text-zinc-200 [&_button]:!border-zinc-600 [&_button:hover]:!bg-zinc-600 [&_button.bg-purple-600]:!bg-purple-600 [&_button.bg-purple-600]:!text-white [&_button.bg-purple-600:hover]:!bg-purple-500 [&_span]:!text-zinc-300 [&_select]:!bg-zinc-700 [&_select]:!text-zinc-200 [&_select]:!border-zinc-600">
                   <Pagination
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
@@ -282,7 +282,7 @@ export default function SongListPage() {
             </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-zinc-400">No songs found</p>
+              <p className="text-zinc-400">Không tìm thấy bài hát nào</p>
             </div>
           )}
         </div>

@@ -70,22 +70,22 @@ export default function RankingsPage() {
         switch (activeTab) {
             case "today":
                 return {
-                    title: "Top 50 Today",
-                    subtitle: "Most listened songs today",
+                    title: "Top 50 Hôm Nay",
+                    subtitle: "Bài hát được nghe nhiều nhất hôm nay",
                     bgColor: "from-pink-900/40 via-red-900/40 to-gray-900",
                     accentColor: "from-pink-600 to-red-700",
                 };
             case "week":
                 return {
-                    title: "Top 50 This Week",
-                    subtitle: "This week's rankings",
-                    bgColor: "from-blue-900/40 via-cyan-900/40 to-gray-900",
-                    accentColor: "from-blue-600 to-cyan-700",
+                    title: "Top 50 Tuần Này",
+                    subtitle: "Bảng xếp hạng tuần này",
+                    bgColor: "from-purple-900/40 via-violet-900/40 to-gray-900",
+                    accentColor: "from-purple-600 to-violet-700",
                 };
             case "month":
                 return {
-                    title: "Top 50 This Month",
-                    subtitle: "This month's rankings",
+                    title: "Top 50 Tháng Này",
+                    subtitle: "Bảng xếp hạng tháng này",
                     bgColor: "from-purple-900/40 via-indigo-900/40 to-gray-900",
                     accentColor: "from-purple-600 to-indigo-700",
                 };
@@ -136,11 +136,11 @@ export default function RankingsPage() {
                     <div className="flex items-center gap-8">
                         {/* Back Button */}
                         <button
-                            onClick={() => navigate("/music")}
+                            onClick={() => navigate("/app/music")}
                             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors py-4"
                         >
                             <ArrowLeft className="w-5 h-5" />
-                            <span className="font-medium">Back</span>
+                            <span className="font-medium">Quay Lại</span>
                         </button>
 
                         {/* Tabs */}
@@ -152,7 +152,7 @@ export default function RankingsPage() {
                                     : "text-gray-400 hover:text-gray-300"
                                     }`}
                             >
-                                Top 50 Today
+                                Top 50 Hôm Nay
                                 {activeTab === "today" && (
                                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-pink-600 to-red-700" />
                                 )}
@@ -164,9 +164,9 @@ export default function RankingsPage() {
                                     : "text-gray-400 hover:text-gray-300"
                                     }`}
                             >
-                                Top 50 This Week
+                                Top 50 Tuần Này
                                 {activeTab === "week" && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-700" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-violet-700" />
                                 )}
                             </button>
                             <button
@@ -176,7 +176,7 @@ export default function RankingsPage() {
                                     : "text-gray-400 hover:text-gray-300"
                                     }`}
                             >
-                                Top 50 This Month
+                                Top 50 Tháng Này
                                 {activeTab === "month" && (
                                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-700" />
                                 )}
@@ -213,8 +213,8 @@ export default function RankingsPage() {
                 <div className="grid md:grid-cols-2 gap-8">
                     {currentSongs.length === 0 ? (
                         <div className="col-span-2 text-center py-12">
-                            <p className="text-gray-400 text-lg mb-2">No songs in this ranking yet</p>
-                            <p className="text-gray-500 text-sm">Check back later for updated rankings</p>
+                            <p className="text-gray-400 text-lg mb-2">Chưa có bài hát trong bảng xếp hạng</p>
+                            <p className="text-gray-500 text-sm">Quay lại sau để xem bảng xếp hạng cập nhật</p>
                         </div>
                     ) : (
                         <>
@@ -252,7 +252,7 @@ export default function RankingsPage() {
 
                                         {/* Song Info */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-medium truncate group-hover:text-blue-400 transition-colors">
+                                            <h3 className="text-white font-medium truncate group-hover:text-purple-400 transition-colors">
                                                 {item.title}
                                             </h3>
                                             <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -299,7 +299,7 @@ export default function RankingsPage() {
 
                                         {/* Song Info */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-medium truncate group-hover:text-blue-400 transition-colors">
+                                            <h3 className="text-white font-medium truncate group-hover:text-purple-400 transition-colors">
                                                 {item.title}
                                             </h3>
                                             <div className="flex items-center gap-2 text-sm text-gray-400">
