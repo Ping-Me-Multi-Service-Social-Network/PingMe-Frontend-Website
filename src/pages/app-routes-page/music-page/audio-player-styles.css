@@ -1,4 +1,4 @@
-/* Custom styles for react-h5-audio-player to match dark theme */
+/* Custom styles for react-h5-audio-player to match purple theme */
 .audio-player-wrapper .rhap_container {
   background-color: transparent !important;
   box-shadow: none !important;
@@ -11,7 +11,7 @@
 
 .audio-player-wrapper .rhap_progress-filled,
 .audio-player-wrapper .rhap_progress-indicator {
-  background-color: #3b82f6 !important;
+  background-color: #a855f7 !important;
 }
 
 .audio-player-wrapper .rhap_progress-bar {
@@ -27,7 +27,7 @@
 }
 
 .audio-player-wrapper .rhap_button-clear:hover {
-  color: #3b82f6 !important;
+  color: #a855f7 !important;
 }
 
 .audio-player-wrapper .rhap_volume-bar {
@@ -35,7 +35,7 @@
 }
 
 .audio-player-wrapper .rhap_volume-indicator {
-  background-color: #3b82f6 !important;
+  background-color: #a855f7 !important;
 }
 
 /* Styles for global minimized player */
@@ -51,7 +51,7 @@
 
 .audio-player-wrapper-global .rhap_progress-filled,
 .audio-player-wrapper-global .rhap_progress-indicator {
-  background-color: #3b82f6 !important;
+  background-color: #a855f7 !important;
 }
 
 .audio-player-wrapper-global .rhap_progress-bar {
@@ -67,7 +67,7 @@
 }
 
 .audio-player-wrapper-global .rhap_button-clear:hover {
-  color: #3b82f6 !important;
+  color: #a855f7 !important;
 }
 
 .audio-player-wrapper-global .rhap_volume-bar {
@@ -75,5 +75,5 @@
 }
 
 .audio-player-wrapper-global .rhap_volume-indicator {
-  background-color: #3b82f6 !important;
+  background-color: #a855f7 !important;
 }

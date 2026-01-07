@@ -11,7 +11,7 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
   const handleClick = () => {
     // Navigate to artist's songs page
     navigate(
-      `/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
+      `/app/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
         artist.name
       )}&imageUrl=${encodeURIComponent(artist.imgUrl || "")}`
     );

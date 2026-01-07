@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Label } from "@/components/ui/label.tsx";
 import { toast } from "sonner";
 
 interface AudioPlayerComponentProps {
@@ -308,11 +307,11 @@ export default function AudioPlayerComponent({
                 ? 'text-red-500 bg-red-500/20 border-red-500/50 hover:bg-red-500/30'
                 : 'text-zinc-300 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:text-white hover:border-zinc-600'
                 }`}
-              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
             >
               <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
               <span className="hidden sm:inline">
-                {isFavorite ? 'Favorited' : 'Favorite'}
+                {isFavorite ? 'Đã Yêu Thích' : 'Yêu Thích'}
               </span>
             </button>
 
@@ -321,10 +320,10 @@ export default function AudioPlayerComponent({
               <DropdownMenuTrigger asChild>
                 <button
                   className="p-3 rounded-lg border-2 border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white hover:border-zinc-600 transition-all font-medium text-sm flex items-center gap-2"
-                  title="Add to playlist"
+                  title="Thêm vào playlist"
                 >
                   <ListPlus className="w-5 h-5" />
-                  <span className="hidden sm:inline">Add to Playlist</span>
+                  <span className="hidden sm:inline">Thêm Vào Playlist</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-zinc-800 border-zinc-700">
@@ -333,10 +332,10 @@ export default function AudioPlayerComponent({
                     setShowPlaylistMenu(false);
                     setShowCreateDialog(true);
                   }}
-                  className="cursor-pointer hover:bg-zinc-700 text-blue-400 font-medium"
+                  className="cursor-pointer hover:bg-zinc-700 text-purple-400 font-medium"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Create New Playlist
+                  Tạo Playlist Mới
                 </DropdownMenuItem>
                 {playlists.length > 0 && (
                   <>
@@ -372,50 +371,95 @@ export default function AudioPlayerComponent({
 
       {/* Create Playlist Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="bg-zinc-900 border-zinc-700">
+        <DialogContent
+          className=" bg-zinc-900 
+                                border border-zinc-800 
+                                text-white
+                                shadow-2xl
+                                backdrop-blur-xl
+                                rounded-2xl
+                                max-w-md  
+                                data-[state=open]:animate-in
+                                data-[state=closed]:animate-out
+                                data-[state=open]:fade-in-0
+                                data-[state=closed]:fade-out-0
+                                data-[state=open]:zoom-in-95
+                                data-[state=closed]:zoom-out-95
+                                duration-200"
+        >
           <DialogHeader>
-            <DialogTitle className="text-white">Create New Playlist</DialogTitle>
+            <DialogTitle className="text-xl font-semibold tracking-tight">
+              Tạo Playlist Mới
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+
+          <div className="space-y-5 py-4">
+            {/* Playlist Name */}
             <div className="space-y-2">
-              <Label htmlFor="playlist-name" className="text-zinc-200">
-                Playlist Name
-              </Label>
+              <label
+                htmlFor="playlist-name"
+                className="text-sm font-medium text-zinc-300"
+              >
+                Tên Playlist
+              </label>
+
               <Input
                 id="playlist-name"
-                placeholder="Enter playlist name"
+                placeholder="Playlist Tuyệt Vời Của Tôi"
                 value={newPlaylistName}
                 onChange={(e) => setNewPlaylistName(e.target.value)}
-                className="bg-zinc-800 border-zinc-700 text-white"
+                onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
+                className=" bg-zinc-800
+                                        border border-zinc-700
+                                        text-white
+                                        placeholder:text-zinc-500
+                                        focus-visible:ring-2
+                                        focus-visible:ring-purple-600
+                                        focus-visible:ring-offset-0
+                                        rounded-lg"
               />
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Public Checkbox */}
+            <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 id="is-public"
                 checked={isPublic}
                 onChange={(e) => setIsPublic(e.target.checked)}
-                className="w-4 h-4"
+                className="h-4 w-4 rounded border-zinc-600 accent-purple-600"
               />
-              <Label htmlFor="is-public" className="text-zinc-200 cursor-pointer">
-                Make this playlist public
-              </Label>
+              <label
+                htmlFor="is-public"
+                className="text-sm text-zinc-300 cursor-pointer select-none"
+              >
+                Chia sẻ playlist này công khai
+              </label>
             </div>
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => setShowCreateDialog(false)}
-              className="bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700"
+              disabled={creating}
+              className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
             >
-              Cancel
+              Hủy
             </Button>
+
             <Button
               onClick={handleCreatePlaylist}
               disabled={!newPlaylistName.trim() || creating}
-              className="bg-blue-600 hover:bg-blue-500 text-white"
+              className="bg-purple-600
+                                    hover:bg-purple-500
+                                    text-white
+                                    rounded-full
+                                    px-6
+                                    font-medium
+                                    disabled:opacity-50"
             >
-              {creating ? "Creating..." : "Create"}
+              {creating ? "Đang tạo..." : "Tạo"}
             </Button>
           </DialogFooter>
         </DialogContent>

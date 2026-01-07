@@ -7,7 +7,7 @@ import { CallProvider } from "@/pages/app-routes-page/chat-page/components/call/
 
 export default function AppPageLayout() {
   const location = useLocation();
-  const isMusicPage = location.pathname.startsWith("/music");
+  const isMusicPage = location.pathname.startsWith("/app/music");
 
   return (
     <AudioPlayerProvider>

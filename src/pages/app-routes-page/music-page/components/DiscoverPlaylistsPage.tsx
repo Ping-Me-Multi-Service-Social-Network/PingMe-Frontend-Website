@@ -77,21 +77,21 @@ export default function DiscoverPlaylistsPage() {
                 {/* Header */}
                 <div className="space-y-6 mb-8">
                     <button
-                        onClick={() => navigate("/music")}
+                        onClick={() => navigate("/app/music")}
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Back to Music
+                        Quay Lại
                     </button>
 
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-4xl font-bold text-white flex items-center gap-3">
                                 <Globe className="w-10 h-10 text-green-500" />
-                                Discover Public Playlists
+                                Khám Phá Playlist Công Khai
                             </h1>
                             <p className="text-zinc-400 mt-2">
-                                Explore playlists shared by the community
+                                Duyệt qua các playlist công khai được chia sẻ bởi cộng đồng người dùng
                             </p>
                         </div>
                     </div>
@@ -101,11 +101,11 @@ export default function DiscoverPlaylistsPage() {
                 {playlists.length === 0 ? (
                     <EmptyState
                         icon={Users}
-                        title="No public playlists yet"
-                        description="Be the first to share your playlist with the community!"
+                        title="Chưa có playlist công khai"
+                        description="Hãy là người đầu tiên chia sẻ playlist của bạn với cộng đồng!"
                         action={
-                            <Button onClick={() => navigate("/music/playlists")}>
-                                Go to Your Playlists
+                            <Button onClick={() => navigate("/app/music/playlists")}>
+                                Đến Playlist Của Bạn
                             </Button>
                         }
                     />
@@ -116,9 +116,9 @@ export default function DiscoverPlaylistsPage() {
                                 <div
                                     key={playlist.id}
                                     className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-all cursor-pointer hover:scale-105"
-                                    onClick={() => navigate(`/music/playlists/${playlist.id}`)}
+                                    onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
                                 >
-                                    <div className="aspect-square rounded-lg bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center mb-4 relative">
+                                    <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 relative">
                                         <Music className="w-12 h-12 text-white" />
                                         <div className="absolute top-2 right-2">
                                             <Globe className="w-5 h-5 text-white/80" />

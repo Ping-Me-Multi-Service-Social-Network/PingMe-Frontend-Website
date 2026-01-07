@@ -116,11 +116,11 @@ export default function FavoritesPage() {
                 {/* Header */}
                 <div className="mb-8">
                     <button
-                        onClick={() => navigate("/music")}
+                        onClick={() => navigate("/app/music")}
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Back to Music
+                        Quay Lại
                     </button>
 
                     <div className="flex items-center gap-4 mb-4">
@@ -128,8 +128,8 @@ export default function FavoritesPage() {
                             <Heart className="w-8 h-8 text-white fill-white" />
                         </div>
                         <div>
-                            <h1 className="text-4xl font-bold text-white mb-2">Favorite Songs</h1>
-                            <p className="text-zinc-400">{favorites.length} {favorites.length === 1 ? 'song' : 'songs'}</p>
+                            <h1 className="text-4xl font-bold text-white mb-2">Bài Hát Yêu Thích</h1>
+                            <p className="text-zinc-400">{favorites.length} {favorites.length === 1 ? 'bài hát' : 'bài hát'}</p>
                         </div>
                     </div>
 
@@ -137,10 +137,10 @@ export default function FavoritesPage() {
                     {favorites.length > 0 && (
                         <button
                             onClick={handlePlayAll}
-                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-full text-white font-semibold transition-colors"
+                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-full text-white font-semibold transition-colors"
                         >
                             <Play className="w-5 h-5 fill-white" />
-                            Play All
+                            Phát Tất Cả
                         </button>
                     )}
                 </div>
@@ -149,8 +149,8 @@ export default function FavoritesPage() {
                 {favorites.length === 0 ? (
                     <EmptyState
                         icon={Heart}
-                        title="No favorite songs yet"
-                        description="Songs you like will appear here"
+                        title="Chưa có bài hát yêu thích"
+                        description="Các bài hát bản thích sẽ xuất hiện ở đây"
                     />
                 ) : (
                     <div className="space-y-2">
@@ -168,7 +168,7 @@ export default function FavoritesPage() {
                                     className="flex-1 flex items-center gap-4 text-left"
                                 >
                                     <div className="flex-1">
-                                        <h3 className="text-white font-medium group-hover:text-blue-400 transition-colors">
+                                        <h3 className="text-white font-medium group-hover:text-purple-400 transition-colors">
                                             {favorite.title}
                                         </h3>
                                     </div>
@@ -177,7 +177,7 @@ export default function FavoritesPage() {
                                 <button
                                     onClick={() => handleRemoveFavorite(favorite.songId)}
                                     className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
-                                    title="Remove from favorites"
+                                    title="Xóa khỏi danh sách yêu thích"
                                 >
                                     <Heart className="w-5 h-5 fill-current" />
                                 </button>

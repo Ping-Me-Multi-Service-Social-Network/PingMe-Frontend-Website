@@ -49,7 +49,7 @@ export default function MainMusicPage() {
         setError(null);
       } catch (err) {
         console.error("Error fetching music data:", err);
-        setError("Failed to load music data");
+        setError("Không thể tải dữ liệu âm nhạc");
       } finally {
         setLoading(false);
       }
@@ -113,7 +113,7 @@ export default function MainMusicPage() {
 
   const handleGenreSelect = (genre: Genre) => {
     navigate(
-      `/music/songs?type=genre&id=${genre.id}&name=${encodeURIComponent(
+      `/app/music/songs?type=genre&id=${genre.id}&name=${encodeURIComponent(
         genre.name
       )}`
     );
@@ -146,34 +146,34 @@ export default function MainMusicPage() {
         {/* Quick Links Section */}
         <section className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <button
-            onClick={() => navigate("/music/favorites")}
+            onClick={() => navigate("/app/music/favorites")}
             className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-900/40 via-pink-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
           >
             <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">Favorite Songs</h3>
-              <p className="text-sm text-gray-300">Your liked tracks</p>
+              <h3 className="text-xl font-bold text-white mb-2">Bài Hát Yêu Thích</h3>
+              <p className="text-sm text-gray-300">Những bài hát bạn thích</p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-pink-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
 
           <button
-            onClick={() => navigate("/music/playlists")}
-            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
+            onClick={() => navigate("/app/music/playlists")}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-900/40 via-purple-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
           >
             <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">Your Playlists</h3>
-              <p className="text-sm text-gray-300">Custom collections</p>
+              <h3 className="text-xl font-bold text-white mb-2">Danh Sách Phát</h3>
+              <p className="text-sm text-gray-300">Bộ sưu tập của bạn</p>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-purple-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
 
           <button
-            onClick={() => navigate("/music/playlists/discover")}
+            onClick={() => navigate("/app/music/playlists/discover")}
             className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-green-900/40 via-teal-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
           >
             <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">Discover Playlists</h3>
-              <p className="text-sm text-gray-300">Community shared</p>
+              <h3 className="text-xl font-bold text-white mb-2">Khám Phá Playlist</h3>
+              <p className="text-sm text-gray-300">Cộng đồng chia sẻ</p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-teal-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -182,19 +182,19 @@ export default function MainMusicPage() {
         {/* Rankings Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Rankings</h2>
+            <h2 className="text-2xl font-bold text-white">Bảng Xếp Hạng</h2>
             <button
-              onClick={() => navigate("/music/rankings")}
-              className="text-sm font-medium text-blue-400 hover:text-blue-300 transition"
+              onClick={() => navigate("/app/music/rankings")}
+              className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
             >
-              View All
+              Xem Tất Cả
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Top 50 Today */}
             <RankingCard
-              title="Top 50 Today"
-              description="Most listened songs today"
+              title="Top 50 Hôm Nay"
+              description="Bài hát được nghe nhiều nhất hôm nay"
               gradientFrom="from-pink-900/40"
               gradientVia="via-red-900/40"
               hoverFrom="from-pink-600/20"
@@ -205,20 +205,20 @@ export default function MainMusicPage() {
 
             {/* Top 50 Week */}
             <RankingCard
-              title="Top 50 This Week"
-              description="This week's rankings"
-              gradientFrom="from-blue-900/40"
-              gradientVia="via-cyan-900/40"
-              hoverFrom="from-blue-600/20"
-              hoverTo="to-cyan-700/20"
+              title="Top 50 Tuần Này"
+              description="Bảng xếp hạng tuần này"
+              gradientFrom="from-purple-900/40"
+              gradientVia="via-violet-900/40"
+              hoverFrom="from-purple-600/20"
+              hoverTo="to-violet-700/20"
               fetchData={fetchWeekSongs}
               tabType="week"
             />
 
             {/* Top 50 Month */}
             <RankingCard
-              title="Top 50 This Month"
-              description="This month's rankings"
+              title="Top 50 Tháng Này"
+              description="Bảng xếp hạng tháng này"
               gradientFrom="from-purple-900/40"
               gradientVia="via-indigo-900/40"
               hoverFrom="from-purple-600/20"
@@ -231,7 +231,7 @@ export default function MainMusicPage() {
 
         {/* Genres Section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Browse by Genre</h2>
+          <h2 className="text-2xl font-bold text-white">Duyệt Thể Loại</h2>
           <div className="relative group">
             {/* Left Arrow */}
             {showLeftArrow && (
@@ -281,7 +281,7 @@ export default function MainMusicPage() {
                   </div>
                 ))
               ) : (
-                <p className="text-zinc-500">No genres available</p>
+                <p className="text-zinc-500">Không có thể loại nào</p>
               )}
             </div>
           </div>
@@ -290,19 +290,19 @@ export default function MainMusicPage() {
         {/* Albums Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Popular Albums</h2>
+            <h2 className="text-2xl font-bold text-white">Album Phổ Biến</h2>
             <button
-              onClick={() => navigate("/music/albums")}
-              className="text-sm font-medium text-blue-400 hover:text-blue-300 transition"
+              onClick={() => navigate("/app/music/albums")}
+              className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
             >
-              More
+              Thêm
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {albums.length > 0 ? (
               albums.map((album) => <AlbumCard key={album.id} album={album} />)
             ) : (
-              <p className="text-zinc-500 col-span-full">No albums available</p>
+              <p className="text-zinc-500 col-span-full">Không có album nào</p>
             )}
           </div>
         </section>
@@ -310,26 +310,26 @@ export default function MainMusicPage() {
         {/* Artists Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Popular Artists</h2>
+            <h2 className="text-2xl font-bold text-white">Nghệ Sĩ Nổi Tiếng</h2>
             <button
-              onClick={() => navigate("/music/artists")}
-              className="text-sm font-medium text-blue-400 hover:text-blue-300 transition"
+              onClick={() => navigate("/app/music/artists")}
+              className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
             >
-              More
+              Thêm
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {artists.length > 0 ? (
               artists.map((artist) => <ArtistCard key={artist.id} artist={artist} />)
             ) : (
-              <p className="text-zinc-500 col-span-full">No artists available</p>
+              <p className="text-zinc-500 col-span-full">Không có nghệ sĩ nào</p>
             )}
           </div>
         </section>
 
         {/* Top Songs Section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Top 5 Tracks</h2>
+          <h2 className="text-2xl font-bold text-white">Top 5 Bài Hát</h2>
           <div className="space-y-2">
             {topSongs.length > 0 ? (
               topSongs.map((song, index) => (
@@ -341,7 +341,7 @@ export default function MainMusicPage() {
                 />
               ))
             ) : (
-              <p className="text-zinc-500">No songs available</p>
+              <p className="text-zinc-500">Không có bài hát nào</p>
             )}
           </div>
         </section>
