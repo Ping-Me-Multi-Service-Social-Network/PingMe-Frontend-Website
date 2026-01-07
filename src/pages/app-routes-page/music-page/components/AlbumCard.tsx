@@ -11,7 +11,7 @@ export default function AlbumCard({ album }: AlbumCardProps) {
 
   const handleClick = () => {
     navigate(
-      `/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
+      `/app/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
         album.title
       )}&imageUrl=${encodeURIComponent(album.coverImgUrl || "")}`
     );

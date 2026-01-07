@@ -14,6 +14,7 @@ import {
   Repeat1,
   Heart,
   ListPlus,
+  Plus,
 } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
@@ -26,17 +27,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { Label } from "@/components/ui/label.tsx";
-import { Plus } from "lucide-react";
+import CreatePlaylistDialog from "@/pages/app-routes-page/music-page/components/CreatePlaylistDialog.tsx";
 
 import { toast } from "sonner";
 
@@ -60,9 +51,6 @@ const GlobalAudioPlayer: React.FC = () => {
   const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [newPlaylistName, setNewPlaylistName] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
-  const [creating, setCreating] = useState(false);
 
   // Check if current song is favorited
   useEffect(() => {
@@ -144,34 +132,13 @@ const GlobalAudioPlayer: React.FC = () => {
     }
   };
 
-  const handleCreatePlaylist = async () => {
-    if (!newPlaylistName.trim() || !currentSong) return;
-
+  const handleCreatePlaylistSuccess = async () => {
+    // Reload playlists after creating new one
     try {
-      setCreating(true);
-      const newPlaylist = await playlistApi.createPlaylist({
-        name: newPlaylistName,
-        isPublic: isPublic,
-      });
-
-      // Add current song to the newly created playlist
-      await playlistApi.addSongToPlaylist(newPlaylist.id, currentSong.id);
-
-      setPlaylists(prev => [...prev, newPlaylist]);
-      setShowCreateDialog(false);
-      setNewPlaylistName("");
-      setIsPublic(false);
-      toast.success(`Playlist "${newPlaylist.name}" created and "${currentSong.title}" added!`);
-
-      // Dispatch event to refresh playlist detail page
-      window.dispatchEvent(new CustomEvent('playlist-updated', {
-        detail: { playlistId: newPlaylist.id, songId: currentSong.id }
-      }));
+      const data = await playlistApi.getPlaylists();
+      setPlaylists(data);
     } catch (err) {
-      console.error("Error creating playlist:", err);
-      toast.error("Failed to create playlist");
-    } finally {
-      setCreating(false);
+      console.error("Error reloading playlists:", err);
     }
   };
 
@@ -373,10 +340,10 @@ const GlobalAudioPlayer: React.FC = () => {
                         setShowPlaylistMenu(false);
                         setShowCreateDialog(true);
                       }}
-                      className="cursor-pointer hover:bg-zinc-700 text-blue-400 font-medium"
+                      className="cursor-pointer hover:bg-zinc-700 text-purple-400 font-medium"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Create New Playlist
+                      Tạo Playlist Mới
                     </DropdownMenuItem>
                     {playlists.length > 0 && (
                       <>
@@ -477,55 +444,11 @@ const GlobalAudioPlayer: React.FC = () => {
       )}
 
       {/* Create Playlist Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="bg-zinc-900 border-zinc-700">
-          <DialogHeader>
-            <DialogTitle className="text-white">Create New Playlist</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="playlist-name" className="text-zinc-200">
-                Playlist Name
-              </Label>
-              <Input
-                id="playlist-name"
-                placeholder="Enter playlist name"
-                value={newPlaylistName}
-                onChange={(e) => setNewPlaylistName(e.target.value)}
-                className="bg-zinc-800 border-zinc-700 text-white"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is-public"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="w-4 h-4"
-              />
-              <Label htmlFor="is-public" className="text-zinc-200 cursor-pointer">
-                Make this playlist public
-              </Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowCreateDialog(false)}
-              className="bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreatePlaylist}
-              disabled={!newPlaylistName.trim() || creating}
-              className="bg-blue-600 hover:bg-blue-500 text-white"
-            >
-              {creating ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CreatePlaylistDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSuccess={handleCreatePlaylistSuccess}
+      />
     </div>
   );
 };

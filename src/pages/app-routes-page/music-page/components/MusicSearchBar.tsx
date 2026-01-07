@@ -67,7 +67,7 @@ export default function MusicSearchBar({ onSongPlay }: MusicSearchBarProps) {
                         <Search className="absolute left-3 w-5 h-5 text-zinc-400 pointer-events-none" />
                         <input
                             type="text"
-                            placeholder="Search songs, albums, artists..."
+                            placeholder="Tìm kiếm bài hát, album, nghệ sĩ..."
                             value={searchQuery}
                             onChange={handleSearchChange}
                             onFocus={() => setShowSearchDropdown(true)}

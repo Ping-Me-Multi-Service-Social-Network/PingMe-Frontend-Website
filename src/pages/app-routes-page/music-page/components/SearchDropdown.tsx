@@ -83,7 +83,7 @@ export default function SearchDropdown({
         </div>
       ) : !hasResults ? (
         <div className="p-6 text-center text-zinc-400">
-          <p>No results found for "{query}"</p>
+          <p>Không tìm thấy kết quả cho "{query}"</p>
         </div>
       ) : (
         <div className="space-y-6 p-4">
@@ -91,7 +91,7 @@ export default function SearchDropdown({
           {songs.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-zinc-300 px-2">
-                Songs
+                Bài Hát
               </h3>
               <div className="space-y-2">
                 {songs.slice(0, 3).map((song) => (
@@ -127,9 +127,9 @@ export default function SearchDropdown({
               {songs.length > 3 && (
                 <button
                   onClick={onViewMoreSongs}
-                  className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 font-medium"
+                  className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
                 >
-                  View all {songs.length} songs
+                  Xem tất cả {songs.length} bài hát
                 </button>
               )}
             </div>
@@ -139,7 +139,7 @@ export default function SearchDropdown({
           {albums.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-zinc-300 px-2">
-                Albums
+                Album
               </h3>
               <div className="space-y-2">
                 {albums.slice(0, 3).map((album) => (
@@ -175,9 +175,9 @@ export default function SearchDropdown({
               {albums.length > 3 && (
                 <button
                   onClick={onViewMoreAlbums}
-                  className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 font-medium"
+                  className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
                 >
-                  View all {albums.length} albums
+                  Xem tất cả {albums.length} album
                 </button>
               )}
             </div>
@@ -187,7 +187,7 @@ export default function SearchDropdown({
           {artists.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-zinc-300 px-2">
-                Artists
+                Nghệ Sĩ
               </h3>
               <div className="space-y-2">
                 {artists.slice(0, 3).map((artist) => (
@@ -214,7 +214,7 @@ export default function SearchDropdown({
                         {artist.name}
                       </p>
                       <p className="text-xs text-zinc-400 truncate">
-                        {artist.bio || "No bio"}
+                        {artist.bio || "Không có tiểu sử"}
                       </p>
                     </div>
                   </div>
@@ -223,9 +223,9 @@ export default function SearchDropdown({
               {artists.length > 3 && (
                 <button
                   onClick={onViewMoreArtists}
-                  className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 font-medium"
+                  className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
                 >
-                  View all {artists.length} artists
+                  Xem tất cả {artists.length} nghệ sĩ
                 </button>
               )}
             </div>
