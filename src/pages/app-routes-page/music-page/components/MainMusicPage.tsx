@@ -162,7 +162,7 @@ export default function MainMusicPage() {
           >
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-white mb-2">Danh Sách Phát</h3>
-              <p className="text-sm text-gray-300">Bộ sưu tập của bạn</p>
+              <p className="text-sm text-white">Bộ sưu tập của bạn</p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-purple-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -173,7 +173,7 @@ export default function MainMusicPage() {
           >
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-white mb-2">Khám Phá Playlist</h3>
-              <p className="text-sm text-gray-300">Cộng đồng chia sẻ</p>
+              <p className="text-sm text-white">Cộng đồng chia sẻ</p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-teal-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -231,7 +231,7 @@ export default function MainMusicPage() {
 
         {/* Genres Section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Duyệt Thể Loại</h2>
+          <h2 className="text-2xl font-bold text-white">Thể Loại</h2>
           <div className="relative group">
             {/* Left Arrow */}
             {showLeftArrow && (
