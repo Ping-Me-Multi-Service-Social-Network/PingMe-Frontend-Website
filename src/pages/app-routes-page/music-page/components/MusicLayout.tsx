@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import MusicSearchBar from "./MusicSearchBar.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import type { Song } from "@/types/music/song";
@@ -9,6 +9,14 @@ export default function MusicLayout() {
     const { playSong } = useAudioPlayer();
     const location = useLocation();
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [isEntering, setIsEntering] = useState(true);
+
+    // Trigger entrance animation on mount
+    useEffect(() => {
+        setIsEntering(true);
+        const timer = setTimeout(() => setIsEntering(false), 800);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Scroll to top when route changes (without animation to prevent jank)
     useEffect(() => {
@@ -39,7 +47,13 @@ export default function MusicLayout() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-gray-900" style={{ minHeight: '100vh' }}>
+        <div
+            className={`flex flex-col h-full bg-gray-900 ${isEntering ? 'music-module-enter' : ''}`}
+            style={{
+                minHeight: '100vh',
+                transition: 'background-color 0.6s ease-in-out'
+            }}
+        >
             <div
                 ref={scrollRef}
                 className="flex-1"

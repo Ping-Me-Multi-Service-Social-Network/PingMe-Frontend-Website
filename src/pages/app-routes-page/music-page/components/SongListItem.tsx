@@ -20,17 +20,17 @@ export default function SongListItem({
   };
 
   return (
-    <div className="group flex items-center gap-4 px-4 py-3 bg-gray-800/40 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900/30 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300">
+    <div className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300">
       {index && (
         <div className="w-8 text-center">
-          <span className="text-gray-400 group-hover:hidden text-sm font-medium">
+          <span className="text-white group-hover:hidden text-sm font-medium">
             {index}
           </span>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => onPlay(song)}
-            className="hidden group-hover:inline-flex h-8 w-8 text-white hover:bg-purple-600 hover:text-white transition-colors"
+            className="hidden group-hover:inline-flex h-8 w-8 text-white hover:bg-purple-600 hover:text-zinc-100 transition-colors"
           >
             <Play className="h-4 w-4 fill-current" />
           </Button>
@@ -45,7 +45,7 @@ export default function SongListItem({
           />
         ) : (
           <div className="w-full h-full rounded bg-gray-700 flex items-center justify-center">
-            <Music2 className="h-5 w-5 text-gray-500" />
+            <Music2 className="h-5 w-5 text-white" />
           </div>
         )}
       </div>
