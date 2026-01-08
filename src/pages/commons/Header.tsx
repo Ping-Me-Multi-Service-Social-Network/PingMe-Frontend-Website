@@ -1,5 +1,3 @@
-import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,19 +24,17 @@ const navigationGroups = [
     items: [
       {
         name: "Chat",
-        href: "/chat/messages",
+        href: "/app/chat",
         icon: MessageCircle,
         description: "Trò chuyện với bạn bè",
         requireAuth: true,
-        openInNewTab: true,
       },
       {
         name: "Danh Bạ",
-        href: "/chat/contacts",
+        href: "/app/contacts",
         icon: Users,
         description: "Quản lý danh bạ của bạn",
         requireAuth: true,
-        openInNewTab: true,
       },
     ],
   },
@@ -49,19 +45,17 @@ const navigationGroups = [
     items: [
       {
         name: "Music",
-        href: "/music",
+        href: "/app/music",
         icon: Music,
         description: "Nghe nhạc thư giãn",
         requireAuth: true,
-        openInNewTab: true,
       },
       {
         name: "Reels",
-        href: "/reels",
+        href: "/app/reels",
         icon: Film,
         description: "Xem video ngắn",
         requireAuth: true,
-        openInNewTab: true,
       },
     ],
   },
@@ -72,14 +66,14 @@ const navigationGroups = [
     items: [
       {
         name: "Blog",
-        href: "/blogs",
+        href: "/app/blogs",
         icon: BookOpen,
         description: "Đọc và viết blog",
         requireAuth: true,
       },
       {
         name: "Expense Tracker",
-        href: "/expenses",
+        href: "/app/expenses",
         icon: Wallet,
         description: "Quản lý chi tiêu",
         requireAuth: true,
@@ -102,16 +96,6 @@ export default function Header() {
 
   const isGroupActive = (items: (typeof navigationGroups)[0]["items"]) => {
     return items.some((item) => isActiveLink(item.href));
-  };
-
-  const handleNavClick = (
-    e: React.MouseEvent,
-    item: { openInNewTab?: boolean; href: string }
-  ) => {
-    if (item.openInNewTab) {
-      e.preventDefault();
-      window.open(item.href, "_blank", "noopener,noreferrer");
-    }
   };
 
   return (
@@ -222,7 +206,6 @@ export default function Header() {
                               <Link
                                 key={item.name}
                                 to={item.href}
-                                onClick={(e) => handleNavClick(e, item)}
                                 className={`
                                   flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 group/item
                                   ${
@@ -338,8 +321,7 @@ export default function Header() {
                         <Link
                           key={item.name}
                           to={item.href}
-                          onClick={(e) => {
-                            handleNavClick(e, item);
+                          onClick={() => {
                             setIsMobileMenuOpen(false);
                           }}
                           className={`
