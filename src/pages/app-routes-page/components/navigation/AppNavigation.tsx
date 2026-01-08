@@ -4,7 +4,6 @@ import {
   Home,
   BookOpen,
   Music4Icon,
-  Wallet,
   Film,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -56,13 +55,6 @@ const contentNavigationItems = [
     icon: BookOpen,
     href: "/app/blogs",
     description: "Khám phá bài viết",
-    external: false,
-  },
-  {
-    title: "Chi tiêu",
-    icon: Wallet,
-    href: "/app/expenses",
-    description: "Quản lý chi tiêu",
     external: false,
   },
 ];
