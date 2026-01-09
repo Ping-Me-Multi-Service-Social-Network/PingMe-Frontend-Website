@@ -176,7 +176,7 @@ export default function AppNavigation() {
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex justify-center">
-                <UserMenu openInNewTab={true} />
+                <UserMenu openInNewTab={false} />
               </div>
             </TooltipTrigger>
             <TooltipContent
