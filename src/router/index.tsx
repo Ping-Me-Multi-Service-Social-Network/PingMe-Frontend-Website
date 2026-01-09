@@ -19,7 +19,6 @@ import BlogDetailsPage from "@/pages/app-routes-page/blog-page/blog-details-page
 import { AdminRoute } from "@/pages/commons/AdminRoute";
 import MusicPage from "@/pages/app-routes-page/music-page";
 import AppPageLayout from "@/pages/app-routes-page";
-import ExpensePage from "@/pages/app-routes-page/expense-page";
 import ReelsPage from "@/pages/app-routes-page/reels-page";
 import VideoManagerPage from "@/pages/app-routes-page/reels-page/video-manager";
 import SearchResultsPage from "@/pages/app-routes-page/reels-page/search-results";
@@ -68,14 +67,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <UpsertBlogPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "expenses",
-        element: (
-          <ProtectedRoute>
-            <ExpensePage />
           </ProtectedRoute>
         ),
       },
