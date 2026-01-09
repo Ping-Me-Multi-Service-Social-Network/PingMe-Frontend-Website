@@ -1,10 +1,11 @@
 import type { Song } from "@/types/music/song";
+import type { SongResponseWithAllAlbum } from "@/types/music";
 import { Play, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 
 interface SongListItemProps {
-  song: Song;
-  onPlay: (song: Song) => void;
+  song: Song | SongResponseWithAllAlbum;
+  onPlay: (song: Song | SongResponseWithAllAlbum) => void;
   index?: number;
 }
 
@@ -58,7 +59,8 @@ export default function SongListItem({
         </p>
       </div>
       <div className="hidden sm:block text-sm text-gray-500">
-        {/* {song.album?.title || "Unknown Album"} */}
+        {/* Support both album (singular) and albums (plural array) */}
+        {/* {"album" in song && song.album?.title || "albums" in song && song.albums?.[0]?.title || "Unknown Album"} */}
       </div>
       <div className="text-sm text-gray-500 text-right">
         <div>{formatDuration(song.duration)}</div>

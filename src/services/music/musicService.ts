@@ -1,4 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
+import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   SongResponse,
   SongResponseWithAllAlbum,
@@ -105,58 +106,46 @@ function createFormDataForSong(
   return formData;
 }
 
-// Helper function to create FormData for genre
-function createFormDataForGenre(
-  data: GenreRequest | Partial<GenreRequest>
-): FormData {
-  const formData = new FormData();
-
-  // Add JSON request data as blob with proper content type
-  const jsonBlob = new Blob([JSON.stringify(data)], {
-    type: "application/json",
-  });
-  formData.append("genreRequest", jsonBlob);
-
-  return formData;
-}
-
 // Song Services
 export const songService = {
   getAll: async (): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
       `${BASE_URL}/songs/all`
     );
-    return response.data;
+    return response.data.data;
   },
 
   getById: async (id: number): Promise<SongResponseWithAllAlbum> => {
-    const response = await axiosClient.get<SongResponseWithAllAlbum>(
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum>>(
       `${BASE_URL}/songs/${id}`
     );
-    return response.data;
+    return response.data.data;
   },
 
   search: async (title: string): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
       `${BASE_URL}/songs/search`,
       {
         params: { title },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   filterByGenre: async (genreId: number): Promise<SongResponse[]> => {
-    const response = await axiosClient.get<SongResponse[]>(
-      `${BASE_URL}/songs/filter-by-genre/${genreId}`
+    const response = await axiosClient.get<ApiResponse<SongResponse[]>>(
+      `${BASE_URL}/songs/genre`,
+      {
+        params: { id: genreId },
+      }
     );
-    return response.data;
+    return response.data.data;
   },
 
-  create: async (data: SongRequest): Promise<SongResponseWithAllAlbum> => {
+  create: async (data: SongRequest): Promise<SongResponse> => {
     console.log("[PingMe] Creating song with data:", data);
     const formData = createFormDataForSong(data);
-    const response = await axiosClient.post<SongResponseWithAllAlbum[]>(
+    const response = await axiosClient.post<ApiResponse<SongResponse[]>>(
       `${BASE_URL}/songs/save`,
       formData,
       {
@@ -164,17 +153,18 @@ export const songService = {
       }
     );
     console.log("[PingMe] Song create response:", response.data);
-    // Backend returns List, so return first item
-    return Array.isArray(response.data) ? response.data[0] : response.data;
+    // Backend returns ApiResponse<List>, so unwrap and return first item
+    const songs = response.data.data;
+    return Array.isArray(songs) ? songs[0] : songs;
   },
 
   update: async (
     id: number,
     data: Partial<SongRequest>
-  ): Promise<SongResponseWithAllAlbum> => {
+  ): Promise<SongResponse> => {
     console.log("[PingMe] Updating song", id, "with data:", data);
     const formData = createFormDataForSong(data);
-    const response = await axiosClient.put<SongResponseWithAllAlbum[]>(
+    const response = await axiosClient.put<ApiResponse<SongResponse[]>>(
       `${BASE_URL}/songs/update/${id}`,
       formData,
       {
@@ -182,56 +172,64 @@ export const songService = {
       }
     );
     console.log("[PingMe] Song update response:", response.data);
-    // Backend returns List, so return first item
-    return Array.isArray(response.data) ? response.data[0] : response.data;
+    // Backend returns ApiResponse<List>, so unwrap and return first item
+    const songs = response.data.data;
+    return Array.isArray(songs) ? songs[0] : songs;
   },
 
   softDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/songs/soft-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/songs/soft-delete/${id}`);
   },
 
   hardDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/songs/hard-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/songs/hard-delete/${id}`);
   },
 
-  restore: async (id: number): Promise<SongResponseWithAllAlbum> => {
-    const response = await axiosClient.put<SongResponseWithAllAlbum>(
-      `${BASE_URL}/songs/restore/${id}`
-    );
-    return response.data;
+  restore: async (id: number): Promise<void> => {
+    await axiosClient.put<ApiResponse<void>>(`${BASE_URL}/songs/restore/${id}`);
   },
 
   increasePlayCount: async (id: number): Promise<void> => {
-    await axiosClient.post(`${BASE_URL}/songs/${id}/play`);
+    await axiosClient.post<ApiResponse<void>>(`${BASE_URL}/songs/${id}/play`);
   },
 };
 
 // Album Services
 export const albumService = {
   getAll: async (): Promise<AlbumResponse[]> => {
-    const response = await axiosClient.get<AlbumResponse[]>(
+    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
       `${BASE_URL}/albums/all`
     );
-    return response.data;
+    return response.data.data;
   },
 
   getById: async (id: number): Promise<AlbumResponse> => {
-    const response = await axiosClient.get<AlbumResponse>(
+    const response = await axiosClient.get<ApiResponse<AlbumResponse>>(
       `${BASE_URL}/albums/${id}`
     );
-    return response.data;
+    return response.data.data;
+  },
+
+  search: async (title: string): Promise<AlbumResponse[]> => {
+    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
+      `${BASE_URL}/albums/search`,
+      {
+        params: { title },
+      }
+    );
+    return response.data.data;
   },
 
   create: async (data: AlbumRequest): Promise<AlbumResponse> => {
     const formData = createFormDataForAlbum(data);
-    const response = await axiosClient.post<AlbumResponse>(
+    const response = await axiosClient.post<ApiResponse<AlbumResponse>>(
       `${BASE_URL}/albums/save`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   update: async (
@@ -239,68 +237,65 @@ export const albumService = {
     data: Partial<AlbumRequest>
   ): Promise<AlbumResponse> => {
     const formData = createFormDataForAlbum(data);
-    const response = await axiosClient.put<AlbumResponse>(
+    const response = await axiosClient.put<ApiResponse<AlbumResponse>>(
       `${BASE_URL}/albums/update/${id}`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   softDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/albums/soft-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/albums/soft-delete/${id}`);
   },
 
   hardDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/albums/hard-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/albums/hard-delete/${id}`);
   },
 
-  restore: async (id: number): Promise<AlbumResponse> => {
-    const response = await axiosClient.put<AlbumResponse>(
-      `${BASE_URL}/albums/restore/${id}`
-    );
-    return response.data;
+  restore: async (id: number): Promise<void> => {
+    await axiosClient.put<ApiResponse<void>>(`${BASE_URL}/albums/restore/${id}`);
   },
 };
 
 // Artist Services
 export const artistService = {
   getAll: async (): Promise<ArtistResponse[]> => {
-    const response = await axiosClient.get<ArtistResponse[]>(
+    const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>(
       `${BASE_URL}/artists/all`
     );
-    return response.data;
+    return response.data.data;
   },
 
   getById: async (id: number): Promise<ArtistResponse> => {
-    const response = await axiosClient.get<ArtistResponse>(
+    const response = await axiosClient.get<ApiResponse<ArtistResponse>>(
       `${BASE_URL}/artists/${id}`
     );
-    return response.data;
+    return response.data.data;
   },
 
   search: async (name: string): Promise<ArtistResponse[]> => {
-    const response = await axiosClient.get<ArtistResponse[]>(
+    const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>(
       `${BASE_URL}/artists/search`,
       {
         params: { name },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   create: async (data: ArtistRequest): Promise<ArtistResponse> => {
     const formData = createFormDataForArtist(data);
-    const response = await axiosClient.post<ArtistResponse>(
+    const response = await axiosClient.post<ApiResponse<ArtistResponse>>(
       `${BASE_URL}/artists/save`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   update: async (
@@ -308,164 +303,197 @@ export const artistService = {
     data: Partial<ArtistRequest>
   ): Promise<ArtistResponse> => {
     const formData = createFormDataForArtist(data);
-    const response = await axiosClient.put<ArtistResponse>(
+    const response = await axiosClient.put<ApiResponse<ArtistResponse>>(
       `${BASE_URL}/artists/update/${id}`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   softDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/artists/soft-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/artists/soft-delete/${id}`);
   },
 
   hardDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/artists/hard-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/artists/hard-delete/${id}`);
   },
 
-  restore: async (id: number): Promise<ArtistResponse> => {
-    const response = await axiosClient.put<ArtistResponse>(
-      `${BASE_URL}/artists/restore/${id}`
-    );
-    return response.data;
+  restore: async (id: number): Promise<void> => {
+    await axiosClient.put<ApiResponse<void>>(`${BASE_URL}/artists/restore/${id}`);
   },
 };
 
 // Genre Services
 export const genreService = {
   getAll: async (): Promise<GenreResponse[]> => {
-    const response = await axiosClient.get<GenreResponse[]>(
+    const response = await axiosClient.get<ApiResponse<GenreResponse[]>>(
       `${BASE_URL}/genres/all`
     );
-    return response.data;
+    return response.data.data;
   },
 
   getById: async (id: number): Promise<GenreResponse> => {
-    const response = await axiosClient.get<GenreResponse>(
+    const response = await axiosClient.get<ApiResponse<GenreResponse>>(
       `${BASE_URL}/genres/${id}`
     );
-    return response.data;
+    return response.data.data;
+  },
+
+  search: async (name: string): Promise<GenreResponse[]> => {
+    const response = await axiosClient.get<ApiResponse<GenreResponse[]>>(
+      `${BASE_URL}/genres/search`,
+      {
+        params: { name },
+      }
+    );
+    return response.data.data;
   },
 
   create: async (data: GenreRequest): Promise<GenreResponse> => {
-    const formData = createFormDataForGenre(data);
-    const response = await axiosClient.post<GenreResponse>(
+    const formData = new FormData();
+    const jsonBlob = new Blob([JSON.stringify(data)], {
+      type: "application/json",
+    });
+    formData.append("genreRequest", jsonBlob);
+    
+    const response = await axiosClient.post<ApiResponse<GenreResponse>>(
       `${BASE_URL}/genres/save`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
-  update: async (id: number, data: GenreRequest): Promise<GenreResponse> => {
-    const formData = createFormDataForGenre(data);
-    const response = await axiosClient.put<GenreResponse>(
+  update: async (
+    id: number,
+    data: Partial<GenreRequest>
+  ): Promise<GenreResponse> => {
+    const formData = new FormData();
+    const jsonBlob = new Blob([JSON.stringify(data)], {
+      type: "application/json",
+    });
+    formData.append("genreRequest", jsonBlob);
+    
+    const response = await axiosClient.put<ApiResponse<GenreResponse>>(
       `${BASE_URL}/genres/update/${id}`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return response.data;
+    return response.data.data;
   },
 
   softDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/genres/soft-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/genres/soft-delete/${id}`);
   },
 
   hardDelete: async (id: number): Promise<void> => {
-    await axiosClient.delete(`${BASE_URL}/genres/hard-delete/${id}`);
+    await axiosClient.delete<ApiResponse<void>>(`${BASE_URL}/genres/hard-delete/${id}`);
   },
 
-  restore: async (id: number): Promise<GenreResponse> => {
-    const response = await axiosClient.put<GenreResponse>(
-      `${BASE_URL}/genres/restore/${id}`
-    );
-    return response.data;
+  restore: async (id: number): Promise<void> => {
+    await axiosClient.put<ApiResponse<void>>(`${BASE_URL}/genres/restore/${id}`);
   },
 };
 
-// Common Services
+// Common Service
 export const commonService = {
-  getArtistRoles: async (): Promise<string[]> => {
-    const response = await axiosClient.get<string[]>(`${COMMON_URL}/roles`);
+  getMusicDashboard: async () => {
+    const response = await axiosClient.get(`${COMMON_URL}/dashboard`);
     return response.data;
+  },
+
+  getArtistRoles: async (): Promise<string[]> => {
+    const response = await axiosClient.get<ApiResponse<string[]>>(`${COMMON_URL}/roles`);
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
   },
 };
 
-// Search Services
+// Search Service
 export const searchService = {
-  searchSongs: async (title: string): Promise<SongResponseWithAllAlbum[]> => {
-    if (!title.trim()) return [];
-    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
-      `${BASE_URL}/songs/search`,
-      {
-        params: { title },
-      }
-    );
+  searchAll: async (query: string) => {
+    const response = await axiosClient.get(`${BASE_URL}/search`, {
+      params: { q: query },
+    });
     return response.data;
   },
 
-  searchAlbums: async (title: string): Promise<AlbumResponse[]> => {
-    if (!title.trim()) return [];
-    const response = await axiosClient.get<AlbumResponse[]>(
-      `${BASE_URL}/albums/search`,
-      {
-        params: { title },
-      }
-    );
-    return response.data;
-  },
-
-  searchArtists: async (name: string): Promise<ArtistResponse[]> => {
-    if (!name.trim()) return [];
-    const response = await axiosClient.get<ArtistResponse[]>(
-      `${BASE_URL}/artists/search`,
-      {
-        params: { name },
-      }
-    );
-    return response.data;
-  },
-
-  getSongsByAlbum: async (
-    albumId: number
-  ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+  // Get songs by album ID
+  getSongsByAlbum: async (albumId: number): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
       `${BASE_URL}/songs/search-by-album`,
       {
         params: { id: albumId },
       }
     );
-    return response.data;
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
   },
 
-  getSongsByArtist: async (
-    artistId: number
-  ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+  // Get songs by artist ID
+  getSongsByArtist: async (artistId: number): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
       `${BASE_URL}/songs/search-by-artist`,
       {
         params: { id: artistId },
       }
     );
-    return response.data;
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
   },
 
-  getSongsByGenre: async (
-    genreId: number
-  ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosClient.get<SongResponseWithAllAlbum[]>(
+  // Get songs by genre ID
+  getSongsByGenre: async (genreId: number): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
       `${BASE_URL}/songs/genre`,
       {
         params: { id: genreId },
       }
     );
-    return response.data;
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // Search songs by title
+  searchSongs: async (query: string): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
+      `${BASE_URL}/songs/search`,
+      {
+        params: { title: query },
+      }
+    );
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // Search albums by name
+  searchAlbums: async (query: string): Promise<AlbumResponse[]> => {
+    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
+      `${BASE_URL}/albums/search`,
+      {
+        params: { name: query },
+      }
+    );
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // Search artists by name
+  searchArtists: async (query: string): Promise<ArtistResponse[]> => {
+    const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>(
+      `${BASE_URL}/artists/search`,
+      {
+        params: { name: query },
+      }
+    );
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
   },
 };

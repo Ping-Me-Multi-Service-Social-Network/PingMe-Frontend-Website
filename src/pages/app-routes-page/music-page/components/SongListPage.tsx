@@ -112,8 +112,20 @@ export default function SongListPage() {
     };
   };
 
-  const handleSongPlay = (song: Song) => {
-    playSong(song);
+  const handleSongPlay = (song: Song | SongResponseWithAllAlbum) => {
+    const songToPlay: Song = "otherArtists" in song ? {
+      id: song.id,
+      title: song.title,
+      duration: song.duration,
+      playCount: song.playCount,
+      songUrl: song.songUrl,
+      coverImageUrl: song.coverImageUrl,
+      mainArtist: song.mainArtist,
+      featuredArtists: song.otherArtists,
+      genre: song.genres,
+      album: song.albums,
+    } : song;
+    playSong(songToPlay);
   };
 
   const handlePlayAll = () => {
