@@ -1,14 +1,8 @@
-import axiosClient from "@/lib/axiosClient.ts";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
-  ChangePasswordRequest,
-  ChangeProfileRequest,
   DefaultAuthResponse,
   LoginRequest,
   RegisterRequest,
-  CurrentUserSessionMetaResponse,
-  CurrentUserProfileResponse,
-  CurrentUserSessionResponse,
 } from "@/types/authentication";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler.ts";
 import axios from "axios";
@@ -45,52 +39,5 @@ export const refreshSessionApi = () => {
     `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
     sessionMetaRequest,
     { withCredentials: true }
-  );
-};
-
-export const getCurrentUserSessionApi = () => {
-  return axiosClient.get<ApiResponse<CurrentUserSessionResponse>>("/auth/me");
-};
-
-export const getCurrentUserInfoApi = () => {
-  return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>(
-    "/auth/me/info"
-  );
-};
-
-export const getCurrentUserAllDeviceMetasApi = () => {
-  return axiosClient.get<ApiResponse<CurrentUserSessionMetaResponse[]>>(
-    "/auth/me/sessions"
-  );
-};
-
-export const updateCurrentUserPasswordApi = (
-  changePasswordRequest: ChangePasswordRequest
-) => {
-  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/auth/me/password",
-    changePasswordRequest
-  );
-};
-
-export const updateCurrentUserProfileApi = (
-  changeProfileRequest: ChangeProfileRequest
-) => {
-  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/auth/me/profile",
-    changeProfileRequest
-  );
-};
-
-export const updateCurrentUserAvatarApi = (data: FormData) => {
-  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/auth/me/avatar",
-    data
-  );
-};
-
-export const deleteCurrentUserDeviceMetaApi = (sessionId: string) => {
-  return axiosClient.delete<ApiResponse<CurrentUserSessionResponse>>(
-    `/auth/me/sessions/${sessionId}`
   );
 };

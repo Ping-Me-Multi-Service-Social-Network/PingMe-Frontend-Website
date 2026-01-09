@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 
 export interface AlbumResponse {
   id: number;

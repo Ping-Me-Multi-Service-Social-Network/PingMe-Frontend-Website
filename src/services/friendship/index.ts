@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient.ts";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   FriendInvitationRequest,
   HistoryFriendshipResponse,

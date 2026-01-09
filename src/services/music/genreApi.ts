@@ -1,6 +1,6 @@
 import axiosClient from "@/lib/axiosClient";
 import type { Genre } from "@/types/music/genre";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 
 export const genreApi = {
   getAllGenres: async () => {

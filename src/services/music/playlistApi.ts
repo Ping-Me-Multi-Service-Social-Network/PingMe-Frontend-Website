@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse, PageResponse } from "@/types/common/apiResponse";
+import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type { 
     PlaylistDto, 
     PlaylistDetailDto, 
@@ -14,7 +14,7 @@ export const playlistApi = {
         return response.data.data;
     },
 
-    // Get all playlists for current user
+    // Get all playlists for current user-management
     getPlaylists: async (): Promise<PlaylistDto[]> => {
         const response = await axiosClient.get<ApiResponse<PlaylistDto[]>>("/playlists");
         const data = response.data.data || response.data;

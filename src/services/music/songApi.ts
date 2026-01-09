@@ -1,7 +1,7 @@
 import axiosClient from "@/lib/axiosClient";
 import type { Song } from "@/types/music/song";
 import type { TopSongPlayCounter, SongResponseWithAllAlbum } from "@/types/music";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 
 export const songApi = {
   getTopSongs: async (number = 10) => {

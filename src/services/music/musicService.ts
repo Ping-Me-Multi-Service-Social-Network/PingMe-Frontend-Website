@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   SongResponse,
   SongResponseWithAllAlbum,
@@ -455,6 +455,42 @@ export const searchService = {
       `${BASE_URL}/songs/genre`,
       {
         params: { id: genreId },
+      }
+    );
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // Search songs by title
+  searchSongs: async (query: string): Promise<SongResponseWithAllAlbum[]> => {
+    const response = await axiosClient.get<ApiResponse<SongResponseWithAllAlbum[]>>(
+      `${BASE_URL}/songs/search`,
+      {
+        params: { title: query },
+      }
+    );
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // Search albums by name
+  searchAlbums: async (query: string): Promise<AlbumResponse[]> => {
+    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
+      `${BASE_URL}/albums/search`,
+      {
+        params: { name: query },
+      }
+    );
+    const data = response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // Search artists by name
+  searchArtists: async (query: string): Promise<ArtistResponse[]> => {
+    const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>(
+      `${BASE_URL}/artists/search`,
+      {
+        params: { name: query },
       }
     );
     const data = response.data.data || response.data;
