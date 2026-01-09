@@ -26,7 +26,7 @@ export default function ArtistsPage() {
                 // Fetch trending song for each artist (top 1 song)
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
                 await Promise.all(
-                    artistsData.slice(0, 10).map(async (artist) => {
+                    artistsData.slice(0, 10).map(async (artist: ArtistResponse) => {
                         try {
                             const songs = await searchService.getSongsByArtist(artist.id);
                             if (songs.length > 0) {
