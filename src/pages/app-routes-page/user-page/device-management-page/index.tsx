@@ -1,7 +1,3 @@
-import {
-  deleteCurrentUserDeviceMetaApi,
-  getCurrentUserAllDeviceMetasApi,
-} from "@/services/authentication";
 import type { CurrentUserSessionMetaResponse } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { normalizeDeviceType } from "@/utils/sessionMetaHandler.ts";
@@ -25,6 +21,10 @@ import {
   Cpu,
   Globe,
 } from "lucide-react";
+import {
+  deleteCurrentUserDeviceMetaApi,
+  getCurrentUserAllDeviceMetasApi
+} from "@/services/user/currentUserSessionApi.ts";
 
 const DeviceManagementPage = () => {
   const [isLoading, setIsLoading] = useState(false);
