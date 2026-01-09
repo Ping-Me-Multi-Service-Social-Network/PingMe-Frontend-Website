@@ -5,7 +5,7 @@ import type {
     CreatePlaylistRequest,
     ReorderPlaylistRequest 
 } from "@/types/music/playlist";
-import type { PageResponse } from "@/types/common/apiResponse";
+import type { PageResponse } from "@/types/base/apiResponse";
 
 export const playlistApi = {
     // Create a new playlist
@@ -14,7 +14,7 @@ export const playlistApi = {
         return response.data;
     },
 
-    // Get all playlists for current user
+    // Get all playlists for current user-management
     getPlaylists: async (): Promise<PlaylistDto[]> => {
         const response = await axiosClient.get("/playlists");
         return response.data;

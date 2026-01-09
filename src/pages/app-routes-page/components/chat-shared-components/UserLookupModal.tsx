@@ -24,7 +24,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { lookupApi } from "@/services/common/userLookupApi.ts";
+import { lookupApi } from "@/services/user/userLookupApi.ts";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
