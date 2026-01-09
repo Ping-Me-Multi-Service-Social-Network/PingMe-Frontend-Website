@@ -6,7 +6,9 @@ export interface UserSummaryResponse {
   email: string;
   name: string;
   avatarUrl: string;
-
+  accountStatus: AccountStatusType;
   status?: UserStatus;
   friendshipSummary: FriendshipSummary | null;
 }
+
+export type AccountStatusType = "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
