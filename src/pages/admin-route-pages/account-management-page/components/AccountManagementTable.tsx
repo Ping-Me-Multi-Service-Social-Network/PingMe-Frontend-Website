@@ -8,18 +8,21 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye } from "lucide-react";
+import { Eye, Edit } from "lucide-react"; // Import thêm icon Edit
 import { getUserInitials } from "@/utils/authFieldHandler";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
+import { UserStatusBadge } from "./UserStatusBadge"; // Import component Badge
 
 interface AccountManagementTableProps {
   users: UserSummaryResponse[];
   onViewDetails: (id: number) => void;
+  onEditStatus: (user: UserSummaryResponse) => void;
 }
 
 export const AccountManagementTable = ({
   users,
   onViewDetails,
+  onEditStatus,
 }: AccountManagementTableProps) => {
   return (
     <div className="rounded-lg border border-purple-100 overflow-hidden bg-white shadow-sm">
@@ -32,6 +35,9 @@ export const AccountManagementTable = ({
             <TableHead className="font-semibold text-purple-900">
               Email
             </TableHead>
+            <TableHead className="font-semibold text-purple-900">
+              Trạng thái
+            </TableHead>
             <TableHead className="font-semibold text-purple-900 text-right">
               Hành động
             </TableHead>
@@ -41,7 +47,7 @@ export const AccountManagementTable = ({
           {users.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={3}
+                colSpan={4} // Đổi thành 4 vì đã thêm cột Trạng thái
                 className="text-center py-8 text-muted-foreground"
               >
                 Không có người dùng nào
@@ -67,8 +73,15 @@ export const AccountManagementTable = ({
                 <TableCell className="text-muted-foreground">
                   {user.email}
                 </TableCell>
+
+                {/* Cột hiển thị Badge trạng thái */}
+                <TableCell>
+                  <UserStatusBadge status={user.accountStatus} />
+                </TableCell>
+
                 <TableCell>
                   <div className="flex items-center justify-end gap-2">
+                    {/* Nút Xem chi tiết */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -77,6 +90,17 @@ export const AccountManagementTable = ({
                       title="Xem chi tiết"
                     >
                       <Eye className="h-4 w-4" />
+                    </Button>
+
+                    {/* Nút Chỉnh sửa trạng thái */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEditStatus(user)}
+                      className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-700"
+                      title="Cập nhật trạng thái"
+                    >
+                      <Edit className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
