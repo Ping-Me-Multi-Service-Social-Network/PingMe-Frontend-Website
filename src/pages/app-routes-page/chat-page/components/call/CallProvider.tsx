@@ -13,7 +13,7 @@ import { CallNotification } from "./CallNotification.tsx";
 import { ZegoCallUI } from "./ZegoCallUI.tsx";
 import type { RoomParticipantResponse } from "@/types/chat/room";
 import type { SignalingResponse, CallType, CallState } from "@/types/call/call.ts";
-import { lookupByIdApi } from "@/services/common/userLookupApi.ts";
+import { lookupByIdApi } from "@/services/user/userLookupApi.ts";
 import { toast } from "sonner";
 
 interface CallProviderProps {

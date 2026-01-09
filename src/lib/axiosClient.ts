@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosError } from "axios";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
 import type { DefaultAuthResponse } from "@/types/authentication";
 

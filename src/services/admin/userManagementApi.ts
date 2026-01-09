@@ -1,9 +1,9 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosClient from "@/lib/axiosClient.ts";
 import type {
   ApiResponse,
   PageResponse,
   PaginationParams,
-} from "@/types/common/apiResponse";
+} from "@/types/base/apiResponse";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 
 export interface UserPaginationParams extends PaginationParams {

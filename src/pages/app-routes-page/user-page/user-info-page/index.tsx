@@ -30,11 +30,10 @@ import { toast } from "sonner";
 import type { ChangeProfileRequest } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
-  getCurrentUserInfoApi,
-  updateCurrentUserProfileApi,
 } from "@/services/authentication";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
+import {getCurrentUserInfoApi, updateCurrentUserProfileApi} from "@/services/user/currentUserProfileApi.ts";
 
 const UserInfoPage = () => {
   const { userSession, isLoading } = useAppSelector((state) => state.auth);

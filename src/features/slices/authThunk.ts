@@ -1,5 +1,4 @@
 import {
-  getCurrentUserSessionApi,
   loginLocalApi,
   logoutApi,
   refreshSessionApi,
@@ -12,6 +11,7 @@ import type {
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
+import {getCurrentUserSessionApi} from "@/services/user/currentUserProfileApi.ts";
 
 export const login = createAsyncThunk<
   DefaultAuthResponse,

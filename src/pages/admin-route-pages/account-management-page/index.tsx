@@ -7,7 +7,7 @@ import type {
   UserSummaryResponse,
 } from "@/types/common/userSummary";
 import { toast } from "sonner";
-import { getAllUsers, deleteUser } from "@/services/user/userApi";
+import { getAllUsers, deleteUser } from "@/services/admin/userManagementApi.ts";
 import { Button } from "@/components/ui/button";
 import { UpdateStatusDialog } from "./components/UpdateStatusDialog";
 

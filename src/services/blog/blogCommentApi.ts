@@ -3,7 +3,7 @@ import type {
   ApiResponse,
   PageResponse,
   PaginationParams,
-} from "@/types/common/apiResponse";
+} from "@/types/base/apiResponse";
 import type {
   BlogCommentResponse,
   UpsertBlogCommentRequest,
