@@ -10,24 +10,17 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chat";
-import {
-  connectChatWS,
-  disconnectChatWS,
-  enterRoom,
-  leaveRoom,
-  type MessageCreatedEventPayload,
-  type RoomUpdatedEventPayload,
-  type MessageRecalledEventPayload,
-  type RoomCreatedEventPayload,
-  type RoomMemberAddedEventPayload,
-  type RoomMemberRemovedEventPayload,
-  type RoomMemberRoleChangedEventPayload,
-} from "@/services/ws/chatSocket.ts";
+import { SocketManager } from "@/services/ws/socketManager";
+import type {
+  MessageCreatedEventPayload,
+  RoomUpdatedEventPayload,
+  MessageRecalledEventPayload,
+  RoomCreatedEventPayload,
+  RoomMemberAddedEventPayload,
+  RoomMemberRemovedEventPayload,
+  RoomMemberRoleChangedEventPayload,
+} from "@/services/ws/module/chatSocket";
 import type { UserStatusPayload } from "@/types/common/userStatus.ts";
-import {
-  connectUserStatusSocket,
-  disconnectUserStatusSocket,
-} from "@/services/ws/userStatusSocket.ts";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -117,15 +110,15 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!selectedChat) {
       selectedRoomIdRef.current = null;
-      leaveRoom();
+      SocketManager.leaveRoom();
       return;
     }
 
     selectedRoomIdRef.current = selectedChat.roomId;
-    enterRoom(selectedChat.roomId);
+    SocketManager.enterRoom(selectedChat.roomId);
 
     return () => {
-      leaveRoom();
+      SocketManager.leaveRoom();
     };
   }, [selectedChat]);
 
@@ -309,28 +302,85 @@ export default function MessagesPage() {
   // Chạy một lần khi component mount
   // =======================================================================
 
-  // Websocket cho cập nhật tin nhắn, phòng chat
+  // Listen to socket events from SocketManager via window events
   useEffect(() => {
-    connectChatWS({
-      baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
-      onDisconnect: (reason) => {
-        console.warn("[ChatWS] disconnected:", reason);
-      },
-      onMessageCreated: (ev: MessageCreatedEventPayload) => {
-        handleNewMessage(ev);
-      },
-      onRoomUpdated: handleRoomUpdated,
-      onMessageRecalled: (ev: MessageRecalledEventPayload) => {
-        handleRecallMessage(ev);
-      },
-      onRoomCreated: handleRoomCreated,
-      onMemberAdded: handleMemberAdded,
-      onMemberRemoved: handleMemberRemoved,
-      onMemberRoleChanged: handleMemberRoleChanged,
-    });
+    const handleMessageCreated = (e: Event) => {
+      const event = (e as CustomEvent).detail as MessageCreatedEventPayload;
+      handleNewMessage(event);
+    };
+
+    const handleRoomUpdatedEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as RoomUpdatedEventPayload;
+      handleRoomUpdated(event);
+    };
+
+    const handleMessageRecalledEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as MessageRecalledEventPayload;
+      handleRecallMessage(event);
+    };
+
+    const handleRoomCreatedEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as RoomCreatedEventPayload;
+      handleRoomCreated(event);
+    };
+
+    const handleMemberAddedEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as RoomMemberAddedEventPayload;
+      handleMemberAdded(event);
+    };
+
+    const handleMemberRemovedEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as RoomMemberRemovedEventPayload;
+      handleMemberRemoved(event);
+    };
+
+    const handleMemberRoleChangedEvent = (e: Event) => {
+      const event = (e as CustomEvent)
+        .detail as RoomMemberRoleChangedEventPayload;
+      handleMemberRoleChanged(event);
+    };
+
+    const handleUserStatusEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as UserStatusPayload;
+      setStatusPayload(event);
+    };
+
+    window.addEventListener("socket:message-created", handleMessageCreated);
+    window.addEventListener("socket:room-updated", handleRoomUpdatedEvent);
+    window.addEventListener(
+      "socket:message-recalled",
+      handleMessageRecalledEvent
+    );
+    window.addEventListener("socket:room-created", handleRoomCreatedEvent);
+    window.addEventListener("socket:member-added", handleMemberAddedEvent);
+    window.addEventListener("socket:member-removed", handleMemberRemovedEvent);
+    window.addEventListener(
+      "socket:member-role-changed",
+      handleMemberRoleChangedEvent
+    );
+    window.addEventListener("socket:user-status", handleUserStatusEvent);
 
     return () => {
-      disconnectChatWS();
+      window.removeEventListener(
+        "socket:message-created",
+        handleMessageCreated
+      );
+      window.removeEventListener("socket:room-updated", handleRoomUpdatedEvent);
+      window.removeEventListener(
+        "socket:message-recalled",
+        handleMessageRecalledEvent
+      );
+      window.removeEventListener("socket:room-created", handleRoomCreatedEvent);
+      window.removeEventListener("socket:member-added", handleMemberAddedEvent);
+      window.removeEventListener(
+        "socket:member-removed",
+        handleMemberRemovedEvent
+      );
+      window.removeEventListener(
+        "socket:member-role-changed",
+        handleMemberRoleChangedEvent
+      );
+      window.removeEventListener("socket:user-status", handleUserStatusEvent);
     };
   }, [
     handleNewMessage,
@@ -346,19 +396,6 @@ export default function MessagesPage() {
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
     null
   );
-
-  useEffect(() => {
-    connectUserStatusSocket({
-      baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
-      onStatus: ({ userId, name, isOnline }) => {
-        setStatusPayload({ userId, name, isOnline });
-      },
-    });
-
-    return () => {
-      disconnectUserStatusSocket();
-    };
-  }, []);
 
   useEffect(() => {
     if (!statusPayload) return;

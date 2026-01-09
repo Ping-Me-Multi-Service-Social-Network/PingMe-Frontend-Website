@@ -4,11 +4,7 @@ import { ChatActionBar } from "../components/chat-shared-components/ChatActionBa
 import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
 import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
 import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
-import {
-  connectGlobalWS,
-  disconnectGlobalWS,
-  type FriendshipEventPayload,
-} from "@/services/ws/friendshipSocket.ts";
+import type { FriendshipEventPayload } from "@/services/ws/module/globalSocket";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
@@ -16,7 +12,6 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
 import type { UserStatusPayload } from "@/types/common/userStatus.ts";
-import type { SignalingPayload } from "@/types/call/call.ts";
 
 const tabs = [
   {
@@ -49,139 +44,115 @@ export default function ContactsPage() {
       totalReceivedInvites: 0,
     } as UserFriendshipStatsResponse);
 
-  //Thêm statusPayload để lấy thông tin online/offline của người dùng
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
     null
   );
 
   const [activeTab, setActiveTab] = useState("friends");
 
-  // Ref quản lý hành động ở trang "Danh sách bạn bè"
   const friendsRef = useRef<{
-    handleNewFriend: (user: UserSummaryResponse) => void; // thêm bạn mới
-    removeFriend: (user: UserSummaryResponse) => void; // xóa bạn
+    handleNewFriend: (user: UserSummaryResponse) => void;
+    removeFriend: (user: UserSummaryResponse) => void;
   }>(null);
 
-  // Ref quản lý hành động ở trang "Lời mời kết bạn đã nhận"
   const receivedRef = useRef<{
-    handleNewInvitation: (user: UserSummaryResponse) => void; // thêm lời mời mới
-    removeInvitation: (user: UserSummaryResponse) => void; // xóa lời mời
+    handleNewInvitation: (user: UserSummaryResponse) => void;
+    removeInvitation: (user: UserSummaryResponse) => void;
   }>(null);
 
-  // Ref quản lý hành động ở trang "Lời mời đã gửi"
   const sentRef = useRef<{
     handleInvitationUpdate: (user: UserSummaryResponse) => void;
     newInvitation: (user: UserSummaryResponse) => void;
   }>(null);
 
-  // const { handleSignalingEvent } = useCallContext();
-
   useEffect(() => {
-    const connectWebSocket = () => {
-      connectGlobalWS({
-        baseUrl: `${import.meta.env.VITE_BACKEND_BASE_URL}`,
-        onFriendEvent: (event: FriendshipEventPayload) => {
-          try {
-            switch (event.type) {
-              // Có lời mời kết bạn mới
-              case "INVITED":
-                if (userSession?.id === event.userSummaryResponse.id) {
-                  setUserFriendshipStats((prev) => ({
-                    ...prev,
-                    totalSentInvites: prev.totalSentInvites + 1,
-                  }));
+    const handleFriendEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as FriendshipEventPayload;
+      try {
+        switch (event.type) {
+          case "INVITED":
+            if (userSession?.id === event.userSummaryResponse.id) {
+              setUserFriendshipStats((prev) => ({
+                ...prev,
+                totalSentInvites: prev.totalSentInvites + 1,
+              }));
 
-                  if (activeTab === "sent-invitations") {
-                    sentRef.current?.newInvitation(event.userSummaryResponse);
-                  }
-                } else {
-                  setUserFriendshipStats((prev) => ({
-                    ...prev,
-                    totalReceivedInvites: prev.totalReceivedInvites + 1,
-                  }));
-                  if (activeTab === "received-invitations") {
-                    receivedRef.current?.handleNewInvitation(
-                      event.userSummaryResponse
-                    );
-                  }
-                }
-                break;
-
-              // Lời mời kết bạn được chấp nhận
-              case "ACCEPTED":
-                setUserFriendshipStats((prev) => ({
-                  ...prev,
-                  totalFriends: prev.totalFriends + 1,
-                  totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
-                }));
-                if (activeTab === "friends") {
-                  friendsRef.current?.handleNewFriend(
-                    event.userSummaryResponse
-                  );
-                }
-                if (activeTab === "sent-invitations") {
-                  sentRef.current?.handleInvitationUpdate(
-                    event.userSummaryResponse
-                  );
-                }
-                break;
-
-              // Lời mời bị từ chối
-              case "REJECTED":
-                setUserFriendshipStats((prev) => ({
-                  ...prev,
-                  totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
-                }));
-                if (activeTab === "sent-invitations") {
-                  sentRef.current?.handleInvitationUpdate(
-                    event.userSummaryResponse
-                  );
-                }
-                break;
-
-              // Lời mời bị hủy
-              case "CANCELED":
-                setUserFriendshipStats((prev) => ({
-                  ...prev,
-                  totalReceivedInvites: Math.max(
-                    0,
-                    prev.totalReceivedInvites - 1
-                  ),
-                }));
-                if (activeTab === "received-invitations") {
-                  receivedRef.current?.removeInvitation(
-                    event.userSummaryResponse
-                  );
-                }
-                break;
-
-              // Xóa bạn bè
-              case "DELETED":
-                setUserFriendshipStats((prev) => ({
-                  ...prev,
-                  totalFriends: Math.max(0, prev.totalFriends - 1),
-                }));
-                if (activeTab === "friends") {
-                  friendsRef.current?.removeFriend(event.userSummaryResponse);
-                }
-                break;
+              if (activeTab === "sent-invitations") {
+                sentRef.current?.newInvitation(event.userSummaryResponse);
+              }
+            } else {
+              setUserFriendshipStats((prev) => ({
+                ...prev,
+                totalReceivedInvites: prev.totalReceivedInvites + 1,
+              }));
+              if (activeTab === "received-invitations") {
+                receivedRef.current?.handleNewInvitation(
+                  event.userSummaryResponse
+                );
+              }
             }
-          } catch (error) {
-            toast.error(getErrorMessage(error, "Không thể kết nối"));
-          }
-        },
+            break;
 
-        //Thêm onStatus (lấy từ bên services/ws/friendshipSocket.ts)
-        onStatus: ({ userId, name, isOnline }) => {
-          setStatusPayload({ userId, name, isOnline }); //  update state khi có event
-        },
+          case "ACCEPTED":
+            setUserFriendshipStats((prev) => ({
+              ...prev,
+              totalFriends: prev.totalFriends + 1,
+              totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
+            }));
+            if (activeTab === "friends") {
+              friendsRef.current?.handleNewFriend(event.userSummaryResponse);
+            }
+            if (activeTab === "sent-invitations") {
+              sentRef.current?.handleInvitationUpdate(
+                event.userSummaryResponse
+              );
+            }
+            break;
 
-        onSignalEvent: (event: SignalingPayload) => {
-          console.log("[ContactPage] Received signaling event:", event.type);
-          // CallProvider will handle this globally, no need to process here
-        },
-      });
+          case "REJECTED":
+            setUserFriendshipStats((prev) => ({
+              ...prev,
+              totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
+            }));
+            if (activeTab === "sent-invitations") {
+              sentRef.current?.handleInvitationUpdate(
+                event.userSummaryResponse
+              );
+            }
+            break;
+
+          case "CANCELED":
+            setUserFriendshipStats((prev) => ({
+              ...prev,
+              totalReceivedInvites: Math.max(0, prev.totalReceivedInvites - 1),
+            }));
+            if (activeTab === "received-invitations") {
+              receivedRef.current?.removeInvitation(event.userSummaryResponse);
+            }
+            break;
+
+          case "DELETED":
+            setUserFriendshipStats((prev) => ({
+              ...prev,
+              totalFriends: Math.max(0, prev.totalFriends - 1),
+            }));
+            if (activeTab === "friends") {
+              friendsRef.current?.removeFriend(event.userSummaryResponse);
+            }
+            break;
+        }
+      } catch (error) {
+        toast.error(getErrorMessage(error, "Không thể kết nối"));
+      }
     };
+
+    const handleUserStatusEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as UserStatusPayload;
+      setStatusPayload(event);
+    };
+
+    window.addEventListener("socket:friend-event", handleFriendEvent);
+    window.addEventListener("socket:user-status", handleUserStatusEvent);
 
     const fetchStats = async () => {
       try {
@@ -192,11 +163,11 @@ export default function ContactsPage() {
       }
     };
 
-    connectWebSocket();
     fetchStats();
 
     return () => {
-      disconnectGlobalWS();
+      window.removeEventListener("socket:friend-event", handleFriendEvent);
+      window.removeEventListener("socket:user-status", handleUserStatusEvent);
     };
   }, [activeTab, userSession?.id]);
 
@@ -213,7 +184,6 @@ export default function ContactsPage() {
     }
   };
 
-  // Hàm render component theo tab đang chọn
   const renderActiveComponent = () => {
     switch (activeTab) {
       case "friends":
@@ -221,7 +191,6 @@ export default function ContactsPage() {
           <FriendsListComponent
             ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
-            //Đẩy statusPayload vào FriendsListComponent
             statusPayload={statusPayload}
           />
         );
@@ -244,7 +213,6 @@ export default function ContactsPage() {
           <FriendsListComponent
             ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
-            //Đẩy statusPayload vào FriendsListComponent
             statusPayload={statusPayload}
           />
         );

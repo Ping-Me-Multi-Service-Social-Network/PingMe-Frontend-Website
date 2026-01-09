@@ -2,17 +2,20 @@ import {
   useCallback,
   useEffect,
   useState,
-  useRef, // Thêm useMemo
+  useRef,
   type ReactNode,
 } from "react";
 import { CallContext, type CallContextType } from "@/contexts/CallContext.tsx";
-import { connectGlobalWS } from "@/services/ws/friendshipSocket.ts";
 import { sendSignalingApi } from "@/services/call/callApi.ts";
 import { useAppSelector } from "@/features/hooks.ts";
 import { CallNotification } from "./CallNotification.tsx";
 import { ZegoCallUI } from "./ZegoCallUI.tsx";
 import type { RoomParticipantResponse } from "@/types/chat/room";
-import type { SignalingResponse, CallType, CallState } from "@/types/call/call.ts";
+import type {
+  SignalingResponse,
+  CallType,
+  CallState,
+} from "@/types/call/call.ts";
 import { lookupByIdApi } from "@/services/user/userLookupApi.ts";
 import { toast } from "sonner";
 
@@ -75,90 +78,79 @@ export function CallProvider({ children }: CallProviderProps) {
   useEffect(() => {
     if (!userSession?.id) return;
 
-    connectGlobalWS({
-      baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
-      onFriendEvent: () => {},
-      onStatus: () => {},
+    const handleSignalingEvent = async (e: Event) => {
+      const event = (e as CustomEvent).detail as SignalingResponse;
 
-      onSignalEvent: async (event: SignalingResponse) => {
-        if (event.senderId === userSession.id) return;
+      if (event.senderId === userSession.id) return;
 
-        console.log(
-          `[CallProvider] Signal: ${event.type} from ${event.senderId}`
-        );
+      console.log(
+        `[PingMe CallProvider] Signal: ${event.type} from ${event.senderId}`
+      );
 
-        if (event.type === "INVITE") {
-          // Logic nhận cuộc gọi (như cũ)
-          if (isInCall || isIncomingCall) return;
+      if (event.type === "INVITE") {
+        if (isInCall || isIncomingCall) return;
 
-          activeRoomIdRef.current = event.roomId.toString();
-          const incomingCallType = event.payload?.callType || "VIDEO";
+        activeRoomIdRef.current = event.roomId.toString();
+        const incomingCallType = event.payload?.callType || "VIDEO";
 
-          // Mock info
-          setCallerInfo({
-            userId: event.senderId,
-            name: "Đang tải...",
-            avatarUrl: "null",
-            status: "ONLINE",
-            role: "MEMBER",
-            lastReadMessageId: null,
-            lastReadAt: null,
-          });
+        setCallerInfo({
+          userId: event.senderId,
+          name: "Đang tải...",
+          avatarUrl: "null",
+          status: "ONLINE",
+          role: "MEMBER",
+          lastReadMessageId: null,
+          lastReadAt: null,
+        });
 
-          setCallType(incomingCallType);
-          setCallState({
-            status: "ringing",
-            callType: incomingCallType,
-            callerId: event.senderId,
-            roomId: event.roomId,
-            isInitiator: false,
-          });
-          setIsIncomingCall(true);
+        setCallType(incomingCallType);
+        setCallState({
+          status: "ringing",
+          callType: incomingCallType,
+          callerId: event.senderId,
+          roomId: event.roomId,
+          isInitiator: false,
+        });
+        setIsIncomingCall(true);
 
-          // Fetch info
-          try {
-            const res = await lookupByIdApi(event.senderId);
-            const userInfo = res.data.data;
-            setCallerInfo((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    name: userInfo.name,
-                    avatarUrl: userInfo.avatarUrl,
-                  }
-                : undefined
-            );
-          } catch (e) {
-            console.error("[CallProvider] Lỗi lấy thông tin người gọi", e);
-          }
-        } else if (event.type === "ACCEPT") {
-          console.log("Đối phương đã nghe máy!");
-          setCallState((prev) => ({ ...prev, status: "connected" }));
+        try {
+          const res = await lookupByIdApi(event.senderId);
+          const userInfo = res.data.data;
+          setCallerInfo((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  name: userInfo.name,
+                  avatarUrl: userInfo.avatarUrl,
+                }
+              : undefined
+          );
+        } catch (e) {
+          console.error("[PingMe CallProvider] Lỗi lấy thông tin người gọi", e);
         }
+      } else if (event.type === "ACCEPT") {
+        console.log("Đối phương đã nghe máy!");
+        setCallState((prev) => ({ ...prev, status: "connected" }));
+      } else if (event.type === "REJECT") {
+        console.log("Đối phương từ chối -> Tắt máy ngay");
+        toast.info("Người dùng đang bận");
 
-        // --- XỬ LÝ REJECT (Sửa lại) ---
-        else if (event.type === "REJECT") {
-          console.log("Đối phương từ chối -> Tắt máy ngay (như Hangup)");
-          toast.info("Người dùng đang bận");
+        setCallState((prev) => ({ ...prev, status: "ended" }));
+        resetCallState();
+      } else if (event.type === "HANGUP") {
+        console.log("[PingMe CallProvider] NHẬN TÍN HIỆU KẾT THÚC -> TẮT MÁY");
+        toast.info("Cuộc gọi kết thúc");
 
-          // --- SỬA LẠI: LÀM ĐƠN GIẢN NHƯ HANGUP ---
-          // Không cần set status 'rejected' làm gì để tránh trigger useEffect thừa ở con
-          setCallState((prev) => ({ ...prev, status: "ended" }));
+        setCallState((prev) => ({ ...prev, status: "ended" }));
+        resetCallState();
+      }
+    };
 
-          // Gọi hàm reset ngay lập tức để gỡ UI
-          resetCallState();
-        }
+    window.addEventListener("socket:signaling", handleSignalingEvent);
 
-        // --- XỬ LÝ HANGUP ---
-        else if (event.type === "HANGUP") {
-          console.log("!!! NHẬN TÍN HIỆU KẾT THÚC -> TẮT MÁY !!!");
-          toast.info("Cuộc gọi kết thúc");
-
-          setCallState((prev) => ({ ...prev, status: "ended" }));
-          resetCallState();
-        }
-      },
-    });
+    return () => {
+      window.removeEventListener("socket:signaling", handleSignalingEvent);
+    };
   }, [userSession?.id, isInCall, isIncomingCall, resetCallState]);
 
   // --- ACTIONS ---
