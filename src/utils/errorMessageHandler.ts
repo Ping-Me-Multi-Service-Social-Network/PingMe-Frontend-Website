@@ -1,4 +1,4 @@
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 import axios from "axios";
 
 export const getErrorMessage = (
