@@ -1,6 +1,6 @@
 import axiosClient from "@/lib/axiosClient";
 import type { ArtistResponse } from "@/types/music";
-import type { ApiResponse } from "@/types/common/apiResponse";
+import type { ApiResponse } from "@/types/base/apiResponse";
 
 export const artistApi = {
   getAllArtists: async () => {
