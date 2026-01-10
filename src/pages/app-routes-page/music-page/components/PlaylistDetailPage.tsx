@@ -18,7 +18,7 @@ export default function PlaylistDetailPage() {
 
     useEffect(() => {
         if (id) {
-            fetchPlaylistDetail(parseInt(id));
+            fetchPlaylistDetail(Number.parseInt(id));
         }
     }, [id]);
 
@@ -26,8 +26,8 @@ export default function PlaylistDetailPage() {
     useEffect(() => {
         const handlePlaylistUpdate = (event: Event) => {
             const customEvent = event as CustomEvent<{ playlistId: number; songId: number }>;
-            if (id && customEvent.detail.playlistId === parseInt(id)) {
-                fetchPlaylistDetail(parseInt(id));
+            if (id && customEvent.detail.playlistId === Number.parseInt(id)) {
+                fetchPlaylistDetail(Number.parseInt(id));
             }
         };
 
@@ -148,7 +148,7 @@ export default function PlaylistDetailPage() {
                                     )}
                                 </div>
                                 <span>•</span>
-                                <span>{playlistDetail.items.length} {playlistDetail.items.length === 1 ? 'bài hát' : 'bài hát'}</span>
+                                <span>{playlistDetail.items.length} bài hát</span>
                             </div>
                         </div>
                     </div>

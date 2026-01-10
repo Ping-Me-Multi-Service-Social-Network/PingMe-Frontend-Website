@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Music, Lock, Globe, Trash2, Edit2, Compass } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import {
@@ -14,6 +13,8 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { handleKeyDown } from "../utils/commonHandlers";
+import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function PlaylistsPage() {
     const navigate = useNavigate();
@@ -111,21 +112,8 @@ export default function PlaylistsPage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900">
-                <LoadingSpinner />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900">
-                <p className="text-red-400">{error}</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingState />;
+    if (error) return <ErrorState message={error} />;
 
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
@@ -179,8 +167,11 @@ export default function PlaylistsPage() {
                         {playlists.map((playlist) => (
                             <div
                                 key={playlist.id}
+                                role="button"
+                                tabIndex={0}
                                 className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-colors cursor-pointer"
                                 onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
+                                onKeyDown={(e) => handleKeyDown(e, () => navigate(`/app/music/playlists/${playlist.id}`))}
                             >
                                 <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4">
                                     <Music className="w-12 h-12 text-white" />

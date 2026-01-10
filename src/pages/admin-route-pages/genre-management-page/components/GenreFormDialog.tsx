@@ -64,6 +64,12 @@ export function GenreFormDialog({
     }
   };
 
+  const getSubmitButtonText = () => {
+    if (loading) return "Đang lưu...";
+    if (genre) return "Cập nhật";
+    return "Thêm";
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -93,7 +99,7 @@ export function GenreFormDialog({
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Đang lưu..." : genre ? "Cập nhật" : "Thêm"}
+              {getSubmitButtonText()}
             </Button>
           </div>
         </form>

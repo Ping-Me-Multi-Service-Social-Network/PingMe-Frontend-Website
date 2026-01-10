@@ -80,6 +80,11 @@ export function ArtistFormDialog({
       setLoading(false);
     }
   };
+  const getSubmitButtonText = () => {
+    if (loading) return "Đang lưu...";
+    if (artist) return "Cập nhật";
+    return "Thêm";
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,7 +142,7 @@ export function ArtistFormDialog({
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Đang lưu..." : artist ? "Cập nhật" : "Thêm"}
+              {getSubmitButtonText()}
             </Button>
           </div>
         </form>
