@@ -33,7 +33,7 @@ export function AlbumFormDialog({
   onOpenChange,
   album,
   onSuccess,
-}: AlbumFormDialogProps) {
+}: Readonly<AlbumFormDialogProps>) {
   const [loading, setLoading] = useState(false);
   const [artists, setArtists] = useState<ArtistResponse[]>([]);
   const [formData, setFormData] = useState({

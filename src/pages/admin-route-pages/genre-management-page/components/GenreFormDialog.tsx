@@ -26,7 +26,7 @@ export function GenreFormDialog({
   onOpenChange,
   genre,
   onSuccess,
-}: GenreFormDialogProps) {
+}: Readonly<GenreFormDialogProps>) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
 
