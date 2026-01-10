@@ -57,6 +57,9 @@ export function SongFormDialog({
 
   type OtherArtistWithKey = SongArtistRequest & { uniqueKey: string };
 
+  // Counter for generating stable unique keys
+  let keyCounter = 0;
+
   const [formData, setFormData] = useState({
     title: "",
     duration: 0,
@@ -88,7 +91,7 @@ export function SongFormDialog({
             return {
               artistId: a.id,
               role: a.role,
-              uniqueKey: `${a.id}-${a.role}-${Date.now()}-${Math.random()}`,
+              uniqueKey: `${a.id}-${a.role}-${++keyCounter}`,
             };
           }) || [];
 
@@ -120,7 +123,7 @@ export function SongFormDialog({
         });
       }
     }
-  }, [open, song]);
+  }, [open, song, keyCounter]);
 
   const fetchData = async () => {
     try {
@@ -185,7 +188,7 @@ export function SongFormDialog({
         {
           artistId: 0,
           role: "FEATURED" as ArtistRole,
-          uniqueKey: `new-${Date.now()}-${Math.random()}`,
+          uniqueKey: `new-${++keyCounter}`,
         },
       ],
     });
