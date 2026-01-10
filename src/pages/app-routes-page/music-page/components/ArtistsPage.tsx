@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { artistApi } from "@/services/music/artistApi.ts";
 import { searchService } from "@/services/music/musicService.ts";
 import type { ArtistResponse, SongResponseWithAllAlbum } from "@/types/music";
-import type { Song } from "@/types/music/song";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play } from "lucide-react";
+import { handleKeyDown, convertToSong } from "../utils/commonHandlers";
+import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function ArtistsPage() {
     const navigate = useNavigate();
@@ -59,43 +59,11 @@ export default function ArtistsPage() {
     };
 
     const handleSongPlay = (song: SongResponseWithAllAlbum) => {
-        const songToPlay: Song = {
-            id: song.id,
-            title: song.title,
-            duration: song.duration,
-            playCount: song.playCount,
-            songUrl: song.songUrl,
-            coverImageUrl: song.coverImageUrl,
-            mainArtist: song.mainArtist,
-            featuredArtists: song.otherArtists,
-            genre: song.genres,
-            album: song.albums,
-        };
-        playSong(songToPlay);
+        playSong(convertToSong(song));
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            callback();
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <LoadingSpinner />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <p className="text-red-400">{error}</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingState />;
+    if (error) return <ErrorState message={error} />;
 
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>

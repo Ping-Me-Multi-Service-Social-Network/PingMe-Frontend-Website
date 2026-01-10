@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Music, Lock, Globe, Trash2, Edit2, Compass } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import {
@@ -14,6 +13,8 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { handleKeyDown } from "../utils/commonHandlers";
+import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function PlaylistsPage() {
     const navigate = useNavigate();
@@ -111,28 +112,8 @@ export default function PlaylistsPage() {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            callback();
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900">
-                <LoadingSpinner />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900">
-                <p className="text-red-400">{error}</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingState />;
+    if (error) return <ErrorState message={error} />;
 
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
