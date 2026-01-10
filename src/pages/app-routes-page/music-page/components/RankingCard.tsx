@@ -65,31 +65,60 @@ export default function RankingCard({
             return <p className="text-gray-400 text-sm">No data available</p>;
         }
 
+        // Always render 4 slots, fill empty ones with placeholders
+        const displayItems = [...songs];
+        while (displayItems.length < 4) {
+            displayItems.push({
+                songId: -displayItems.length,
+                title: "",
+                playCount: 0,
+                imgUrl: "",
+            } as TopSongPlayCounter);
+        }
+
         return (
             <div className="space-y-2">
-                {songs.map((song, index) => (
-                    <div
-                        key={song.songId}
-                        className="flex items-center gap-3 p-2 rounded-lg bg-black/20 hover:bg-black/30 transition-colors"
-                    >
-                        <span className="text-white font-bold text-sm w-5">{index + 1}</span>
-                        {song.imgUrl ? (
-                            <img
-                                src={song.imgUrl}
-                                alt={song.title}
-                                className="w-10 h-10 rounded object-cover"
-                            />
-                        ) : (
-                            <div className="w-10 h-10 rounded bg-gray-700 flex items-center justify-center">
-                                <Music2 className="w-5 h-5 text-gray-400" />
+                {displayItems.map((song, index) => {
+                    if (!song.title) {
+                        // Empty placeholder
+                        return (
+                            <div
+                                key={`empty-${index}`}
+                                className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-40"
+                            >
+                                <span className="text-gray-500 font-bold text-sm w-5">{index + 1}</span>
+                                <div className="w-10 h-10 rounded bg-gray-700/50"></div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-gray-500 text-sm">—</p>
+                                </div>
                             </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm font-medium truncate">{song.title}</p>
-                            <p className="text-gray-400 text-xs truncate">{song.playCount.toLocaleString()} plays</p>
+                        );
+                    }
+
+                    return (
+                        <div
+                            key={song.songId}
+                            className="flex items-center gap-3 p-2 rounded-lg bg-black/20 hover:bg-black/30 transition-colors"
+                        >
+                            <span className="text-white font-bold text-sm w-5">{index + 1}</span>
+                            {song.imgUrl ? (
+                                <img
+                                    src={song.imgUrl}
+                                    alt={song.title}
+                                    className="w-10 h-10 rounded object-cover"
+                                />
+                            ) : (
+                                <div className="w-10 h-10 rounded bg-gray-700 flex items-center justify-center">
+                                    <Music2 className="w-5 h-5 text-gray-400" />
+                                </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                                <p className="text-white text-sm font-medium truncate">{song.title}</p>
+                                <p className="text-gray-400 text-xs truncate">{song.playCount.toLocaleString()} plays</p>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         );
     };

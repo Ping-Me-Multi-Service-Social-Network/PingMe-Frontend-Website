@@ -19,7 +19,7 @@ export const albumApi = {
     const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>("/albums/all");
     const data = response.data.data || response.data;
     const albums = Array.isArray(data) ? data : [];
-    const sortedAlbums = albums.sort((a, b) => b.playCount - a.playCount);
+    const sortedAlbums = [...albums].sort((a, b) => b.playCount - a.playCount);
     return limit ? sortedAlbums.slice(0, limit) : sortedAlbums;
   },
 };
