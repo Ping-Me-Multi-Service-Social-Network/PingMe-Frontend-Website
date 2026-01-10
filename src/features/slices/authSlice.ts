@@ -3,12 +3,7 @@ import type {
   CurrentUserSessionResponse,
 } from "@/types/authentication";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import {
-  getCurrentUserSession,
-  login,
-  logout,
-  refreshSession,
-} from "./authThunk";
+import { getCurrentUserSession, login, logout } from "./authThunk";
 
 export type AuthState = {
   userSession: CurrentUserSessionResponse;
@@ -72,29 +67,6 @@ const authSlice = createSlice({
       .addCase(logout.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-      })
-
-      // REFRESH TOKEN
-      .addCase(refreshSession.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(
-        refreshSession.fulfilled,
-        (state, action: PayloadAction<DefaultAuthResponse>) => {
-          state.userSession = action.payload.userSession;
-          localStorage.setItem("access_token", action.payload.accessToken);
-
-          state.isLogin = true;
-          state.isLoading = false;
-        }
-      )
-      .addCase(refreshSession.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-
-        localStorage.removeItem("access_token");
-        state.isLogin = false;
       })
 
       // GET CURRENT SESSION
