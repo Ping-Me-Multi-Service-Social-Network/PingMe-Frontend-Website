@@ -1,12 +1,12 @@
 import type { ApiResponse } from "@/types/base/apiResponse";
-import axios from "axios";
+import { isAxiosError } from "axios";
 
 export const getErrorMessage = (
   err: unknown,
   fallbackMessage = "Thao tác thất bại"
 ): string => {
   console.log("[PingMe] Error:", err);
-  if (axios.isAxiosError(err)) {
+  if (isAxiosError(err)) {
     const res = err.response?.data as ApiResponse<unknown>;
 
     return res?.errorMessage || fallbackMessage;
