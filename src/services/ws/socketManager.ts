@@ -72,24 +72,26 @@ class SocketManagerClass {
 
   connect(opts: SocketManagerOptions): void {
     if (this.isConnected()) {
-      console.log("[PingMe SocketManager] Already connected, skipping connect");
+      console.log("[PingMe] Already connected, skipping connect");
       return;
     }
 
     this.manualDisconnect = false;
     this.options = opts;
 
-    console.log("[PingMe SocketManager] Initializing WebSocket connection...");
+    console.log("[PingMe] Initializing WebSocket connection...");
 
     this.client = new Client({
       webSocketFactory: () => {
-        const token = localStorage.getItem("access_token") ?? "";
-        const url = `${opts.baseUrl}/ws?access_token=${encodeURIComponent(
-          token
-        )}`;
-        console.log("[PingMe SocketManager] Creating WebSocket to:", url);
+        const url = `${opts.baseUrl}/ws`;
+        console.log("[PingMe] Creating WebSocket to:", url);
         return new SockJS(url);
       },
+
+      connectHeaders: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+
       heartbeatIncoming: 15000,
       heartbeatOutgoing: 15000,
       reconnectDelay: 3000,
@@ -97,24 +99,24 @@ class SocketManagerClass {
     });
 
     this.client.onConnect = () => {
-      console.log("[PingMe SocketManager] Connected successfully!");
+      console.log("[PingMe] Connected successfully!");
       this.setupSubscriptions();
     };
 
     this.client.onStompError = (frame) => {
       console.error(
-        "[PingMe SocketManager] STOMP error:",
+        "[PingMe] STOMP error:",
         frame.headers["message"],
         frame.body
       );
     };
 
     this.client.onWebSocketError = (ev) => {
-      console.error("[PingMe SocketManager] WebSocket error:", ev);
+      console.error("[PingMe] WebSocket error:", ev);
     };
 
     this.client.onDisconnect = (frame) => {
-      console.log("[PingMe SocketManager] Disconnected");
+      console.log("[PingMe] Disconnected");
       this.options?.onDisconnect?.(frame?.headers?.message);
 
       if (this.manualDisconnect) {
@@ -127,7 +129,7 @@ class SocketManagerClass {
   }
 
   disconnect(): void {
-    console.log("[PingMe SocketManager] Manual disconnect initiated");
+    console.log("[PingMe] Manual disconnect initiated");
     this.manualDisconnect = true;
     this.cleanupAllSubscriptions();
     this.currentRoomIdRef = null;
@@ -141,16 +143,16 @@ class SocketManagerClass {
 
   enterRoom(roomId: number): void {
     if (!this.isConnected() || !this.client) {
-      console.warn("[PingMe SocketManager] Cannot enter room: not connected");
+      console.warn("[PingMe] Cannot enter room: not connected");
       return;
     }
 
     if (this.currentRoomIdRef === roomId) {
-      console.log("[PingMe SocketManager] Already in room:", roomId);
+      console.log("[PingMe] Already in room:", roomId);
       return;
     }
 
-    console.log("[PingMe SocketManager] Entering room:", roomId);
+    console.log("[PingMe] Entering room:", roomId);
 
     // Unsubscribe from old room
     this.unsubscribeRoom();
@@ -162,7 +164,7 @@ class SocketManagerClass {
   }
 
   leaveRoom(): void {
-    console.log("[PingMe SocketManager] Leaving current room");
+    console.log("[PingMe] Leaving current room");
     this.unsubscribeRoom();
     this.currentRoomIdRef = null;
   }
@@ -172,7 +174,7 @@ class SocketManagerClass {
   // =================================================================
 
   private setupSubscriptions(): void {
-    console.log("[PingMe SocketManager] Setting up subscriptions...");
+    console.log("[PingMe] Setting up subscriptions...");
 
     // Clean up old subscriptions first
     this.cleanupAllSubscriptions();
@@ -185,10 +187,7 @@ class SocketManagerClass {
 
     // Resubscribe to current room if exists
     if (this.currentRoomIdRef !== null) {
-      console.log(
-        "[PingMe SocketManager] Resubscribing to room:",
-        this.currentRoomIdRef
-      );
+      console.log("[PingMe] Resubscribing to room:", this.currentRoomIdRef);
       this.subscribeRoomMessages(this.currentRoomIdRef);
       this.subscribeRoomReadStates(this.currentRoomIdRef);
     }
@@ -197,7 +196,7 @@ class SocketManagerClass {
   private setupChatSubscriptions(): void {
     if (!this.client || !this.options?.chat) return;
 
-    console.log("[PingMe SocketManager] Setting up chat subscriptions");
+    console.log("[PingMe] Setting up chat subscriptions");
 
     // Subscribe to user rooms
     this.userRoomsSub = this.client.subscribe(
@@ -233,13 +232,10 @@ class SocketManagerClass {
               );
               break;
             default:
-              console.warn("[PingMe SocketManager] Unknown chat event:", ev);
+              console.warn("[PingMe] Unknown chat event:", ev);
           }
         } catch (err) {
-          console.error(
-            "[PingMe SocketManager] Error parsing chat event:",
-            err
-          );
+          console.error("[PingMe] Error parsing chat event:", err);
           toast.error(getErrorMessage(err, "Lỗi xử lý dữ liệu từ máy chủ"));
         }
       }
@@ -249,7 +245,7 @@ class SocketManagerClass {
   private setupGlobalSubscriptions(): void {
     if (!this.client) return;
 
-    console.log("[PingMe SocketManager] Setting up global subscriptions");
+    console.log("[PingMe] Setting up global subscriptions");
 
     // Subscribe to friendship events
     if (this.options?.onFriendEvent) {
@@ -260,10 +256,7 @@ class SocketManagerClass {
             const ev = JSON.parse(msg.body) as FriendshipEventPayload;
             this.options?.onFriendEvent?.(ev);
           } catch (err) {
-            console.error(
-              "[PingMe SocketManager] Error parsing friendship event:",
-              err
-            );
+            console.error("[PingMe] Error parsing friendship event:", err);
           }
         }
       );
@@ -278,10 +271,7 @@ class SocketManagerClass {
             const ev = JSON.parse(msg.body) as UserStatusPayload;
             this.options?.onUserStatus?.(ev);
           } catch (err) {
-            console.error(
-              "[PingMe SocketManager] Error parsing status event:",
-              err
-            );
+            console.error("[PingMe] Error parsing status event:", err);
           }
         }
       );
@@ -294,13 +284,10 @@ class SocketManagerClass {
         (msg: IMessage) => {
           try {
             const ev = JSON.parse(msg.body) as SignalingPayload;
-            console.log("[PingMe SocketManager] Received signaling event:", ev);
+            console.log("[PingMe] Received signaling event:", ev);
             this.options?.onSignaling?.(ev);
           } catch (err) {
-            console.error(
-              "[PingMe SocketManager] Error parsing signaling event:",
-              err
-            );
+            console.error("[PingMe] Error parsing signaling event:", err);
           }
         }
       );
@@ -313,14 +300,11 @@ class SocketManagerClass {
     try {
       this.roomMsgSub?.unsubscribe();
     } catch (e) {
-      console.warn(
-        "[PingMe SocketManager] Error unsubscribing room messages:",
-        e
-      );
+      console.warn("[PingMe] Error unsubscribing room messages:", e);
     }
 
     const dest = `/topic/rooms/${roomId}/messages`;
-    console.log("[PingMe SocketManager] Subscribing to:", dest);
+    console.log("[PingMe] Subscribing to:", dest);
 
     this.roomMsgSub = this.client.subscribe(dest, (msg: IMessage) => {
       try {
@@ -339,10 +323,7 @@ class SocketManagerClass {
             break;
         }
       } catch (err) {
-        console.error(
-          "[PingMe SocketManager] Error parsing message event:",
-          err
-        );
+        console.error("[PingMe] Error parsing message event:", err);
       }
     });
   }
@@ -353,14 +334,11 @@ class SocketManagerClass {
     try {
       this.roomReadSub?.unsubscribe();
     } catch (e) {
-      console.warn(
-        "[PingMe SocketManager] Error unsubscribing room read states:",
-        e
-      );
+      console.warn("[PingMe] Error unsubscribing room read states:", e);
     }
 
     const dest = `/topic/rooms/${roomId}/read-states`;
-    console.log("[PingMe SocketManager] Subscribing to:", dest);
+    console.log("[PingMe] Subscribing to:", dest);
 
     this.roomReadSub = this.client.subscribe(dest, (msg: IMessage) => {
       try {
@@ -369,10 +347,7 @@ class SocketManagerClass {
           this.options?.chat?.onReadStateChanged?.(ev);
         }
       } catch (err) {
-        console.error(
-          "[PingMe SocketManager] Error parsing read state event:",
-          err
-        );
+        console.error("[PingMe] Error parsing read state event:", err);
       }
     });
   }
@@ -382,14 +357,14 @@ class SocketManagerClass {
       this.roomMsgSub?.unsubscribe();
       this.roomReadSub?.unsubscribe();
     } catch (e) {
-      console.warn("[PingMe SocketManager] Error unsubscribing room:", e);
+      console.warn("[PingMe] Error unsubscribing room:", e);
     }
     this.roomMsgSub = null;
     this.roomReadSub = null;
   }
 
   private cleanupAllSubscriptions(): void {
-    console.log("[PingMe SocketManager] Cleaning up all subscriptions");
+    console.log("[PingMe] Cleaning up all subscriptions");
 
     try {
       // Chat subscriptions
@@ -402,7 +377,7 @@ class SocketManagerClass {
       this.statusSub?.unsubscribe();
       this.signalingSub?.unsubscribe();
     } catch (e) {
-      console.warn("[PingMe SocketManager] Error during cleanup:", e);
+      console.warn("[PingMe] Error during cleanup:", e);
     }
 
     this.userRoomsSub = null;
