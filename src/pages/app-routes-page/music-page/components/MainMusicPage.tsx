@@ -22,7 +22,7 @@ export default function MainMusicPage() {
   const navigate = useNavigate();
   const genreScrollRef = useRef<HTMLDivElement>(null);
 
-  const [topSongs, setTopSongs] = useState<Song[]>([]);
+  const [topSongs, setTopSongs] = useState<SongResponseWithAllAlbum[]>([]);
   const [albums, setAlbums] = useState<AlbumResponse[]>([]);
   const [artists, setArtists] = useState<ArtistResponse[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -42,7 +42,21 @@ export default function MainMusicPage() {
           genreApi.getAllGenres(),
         ]);
         setTopSongs(songsData);
-        setPlaylist(songsData);
+
+        // Convert SongResponseWithAllAlbum[] to Song[] for playlist
+        const playlistSongs: Song[] = songsData.map((song: SongResponseWithAllAlbum) => ({
+          id: song.id,
+          title: song.title,
+          duration: song.duration,
+          playCount: song.playCount,
+          songUrl: song.songUrl,
+          coverImageUrl: song.coverImageUrl,
+          mainArtist: song.mainArtist,
+          featuredArtists: song.otherArtists || [],
+          genre: song.genres || [],
+          album: song.albums || [],
+        }));
+        setPlaylist(playlistSongs);
         setAlbums(albumsData);
         setArtists(artistsData);
         setGenres(genresData);

@@ -201,7 +201,7 @@ export default function AudioPlayerComponent({
     const audio = audioRef.current;
     const h5Player = audioPlayerRef.current;
 
-    if (!audio || !h5Player || !h5Player.audio.current) return;
+    if (!audio || !h5Player?.audio?.current) return;
 
     // Sync H5Player's audio element with our shared audio
     const h5Audio = h5Player.audio.current;

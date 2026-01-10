@@ -33,7 +33,7 @@ export function AlbumFormDialog({
   onOpenChange,
   album,
   onSuccess,
-}: AlbumFormDialogProps) {
+}: Readonly<AlbumFormDialogProps>) {
   const [loading, setLoading] = useState(false);
   const [artists, setArtists] = useState<ArtistResponse[]>([]);
   const [formData, setFormData] = useState({
@@ -104,6 +104,12 @@ export function AlbumFormDialog({
     }
   };
 
+  const getSubmitButtonText = () => {
+    if (loading) return "Đang lưu...";
+    if (album) return "Cập nhật";
+    return "Thêm";
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -171,7 +177,7 @@ export function AlbumFormDialog({
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Đang lưu..." : album ? "Cập nhật" : "Thêm"}
+              {getSubmitButtonText()}
             </Button>
           </div>
         </form>

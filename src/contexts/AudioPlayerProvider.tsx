@@ -3,6 +3,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
 } from "react";
 import { AudioPlayerContext } from "./AudioPlayerContext";
@@ -14,13 +15,13 @@ interface AudioPlayerProviderProps {
   children: ReactNode;
 }
 
-export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
+export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderProps>) {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playlist, setPlaylist] = useState<Song[]>([]);
-  const [volume, setVolumeState] = useState(1);
+  const [volume, setVolume] = useState(1);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("off");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -54,9 +55,9 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     }
   }, []);
 
-  const setVolume = useCallback((newVolume: number) => {
+  const setVolumeValue = useCallback((newVolume: number) => {
     const clampedVolume = Math.max(0, Math.min(1, newVolume));
-    setVolumeState(clampedVolume);
+    setVolume(clampedVolume);
     if (audioRef.current) {
       audioRef.current.volume = clampedVolume;
     }
@@ -159,29 +160,51 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
     };
   }, [repeatMode, currentSong, playlist]);
 
+  const contextValue = useMemo(
+    () => ({
+      currentSong,
+      isPlaying,
+      currentTime,
+      duration,
+      audioRef,
+      playlist,
+      volume,
+      repeatMode,
+      playSong,
+      togglePlayPause,
+      seekTo,
+      setVolume: setVolumeValue,
+      setCurrentSong,
+      setIsPlaying,
+      setPlaylist,
+      cycleRepeatMode,
+    }),
+    [
+      currentSong,
+      isPlaying,
+      currentTime,
+      duration,
+      audioRef,
+      playlist,
+      volume,
+      repeatMode,
+      playSong,
+      togglePlayPause,
+      seekTo,
+      setVolumeValue,
+      setCurrentSong,
+      setIsPlaying,
+      setPlaylist,
+      cycleRepeatMode,
+    ]
+  );
+
   return (
-    <AudioPlayerContext.Provider
-      value={{
-        currentSong,
-        isPlaying,
-        currentTime,
-        duration,
-        audioRef,
-        playlist,
-        volume,
-        repeatMode,
-        playSong,
-        togglePlayPause,
-        seekTo,
-        setVolume,
-        setCurrentSong,
-        setIsPlaying,
-        setPlaylist,
-        cycleRepeatMode,
-      }}
-    >
+    <AudioPlayerContext.Provider value={contextValue}>
       {children}
-      <audio ref={audioRef} />
+      <audio ref={audioRef}>
+        <track kind="captions" />
+      </audio>
     </AudioPlayerContext.Provider>
   );
 }

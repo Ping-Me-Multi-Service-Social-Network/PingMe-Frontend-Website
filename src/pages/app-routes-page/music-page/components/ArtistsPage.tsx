@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { artistApi } from "@/services/music/artistApi.ts";
 import { searchService } from "@/services/music/musicService.ts";
 import type { ArtistResponse, SongResponseWithAllAlbum } from "@/types/music";
-import type { Song } from "@/types/music/song";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play } from "lucide-react";
+import { convertToSong } from "../utils/commonHandlers";
+import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function ArtistsPage() {
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function ArtistsPage() {
                 // Fetch trending song for each artist (top 1 song)
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
                 await Promise.all(
-                    artistsData.slice(0, 10).map(async (artist) => {
+                    artistsData.slice(0, 10).map(async (artist: ArtistResponse) => {
                         try {
                             const songs = await searchService.getSongsByArtist(artist.id);
                             if (songs.length > 0) {
@@ -59,36 +59,11 @@ export default function ArtistsPage() {
     };
 
     const handleSongPlay = (song: SongResponseWithAllAlbum) => {
-        const songToPlay: Song = {
-            id: song.id,
-            title: song.title,
-            duration: song.duration,
-            playCount: song.playCount,
-            songUrl: song.songUrl,
-            coverImageUrl: song.coverImageUrl,
-            mainArtist: song.mainArtist,
-            featuredArtists: song.otherArtists,
-            genre: song.genres,
-            album: song.albums,
-        };
-        playSong(songToPlay);
+        playSong(convertToSong(song));
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <LoadingSpinner />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <p className="text-red-400">{error}</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingState />;
+    if (error) return <ErrorState message={error} />;
 
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
@@ -117,10 +92,10 @@ export default function ArtistsPage() {
                         </h2>
                         <div className="space-y-3">
                             {artists.slice(0, 10).map((artist, index) => (
-                                <div
+                                <button
                                     key={artist.id}
                                     onClick={() => handleArtistClick(artist)}
-                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group"
+                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group w-full text-left"
                                 >
                                     <div className="text-2xl font-bold text-white w-8">
                                         #{index + 1}
@@ -134,7 +109,7 @@ export default function ArtistsPage() {
                                         <h3 className="text-white font-semibold">{artist.name}</h3>
                                         <p className="text-sm text-zinc-400">{artist.bio?.slice(0, 50) || 'followers'}</p>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -169,9 +144,10 @@ export default function ArtistsPage() {
                                 }
 
                                 return (
-                                    <div
+                                    <button
                                         key={artist.id}
-                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer"
+                                        onClick={() => handleArtistClick(artist)}
+                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer w-full text-left"
                                     >
                                         <div className="relative">
                                             <img
@@ -203,7 +179,7 @@ export default function ArtistsPage() {
                                                 </p>
                                             )}
                                         </div>
-                                    </div>
+                                    </button>
                                 );
                             })}
                         </div>

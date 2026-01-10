@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { albumApi, type AlbumResponse } from "@/services/music/albumApi.ts";
 import { searchService } from "@/services/music/musicService.ts";
 import type { SongResponseWithAllAlbum } from "@/types/music";
-import type { Song } from "@/types/music/song";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play, Music2 } from "lucide-react";
+import { convertToSong } from "../utils/commonHandlers";
+import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function AlbumsPage() {
     const navigate = useNavigate();
@@ -59,36 +59,11 @@ export default function AlbumsPage() {
     };
 
     const handleSongPlay = (song: SongResponseWithAllAlbum) => {
-        const songToPlay: Song = {
-            id: song.id,
-            title: song.title,
-            duration: song.duration,
-            playCount: song.playCount,
-            songUrl: song.songUrl,
-            coverImageUrl: song.coverImageUrl,
-            mainArtist: song.mainArtist,
-            featuredArtists: song.otherArtists,
-            genre: song.genres,
-            album: song.albums,
-        };
-        playSong(songToPlay);
+        playSong(convertToSong(song));
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <LoadingSpinner />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <p className="text-red-400">{error}</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingState />;
+    if (error) return <ErrorState message={error} />;
 
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
@@ -119,10 +94,10 @@ export default function AlbumsPage() {
                         </h2>
                         <div className="space-y-3">
                             {albums.slice(0, 10).map((album, index) => (
-                                <div
+                                <button
                                     key={album.id}
                                     onClick={() => handleAlbumClick(album)}
-                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group"
+                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group w-full text-left"
                                 >
                                     <div className="text-2xl font-bold text-white w-8">
                                         #{index + 1}
@@ -138,7 +113,7 @@ export default function AlbumsPage() {
                                             {album.playCount?.toLocaleString()} plays
                                         </p>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -173,9 +148,10 @@ export default function AlbumsPage() {
                                 }
 
                                 return (
-                                    <div
+                                    <button
                                         key={album.id}
-                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer"
+                                        onClick={() => handleSongPlay(song)}
+                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer w-full text-left"
                                     >
                                         <div className="relative">
                                             <img
@@ -204,7 +180,7 @@ export default function AlbumsPage() {
                                                 <Music2 className="w-3 h-3" /> {album.title}
                                             </p>
                                         </div>
-                                    </div>
+                                    </button>
                                 );
                             })}
                         </div>
