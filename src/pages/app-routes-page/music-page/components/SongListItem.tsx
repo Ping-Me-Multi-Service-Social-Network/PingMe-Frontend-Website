@@ -60,7 +60,6 @@ export default function SongListItem({
       </div>
       <div className="hidden sm:block text-sm text-gray-500">
         {/* Support both album (singular) and albums (plural array) */}
-        {/* {"album" in song && song.album?.title || "albums" in song && song.albums?.[0]?.title || "Unknown Album"} */}
       </div>
       <div className="text-sm text-gray-500 text-right">
         <div>{formatDuration(song.duration)}</div>

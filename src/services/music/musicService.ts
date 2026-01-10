@@ -478,7 +478,7 @@ export const searchService = {
     const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
       `${BASE_URL}/albums/search`,
       {
-        params: { name: query },
+        params: { title: query },
       }
     );
     const data = response.data.data || response.data;

@@ -38,6 +38,43 @@ export default function SongListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
+  const fetchAlbumData = async (albumId: number) => {
+    const [albumData, albumInfo] = await Promise.all([
+      searchService.getSongsByAlbum(albumId),
+      albumService.getById(albumId),
+    ]);
+    setAlbumDetails(albumInfo);
+    return albumData;
+  };
+
+  const fetchArtistData = async (artistId: number) => {
+    const [artistData, artistInfo] = await Promise.all([
+      searchService.getSongsByArtist(artistId),
+      artistService.getById(artistId),
+    ]);
+    setArtistDetails(artistInfo);
+    return artistData;
+  };
+
+  const fetchGenreData = async (genreId: number) => {
+    return await searchService.getSongsByGenre(genreId);
+  };
+
+  const convertToPlaylist = (songsData: SongResponseWithAllAlbum[]): Song[] => {
+    return songsData.map((song) => ({
+      id: song.id,
+      title: song.title,
+      duration: song.duration,
+      playCount: song.playCount,
+      songUrl: song.songUrl,
+      coverImageUrl: song.coverImageUrl,
+      mainArtist: song.mainArtist,
+      featuredArtists: song.otherArtists,
+      genre: song.genres,
+      album: song.albums,
+    }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!type || !id) {
@@ -51,40 +88,15 @@ export default function SongListPage() {
         let songsData: SongResponseWithAllAlbum[] = [];
 
         if (type === "album") {
-          const [albumData, albumInfo] = await Promise.all([
-            searchService.getSongsByAlbum(Number(id)),
-            albumService.getById(Number(id)),
-          ]);
-          songsData = albumData;
-          setAlbumDetails(albumInfo);
+          songsData = await fetchAlbumData(Number(id));
         } else if (type === "artist") {
-          const [artistData, artistInfo] = await Promise.all([
-            searchService.getSongsByArtist(Number(id)),
-            artistService.getById(Number(id)),
-          ]);
-          songsData = artistData;
-          setArtistDetails(artistInfo);
+          songsData = await fetchArtistData(Number(id));
         } else if (type === "genre") {
-          songsData = await searchService.getSongsByGenre(Number(id));
+          songsData = await fetchGenreData(Number(id));
         }
 
         setSongs(songsData);
-
-        // Convert to Song format for playlist
-        const playlist: Song[] = songsData.map((song) => ({
-          id: song.id,
-          title: song.title,
-          duration: song.duration,
-          playCount: song.playCount,
-          songUrl: song.songUrl,
-          coverImageUrl: song.coverImageUrl,
-          mainArtist: song.mainArtist,
-          featuredArtists: song.otherArtists,
-          genre: song.genres,
-          album: song.albums,
-        }));
-        setPlaylist(playlist);
-
+        setPlaylist(convertToPlaylist(songsData));
         setError(null);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -140,6 +152,23 @@ export default function SongListPage() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedSongs = songs.slice(startIndex, endIndex);
 
+  const getDisplayImage = () => {
+    if (type === "album") return albumDetails?.coverImgUrl;
+    if (type === "artist") return artistDetails?.imgUrl;
+    return imageUrl;
+  };
+
+  const getDisplayName = () => {
+    if (type === "album") return albumDetails?.title;
+    if (type === "artist") return artistDetails?.name;
+    return name;
+  };
+
+  const displayImage = getDisplayImage();
+  const displayName = getDisplayName();
+  const displayInfo = type === "artist" ? artistDetails?.bio : null;
+  const playCount = type === "album" ? albumDetails?.playCount : null;
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-900 min-h-full">
@@ -163,21 +192,6 @@ export default function SongListPage() {
       </div>
     );
   }
-
-  const displayImage =
-    type === "album"
-      ? albumDetails?.coverImgUrl
-      : type === "artist"
-        ? artistDetails?.imgUrl
-        : imageUrl;
-  const displayName =
-    type === "album"
-      ? albumDetails?.title
-      : type === "artist"
-        ? artistDetails?.name
-        : name;
-  const displayInfo = type === "artist" ? artistDetails?.bio : null;
-  const playCount = type === "album" ? albumDetails?.playCount : null;
 
   return (
     <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
@@ -238,7 +252,7 @@ export default function SongListPage() {
               {/* Stats */}
               <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
                 <span>
-                  {songs.length} {songs.length === 1 ? "bài hát" : "bài hát"}
+                  {songs.length} bài hát
                 </span>
                 {playCount !== null && playCount !== undefined && (
                   <>

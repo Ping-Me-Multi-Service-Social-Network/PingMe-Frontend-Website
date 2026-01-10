@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Music, Globe, Users, Loader2 } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import { Button } from "@/components/ui/button.tsx";
+import { handleKeyDown } from "../utils/commonHandlers";
+import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function DiscoverPlaylistsPage() {
     const navigate = useNavigate();
@@ -55,21 +56,12 @@ export default function DiscoverPlaylistsPage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900">
-                <LoadingSpinner />
-            </div>
-        );
-    }
+    const handlePlaylistClick = (playlistId: number) => {
+        navigate(`/app/music/playlists/${playlistId}`);
+    };
 
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-96 bg-gray-900">
-                <p className="text-red-400">{error}</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingState />;
+    if (error) return <ErrorState message={error} />;
 
     return (
         <div className="bg-gray-900 min-h-screen pb-32">
@@ -115,8 +107,11 @@ export default function DiscoverPlaylistsPage() {
                             {playlists.map((playlist) => (
                                 <div
                                     key={playlist.id}
+                                    role="button"
+                                    tabIndex={0}
                                     className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-all cursor-pointer hover:scale-105"
-                                    onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
+                                    onClick={() => handlePlaylistClick(playlist.id)}
+                                    onKeyDown={(e) => handleKeyDown(e, () => handlePlaylistClick(playlist.id))}
                                 >
                                     <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 relative">
                                         <Music className="w-12 h-12 text-white" />
