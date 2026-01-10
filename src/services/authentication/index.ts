@@ -1,43 +1,31 @@
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   DefaultAuthResponse,
   LoginRequest,
   RegisterRequest,
 } from "@/types/authentication";
-import { getSessionMetaRequest } from "@/utils/sessionMetaHandler.ts";
-import axios from "axios";
+import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 
+// 1. REGISTER
 export const registerLocalApi = (data: RegisterRequest) => {
-  return axios.post<ApiResponse<DefaultAuthResponse>>(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/register`,
-    data,
-    { withCredentials: true }
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth/register",
+    data
   );
 };
 
+// LOGIN
 export const loginLocalApi = (data: LoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 
-  return axios.post<ApiResponse<DefaultAuthResponse>>(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/login`,
-    data,
-    { withCredentials: true }
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth/login",
+    data
   );
 };
 
+// LOGOUT
 export const logoutApi = () => {
-  return axios.post(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/logout`,
-    {},
-    { withCredentials: true }
-  );
-};
-
-export const refreshSessionApi = () => {
-  const sessionMetaRequest = getSessionMetaRequest();
-  return axios.post<ApiResponse<DefaultAuthResponse>>(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
-    sessionMetaRequest,
-    { withCredentials: true }
-  );
+  return axiosClient.post("/auth/logout");
 };

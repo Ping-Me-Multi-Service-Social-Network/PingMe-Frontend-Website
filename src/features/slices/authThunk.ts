@@ -1,8 +1,4 @@
-import {
-  loginLocalApi,
-  logoutApi,
-  refreshSessionApi,
-} from "@/services/authentication";
+import { loginLocalApi, logoutApi } from "@/services/authentication";
 import type {
   DefaultAuthResponse,
   LoginRequest,
@@ -11,7 +7,7 @@ import type {
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
-import {getCurrentUserSessionApi} from "@/services/user/currentUserProfileApi.ts";
+import { getCurrentUserSessionApi } from "@/services/user/currentUserProfileApi.ts";
 
 export const login = createAsyncThunk<
   DefaultAuthResponse,
@@ -34,20 +30,6 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
     await logoutApi();
   } catch (err: unknown) {
     const message = getErrorMessage(err, "Đăng xuất thất bại");
-    return thunkAPI.rejectWithValue(message);
-  }
-});
-
-export const refreshSession = createAsyncThunk<
-  DefaultAuthResponse,
-  void,
-  { rejectValue: string }
->("auth/refresh", async (_, thunkAPI) => {
-  try {
-    const res = await refreshSessionApi();
-    return res.data.data;
-  } catch (err: unknown) {
-    const message = getErrorMessage(err, "Làm mới phiên đăng nhập thất bại");
     return thunkAPI.rejectWithValue(message);
   }
 });
