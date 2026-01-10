@@ -197,7 +197,12 @@ export default function SongListPage() {
   };
 
   const renderInfoSection = () => {
-    const typeLabel = type === "album" ? "Album" : type === "artist" ? "Nghệ Sĩ" : "Thể Loại";
+    let typeLabel = "Thể Loại";
+    if (type === "album") {
+      typeLabel = "Album";
+    } else if (type === "artist") {
+      typeLabel = "Nghệ Sĩ";
+    }
 
     return (
       <div className="flex-1">

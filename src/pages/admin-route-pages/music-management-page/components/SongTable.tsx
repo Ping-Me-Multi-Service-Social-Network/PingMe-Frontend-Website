@@ -18,7 +18,7 @@ interface SongTableProps {
   onDelete: (id: number) => void;
 }
 
-export function SongTable({ songs, onEdit, onDelete }: SongTableProps) {
+export function SongTable({ songs, onEdit, onDelete }: Readonly<SongTableProps>) {
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
