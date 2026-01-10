@@ -44,13 +44,6 @@ export default function RankingCard({
         loadSongs();
     }, [fetchData]);
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            navigate(`/app/music/rankings?tab=${tabType}`);
-        }
-    };
-
     const renderSongsContent = () => {
         if (loading) {
             return (
@@ -102,12 +95,9 @@ export default function RankingCard({
     };
 
     return (
-        <div
-            role="button"
-            tabIndex={0}
-            className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${gradientFrom} ${gradientVia} to-gray-800 p-6 cursor-pointer hover:scale-105 transition-transform`}
+        <button
+            className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${gradientFrom} ${gradientVia} to-gray-800 p-6 cursor-pointer hover:scale-105 transition-transform w-full text-left`}
             onClick={() => navigate(`/app/music/rankings?tab=${tabType}`)}
-            onKeyDown={handleKeyDown}
         >
             <div className="relative z-10">
                 <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
@@ -117,6 +107,6 @@ export default function RankingCard({
                 {renderSongsContent()}
             </div>
             <div className={`absolute inset-0 bg-gradient-to-r ${hoverFrom} ${hoverTo} opacity-0 group-hover:opacity-100 transition-opacity`} />
-        </div>
+        </button>
     );
 }

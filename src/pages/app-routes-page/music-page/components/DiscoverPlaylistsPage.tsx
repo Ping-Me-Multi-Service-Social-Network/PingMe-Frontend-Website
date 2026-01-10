@@ -5,7 +5,6 @@ import { playlistApi } from "@/services/music/playlistApi.ts";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { handleKeyDown } from "../utils/commonHandlers";
 import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function DiscoverPlaylistsPage() {
@@ -105,13 +104,10 @@ export default function DiscoverPlaylistsPage() {
                     <>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {playlists.map((playlist) => (
-                                <div
+                                <button
                                     key={playlist.id}
-                                    role="button"
-                                    tabIndex={0}
-                                    className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-all cursor-pointer hover:scale-105"
+                                    className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-all cursor-pointer hover:scale-105 w-full text-left"
                                     onClick={() => handlePlaylistClick(playlist.id)}
-                                    onKeyDown={(e) => handleKeyDown(e, () => handlePlaylistClick(playlist.id))}
                                 >
                                     <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 relative">
                                         <Music className="w-12 h-12 text-white" />
@@ -142,7 +138,7 @@ export default function DiscoverPlaylistsPage() {
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
 

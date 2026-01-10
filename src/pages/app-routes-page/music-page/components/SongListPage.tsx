@@ -169,6 +169,74 @@ export default function SongListPage() {
   const displayInfo = type === "artist" ? artistDetails?.bio : null;
   const playCount = type === "album" ? albumDetails?.playCount : null;
 
+  const renderCoverImage = () => {
+    if (displayImage) {
+      return (
+        <img
+          src={displayImage || "/placeholder.svg"}
+          alt={displayName || ""}
+          className={`w-48 h-48 ${type === "artist" ? "rounded-full" : "rounded-lg"} object-cover shadow-2xl`}
+        />
+      );
+    }
+
+    const iconClass = "w-20 h-20 text-zinc-600";
+    const containerClass = `w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"} flex items-center justify-center shadow-2xl`;
+
+    return (
+      <div className={containerClass}>
+        {type === "album" ? (
+          <Disc3 className={iconClass} />
+        ) : type === "artist" ? (
+          <User2 className={iconClass} />
+        ) : (
+          <Music className={iconClass} />
+        )}
+      </div>
+    );
+  };
+
+  const renderInfoSection = () => {
+    const typeLabel = type === "album" ? "Album" : type === "artist" ? "Nghệ Sĩ" : "Thể Loại";
+
+    return (
+      <div className="flex-1">
+        <p className="text-sm text-zinc-400 uppercase tracking-wide font-medium mb-2">
+          {typeLabel}
+        </p>
+        <h1 className="text-5xl font-bold text-white mb-4 text-balance">
+          {displayName || "Không rõ"}
+        </h1>
+
+        {type === "artist" && displayInfo && (
+          <p className="text-zinc-300 text-base leading-relaxed mb-4 max-w-3xl">
+            {displayInfo}
+          </p>
+        )}
+
+        <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
+          <span>{songs.length} bài hát</span>
+          {playCount !== null && playCount !== undefined && (
+            <>
+              <span>•</span>
+              <span>{playCount.toLocaleString()} lượt nghe</span>
+            </>
+          )}
+        </div>
+
+        {songs.length > 0 && (
+          <button
+            onClick={handlePlayAll}
+            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
+          >
+            <Play className="w-5 h-5 fill-current" />
+            Phát Tất Cả
+          </button>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-900 min-h-full">
@@ -206,73 +274,8 @@ export default function SongListPage() {
           </button>
 
           <div className="flex items-start gap-6">
-            {/* Cover Image */}
-            {displayImage ? (
-              <img
-                src={displayImage || "/placeholder.svg"}
-                alt={displayName || ""}
-                className={`w-48 h-48 ${type === "artist" ? "rounded-full" : "rounded-lg"
-                  } object-cover shadow-2xl`}
-              />
-            ) : (
-              <div
-                className={`w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"
-                  } flex items-center justify-center shadow-2xl`}
-              >
-                {type === "album" ? (
-                  <Disc3 className="w-20 h-20 text-zinc-600" />
-                ) : type === "artist" ? (
-                  <User2 className="w-20 h-20 text-zinc-600" />
-                ) : (
-                  <Music className="w-20 h-20 text-zinc-600" />
-                )}
-              </div>
-            )}
-
-            {/* Info Section */}
-            <div className="flex-1">
-              <p className="text-sm text-zinc-400 uppercase tracking-wide font-medium mb-2">
-                {type === "album"
-                  ? "Album"
-                  : type === "artist"
-                    ? "Nghệ Sĩ"
-                    : "Thể Loại"}
-              </p>
-              <h1 className="text-5xl font-bold text-white mb-4 text-balance">
-                {displayName || "Không rõ"}
-              </h1>
-
-              {/* Artist Bio */}
-              {type === "artist" && displayInfo && (
-                <p className="text-zinc-300 text-base leading-relaxed mb-4 max-w-3xl">
-                  {displayInfo}
-                </p>
-              )}
-
-              {/* Stats */}
-              <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
-                <span>
-                  {songs.length} bài hát
-                </span>
-                {playCount !== null && playCount !== undefined && (
-                  <>
-                    <span>•</span>
-                    <span>{playCount.toLocaleString()} lượt nghe</span>
-                  </>
-                )}
-              </div>
-
-              {/* Play All Button */}
-              {songs.length > 0 && (
-                <button
-                  onClick={handlePlayAll}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
-                >
-                  <Play className="w-5 h-5 fill-current" />
-                  Phát Tất Cả
-                </button>
-              )}
-            </div>
+            {renderCoverImage()}
+            {renderInfoSection()}
           </div>
         </div>
 

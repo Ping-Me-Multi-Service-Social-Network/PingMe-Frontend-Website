@@ -19,6 +19,114 @@ interface SearchDropdownProps {
   onViewMoreArtists?: () => void;
 }
 
+interface SongItemProps {
+  song: SongResponseWithAllAlbum;
+  onSelect: (song: SongResponseWithAllAlbum) => void;
+}
+
+function SongItem({ song, onSelect }: SongItemProps) {
+  return (
+    <button
+      onClick={() => onSelect(song)}
+      className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
+    >
+      <div className="relative w-10 h-10 flex-shrink-0">
+        {song.coverImageUrl ? (
+          <img
+            src={song.coverImageUrl || "/placeholder.svg"}
+            alt={song.title}
+            className="w-full h-full rounded object-cover"
+          />
+        ) : (
+          <div className="w-full h-full rounded bg-zinc-800 flex items-center justify-center">
+            <Music2 className="h-4 w-4 text-zinc-600" />
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white truncate">
+          {song.title}
+        </p>
+        <p className="text-xs text-zinc-400 truncate">
+          {song.mainArtist?.name || "Unknown Artist"}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+interface AlbumItemProps {
+  album: AlbumResponse;
+  onSelect: (album: AlbumResponse) => void;
+}
+
+function AlbumItem({ album, onSelect }: AlbumItemProps) {
+  return (
+    <button
+      onClick={() => onSelect(album)}
+      className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
+    >
+      <div className="relative w-10 h-10 flex-shrink-0">
+        {album.coverImgUrl ? (
+          <img
+            src={album.coverImgUrl || "/placeholder.svg"}
+            alt={album.title}
+            className="w-full h-full rounded object-cover"
+          />
+        ) : (
+          <div className="w-full h-full rounded bg-zinc-800 flex items-center justify-center">
+            <Disc3 className="h-4 w-4 text-zinc-600" />
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white truncate">
+          {album.title}
+        </p>
+        <p className="text-xs text-zinc-400">
+          {album.playCount?.toLocaleString()} plays
+        </p>
+      </div>
+    </button>
+  );
+}
+
+interface ArtistItemProps {
+  artist: ArtistResponse;
+  onSelect: (artist: ArtistResponse) => void;
+}
+
+function ArtistItem({ artist, onSelect }: ArtistItemProps) {
+  return (
+    <button
+      onClick={() => onSelect(artist)}
+      className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
+    >
+      <div className="relative w-10 h-10 flex-shrink-0">
+        {artist.imgUrl ? (
+          <img
+            src={artist.imgUrl || "/placeholder.svg"}
+            alt={artist.name}
+            className="w-full h-full rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
+            <User2 className="h-4 w-4 text-zinc-600" />
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white truncate">
+          {artist.name}
+        </p>
+        <p className="text-xs text-zinc-400 truncate">
+          {artist.bio || "Không có tiểu sử"}
+        </p>
+      </div>
+    </button>
+  );
+}
+
 export default function SearchDropdown({
   query,
   isOpen,
@@ -79,11 +187,91 @@ export default function SearchDropdown({
   const hasResults =
     songs.length > 0 || albums.length > 0 || artists.length > 0;
 
-  const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      callback();
-    }
+  const renderSongsSection = () => {
+    if (songs.length === 0) return null;
+
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-300 px-2">
+          Bài Hát
+        </h3>
+        <div className="space-y-2">
+          {songs.slice(0, 3).map((song) => (
+            <SongItem
+              key={song.id}
+              song={song}
+              onSelect={onSongSelect!}
+            />
+          ))}
+        </div>
+        {songs.length > 3 && (
+          <button
+            onClick={onViewMoreSongs}
+            className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
+          >
+            Xem tất cả {songs.length} bài hát
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const renderAlbumsSection = () => {
+    if (albums.length === 0) return null;
+
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-300 px-2">
+          Album
+        </h3>
+        <div className="space-y-2">
+          {albums.slice(0, 3).map((album) => (
+            <AlbumItem
+              key={album.id}
+              album={album}
+              onSelect={onAlbumSelect!}
+            />
+          ))}
+        </div>
+        {albums.length > 3 && (
+          <button
+            onClick={onViewMoreAlbums}
+            className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
+          >
+            Xem tất cả {albums.length} album
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const renderArtistsSection = () => {
+    if (artists.length === 0) return null;
+
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-300 px-2">
+          Nghệ Sĩ
+        </h3>
+        <div className="space-y-2">
+          {artists.slice(0, 3).map((artist) => (
+            <ArtistItem
+              key={artist.id}
+              artist={artist}
+              onSelect={onArtistSelect!}
+            />
+          ))}
+        </div>
+        {artists.length > 3 && (
+          <button
+            onClick={onViewMoreArtists}
+            className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
+          >
+            Xem tất cả {artists.length} nghệ sĩ
+          </button>
+        )}
+      </div>
+    );
   };
 
   const renderContent = () => {
@@ -114,158 +302,9 @@ export default function SearchDropdown({
 
     return (
       <div className="space-y-6 p-4">
-        {/* Songs Section */}
-        {songs.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-zinc-300 px-2">
-              Bài Hát
-            </h3>
-            <div className="space-y-2">
-              {songs.slice(0, 3).map((song) => (
-                <div
-                  key={song.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onSongSelect?.(song)}
-                  onKeyDown={(e) => handleKeyDown(e, () => onSongSelect?.(song))}
-                  className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition"
-                >
-                  <div className="relative w-10 h-10 flex-shrink-0">
-                    {song.coverImageUrl ? (
-                      <img
-                        src={song.coverImageUrl || "/placeholder.svg"}
-                        alt={song.title}
-                        className="w-full h-full rounded object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded bg-zinc-800 flex items-center justify-center">
-                        <Music2 className="h-4 w-4 text-zinc-600" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">
-                      {song.title}
-                    </p>
-                    <p className="text-xs text-zinc-400 truncate">
-                      {song.mainArtist?.name || "Unknown Artist"}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {songs.length > 3 && (
-              <button
-                onClick={onViewMoreSongs}
-                className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
-              >
-                Xem tất cả {songs.length} bài hát
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Albums Section */}
-        {albums.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-zinc-300 px-2">
-              Album
-            </h3>
-            <div className="space-y-2">
-              {albums.slice(0, 3).map((album) => (
-                <div
-                  key={album.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onAlbumSelect?.(album)}
-                  onKeyDown={(e) => handleKeyDown(e, () => onAlbumSelect?.(album))}
-                  className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition"
-                >
-                  <div className="relative w-10 h-10 flex-shrink-0">
-                    {album.coverImgUrl ? (
-                      <img
-                        src={album.coverImgUrl || "/placeholder.svg"}
-                        alt={album.title}
-                        className="w-full h-full rounded object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded bg-zinc-800 flex items-center justify-center">
-                        <Disc3 className="h-4 w-4 text-zinc-600" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">
-                      {album.title}
-                    </p>
-                    <p className="text-xs text-zinc-400">
-                      {album.playCount?.toLocaleString()} plays
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {albums.length > 3 && (
-              <button
-                onClick={onViewMoreAlbums}
-                className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
-              >
-                Xem tất cả {albums.length} album
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Artists Section */}
-        {artists.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-zinc-300 px-2">
-              Nghệ Sĩ
-            </h3>
-            <div className="space-y-2">
-              {artists.slice(0, 3).map((artist) => (
-                <div
-                  key={artist.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onArtistSelect?.(artist)}
-                  onKeyDown={(e) => handleKeyDown(e, () => onArtistSelect?.(artist))}
-                  className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition"
-                >
-                  <div className="relative w-10 h-10 flex-shrink-0">
-                    {artist.imgUrl ? (
-                      <img
-                        src={artist.imgUrl || "/placeholder.svg"}
-                        alt={artist.name}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center">
-                        <User2 className="h-4 w-4 text-zinc-600" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">
-                      {artist.name}
-                    </p>
-                    <p className="text-xs text-zinc-400 truncate">
-                      {artist.bio || "Không có tiểu sử"}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {artists.length > 3 && (
-              <button
-                onClick={onViewMoreArtists}
-                className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
-              >
-                Xem tất cả {artists.length} nghệ sĩ
-              </button>
-            )}
-          </div>
-        )}
+        {renderSongsSection()}
+        {renderAlbumsSection()}
+        {renderArtistsSection()}
       </div>
     );
   };

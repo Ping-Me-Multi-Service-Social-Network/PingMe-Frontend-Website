@@ -105,13 +105,6 @@ export default function RankingsPage() {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            callback();
-        }
-    };
-
     const formatPlayCount = (count: number) => {
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
         if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
@@ -230,13 +223,10 @@ export default function RankingsPage() {
                             {/* Left Column - Songs 1-25 */}
                             <div className="space-y-3">
                                 {currentSongs.slice(0, 25).map((item, index) => (
-                                    <div
+                                    <button
                                         key={item.songId}
-                                        role="button"
-                                        tabIndex={0}
-                                        className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer"
+                                        className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer w-full text-left"
                                         onClick={() => handleSongPlay(item)}
-                                        onKeyDown={(e) => handleKeyDown(e, () => handleSongPlay(item))}
                                     >
                                         {/* Rank Number */}
                                         <div className="w-12 text-center">
@@ -278,20 +268,17 @@ export default function RankingsPage() {
                                         <div className="text-sm text-gray-400">
                                             {formatPlayCount(item.playCount)}
                                         </div>
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
 
                             {/* Right Column - Songs 26-50 */}
                             <div className="space-y-3">
                                 {currentSongs.slice(25, 50).map((item, index) => (
-                                    <div
+                                    <button
                                         key={item.songId}
-                                        role="button"
-                                        tabIndex={0}
-                                        className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer"
+                                        className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer w-full text-left"
                                         onClick={() => handleSongPlay(item)}
-                                        onKeyDown={(e) => handleKeyDown(e, () => handleSongPlay(item))}
                                     >
                                         {/* Rank Number */}
                                         <div className="w-12 text-center">
@@ -328,7 +315,7 @@ export default function RankingsPage() {
                                         <div className="text-sm text-gray-400">
                                             {formatPlayCount(item.playCount)}
                                         </div>
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
                         </>

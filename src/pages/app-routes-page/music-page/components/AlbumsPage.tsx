@@ -5,7 +5,7 @@ import { searchService } from "@/services/music/musicService.ts";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play, Music2 } from "lucide-react";
-import { handleKeyDown, convertToSong } from "../utils/commonHandlers";
+import { convertToSong } from "../utils/commonHandlers";
 import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function AlbumsPage() {
@@ -94,13 +94,10 @@ export default function AlbumsPage() {
                         </h2>
                         <div className="space-y-3">
                             {albums.slice(0, 10).map((album, index) => (
-                                <div
+                                <button
                                     key={album.id}
-                                    role="button"
-                                    tabIndex={0}
                                     onClick={() => handleAlbumClick(album)}
-                                    onKeyDown={(e) => handleKeyDown(e, () => handleAlbumClick(album))}
-                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group"
+                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group w-full text-left"
                                 >
                                     <div className="text-2xl font-bold text-white w-8">
                                         #{index + 1}
@@ -116,7 +113,7 @@ export default function AlbumsPage() {
                                             {album.playCount?.toLocaleString()} plays
                                         </p>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -151,13 +148,10 @@ export default function AlbumsPage() {
                                 }
 
                                 return (
-                                    <div
+                                    <button
                                         key={album.id}
-                                        role="button"
-                                        tabIndex={0}
-                                        onClick={() => handleAlbumClick(album)}
-                                        onKeyDown={(e) => handleKeyDown(e, () => handleAlbumClick(album))}
-                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer"
+                                        onClick={() => handleSongPlay(song)}
+                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer w-full text-left"
                                     >
                                         <div className="relative">
                                             <img
@@ -186,7 +180,7 @@ export default function AlbumsPage() {
                                                 <Music2 className="w-3 h-3" /> {album.title}
                                             </p>
                                         </div>
-                                    </div>
+                                    </button>
                                 );
                             })}
                         </div>
