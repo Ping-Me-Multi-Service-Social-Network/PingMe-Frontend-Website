@@ -55,11 +55,13 @@ export function SongFormDialog({
   const [albums, setAlbums] = useState<AlbumResponse[]>([]);
   const [artistRoles, setArtistRoles] = useState<string[]>([]);
 
+  type OtherArtistWithKey = SongArtistRequest & { uniqueKey: string };
+
   const [formData, setFormData] = useState({
     title: "",
     duration: 0,
     mainArtistId: 0,
-    otherArtists: [] as SongArtistRequest[],
+    otherArtists: [] as OtherArtistWithKey[],
     genreIds: [] as number[],
     albumIds: [] as number[],
     musicFile: undefined as File | undefined,
@@ -86,6 +88,7 @@ export function SongFormDialog({
             return {
               artistId: a.id,
               role: a.role,
+              uniqueKey: `${a.id}-${a.role}-${Date.now()}-${Math.random()}`,
             };
           }) || [];
 
@@ -148,15 +151,19 @@ export function SongFormDialog({
 
     try {
       setLoading(true);
+      const submitData = {
+        ...formData,
+        otherArtists: formData.otherArtists.map(({ ...rest }) => rest),
+      };
       if (song) {
-        await songService.update(song.id, formData);
+        await songService.update(song.id, submitData);
         toast.success("Cập nhật bài hát thành công");
       } else {
-        if (!formData.musicFile) {
+        if (!submitData.musicFile) {
           toast.error("Vui lòng chọn file nhạc");
           return;
         }
-        await songService.create(formData as SongRequest);
+        await songService.create(submitData as SongRequest);
         toast.success("Thêm bài hát thành công");
       }
       onSuccess();
@@ -175,7 +182,11 @@ export function SongFormDialog({
       ...formData,
       otherArtists: [
         ...formData.otherArtists,
-        { artistId: 0, role: "FEATURED" as ArtistRole },
+        {
+          artistId: 0,
+          role: "FEATURED" as ArtistRole,
+          uniqueKey: `new-${Date.now()}-${Math.random()}`,
+        },
       ],
     });
   };
@@ -200,6 +211,12 @@ export function SongFormDialog({
     }
     setFormData({ ...formData, otherArtists: updated });
   };
+
+  const getSubmitButtonText = () => {
+    if (loading) return "Đang lưu...";
+    if (song) return "Cập nhật";
+    return "Thêm";
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -295,7 +312,7 @@ export function SongFormDialog({
                   );
 
                   return (
-                    <div key={index} className="flex gap-2 items-start">
+                    <div key={artist.uniqueKey} className="flex gap-2 items-start">
                       <Select
                         value={
                           artist.artistId > 0
@@ -458,7 +475,7 @@ export function SongFormDialog({
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Đang lưu..." : song ? "Cập nhật" : "Thêm"}
+              {getSubmitButtonText()}
             </Button>
           </div>
         </form>

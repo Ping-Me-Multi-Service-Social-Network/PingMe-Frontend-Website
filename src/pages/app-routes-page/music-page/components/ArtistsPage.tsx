@@ -74,6 +74,13 @@ export default function ArtistsPage() {
         playSong(songToPlay);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            callback();
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
@@ -119,7 +126,10 @@ export default function ArtistsPage() {
                             {artists.slice(0, 10).map((artist, index) => (
                                 <div
                                     key={artist.id}
+                                    role="button"
+                                    tabIndex={0}
                                     onClick={() => handleArtistClick(artist)}
+                                    onKeyDown={(e) => handleKeyDown(e, () => handleArtistClick(artist))}
                                     className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group"
                                 >
                                     <div className="text-2xl font-bold text-white w-8">
@@ -171,6 +181,10 @@ export default function ArtistsPage() {
                                 return (
                                     <div
                                         key={artist.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleArtistClick(artist)}
+                                        onKeyDown={(e) => handleKeyDown(e, () => handleArtistClick(artist))}
                                         className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer"
                                     >
                                         <div className="relative">

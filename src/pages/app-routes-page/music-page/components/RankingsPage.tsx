@@ -103,7 +103,16 @@ export default function RankingsPage() {
         } catch (err) {
             console.error("Error fetching song details:", err);
         }
-    }; const formatPlayCount = (count: number) => {
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            callback();
+        }
+    };
+
+    const formatPlayCount = (count: number) => {
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
         if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
         return count.toString();
@@ -223,8 +232,11 @@ export default function RankingsPage() {
                                 {currentSongs.slice(0, 25).map((item, index) => (
                                     <div
                                         key={item.songId}
+                                        role="button"
+                                        tabIndex={0}
                                         className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer"
                                         onClick={() => handleSongPlay(item)}
+                                        onKeyDown={(e) => handleKeyDown(e, () => handleSongPlay(item))}
                                     >
                                         {/* Rank Number */}
                                         <div className="w-12 text-center">
@@ -275,8 +287,11 @@ export default function RankingsPage() {
                                 {currentSongs.slice(25, 50).map((item, index) => (
                                     <div
                                         key={item.songId}
+                                        role="button"
+                                        tabIndex={0}
                                         className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer"
                                         onClick={() => handleSongPlay(item)}
+                                        onKeyDown={(e) => handleKeyDown(e, () => handleSongPlay(item))}
                                     >
                                         {/* Rank Number */}
                                         <div className="w-12 text-center">

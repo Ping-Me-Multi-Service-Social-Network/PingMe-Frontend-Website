@@ -55,6 +55,17 @@ export default function DiscoverPlaylistsPage() {
         }
     };
 
+    const handlePlaylistClick = (playlistId: number) => {
+        navigate(`/app/music/playlists/${playlistId}`);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            callback();
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-96 bg-gray-900">
@@ -115,8 +126,11 @@ export default function DiscoverPlaylistsPage() {
                             {playlists.map((playlist) => (
                                 <div
                                     key={playlist.id}
+                                    role="button"
+                                    tabIndex={0}
                                     className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-all cursor-pointer hover:scale-105"
-                                    onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
+                                    onClick={() => handlePlaylistClick(playlist.id)}
+                                    onKeyDown={(e) => handleKeyDown(e, () => handlePlaylistClick(playlist.id))}
                                 >
                                     <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 relative">
                                         <Music className="w-12 h-12 text-white" />

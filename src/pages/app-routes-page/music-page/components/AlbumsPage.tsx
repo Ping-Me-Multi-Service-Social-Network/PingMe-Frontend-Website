@@ -74,6 +74,13 @@ export default function AlbumsPage() {
         playSong(songToPlay);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            callback();
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
@@ -121,7 +128,10 @@ export default function AlbumsPage() {
                             {albums.slice(0, 10).map((album, index) => (
                                 <div
                                     key={album.id}
+                                    role="button"
+                                    tabIndex={0}
                                     onClick={() => handleAlbumClick(album)}
+                                    onKeyDown={(e) => handleKeyDown(e, () => handleAlbumClick(album))}
                                     className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group"
                                 >
                                     <div className="text-2xl font-bold text-white w-8">
@@ -175,6 +185,10 @@ export default function AlbumsPage() {
                                 return (
                                     <div
                                         key={album.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleAlbumClick(album)}
+                                        onKeyDown={(e) => handleKeyDown(e, () => handleAlbumClick(album))}
                                         className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer"
                                     >
                                         <div className="relative">
