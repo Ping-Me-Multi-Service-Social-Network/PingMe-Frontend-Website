@@ -18,7 +18,7 @@ interface AlbumTableProps {
   onDelete: (id: number) => void;
 }
 
-export function AlbumTable({ albums, onEdit, onDelete }: AlbumTableProps) {
+export function AlbumTable({ albums, onEdit, onDelete }: Readonly<AlbumTableProps>) {
   if (!albums || albums.length === 0) {
     return (
       <EmptyState

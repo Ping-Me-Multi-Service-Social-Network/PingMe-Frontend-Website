@@ -48,7 +48,7 @@ export function SongFormDialog({
   onOpenChange,
   song,
   onSuccess,
-}: SongFormDialogProps) {
+}: Readonly<SongFormDialogProps>) {
   const [loading, setLoading] = useState(false);
   const [artists, setArtists] = useState<ArtistResponse[]>([]);
   const [genres, setGenres] = useState<GenreResponse[]>([]);

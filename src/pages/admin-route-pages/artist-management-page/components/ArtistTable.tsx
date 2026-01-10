@@ -18,7 +18,7 @@ interface ArtistTableProps {
   onDelete: (id: number) => void;
 }
 
-export function ArtistTable({ artists, onEdit, onDelete }: ArtistTableProps) {
+export function ArtistTable({ artists, onEdit, onDelete }: Readonly<ArtistTableProps>) {
   if (!artists || artists.length === 0) {
     return (
       <EmptyState

@@ -18,7 +18,7 @@ interface GenreTableProps {
   onDelete: (id: number) => void;
 }
 
-export function GenreTable({ genres, onEdit, onDelete }: GenreTableProps) {
+export function GenreTable({ genres, onEdit, onDelete }: Readonly<GenreTableProps>) {
   if (!genres || genres.length === 0) {
     return (
       <EmptyState

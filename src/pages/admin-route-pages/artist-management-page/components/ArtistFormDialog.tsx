@@ -27,7 +27,7 @@ export function ArtistFormDialog({
   onOpenChange,
   artist,
   onSuccess,
-}: ArtistFormDialogProps) {
+}: Readonly<ArtistFormDialogProps>) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
