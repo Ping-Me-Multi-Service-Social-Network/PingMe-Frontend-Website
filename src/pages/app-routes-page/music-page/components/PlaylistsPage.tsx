@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { handleKeyDown } from "../utils/commonHandlers";
 import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function PlaylistsPage() {
@@ -165,13 +164,10 @@ export default function PlaylistsPage() {
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {playlists.map((playlist) => (
-                            <div
+                            <button
                                 key={playlist.id}
-                                role="button"
-                                tabIndex={0}
-                                className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-colors cursor-pointer"
+                                className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-colors cursor-pointer w-full text-left"
                                 onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
-                                onKeyDown={(e) => handleKeyDown(e, () => navigate(`/app/music/playlists/${playlist.id}`))}
                             >
                                 <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4">
                                     <Music className="w-12 h-12 text-white" />
@@ -216,7 +212,7 @@ export default function PlaylistsPage() {
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 )}

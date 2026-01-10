@@ -5,7 +5,7 @@ import { searchService } from "@/services/music/musicService.ts";
 import type { ArtistResponse, SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play } from "lucide-react";
-import { handleKeyDown, convertToSong } from "../utils/commonHandlers";
+import { convertToSong } from "../utils/commonHandlers";
 import { LoadingState, ErrorState } from "./LoadingErrorStates";
 
 export default function ArtistsPage() {
@@ -92,13 +92,10 @@ export default function ArtistsPage() {
                         </h2>
                         <div className="space-y-3">
                             {artists.slice(0, 10).map((artist, index) => (
-                                <div
+                                <button
                                     key={artist.id}
-                                    role="button"
-                                    tabIndex={0}
                                     onClick={() => handleArtistClick(artist)}
-                                    onKeyDown={(e) => handleKeyDown(e, () => handleArtistClick(artist))}
-                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group"
+                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group w-full text-left"
                                 >
                                     <div className="text-2xl font-bold text-white w-8">
                                         #{index + 1}
@@ -112,7 +109,7 @@ export default function ArtistsPage() {
                                         <h3 className="text-white font-semibold">{artist.name}</h3>
                                         <p className="text-sm text-zinc-400">{artist.bio?.slice(0, 50) || 'followers'}</p>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -147,13 +144,10 @@ export default function ArtistsPage() {
                                 }
 
                                 return (
-                                    <div
+                                    <button
                                         key={artist.id}
-                                        role="button"
-                                        tabIndex={0}
                                         onClick={() => handleArtistClick(artist)}
-                                        onKeyDown={(e) => handleKeyDown(e, () => handleArtistClick(artist))}
-                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer"
+                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer w-full text-left"
                                     >
                                         <div className="relative">
                                             <img
@@ -185,7 +179,7 @@ export default function ArtistsPage() {
                                                 </p>
                                             )}
                                         </div>
-                                    </div>
+                                    </button>
                                 );
                             })}
                         </div>
