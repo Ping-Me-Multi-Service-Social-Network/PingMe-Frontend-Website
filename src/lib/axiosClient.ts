@@ -1,19 +1,23 @@
-import axios from "axios";
-import type { InternalAxiosRequestConfig, AxiosError } from "axios";
+import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
 import type { ApiResponse } from "@/types/base/apiResponse";
-import { getValidAccessToken } from "@/utils/jwtDecodeHandler";
 import type { DefaultAuthResponse } from "@/types/authentication";
+import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 
-// ============================================================
-// Cấu hình cơ bản
-// ============================================================
+// 1. Cấu hình cơ bản
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
+// ============================================================
+// REDUX BRIDGE
+// ============================================================
 let onTokenRefreshed: ((payload: DefaultAuthResponse) => void) | null = null;
 let onLogout: (() => void) | null = null;
+
 export function setupAxiosInterceptors(opts: {
   onTokenRefreshed?: (payload: DefaultAuthResponse) => void;
   onLogout?: () => void;
@@ -23,86 +27,107 @@ export function setupAxiosInterceptors(opts: {
 }
 
 // ============================================================
-// Cơ chế hàng đợi xử lý request bị lỗi 401 trong khi refresh token:
-// - failedQueue lưu các request bị 401
-// - Khi refresh thành công → resolve queue
-// - Khi refresh fail → reject toàn bộ queue
+// SHARED PROMISE
 // ============================================================
-type FailedRequest = {
-  resolve: (token: string) => void;
-  reject: (reason?: unknown) => void;
-};
-let failedQueue: FailedRequest[] = [];
-const processQueue = (error: unknown, token: string | null) => {
-  failedQueue.forEach(({ resolve, reject }) =>
-    token ? resolve(token) : reject(error)
-  );
-  failedQueue = [];
-};
+let refreshPromise: Promise<string> | null = null;
 
-// ============================================================
-// Response Interceptor
-// ============================================================
-let isRefreshing = false;
+const performRefreshToken = async (): Promise<string> => {
+  try {
+    // Gọi API Refresh
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
+      getSessionMetaRequest(),
+      { withCredentials: true }
+    );
 
-axiosClient.interceptors.response.use(
-  (res) => res,
-  async (error: AxiosError) => {
-    const original = error.config as
-      | (InternalAxiosRequestConfig & { _retry?: boolean })
-      | undefined;
-    const payload = error.response?.data as ApiResponse<unknown> | undefined;
-    const code = payload?.errorCode ?? "";
-    const isUnauthorized = error.response?.status === 401 && code == 1102;
+    const payload = response.data.data as DefaultAuthResponse;
 
-    if (!original || original._retry || !isUnauthorized)
-      return Promise.reject(error);
-    original._retry = true;
+    // Lưu token mới vào LocalStorage
+    localStorage.setItem("access_token", payload.accessToken);
 
-    if (isRefreshing) {
-      return new Promise<string>((resolve, reject) =>
-        failedQueue.push({ resolve, reject })
-      ).then((token) => {
-        original.headers = original.headers ?? {};
-        original.headers.Authorization = `Bearer ${token}`;
-        return axiosClient(original);
-      });
+    if (onTokenRefreshed) {
+      onTokenRefreshed(payload);
     }
 
-    isRefreshing = true;
-    try {
-      const result = await getValidAccessToken();
-      if (result.type === "refreshed") onTokenRefreshed?.(result.payload);
-
-      const token = result.accessToken;
-      processQueue(null, token);
-
-      original.headers = original.headers ?? {};
-      original.headers.Authorization = `Bearer ${token}`;
-      return axiosClient(original);
-    } catch (e) {
-      onLogout?.();
-      processQueue(e, null);
-      return Promise.reject(e);
-    } finally {
-      isRefreshing = false;
+    return payload.accessToken;
+  } catch (error) {
+    localStorage.removeItem("access_token");
+    if (onLogout) {
+      onLogout();
     }
+    throw error;
   }
-);
+};
 
 // ============================================================
-// Request Interceptor
+// REQUEST INTERCEPTOR
 // ============================================================
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
-    if (token) {
+
+    // Nếu có token và không phải API Refresh thì
+    // gắn vào access token vào Header
+    if (token && !config.url?.includes("/auth/refresh")) {
       config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (err) => Promise.reject(err)
+  (error) => Promise.reject(error)
+);
+
+// ============================================================
+// RESPONSE INTERCEPTOR
+// ============================================================
+axiosClient.interceptors.response.use(
+  (res) => res,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    // 1. Phân tích lỗi
+    const payload = error.response?.data as ApiResponse<unknown> | undefined;
+    const code = payload?.errorCode;
+
+    // Điều kiện: 401 VÀ ErrorCode 1102 (Token Expired)
+    const isTokenExpired = error.response?.status === 401 && code == 1102;
+
+    if (!isTokenExpired || !originalRequest || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    // 2. Chặn Loop
+    if (
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/refresh")
+    ) {
+      return Promise.reject(error);
+    }
+
+    originalRequest._retry = true;
+
+    // 3. Logic Shared Promise
+    if (!refreshPromise) {
+      refreshPromise = performRefreshToken().finally(() => {
+        refreshPromise = null;
+      });
+    }
+
+    try {
+      // Chờ Promise refresh xong
+      const newToken = await refreshPromise;
+
+      // Gắn token mới và gọi lại request cũ
+      originalRequest.headers = originalRequest.headers ?? {};
+      originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+      return axiosClient(originalRequest);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 );
 
 export default axiosClient;
