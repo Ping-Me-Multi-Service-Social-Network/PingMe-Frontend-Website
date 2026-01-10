@@ -129,7 +129,7 @@ export default function FavoritesPage() {
                         </div>
                         <div>
                             <h1 className="text-4xl font-bold text-white mb-2">Bài Hát Yêu Thích</h1>
-                            <p className="text-zinc-400">{favorites.length} {favorites.length === 1 ? 'bài hát' : 'bài hát'}</p>
+                            <p className="text-zinc-400">{favorites.length} bài hát</p>
                         </div>
                     </div>
 

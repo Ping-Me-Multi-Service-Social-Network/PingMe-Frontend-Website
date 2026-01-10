@@ -19,9 +19,9 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
   };
 
   return (
-    <div
+    <button
       onClick={handleClick}
-      className="group rounded-lg border border-zinc-800 overflow-hidden hover:border-zinc-700 transition-all duration-200 cursor-pointer"
+      className="group rounded-lg border border-zinc-800 overflow-hidden hover:border-zinc-700 transition-all duration-200 cursor-pointer w-full text-left"
     >
       <div className="relative aspect-square overflow-hidden bg-zinc-800">
         {artist.imgUrl ? (
@@ -47,6 +47,6 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
           </p>
         </div>
       </div>
-    </div>
+    </button>
   );
 }

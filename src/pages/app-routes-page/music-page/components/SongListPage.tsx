@@ -38,6 +38,43 @@ export default function SongListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
+  const fetchAlbumData = async (albumId: number) => {
+    const [albumData, albumInfo] = await Promise.all([
+      searchService.getSongsByAlbum(albumId),
+      albumService.getById(albumId),
+    ]);
+    setAlbumDetails(albumInfo);
+    return albumData;
+  };
+
+  const fetchArtistData = async (artistId: number) => {
+    const [artistData, artistInfo] = await Promise.all([
+      searchService.getSongsByArtist(artistId),
+      artistService.getById(artistId),
+    ]);
+    setArtistDetails(artistInfo);
+    return artistData;
+  };
+
+  const fetchGenreData = async (genreId: number) => {
+    return await searchService.getSongsByGenre(genreId);
+  };
+
+  const convertToPlaylist = (songsData: SongResponseWithAllAlbum[]): Song[] => {
+    return songsData.map((song) => ({
+      id: song.id,
+      title: song.title,
+      duration: song.duration,
+      playCount: song.playCount,
+      songUrl: song.songUrl,
+      coverImageUrl: song.coverImageUrl,
+      mainArtist: song.mainArtist,
+      featuredArtists: song.otherArtists,
+      genre: song.genres,
+      album: song.albums,
+    }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!type || !id) {
@@ -51,40 +88,15 @@ export default function SongListPage() {
         let songsData: SongResponseWithAllAlbum[] = [];
 
         if (type === "album") {
-          const [albumData, albumInfo] = await Promise.all([
-            searchService.getSongsByAlbum(Number(id)),
-            albumService.getById(Number(id)),
-          ]);
-          songsData = albumData;
-          setAlbumDetails(albumInfo);
+          songsData = await fetchAlbumData(Number(id));
         } else if (type === "artist") {
-          const [artistData, artistInfo] = await Promise.all([
-            searchService.getSongsByArtist(Number(id)),
-            artistService.getById(Number(id)),
-          ]);
-          songsData = artistData;
-          setArtistDetails(artistInfo);
+          songsData = await fetchArtistData(Number(id));
         } else if (type === "genre") {
-          songsData = await searchService.getSongsByGenre(Number(id));
+          songsData = await fetchGenreData(Number(id));
         }
 
         setSongs(songsData);
-
-        // Convert to Song format for playlist
-        const playlist: Song[] = songsData.map((song) => ({
-          id: song.id,
-          title: song.title,
-          duration: song.duration,
-          playCount: song.playCount,
-          songUrl: song.songUrl,
-          coverImageUrl: song.coverImageUrl,
-          mainArtist: song.mainArtist,
-          featuredArtists: song.otherArtists,
-          genre: song.genres,
-          album: song.albums,
-        }));
-        setPlaylist(playlist);
-
+        setPlaylist(convertToPlaylist(songsData));
         setError(null);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -112,8 +124,20 @@ export default function SongListPage() {
     };
   };
 
-  const handleSongPlay = (song: Song) => {
-    playSong(song);
+  const handleSongPlay = (song: Song | SongResponseWithAllAlbum) => {
+    const songToPlay: Song = "otherArtists" in song ? {
+      id: song.id,
+      title: song.title,
+      duration: song.duration,
+      playCount: song.playCount,
+      songUrl: song.songUrl,
+      coverImageUrl: song.coverImageUrl,
+      mainArtist: song.mainArtist,
+      featuredArtists: song.otherArtists,
+      genre: song.genres,
+      album: song.albums,
+    } : song;
+    playSong(songToPlay);
   };
 
   const handlePlayAll = () => {
@@ -127,6 +151,96 @@ export default function SongListPage() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedSongs = songs.slice(startIndex, endIndex);
+
+  const getDisplayImage = () => {
+    if (type === "album") return albumDetails?.coverImgUrl;
+    if (type === "artist") return artistDetails?.imgUrl;
+    return imageUrl;
+  };
+
+  const getDisplayName = () => {
+    if (type === "album") return albumDetails?.title;
+    if (type === "artist") return artistDetails?.name;
+    return name;
+  };
+
+  const displayImage = getDisplayImage();
+  const displayName = getDisplayName();
+  const displayInfo = type === "artist" ? artistDetails?.bio : null;
+  const playCount = type === "album" ? albumDetails?.playCount : null;
+
+  const renderCoverImage = () => {
+    if (displayImage) {
+      return (
+        <img
+          src={displayImage || "/placeholder.svg"}
+          alt={displayName || ""}
+          className={`w-48 h-48 ${type === "artist" ? "rounded-full" : "rounded-lg"} object-cover shadow-2xl`}
+        />
+      );
+    }
+
+    const iconClass = "w-20 h-20 text-zinc-600";
+    const containerClass = `w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"} flex items-center justify-center shadow-2xl`;
+
+    return (
+      <div className={containerClass}>
+        {type === "album" ? (
+          <Disc3 className={iconClass} />
+        ) : type === "artist" ? (
+          <User2 className={iconClass} />
+        ) : (
+          <Music className={iconClass} />
+        )}
+      </div>
+    );
+  };
+
+  const renderInfoSection = () => {
+    let typeLabel = "Thể Loại";
+    if (type === "album") {
+      typeLabel = "Album";
+    } else if (type === "artist") {
+      typeLabel = "Nghệ Sĩ";
+    }
+
+    return (
+      <div className="flex-1">
+        <p className="text-sm text-zinc-400 uppercase tracking-wide font-medium mb-2">
+          {typeLabel}
+        </p>
+        <h1 className="text-5xl font-bold text-white mb-4 text-balance">
+          {displayName || "Không rõ"}
+        </h1>
+
+        {type === "artist" && displayInfo && (
+          <p className="text-zinc-300 text-base leading-relaxed mb-4 max-w-3xl">
+            {displayInfo}
+          </p>
+        )}
+
+        <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
+          <span>{songs.length} bài hát</span>
+          {playCount !== null && playCount !== undefined && (
+            <>
+              <span>•</span>
+              <span>{playCount.toLocaleString()} lượt nghe</span>
+            </>
+          )}
+        </div>
+
+        {songs.length > 0 && (
+          <button
+            onClick={handlePlayAll}
+            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
+          >
+            <Play className="w-5 h-5 fill-current" />
+            Phát Tất Cả
+          </button>
+        )}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -152,21 +266,6 @@ export default function SongListPage() {
     );
   }
 
-  const displayImage =
-    type === "album"
-      ? albumDetails?.coverImgUrl
-      : type === "artist"
-        ? artistDetails?.imgUrl
-        : imageUrl;
-  const displayName =
-    type === "album"
-      ? albumDetails?.title
-      : type === "artist"
-        ? artistDetails?.name
-        : name;
-  const displayInfo = type === "artist" ? artistDetails?.bio : null;
-  const playCount = type === "album" ? albumDetails?.playCount : null;
-
   return (
     <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
       <div className="max-w-7xl mx-auto px-8 py-8">
@@ -180,73 +279,8 @@ export default function SongListPage() {
           </button>
 
           <div className="flex items-start gap-6">
-            {/* Cover Image */}
-            {displayImage ? (
-              <img
-                src={displayImage || "/placeholder.svg"}
-                alt={displayName || ""}
-                className={`w-48 h-48 ${type === "artist" ? "rounded-full" : "rounded-lg"
-                  } object-cover shadow-2xl`}
-              />
-            ) : (
-              <div
-                className={`w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"
-                  } flex items-center justify-center shadow-2xl`}
-              >
-                {type === "album" ? (
-                  <Disc3 className="w-20 h-20 text-zinc-600" />
-                ) : type === "artist" ? (
-                  <User2 className="w-20 h-20 text-zinc-600" />
-                ) : (
-                  <Music className="w-20 h-20 text-zinc-600" />
-                )}
-              </div>
-            )}
-
-            {/* Info Section */}
-            <div className="flex-1">
-              <p className="text-sm text-zinc-400 uppercase tracking-wide font-medium mb-2">
-                {type === "album"
-                  ? "Album"
-                  : type === "artist"
-                    ? "Nghệ Sĩ"
-                    : "Thể Loại"}
-              </p>
-              <h1 className="text-5xl font-bold text-white mb-4 text-balance">
-                {displayName || "Không rõ"}
-              </h1>
-
-              {/* Artist Bio */}
-              {type === "artist" && displayInfo && (
-                <p className="text-zinc-300 text-base leading-relaxed mb-4 max-w-3xl">
-                  {displayInfo}
-                </p>
-              )}
-
-              {/* Stats */}
-              <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
-                <span>
-                  {songs.length} {songs.length === 1 ? "bài hát" : "bài hát"}
-                </span>
-                {playCount !== null && playCount !== undefined && (
-                  <>
-                    <span>•</span>
-                    <span>{playCount.toLocaleString()} lượt nghe</span>
-                  </>
-                )}
-              </div>
-
-              {/* Play All Button */}
-              {songs.length > 0 && (
-                <button
-                  onClick={handlePlayAll}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
-                >
-                  <Play className="w-5 h-5 fill-current" />
-                  Phát Tất Cả
-                </button>
-              )}
-            </div>
+            {renderCoverImage()}
+            {renderInfoSection()}
           </div>
         </div>
 
