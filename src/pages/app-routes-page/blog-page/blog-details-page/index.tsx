@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, ArrowUp } from "lucide-react";
@@ -24,6 +24,7 @@ export default function BlogDetailsPage() {
   const [blog, setBlog] = useState<BlogDetailsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchBlogDetails = async () => {
@@ -35,7 +36,7 @@ export default function BlogDetailsPage() {
         setBlog(response.data.data);
       } catch (error) {
         toast.error(getErrorMessage(error, "Không thể tải chi tiết blog"));
-        navigate("/blogs");
+        navigate("/app/blogs");
       } finally {
         setIsLoading(false);
       }
@@ -46,20 +47,27 @@ export default function BlogDetailsPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      if (scrollContainerRef.current) {
+        setShowScrollTop(scrollContainerRef.current.scrollTop > 400);
+      }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center h-full">
         <LoadingSpinner className="h-12 w-12 text-primary" />
       </div>
     );
@@ -70,7 +78,10 @@ export default function BlogDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      ref={scrollContainerRef}
+      className="h-full overflow-y-auto bg-background"
+    >
       {/* Breadcrumb */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 py-6">
         <div className="container mx-auto px-4">
@@ -78,7 +89,7 @@ export default function BlogDetailsPage() {
           <div className="flex items-center gap-4 mb-4">
             <Button
               variant="ghost"
-              onClick={() => navigate("/blogs")}
+              onClick={() => navigate("/app/blogs")}
               className="text-white hover:bg-white/20 hover:text-white"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -90,7 +101,7 @@ export default function BlogDetailsPage() {
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
                   <Link
-                    to="/blogs"
+                    to="/app/blogs"
                     className="text-white/80 hover:text-white transition-colors"
                   >
                     Blog

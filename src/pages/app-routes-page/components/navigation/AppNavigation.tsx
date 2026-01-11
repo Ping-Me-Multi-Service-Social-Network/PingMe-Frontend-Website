@@ -141,7 +141,7 @@ export default function AppNavigation() {
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/public"
+                to="/home"
                 className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all duration-300 hover:scale-105"
               >
                 <img

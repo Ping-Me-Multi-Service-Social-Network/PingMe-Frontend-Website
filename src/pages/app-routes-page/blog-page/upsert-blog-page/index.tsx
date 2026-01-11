@@ -29,7 +29,11 @@ import {
 } from "@/types/blog/blog.ts";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { saveBlog, updateBlog, getBlogDetailsById } from "@/services/blog/blogApi.ts";
+import {
+  saveBlog,
+  updateBlog,
+  getBlogDetailsById,
+} from "@/services/blog/blogApi.ts";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 
@@ -73,7 +77,7 @@ export default function UpsertBlogPage() {
           }
         } catch (error) {
           toast.error(getErrorMessage(error, "Không thể tải thông tin blog"));
-          navigate("/blogs");
+          navigate("/app/blogs");
         } finally {
           setIsLoadingBlog(false);
         }
@@ -157,12 +161,12 @@ export default function UpsertBlogPage() {
         toast.success("Tạo blog thành công! Đang chờ duyệt...", {
           action: {
             label: "Xem bài viết của bạn",
-            onClick: () => navigate("/blogs?mode=self"),
+            onClick: () => navigate("/app/blogs?mode=self"),
           },
         });
       }
 
-      navigate("/blogs");
+      navigate("/app/blogs");
     } catch (error) {
       toast.error(
         getErrorMessage(
@@ -191,7 +195,7 @@ export default function UpsertBlogPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink
-                  onClick={() => navigate("/blogs")}
+                  onClick={() => navigate("/app/blogs")}
                   className="text-white/80 hover:text-white transition-colors font-medium cursor-pointer underline-offset-4 hover:underline"
                 >
                   Blog
@@ -355,7 +359,7 @@ export default function UpsertBlogPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/blogs")}
+                onClick={() => navigate("/app/blogs")}
                 disabled={isSubmitting}
                 className="border-purple-300 text-purple-700 hover:bg-purple-50"
               >
