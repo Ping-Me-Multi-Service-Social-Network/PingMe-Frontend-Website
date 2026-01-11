@@ -1,32 +1,41 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { albumApi, type AlbumResponse } from "@/services/music/albumApi.ts";
+import type { AlbumResponse } from "@/services/music/albumApi.ts";
 import { searchService } from "@/services/music/musicService.ts";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play, Music2 } from "lucide-react";
 import { convertToSong } from "../utils/commonHandlers";
 import { LoadingState, ErrorState } from "./LoadingErrorStates";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { fetchAllAlbums } from "@/features/slices/musicSlice";
+import { isCacheValid } from "@/utils/musicCacheUtils";
+import { DEFAULT_ALBUMS_LIMIT, TOP_ARTISTS_FOR_PREVIEW } from "@/constants/musicConstants";
 
 export default function AlbumsPage() {
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { playSong } = useAudioPlayer();
-    const [albums, setAlbums] = useState<AlbumResponse[]>([]);
+    const { allAlbums, cacheExpiry } = useAppSelector(state => state.music);
     const [albumSongs, setAlbumSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchAlbums = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const albumsData = await albumApi.getPopularAlbums(20);
-                setAlbums(albumsData);
+
+                // Check cache validity
+                if (!isCacheValid(allAlbums.lastFetched, cacheExpiry)) {
+                    await dispatch(fetchAllAlbums(DEFAULT_ALBUMS_LIMIT)).unwrap();
+                }
 
                 // Fetch top song for each album (first 10 albums)
+                const albumsData = allAlbums.data;
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
                 await Promise.all(
-                    albumsData.slice(0, 10).map(async (album) => {
+                    albumsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (album) => {
                         try {
                             const songs = await searchService.getSongsByAlbum(album.id);
                             if (songs.length > 0) {
@@ -47,8 +56,10 @@ export default function AlbumsPage() {
             }
         };
 
-        fetchAlbums();
-    }, []);
+        fetchData();
+    }, [dispatch, allAlbums.lastFetched, allAlbums.data, cacheExpiry]);
+
+    const albums = allAlbums.data;
 
     const handleAlbumClick = (album: AlbumResponse) => {
         navigate(

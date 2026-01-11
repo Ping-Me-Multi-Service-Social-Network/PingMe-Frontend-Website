@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { songApi } from "@/services/music/songApi.ts";
-import { albumApi } from "@/services/music/albumApi.ts";
-import { artistApi } from "@/services/music/artistApi.ts";
-import { genreApi } from "@/services/music/genreApi.ts";
 import SongListItem from "./SongListItem.tsx";
 import AlbumCard from "./AlbumCard.tsx";
 import ArtistCard from "./ArtistCard.tsx";
@@ -11,66 +8,71 @@ import GenreTag from "./GenreTag.tsx";
 import RankingCard from "./RankingCard.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { Song } from "@/types/music/song";
-import type { AlbumResponse } from "@/services/music/albumApi.ts";
 import type { Genre } from "@/types/music/genre";
-import type { SongResponseWithAllAlbum, ArtistResponse } from "@/types/music";
+import type { SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { fetchMusicData } from "@/features/slices/musicSlice";
+import { isCacheValid } from "@/utils/musicCacheUtils";
+import { DEFAULT_TOP_SONGS_LIMIT } from "@/constants/musicConstants";
 
 export default function MainMusicPage() {
+  const dispatch = useAppDispatch();
   const { playSong, setPlaylist } = useAudioPlayer();
   const navigate = useNavigate();
   const genreScrollRef = useRef<HTMLDivElement>(null);
 
-  const [topSongs, setTopSongs] = useState<SongResponseWithAllAlbum[]>([]);
-  const [albums, setAlbums] = useState<AlbumResponse[]>([]);
-  const [artists, setArtists] = useState<ArtistResponse[]>([]);
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Lấy data từ Redux cache
+  const {
+    topSongs,
+    popularAlbums: albums,
+    popularArtists: artists,
+    allGenres: genres,
+    loading,
+    error: reduxError,
+    lastFetched,
+    cacheExpiry,
+  } = useAppSelector((state) => state.music);
+
   const [error, setError] = useState<string | null>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
 
+  // Check cache validity và fetch nếu cần
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [songsData, albumsData, artistsData, genresData] = await Promise.all([
-          songApi.getTopSongs(5),
-          albumApi.getPopularAlbums(5),
-          artistApi.getPopularArtists(5),
-          genreApi.getAllGenres(),
-        ]);
-        setTopSongs(songsData);
+    if (!isCacheValid(lastFetched, cacheExpiry)) {
+      dispatch(fetchMusicData(DEFAULT_TOP_SONGS_LIMIT));
+    }
+  }, [dispatch, lastFetched, cacheExpiry]);
 
-        // Convert SongResponseWithAllAlbum[] to Song[] for playlist
-        const playlistSongs: Song[] = songsData.map((song: SongResponseWithAllAlbum) => ({
-          id: song.id,
-          title: song.title,
-          duration: song.duration,
-          playCount: song.playCount,
-          songUrl: song.songUrl,
-          coverImageUrl: song.coverImageUrl,
-          mainArtist: song.mainArtist,
-          featuredArtists: song.otherArtists || [],
-          genre: song.genres || [],
-          album: song.albums || [],
-        }));
-        setPlaylist(playlistSongs);
-        setAlbums(albumsData);
-        setArtists(artistsData);
-        setGenres(genresData);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching music data:", err);
-        setError("Không thể tải dữ liệu âm nhạc");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Update error state từ Redux
+  useEffect(() => {
+    if (reduxError) {
+      setError("Không thể tải dữ liệu âm nhạc");
+    } else {
+      setError(null);
+    }
+  }, [reduxError]);
 
-    fetchData();
-  }, [setPlaylist]);
+  // Set playlist khi topSongs thay đổi
+  useEffect(() => {
+    if (topSongs.length > 0) {
+      const playlistSongs: Song[] = topSongs.map((song: SongResponseWithAllAlbum) => ({
+        id: song.id,
+        title: song.title,
+        duration: song.duration,
+        playCount: song.playCount,
+        songUrl: song.songUrl,
+        coverImageUrl: song.coverImageUrl,
+        mainArtist: song.mainArtist,
+        featuredArtists: song.otherArtists || [],
+        genre: song.genres || [],
+        album: song.albums || [],
+      }));
+      setPlaylist(playlistSongs);
+    }
+  }, [topSongs, setPlaylist]);
 
   useEffect(() => {
     const checkScroll = () => {
