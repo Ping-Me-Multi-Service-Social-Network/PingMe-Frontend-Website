@@ -170,7 +170,7 @@ export default function BlogPage() {
   const currentLoading = activeTab === "all" ? isLoading : isMyBlogsLoading;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full overflow-y-auto bg-background">
       <HeroSection />
 
       {isLogin && (
@@ -204,7 +204,7 @@ export default function BlogPage() {
                 </Button>
               </div>
               <Button
-                onClick={() => navigate("/blogs/upsert")}
+                onClick={() => navigate("/app/blogs/upsert")}
                 className="gap-2"
                 size="lg"
               >

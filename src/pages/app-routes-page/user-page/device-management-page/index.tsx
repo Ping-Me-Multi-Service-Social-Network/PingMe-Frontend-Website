@@ -3,7 +3,12 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { normalizeDeviceType } from "@/utils/sessionMetaHandler.ts";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Loader2, Shield, Trash2, Clock } from "lucide-react";
@@ -23,7 +28,7 @@ import {
 } from "lucide-react";
 import {
   deleteCurrentUserDeviceMetaApi,
-  getCurrentUserAllDeviceMetasApi
+  getCurrentUserAllDeviceMetasApi,
 } from "@/services/user/currentUserSessionApi.ts";
 
 const DeviceManagementPage = () => {
@@ -170,17 +175,15 @@ const DeviceManagementPage = () => {
       {/* Sessions List */}
       <div className="space-y-4">
         {sessions.length === 0 ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Không có phiên đăng nhập nào
-              </h3>
-              <p className="text-gray-600">
-                Hiện tại không có phiên đăng nhập nào được tìm thấy.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="text-center py-12 border border-gray-200 rounded-lg bg-white">
+            <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Không có phiên đăng nhập nào
+            </h3>
+            <p className="text-gray-600">
+              Hiện tại không có phiên đăng nhập nào được tìm thấy.
+            </p>
+          </div>
         ) : (
           sessions.map((session) => (
             <Card
