@@ -1,6 +1,10 @@
 import { Badge } from "@/components/ui/badge.tsx";
 import { Card, CardContent, CardHeader } from "@/components/ui/card.tsx";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { FileText, Pencil, Clock, RefreshCw } from "lucide-react";
 import type { BlogReviewResponse } from "@/types/blog/blog.ts";
@@ -8,7 +12,10 @@ import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { useNavigate } from "react-router-dom";
-import { getGradientForBlog, CATEGORY_LABELS } from "@/utils/blogFieldHandler.ts";
+import {
+  getGradientForBlog,
+  CATEGORY_LABELS,
+} from "@/utils/blogFieldHandler.ts";
 import { formatRelativeTime } from "@/utils/dateFormatter.ts";
 
 interface BlogGridProps {
@@ -49,7 +56,7 @@ export function BlogGrid({
       {blogs.map((blog) => (
         <Card
           key={blog.id}
-          onClick={() => navigate(`/blogs/${blog.id}`)}
+          onClick={() => navigate(`/app/blogs/${blog.id}`)}
           className="group cursor-pointer hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 overflow-hidden border-border/50 pt-0 px-0 pb-6 relative"
         >
           {showEditButton && (
@@ -59,7 +66,7 @@ export function BlogGrid({
               className="absolute top-2 right-2 z-10 h-8 w-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/blogs/upsert/${blog.id}`);
+                navigate(`/app/blogs/upsert/${blog.id}`);
               }}
             >
               <Pencil className="h-4 w-4" />
