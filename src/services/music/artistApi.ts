@@ -10,7 +10,7 @@ export const artistApi = {
 
   getPopularArtists: async (limit?: number) => {
     const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>("/artists/all");
-    const artists = response.data.data; 
+    const artists = response.data.data || []; 
     return limit ? artists.slice(0, limit) : artists;
   },
 };
