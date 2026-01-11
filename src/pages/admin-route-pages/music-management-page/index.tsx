@@ -39,10 +39,10 @@ export default function MusicManagementPage() {
     fetchSongs();
   }, []);
 
-  const filteredSongs = songs.filter(
+  const filteredSongs = (songs || []).filter(
     (song) =>
-      song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      song.mainArtist.name.toLowerCase().includes(searchQuery.toLowerCase())
+      song?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      song?.mainArtist?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredSongs.length / ITEMS_PER_PAGE);
