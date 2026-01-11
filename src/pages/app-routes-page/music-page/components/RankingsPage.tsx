@@ -44,7 +44,7 @@ export default function RankingsPage() {
                 setTodaySongs(today);
                 setWeekSongs(week);
                 setMonthSongs(month);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 logError('RankingsPage', err);
                 const errorMessage = getRankingErrorMessage(err);
                 setError(errorMessage);
@@ -130,7 +130,7 @@ export default function RankingsPage() {
                     <p className="text-gray-400 text-sm">{error}</p>
                 </div>
                 <button
-                    onClick={() => window.location.reload()}
+                    onClick={() => globalThis.location.reload()}
                     className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                 >
                     Retry
