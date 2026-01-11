@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { TopSongPlayCounter } from "@/types/music";
 import { Music2 } from "lucide-react";
+import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
 
 interface RankingCardProps {
     title: string;
@@ -27,22 +28,40 @@ export default function RankingCard({
     const navigate = useNavigate();
     const [songs, setSongs] = useState<TopSongPlayCounter[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        let isMounted = true;
+
         const loadSongs = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const data = await fetchData();
-                setSongs(data.slice(0, 4)); // Get top 4 songs
-            } catch (err) {
+
+                if (isMounted) {
+                    setSongs(data.slice(0, 4)); // Get top 4 songs
+                }
+            } catch (err: unknown) {
                 console.error("Error fetching ranking data:", err);
+                if (isMounted) {
+                    logError(`RankingCard - ${title}`, err);
+                    const errorMessage = getRankingErrorMessage(err);
+                    setError(errorMessage);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         loadSongs();
-    }, [fetchData]);
+
+        return () => {
+            isMounted = false;
+        };
+    }, [title]); // Re-fetch if title changes (component type changes)
 
     const renderSongsContent = () => {
         if (loading) {
@@ -61,8 +80,47 @@ export default function RankingCard({
             );
         }
 
+        if (error) {
+            return (
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 p-2 bg-yellow-900/20 rounded">
+                        <span className="text-yellow-400 text-xs">⚠️</span>
+                        <p className="text-yellow-400/90 text-xs flex-1">{error}</p>
+                    </div>
+                    {[1, 2, 3, 4].map((i) => (
+                        <div
+                            key={`error-${i}`}
+                            className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-30"
+                        >
+                            <span className="text-gray-600 font-bold text-sm w-5">{i}</span>
+                            <div className="w-10 h-10 rounded bg-gray-800/50"></div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-gray-600 text-sm">—</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
         if (songs.length === 0) {
-            return <p className="text-gray-400 text-sm">No data available</p>;
+            return (
+                <div className="space-y-2">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div
+                            key={`empty-${i}`}
+                            className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-30"
+                        >
+                            <span className="text-gray-600 font-bold text-sm w-5">{i}</span>
+                            <div className="w-10 h-10 rounded bg-gray-800/50"></div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-gray-600 text-sm">—</p>
+                            </div>
+                        </div>
+                    ))}
+                    <p className="text-gray-500 text-xs text-center mt-2">No data available</p>
+                </div>
+            );
         }
 
         // Always render 4 slots, fill empty ones with placeholders

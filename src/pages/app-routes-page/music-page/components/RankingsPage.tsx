@@ -5,6 +5,7 @@ import { songApi } from "@/services/music/songApi.ts";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { TopSongPlayCounter } from "@/types/music";
+import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
 
 type RankingTab = "today" | "week" | "month";
 
@@ -31,20 +32,22 @@ export default function RankingsPage() {
         const fetchRankings = async () => {
             try {
                 setLoading(true);
+                setError(null);
+
                 const [today, week, month] = await Promise.all([
-                    songApi.getTopSongsToday(50),
-                    songApi.getTopSongsThisWeek(50),
-                    songApi.getTopSongsThisMonth(50),
+                    songApi.getTopSongsToday(50).catch(() => []),
+                    songApi.getTopSongsThisWeek(50).catch(() => []),
+                    songApi.getTopSongsThisMonth(50).catch(() => []),
                 ]);
 
                 console.log("Rankings data:", { today, week, month });
                 setTodaySongs(today);
                 setWeekSongs(week);
                 setMonthSongs(month);
-                setError(null);
-            } catch (err) {
-                console.error("Error fetching rankings:", err);
-                setError("Failed to load rankings");
+            } catch (err: unknown) {
+                logError('RankingsPage', err);
+                const errorMessage = getRankingErrorMessage(err);
+                setError(errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -121,8 +124,23 @@ export default function RankingsPage() {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-                <p className="text-red-400">{error}</p>
+            <div className="flex flex-col items-center justify-center h-96 bg-gray-900 min-h-full gap-4">
+                <div className="text-center">
+                    <p className="text-red-400 text-lg mb-2">⚠️ Unable to load rankings</p>
+                    <p className="text-gray-400 text-sm">{error}</p>
+                </div>
+                <button
+                    onClick={() => globalThis.location.reload()}
+                    className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                    Retry
+                </button>
+                <button
+                    onClick={() => navigate("/app/music")}
+                    className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                    Back to Music
+                </button>
             </div>
         );
     }

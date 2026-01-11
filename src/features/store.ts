@@ -11,15 +11,17 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "./slices/authSlice";
+import musicReducer from "./slices/musicSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  music: musicReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"],
+  whitelist: ["auth", "music"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

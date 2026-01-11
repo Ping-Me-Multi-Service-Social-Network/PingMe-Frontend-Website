@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
-  searchService,
   albumService,
   artistService,
 } from "@/services/music/musicService.ts";
@@ -16,11 +15,17 @@ import Pagination from "@/components/custom/Pagination.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import type { Song } from "@/types/music/song";
 import { ArrowLeft, Disc3, User2, Play, Music } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { fetchSongsByGenre, fetchSongsByAlbum, fetchSongsByArtist } from "@/features/slices/musicSlice";
+import { getCachedData } from "@/utils/musicCacheUtils";
+import { DEFAULT_ITEMS_PER_PAGE } from "@/constants/musicConstants";
 
 export default function SongListPage() {
+  const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { playSong, setPlaylist } = useAudioPlayer();
+  const { songsByGenre, songsByAlbum, songsByArtist, cacheExpiry } = useAppSelector(state => state.music);
 
   const type = searchParams.get("type"); // "album", "artist", or "genre"
   const id = searchParams.get("id");
@@ -36,28 +41,40 @@ export default function SongListPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
 
-  const fetchAlbumData = async (albumId: number) => {
-    const [albumData, albumInfo] = await Promise.all([
-      searchService.getSongsByAlbum(albumId),
-      albumService.getById(albumId),
-    ]);
-    setAlbumDetails(albumInfo);
-    return albumData;
-  };
+  const fetchWithCache = async <T,>(
+    id: number,
+    cache: Record<number, { data: SongResponseWithAllAlbum[]; lastFetched: number | null }> | undefined,
+    fetchAction: (id: number) => any,
+    additionalFetch?: () => Promise<T>,
+    setAdditional?: (data: T) => void
+  ): Promise<SongResponseWithAllAlbum[]> => {
+    // Check cache first
+    const cachedData = getCachedData(cache?.[id], cacheExpiry);
 
-  const fetchArtistData = async (artistId: number) => {
-    const [artistData, artistInfo] = await Promise.all([
-      searchService.getSongsByArtist(artistId),
-      artistService.getById(artistId),
-    ]);
-    setArtistDetails(artistInfo);
-    return artistData;
-  };
+    if (cachedData) {
+      // Cache hit: fetch additional data if needed
+      if (additionalFetch && setAdditional) {
+        const additionalData = await additionalFetch();
+        setAdditional(additionalData);
+      }
+      return cachedData;
+    }
 
-  const fetchGenreData = async (genreId: number) => {
-    return await searchService.getSongsByGenre(genreId);
+    // Cache miss: fetch both in parallel if additional fetch exists
+    if (additionalFetch && setAdditional) {
+      const [result, additionalData] = await Promise.all([
+        dispatch(fetchAction(id)).unwrap(),
+        additionalFetch()
+      ]);
+      setAdditional(additionalData);
+      return result.songs;
+    }
+
+    // Only fetch songs
+    const result = await dispatch(fetchAction(id)).unwrap();
+    return result.songs;
   };
 
   const convertToPlaylist = (songsData: SongResponseWithAllAlbum[]): Song[] => {
@@ -85,14 +102,27 @@ export default function SongListPage() {
 
       try {
         setLoading(true);
+        const numId = Number(id);
         let songsData: SongResponseWithAllAlbum[] = [];
 
         if (type === "album") {
-          songsData = await fetchAlbumData(Number(id));
+          songsData = await fetchWithCache(
+            numId,
+            songsByAlbum,
+            fetchSongsByAlbum,
+            () => albumService.getById(numId),
+            setAlbumDetails
+          );
         } else if (type === "artist") {
-          songsData = await fetchArtistData(Number(id));
+          songsData = await fetchWithCache(
+            numId,
+            songsByArtist,
+            fetchSongsByArtist,
+            () => artistService.getById(numId),
+            setArtistDetails
+          );
         } else if (type === "genre") {
-          songsData = await fetchGenreData(Number(id));
+          songsData = await fetchWithCache(numId, songsByGenre, fetchSongsByGenre);
         }
 
         setSongs(songsData);
@@ -107,7 +137,8 @@ export default function SongListPage() {
     };
 
     fetchData();
-  }, [type, id, setPlaylist]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, id]);
 
   const convertToSong = (song: SongResponseWithAllAlbum): Song => {
     return {
