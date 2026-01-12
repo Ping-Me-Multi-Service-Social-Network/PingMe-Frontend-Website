@@ -8,13 +8,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// Import Type Filter
+import type { AccountFilterType } from "@/types/common/userSummary";
 import { Search } from "lucide-react";
 
 interface AccountSearchFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  selectedStatus: string;
-  onStatusChange: (value: string) => void;
+  selectedStatus: AccountFilterType; // Dùng type Filter
+  onStatusChange: (value: AccountFilterType) => void;
 }
 
 export const AccountSearchFilters = ({
@@ -37,14 +39,19 @@ export const AccountSearchFilters = ({
             />
           </div>
 
-          <Select value={selectedStatus} onValueChange={onStatusChange}>
+          <Select
+            value={selectedStatus}
+            // Ép kiểu về AccountFilterType khi change
+            onValueChange={(val) => onStatusChange(val as AccountFilterType)}
+          >
             <SelectTrigger className="w-full md:w-48 h-11 border-purple-200 focus:border-purple-400 focus:ring-purple-200">
               <SelectValue placeholder="Trạng thái" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tất cả trạng thái</SelectItem>
-              <SelectItem value="active">Hoạt động</SelectItem>
-              <SelectItem value="banned">Bị khóa</SelectItem>
+              <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
+              <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+              <SelectItem value="SUSPENDED">Tạm khóa</SelectItem>
+              <SelectItem value="DEACTIVATED">Bị khóa</SelectItem>
             </SelectContent>
           </Select>
         </div>
