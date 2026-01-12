@@ -4,7 +4,10 @@ import type {
   PageResponse,
   PaginationParams,
 } from "@/types/base/apiResponse";
-import type { UserSummaryResponse } from "@/types/common/userSummary";
+import type {
+  AccountStatusType,
+  UserSummaryResponse,
+} from "@/types/common/userSummary";
 
 export interface UserPaginationParams extends PaginationParams {
   search?: string;
@@ -24,6 +27,8 @@ export const getAllUsers = (params: UserPaginationParams) => {
   );
 };
 
-export const deleteUser = (id: number) => {
-  return axiosClient.delete(`/users/${id}`);
+export const updateAccountStatus = (id: number, status: AccountStatusType) => {
+  return axiosClient.post(`/users/${id}`, {
+    accountStatus: status,
+  });
 };
