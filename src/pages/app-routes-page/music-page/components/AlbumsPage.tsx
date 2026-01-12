@@ -27,12 +27,12 @@ export default function AlbumsPage() {
                 setLoading(true);
 
                 // Check cache validity
-                if (!isCacheValid(allAlbums.lastFetched, cacheExpiry)) {
+                if (!allAlbums || !isCacheValid(allAlbums.lastFetched, cacheExpiry)) {
                     await dispatch(fetchAllAlbums(DEFAULT_ALBUMS_LIMIT)).unwrap();
                 }
 
                 // Fetch top song for each album (first 10 albums)
-                const albumsData = allAlbums.data;
+                const albumsData = allAlbums?.data || [];
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
                 await Promise.all(
                     albumsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (album) => {
@@ -57,9 +57,9 @@ export default function AlbumsPage() {
         };
 
         fetchData();
-    }, [dispatch, allAlbums.lastFetched, allAlbums.data, cacheExpiry]);
+    }, [dispatch, allAlbums?.lastFetched, allAlbums?.data, cacheExpiry, allAlbums]);
 
-    const albums = allAlbums.data;
+    const albums = allAlbums?.data || [];
 
     const handleAlbumClick = (album: AlbumResponse) => {
         navigate(

@@ -26,12 +26,12 @@ export default function ArtistsPage() {
                 setLoading(true);
 
                 // Check cache validity
-                if (!isCacheValid(allArtists.lastFetched, cacheExpiry)) {
+                if (!allArtists || !isCacheValid(allArtists.lastFetched, cacheExpiry)) {
                     await dispatch(fetchAllArtists(DEFAULT_ARTISTS_LIMIT)).unwrap();
                 }
 
                 // Fetch trending song for each artist (top 1 song)
-                const artistsData = allArtists.data;
+                const artistsData = allArtists?.data || [];
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
                 await Promise.all(
                     artistsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (artist: ArtistResponse) => {
@@ -56,9 +56,9 @@ export default function ArtistsPage() {
         };
 
         fetchData();
-    }, [dispatch, allArtists.lastFetched, allArtists.data, cacheExpiry]);
+    }, [dispatch, allArtists?.lastFetched, allArtists?.data, cacheExpiry, allArtists]);
 
-    const artists = allArtists.data;
+    const artists = allArtists?.data || [];
 
     const handleArtistClick = (artist: ArtistResponse) => {
         navigate(

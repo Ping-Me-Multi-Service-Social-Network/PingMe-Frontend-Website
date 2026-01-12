@@ -46,7 +46,8 @@ export default function SongListPage() {
   const fetchWithCache = async <T,>(
     id: number,
     cache: Record<number, { data: SongResponseWithAllAlbum[]; lastFetched: number | null }> | undefined,
-    fetchAction: (id: number) => any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fetchAction: any,
     additionalFetch?: () => Promise<T>,
     setAdditional?: (data: T) => void
   ): Promise<SongResponseWithAllAlbum[]> => {
