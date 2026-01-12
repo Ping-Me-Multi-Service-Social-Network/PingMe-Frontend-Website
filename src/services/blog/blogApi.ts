@@ -4,16 +4,28 @@ import type {
   PageResponse,
   PaginationParams,
 } from "@/types/base/apiResponse";
-import type { BlogDetailsResponse, BlogReviewResponse } from "@/types/blog/blog.ts";
+import type {
+  BlogDetailsResponse,
+  BlogReviewResponse,
+} from "@/types/blog/blog.ts";
 
 export const saveBlog = (data: FormData) => {
-  return axiosClient.post<ApiResponse<BlogReviewResponse>>("/blogs", data);
+  return axiosClient.post<ApiResponse<BlogReviewResponse>>("/blogs", data, {
+    headers: {
+      "Content-Type": "multipart/form-data", // Thêm dòng này cho chắc
+    },
+  });
 };
 
 export const updateBlog = (data: FormData, blogId: number) => {
   return axiosClient.put<ApiResponse<BlogReviewResponse>>(
     `/blogs/${blogId}`,
-    data
+    data,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data", // Thêm dòng này cho chắc
+      },
+    }
   );
 };
 
