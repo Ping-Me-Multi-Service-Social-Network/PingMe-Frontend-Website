@@ -2,29 +2,11 @@ import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import "../audio-player-styles.css";
 import { useState, useEffect, useRef } from "react";
-import { Heart, ListPlus, Plus } from "lucide-react";
+import { Heart, MoreVertical } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
-import { playlistApi } from "@/services/music/playlistApi.ts";
-import type { PlaylistDto } from "@/types/music/playlist.ts";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { toast } from "sonner";
+import PlaylistDropdown from "./PlaylistDropdown";
 
 interface AudioPlayerComponentProps {
   currentSong?: Song | null;
@@ -39,12 +21,7 @@ export default function AudioPlayerComponent({
 }: AudioPlayerComponentProps) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [newPlaylistName, setNewPlaylistName] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
-  const [creating, setCreating] = useState(false);
   const audioPlayerRef = useRef<AudioPlayer | null>(null);
   const { audioRef, setIsPlaying } = useAudioPlayer();
 
@@ -79,29 +56,14 @@ export default function AudioPlayerComponent({
       }
     };
 
-    window.addEventListener('favorite-added', handleFavoriteAdded);
-    window.addEventListener('favorite-removed', handleFavoriteRemoved);
+    globalThis.addEventListener('favorite-added', handleFavoriteAdded);
+    globalThis.addEventListener('favorite-removed', handleFavoriteRemoved);
 
     return () => {
-      window.removeEventListener('favorite-added', handleFavoriteAdded);
-      window.removeEventListener('favorite-removed', handleFavoriteRemoved);
+      globalThis.removeEventListener('favorite-added', handleFavoriteAdded);
+      globalThis.removeEventListener('favorite-removed', handleFavoriteRemoved);
     };
   }, [currentSong]);
-
-  // Load playlists when dropdown opens
-  useEffect(() => {
-    const loadPlaylists = async () => {
-      if (!showPlaylistMenu) return;
-
-      try {
-        const data = await playlistApi.getPlaylists();
-        setPlaylists(data);
-      } catch (err) {
-        console.error("Error loading playlists:", err);
-      }
-    };
-    loadPlaylists();
-  }, [showPlaylistMenu]);
 
   const handleToggleFavorite = async () => {
     if (!currentSong) return;
@@ -111,14 +73,14 @@ export default function AudioPlayerComponent({
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(new CustomEvent('favorite-removed', {
+        globalThis.dispatchEvent(new CustomEvent('favorite-removed', {
           detail: { songId: currentSong.id }
         }));
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(new CustomEvent('favorite-added', {
+        globalThis.dispatchEvent(new CustomEvent('favorite-added', {
           detail: { songId: currentSong.id }
         }));
       }
@@ -127,59 +89,7 @@ export default function AudioPlayerComponent({
     }
   };
 
-  const handleCreatePlaylist = async () => {
-    if (!newPlaylistName.trim() || !currentSong) return;
-
-    try {
-      setCreating(true);
-      const newPlaylist = await playlistApi.createPlaylist({
-        name: newPlaylistName,
-        isPublic: isPublic,
-      });
-
-      // Add current song to the newly created playlist
-      await playlistApi.addSongToPlaylist(newPlaylist.id, currentSong.id);
-
-      setPlaylists(prev => [...prev, newPlaylist]);
-      setShowCreateDialog(false);
-      setNewPlaylistName("");
-      setIsPublic(false);
-      toast.success(`Playlist "${newPlaylist.name}" created and "${currentSong.title}" added!`);
-
-      // Dispatch event to refresh playlist detail page
-      window.dispatchEvent(new CustomEvent('playlist-updated', {
-        detail: { playlistId: newPlaylist.id, songId: currentSong.id }
-      }));
-    } catch (err) {
-      console.error("Error creating playlist:", err);
-      toast.error("Failed to create playlist");
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleAddToPlaylist = async (playlistId: number) => {
-    if (!currentSong) return;
-
-    try {
-      const result = await playlistApi.addSongToPlaylist(playlistId, currentSong.id);
-      const playlist = playlists.find(p => p.id === playlistId);
-
-      if (result?.alreadyExists) {
-        toast.error(`"${currentSong.title}" is already in playlist "${playlist?.name}"`);
-      } else {
-        toast.success(`Added "${currentSong.title}" to playlist "${playlist?.name}"`);
-        // Dispatch custom event to notify PlaylistDetailPage to refresh
-        window.dispatchEvent(new CustomEvent('playlist-updated', {
-          detail: { playlistId, songId: currentSong.id }
-        }));
-      }
-      setShowPlaylistMenu(false);
-    } catch (err) {
-      console.error("Error adding to playlist:", err);
-      toast.error("Failed to add song to playlist");
-    }
-  }; useEffect(() => {
+  useEffect(() => {
     if (currentSong && playlist.length > 0) {
       const index = playlist.findIndex((t) => t && t.id === currentSong.id);
       if (index >= 0) {
@@ -303,56 +213,32 @@ export default function AudioPlayerComponent({
             {/* Favorite Button */}
             <button
               onClick={handleToggleFavorite}
-              className={`p-3 rounded-lg border-2 transition-all font-medium text-sm flex items-center gap-2 ${isFavorite
-                ? 'text-red-500 bg-red-500/20 border-red-500/50 hover:bg-red-500/30'
-                : 'text-zinc-300 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:text-white hover:border-zinc-600'
+              className={`transition-colors ${isFavorite
+                ? 'text-purple-500 hover:text-purple-400'
+                : 'text-gray-400 hover:text-white'
                 }`}
               title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
             >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-              <span className="hidden sm:inline">
-                {isFavorite ? 'Đã Yêu Thích' : 'Yêu Thích'}
-              </span>
+              <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
             </button>
 
-            {/* Add to Playlist Button */}
-            <DropdownMenu open={showPlaylistMenu} onOpenChange={setShowPlaylistMenu}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="p-3 rounded-lg border-2 border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white hover:border-zinc-600 transition-all font-medium text-sm flex items-center gap-2"
-                  title="Thêm vào playlist"
-                >
-                  <ListPlus className="w-5 h-5" />
-                  <span className="hidden sm:inline">Thêm Vào Playlist</span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-zinc-800 border-zinc-700">
-                <DropdownMenuItem
-                  onClick={() => {
-                    setShowPlaylistMenu(false);
-                    setShowCreateDialog(true);
-                  }}
-                  className="cursor-pointer hover:bg-zinc-700 text-purple-400 font-medium"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Tạo Playlist Mới
-                </DropdownMenuItem>
-                {playlists.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator className="bg-zinc-700" />
-                    {playlists.map((playlist) => (
-                      <DropdownMenuItem
-                        key={playlist.id}
-                        onClick={() => handleAddToPlaylist(playlist.id)}
-                        className="cursor-pointer hover:bg-zinc-700 text-zinc-200"
-                      >
-                        {playlist.name}
-                      </DropdownMenuItem>
-                    ))}
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Add to Playlist Menu */}
+            {currentSong && (
+              <PlaylistDropdown
+                songId={currentSong.id}
+                open={showPlaylistMenu}
+                onOpenChange={setShowPlaylistMenu}
+                variant="full"
+                trigger={
+                  <button
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Thêm vào playlist"
+                  >
+                    <MoreVertical className="w-6 h-6" />
+                  </button>
+                }
+              />
+            )}
           </div>
         </div>
         <div className="audio-player-wrapper">
@@ -368,102 +254,6 @@ export default function AudioPlayerComponent({
           />
         </div>
       </div>
-
-      {/* Create Playlist Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent
-          className=" bg-zinc-900 
-                                border border-zinc-800 
-                                text-white
-                                shadow-2xl
-                                backdrop-blur-xl
-                                rounded-2xl
-                                max-w-md  
-                                data-[state=open]:animate-in
-                                data-[state=closed]:animate-out
-                                data-[state=open]:fade-in-0
-                                data-[state=closed]:fade-out-0
-                                data-[state=open]:zoom-in-95
-                                data-[state=closed]:zoom-out-95
-                                duration-200"
-        >
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold tracking-tight">
-              Tạo Playlist Mới
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-5 py-4">
-            {/* Playlist Name */}
-            <div className="space-y-2">
-              <label
-                htmlFor="playlist-name"
-                className="text-sm font-medium text-zinc-300"
-              >
-                Tên Playlist
-              </label>
-
-              <Input
-                id="playlist-name"
-                placeholder="Playlist Tuyệt Vời Của Tôi"
-                value={newPlaylistName}
-                onChange={(e) => setNewPlaylistName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
-                className=" bg-zinc-800
-                                        border border-zinc-700
-                                        text-white
-                                        placeholder:text-zinc-500
-                                        focus-visible:ring-2
-                                        focus-visible:ring-purple-600
-                                        focus-visible:ring-offset-0
-                                        rounded-lg"
-              />
-            </div>
-
-            {/* Public Checkbox */}
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="is-public"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-600 accent-purple-600"
-              />
-              <label
-                htmlFor="is-public"
-                className="text-sm text-zinc-300 cursor-pointer select-none"
-              >
-                Chia sẻ playlist này công khai
-              </label>
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => setShowCreateDialog(false)}
-              disabled={creating}
-              className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
-            >
-              Hủy
-            </Button>
-
-            <Button
-              onClick={handleCreatePlaylist}
-              disabled={!newPlaylistName.trim() || creating}
-              className="bg-purple-600
-                                    hover:bg-purple-500
-                                    text-white
-                                    rounded-full
-                                    px-6
-                                    font-medium
-                                    disabled:opacity-50"
-            >
-              {creating ? "Đang tạo..." : "Tạo"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

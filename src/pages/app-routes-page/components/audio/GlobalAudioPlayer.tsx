@@ -13,23 +13,11 @@ import {
   Repeat,
   Repeat1,
   Heart,
-  ListPlus,
-  Plus,
+  MoreVertical,
 } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
-import { playlistApi } from "@/services/music/playlistApi.ts";
-import type { PlaylistDto } from "@/types/music/playlist.ts";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu.tsx";
-import CreatePlaylistDialog from "@/pages/app-routes-page/music-page/components/CreatePlaylistDialog.tsx";
-
-import { toast } from "sonner";
+import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/PlaylistDropdown";
 
 const GlobalAudioPlayer: React.FC = () => {
   const {
@@ -48,9 +36,7 @@ const GlobalAudioPlayer: React.FC = () => {
   } = useAudioPlayer();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Check if current song is favorited
   useEffect(() => {
@@ -92,19 +78,6 @@ const GlobalAudioPlayer: React.FC = () => {
     };
   }, [currentSong]);
 
-  // Load playlists
-  useEffect(() => {
-    const loadPlaylists = async () => {
-      try {
-        const data = await playlistApi.getPlaylists();
-        setPlaylists(data);
-      } catch (err) {
-        console.error("Error loading playlists:", err);
-      }
-    };
-    loadPlaylists();
-  }, []);
-
   const handleToggleFavorite = async () => {
     if (!currentSong) return;
 
@@ -129,39 +102,6 @@ const GlobalAudioPlayer: React.FC = () => {
       const error = err as { response?: { data?: unknown; status?: number } };
       console.error("Error response:", error.response?.data);
       console.error("Error status:", error.response?.status);
-    }
-  };
-
-  const handleCreatePlaylistSuccess = async () => {
-    // Reload playlists after creating new one
-    try {
-      const data = await playlistApi.getPlaylists();
-      setPlaylists(data);
-    } catch (err) {
-      console.error("Error reloading playlists:", err);
-    }
-  };
-
-  const handleAddToPlaylist = async (playlistId: number) => {
-    if (!currentSong) return;
-
-    try {
-      const result = await playlistApi.addSongToPlaylist(playlistId, currentSong.id);
-      const playlist = playlists.find(p => p.id === playlistId);
-
-      if (result?.alreadyExists) {
-        toast.error(`"${currentSong.title}" is already in playlist "${playlist?.name}"`);
-      } else {
-        toast.success(`Added "${currentSong.title}" to playlist "${playlist?.name}"`);
-        // Dispatch custom event to notify PlaylistDetailPage to refresh
-        window.dispatchEvent(new CustomEvent('playlist-updated', {
-          detail: { playlistId, songId: currentSong.id }
-        }));
-      }
-      setShowPlaylistMenu(false);
-    } catch (err) {
-      console.error("Error adding to playlist:", err);
-      toast.error("Failed to add song to playlist");
     }
   };
 
@@ -293,7 +233,7 @@ const GlobalAudioPlayer: React.FC = () => {
                 {/* Favorite Button */}
                 <button
                   onClick={handleToggleFavorite}
-                  className={`transition-colors ${isFavorite ? "text-red-500" : "text-gray-400 hover:text-white"
+                  className={`transition-colors ${isFavorite ? "text-purple-500" : "text-gray-400 hover:text-white"
                     }`}
                   title={isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
@@ -327,42 +267,22 @@ const GlobalAudioPlayer: React.FC = () => {
                 </button>
 
                 {/* Add to Playlist Button */}
-                <DropdownMenu open={showPlaylistMenu} onOpenChange={setShowPlaylistMenu}>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className="text-gray-400 hover:text-white transition-colors"
-                      title="Add to playlist"
-                    >
-                      <ListPlus className="w-5 h-5" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="w-56 bg-zinc-800 border-zinc-700">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setShowPlaylistMenu(false);
-                        setShowCreateDialog(true);
-                      }}
-                      className="cursor-pointer hover:bg-zinc-700 text-purple-400 font-medium"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Tạo Playlist Mới
-                    </DropdownMenuItem>
-                    {playlists.length > 0 && (
-                      <>
-                        <DropdownMenuSeparator className="bg-zinc-700" />
-                        {playlists.map((playlist) => (
-                          <DropdownMenuItem
-                            key={playlist.id}
-                            onClick={() => handleAddToPlaylist(playlist.id)}
-                            className="cursor-pointer hover:bg-zinc-700 text-zinc-200"
-                          >
-                            {playlist.name}
-                          </DropdownMenuItem>
-                        ))}
-                      </>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {currentSong && (
+                  <PlaylistDropdown
+                    songId={currentSong.id}
+                    open={showPlaylistMenu}
+                    onOpenChange={setShowPlaylistMenu}
+                    variant="full"
+                    trigger={
+                      <button
+                        className="text-gray-400 hover:text-white transition-colors"
+                        title="Thêm vào playlist"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                    }
+                  />
+                )}
               </div>
 
               {/* Progress Bar */}
@@ -443,15 +363,9 @@ const GlobalAudioPlayer: React.FC = () => {
             </div>
           </div>
         </>
-      )}
-
-      {/* Create Playlist Dialog */}
-      <CreatePlaylistDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onSuccess={handleCreatePlaylistSuccess}
-      />
-    </div>
+      )
+      }
+    </div >
   );
 };
 
