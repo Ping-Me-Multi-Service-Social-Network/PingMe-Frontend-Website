@@ -3,6 +3,7 @@ import { PageHeader } from "../components/PageHeader";
 import { AccountSearchFilters } from "./components/AccountSearchFilters";
 import { AccountManagementTable } from "./components/AccountManagementTable";
 import type {
+  AccountFilterType,
   AccountStatusType,
   UserSummaryResponse,
 } from "@/types/common/userSummary";
@@ -22,29 +23,27 @@ export default function AccountManagementPage() {
   const [users, setUsers] = useState<UserSummaryResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("all");
+
+  const [selectedStatus, setSelectedStatus] =
+    useState<AccountFilterType>("ALL");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
 
-  // --- STATE DIALOG ---
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserSummaryResponse | null>(
     null
   );
-
-  // State cho Confirm Dialog
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // --- FETCH DATA ---
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       const response = await getAllUsers({
-        page: currentPage - 1, // Giả sử backend tính từ 0
+        page: currentPage,
         size: ITEMS_PER_PAGE,
         filter: "name,desc",
         search: searchQuery,
@@ -78,13 +77,12 @@ export default function AccountManagementPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchQuery, selectedStatus]);
 
-  // --- HANDLERS ---
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
     setCurrentPage(1);
   };
 
-  const handleStatusChange = (val: string) => {
+  const handleStatusChange = (val: AccountFilterType) => {
     setSelectedStatus(val);
     setCurrentPage(1);
   };

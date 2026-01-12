@@ -7,11 +7,12 @@ import type {
 import type {
   AccountStatusType,
   UserSummaryResponse,
+  AccountFilterType,
 } from "@/types/common/userSummary";
 
 export interface UserPaginationParams extends PaginationParams {
   search?: string;
-  status?: string;
+  status?: AccountFilterType;
 }
 
 export const getAllUsers = (params: UserPaginationParams) => {
@@ -22,6 +23,8 @@ export const getAllUsers = (params: UserPaginationParams) => {
         page: params.page,
         size: params.size,
         sort: params.filter || "id,desc",
+        search: params.search,
+        accountStatus: params.status === "ALL" ? undefined : params.status,
       },
     }
   );
