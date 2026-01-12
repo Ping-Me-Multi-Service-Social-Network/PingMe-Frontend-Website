@@ -11,6 +11,16 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog.tsx";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { LoadingState, ErrorState } from "./LoadingErrorStates";
@@ -22,11 +32,14 @@ export default function PlaylistsPage() {
     const [error, setError] = useState<string | null>(null);
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deletingPlaylist, setDeletingPlaylist] = useState<PlaylistDto | null>(null);
     const [editingPlaylist, setEditingPlaylist] = useState<PlaylistDto | null>(null);
     const [newPlaylistName, setNewPlaylistName] = useState("");
     const [isPublic, setIsPublic] = useState(false);
     const [creating, setCreating] = useState(false);
     const [updating, setUpdating] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         fetchPlaylists();
@@ -71,14 +84,24 @@ export default function PlaylistsPage() {
         }
     };
 
-    const handleDeletePlaylist = async (id: number) => {
-        if (!confirm("Are you sure you want to delete this playlist?")) return;
+    const handleDeletePlaylist = (playlist: PlaylistDto) => {
+        setDeletingPlaylist(playlist);
+        setShowDeleteDialog(true);
+    };
+
+    const confirmDeletePlaylist = async () => {
+        if (!deletingPlaylist) return;
 
         try {
-            await playlistApi.deletePlaylist(id);
-            setPlaylists(prev => prev.filter(p => p.id !== id));
+            setDeleting(true);
+            await playlistApi.deletePlaylist(deletingPlaylist.id);
+            setPlaylists(prev => prev.filter(p => p.id !== deletingPlaylist.id));
+            setShowDeleteDialog(false);
+            setDeletingPlaylist(null);
         } catch (err) {
             console.error("Error deleting playlist:", err);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -203,7 +226,7 @@ export default function PlaylistsPage() {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleDeletePlaylist(playlist.id);
+                                                handleDeletePlaylist(playlist);
                                             }}
                                             className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
                                             title="Xóa playlist"
@@ -384,6 +407,36 @@ export default function PlaylistsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogContent className="bg-zinc-900 border border-zinc-800 text-white">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-xl font-bold text-white">
+                            Xóa Playlist
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-zinc-400">
+                            Bạn có chắc chắn muốn xóa playlist <span className="font-semibold text-purple-400">"{deletingPlaylist?.name}"</span>?
+                            Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            className="bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border-zinc-700 rounded-full px-6"
+                            disabled={deleting}
+                        >
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDeletePlaylist}
+                            disabled={deleting}
+                            className="bg-red-600 hover:bg-red-500 text-white rounded-full px-6 font-medium disabled:opacity-50"
+                        >
+                            {deleting ? "Đang xóa..." : "Xóa"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

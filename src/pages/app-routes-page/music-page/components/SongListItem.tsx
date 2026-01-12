@@ -1,7 +1,11 @@
 import type { Song } from "@/types/music/song";
 import type { SongResponseWithAllAlbum } from "@/types/music";
-import { Play, Music2 } from "lucide-react";
+import { Play, Music2, MoreVertical, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
+import { useState, useEffect } from "react";
+import { favoriteApi } from "@/services/music/favoriteApi";
+import { toast } from "sonner";
+import PlaylistDropdown from "./PlaylistDropdown";
 
 interface SongListItemProps {
   song: Song | SongResponseWithAllAlbum;
@@ -14,6 +18,66 @@ export default function SongListItem({
   onPlay,
   index,
 }: SongListItemProps) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const checkIfFavorite = async () => {
+    try {
+      const result = await favoriteApi.isFavorite(song.id);
+      setIsFavorite(result);
+    } catch (error) {
+      console.error("Error checking favorite status:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkIfFavorite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [song.id]);
+
+  // // Listen for playlist updates from other components
+  // useEffect(() => {
+  //   const handlePlaylistUpdated = () => {
+  //     if (isMenuOpen) {
+  //       loadPlaylists();
+  //     }
+  //   };
+
+  //   window.addEventListener('playlist-updated', handlePlaylistUpdated);
+  //   return () => {
+  //     window.removeEventListener('playlist-updated', handlePlaylistUpdated);
+  //   };
+  // }, [isMenuOpen]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      if (isFavorite) {
+        await favoriteApi.removeFavorite(song.id);
+        setIsFavorite(false);
+        toast.success("Đã xóa khỏi bài hát yêu thích");
+
+        // Dispatch custom event for other components
+        window.dispatchEvent(new CustomEvent('favorite-removed', {
+          detail: { songId: song.id }
+        }));
+      } else {
+        await favoriteApi.addFavorite(song.id);
+        setIsFavorite(true);
+        toast.success("Đã thêm vào bài hát yêu thích");
+
+        // Dispatch custom event for other components
+        window.dispatchEvent(new CustomEvent('favorite-added', {
+          detail: { songId: song.id }
+        }));
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Có lỗi xảy ra");
+    }
+  };
+
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -21,59 +85,111 @@ export default function SongListItem({
   };
 
   return (
-    <div className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300">
-      {index && (
-        <div className="w-8 text-center">
-          <span className="text-white group-hover:hidden text-sm font-medium">
-            {index}
-          </span>
+    <>
+      <div
+        className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {index && (
+          <div className="w-8 text-center">
+            <span className="text-white group-hover:hidden text-sm font-medium">
+              {index}
+            </span>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => onPlay(song)}
+              className="hidden group-hover:inline-flex h-8 w-8 text-white hover:bg-purple-600 hover:text-zinc-100 transition-colors"
+            >
+              <Play className="h-4 w-4 fill-current" />
+            </Button>
+          </div>
+        )}
+        <div className="relative w-12 h-12 flex-shrink-0">
+          {song.coverImageUrl ? (
+            <img
+              src={song.coverImageUrl || "/placeholder.svg"}
+              alt={song.title}
+              className="w-full h-full rounded object-cover shadow-md"
+            />
+          ) : (
+            <div className="w-full h-full rounded bg-gray-700 flex items-center justify-center">
+              <Music2 className="h-5 w-5 text-white" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-white group-hover:text-purple-300 truncate text-sm transition-colors">
+            {song.title}
+          </h3>
+          <p className="text-xs text-gray-400 truncate">
+            {song.mainArtist?.name || "Unknown Artist"}
+          </p>
+        </div>
+        <div className="hidden sm:block text-sm text-gray-500">
+          {/* Support both album (singular) and albums (plural array) */}
+        </div>
+
+        {/* Three sections with fixed widths: Heart, Duration, Three Dots */}
+        <div className="flex items-center gap-2">
+          {/* Heart Icon - Show on hover or when favorited */}
+          <div className="w-14 flex justify-center">
+            {(isHovered || isFavorite) && (
+              <button
+                onClick={handleToggleFavorite}
+                className={`transition-colors cursor-pointer ${isFavorite
+                  ? "text-purple-500 hover:text-purple-400"
+                  : "text-gray-400 hover:text-white"
+                  }`}
+              >
+                <Heart
+                  className={`h-6 w-6 ${isFavorite ? "fill-current" : ""}`}
+                />
+              </button>
+            )}
+          </div>
+
+          {/* Duration - Always visible, Fixed width */}
+          <div className="w-16 text-base text-gray-400 text-center font-medium">
+            <div>{formatDuration(song.duration)}</div>
+          </div>
+
+          {/* Three Dots Menu - Show on hover */}
+          <div className="w-14 flex justify-center">
+            {(isHovered || isMenuOpen) && (
+              <PlaylistDropdown
+                songId={song.id}
+                songTitle={song.title}
+                open={isMenuOpen}
+                onOpenChange={setIsMenuOpen}
+                variant="full"
+                trigger={
+                  <button
+                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <MoreVertical className="h-6 w-6" />
+                  </button>
+                }
+              />
+            )}
+          </div>
+        </div>
+
+        {!index && !isHovered && (
           <Button
             size="icon"
             variant="ghost"
             onClick={() => onPlay(song)}
-            className="hidden group-hover:inline-flex h-8 w-8 text-white hover:bg-purple-600 hover:text-zinc-100 transition-colors"
+            className="ml-2 text-white hover:bg-purple-600 hover:text-white transition-colors"
           >
-            <Play className="h-4 w-4 fill-current" />
+            <Play className="h-4 w-4" />
           </Button>
-        </div>
-      )}
-      <div className="relative w-12 h-12 flex-shrink-0">
-        {song.coverImageUrl ? (
-          <img
-            src={song.coverImageUrl || "/placeholder.svg"}
-            alt={song.title}
-            className="w-full h-full rounded object-cover shadow-md"
-          />
-        ) : (
-          <div className="w-full h-full rounded bg-gray-700 flex items-center justify-center">
-            <Music2 className="h-5 w-5 text-white" />
-          </div>
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-white group-hover:text-purple-300 truncate text-sm transition-colors">
-          {song.title}
-        </h3>
-        <p className="text-xs text-gray-400 truncate">
-          {song.mainArtist?.name || "Unknown Artist"}
-        </p>
-      </div>
-      <div className="hidden sm:block text-sm text-gray-500">
-        {/* Support both album (singular) and albums (plural array) */}
-      </div>
-      <div className="text-sm text-gray-500 text-right">
-        <div>{formatDuration(song.duration)}</div>
-      </div>
-      {!index && (
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => onPlay(song)}
-          className="ml-2 text-white hover:bg-purple-600 hover:text-white transition-colors"
-        >
-          <Play className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
+    </>
   );
 }

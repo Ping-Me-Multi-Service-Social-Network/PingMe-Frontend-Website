@@ -15,8 +15,10 @@ import {
   Repeat1,
 } from "lucide-react";
 import type { Song } from "@/types/music/song";
+import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 
-const DraggableMiniPlayer: React.FC = () => {
+const MiniPlayerContent: React.FC = () => {
   const {
     currentSong,
     playlist,
@@ -29,54 +31,15 @@ const DraggableMiniPlayer: React.FC = () => {
     repeatMode,
     cycleRepeatMode,
   } = useAudioPlayer();
-  const [position, setPosition] = useState({
-    x: window.innerWidth - 320,
-    y: window.innerHeight - 140,
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: "mini-player",
   });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const miniPlayerRef = React.useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (miniPlayerRef.current) {
-      const rect = miniPlayerRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-      setIsDragging(true);
-    }
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    cursor: isDragging ? "grabbing" : "grab",
   };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        const newX = Math.max(
-          0,
-          Math.min(e.clientX - dragOffset.x, window.innerWidth - 280)
-        );
-        const newY = Math.max(
-          0,
-          Math.min(e.clientY - dragOffset.y, window.innerHeight - 120)
-        );
-        setPosition({ x: newX, y: newY });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging, dragOffset]);
 
   const handlePlayPause = () => {
     togglePlayPause();
@@ -131,27 +94,23 @@ const DraggableMiniPlayer: React.FC = () => {
     return () => {
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [currentSong, playlist, audioRef]);
+  }, [currentSong, playlist, audioRef,]);
 
   if (!currentSong) return null;
 
   return (
     <div
-      ref={miniPlayerRef}
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
       className="fixed bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30 z-[100]"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: "280px",
-        cursor: isDragging ? "grabbing" : "grab",
-      }}
-      onMouseDown={handleMouseDown}
     >
       {/* Close button */}
       <button
         onClick={handleClose}
         className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors z-10"
-        onMouseDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <X className="w-4 h-4" />
       </button>
@@ -178,7 +137,7 @@ const DraggableMiniPlayer: React.FC = () => {
         {/* Controls */}
         <div
           className="flex items-center justify-center gap-3 mb-2"
-          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <button
             onClick={handlePrevious}
@@ -207,24 +166,23 @@ const DraggableMiniPlayer: React.FC = () => {
         {/* Volume and loop controls */}
         <div
           className="flex items-center justify-between px-1"
-          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Loop/Repeat Button with 3 states */}
           <button
             onClick={cycleRepeatMode}
-            className={`transition-colors ${
-              repeatMode === "off"
-                ? "text-white/50 hover:text-white"
-                : repeatMode === "one"
+            className={`transition-colors ${repeatMode === "off"
+              ? "text-white/50 hover:text-white"
+              : repeatMode === "one"
                 ? "text-purple-300 hover:text-purple-200"
                 : "text-green-300 hover:text-green-200"
-            }`}
+              }`}
             title={
               repeatMode === "off"
                 ? "Enable repeat all"
                 : repeatMode === "all"
-                ? "Enable repeat one"
-                : "Disable repeat"
+                  ? "Enable repeat one"
+                  : "Disable repeat"
             }
           >
             {repeatMode === "one" ? (
@@ -263,6 +221,39 @@ const DraggableMiniPlayer: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const DraggableMiniPlayer: React.FC = () => {
+  const { currentSong } = useAudioPlayer();
+  const [position, setPosition] = useState({
+    x: window.innerWidth - 320,
+    y: window.innerHeight - 140,
+  });
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { delta } = event;
+    setPosition((prev) => ({
+      x: Math.max(0, Math.min(prev.x + delta.x, window.innerWidth - 280)),
+      y: Math.max(0, Math.min(prev.y + delta.y, window.innerHeight - 120)),
+    }));
+  };
+
+  if (!currentSong) return null;
+
+  return (
+    <DndContext onDragEnd={handleDragEnd}>
+      <div
+        style={{
+          position: "fixed",
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: "280px",
+        }}
+      >
+        <MiniPlayerContent />
+      </div>
+    </DndContext>
   );
 };
 
