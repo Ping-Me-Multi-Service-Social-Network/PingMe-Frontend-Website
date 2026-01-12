@@ -105,18 +105,6 @@ const GlobalAudioPlayer: React.FC = () => {
     }
   };
 
-  // const handlePrevious = useCallback(() => {
-  //   if (!currentSong || playlist.length === 0) return;
-  //   const currentIndex = playlist.findIndex(
-  //     (song: Song) => song.id === currentSong.id
-  //   );
-  //   const prevIndex =
-  //     currentIndex > 0 ? currentIndex - 1 : playlist.length - 1;
-  //   if (playlist[prevIndex]) {
-  //     playSong(playlist[prevIndex]);
-  //   }
-  // }, [currentSong, playlist, playSong]);
-
   const handleClickNext = useCallback(() => {
     if (!currentSong || playlist.length === 0) return;
     const currentIndex = playlist.findIndex(
@@ -282,7 +270,6 @@ const GlobalAudioPlayer: React.FC = () => {
                 {currentSong && (
                   <PlaylistDropdown
                     songId={currentSong.id}
-                    songTitle={currentSong.title}
                     open={showPlaylistMenu}
                     onOpenChange={setShowPlaylistMenu}
                     variant="full"

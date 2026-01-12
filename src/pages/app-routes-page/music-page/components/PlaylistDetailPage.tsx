@@ -35,7 +35,7 @@ interface SortableItemProps {
     onRemove: (songId: number) => void;
 }
 
-function SortableItem({ item, index, isEditMode, onPlay, onRemove }: SortableItemProps) {
+function SortableItem({ item, index, isEditMode, onPlay, onRemove }: Readonly<SortableItemProps>) {
     const {
         attributes,
         listeners,
@@ -196,9 +196,9 @@ export default function PlaylistDetailPage() {
             try {
                 await playlistApi.reorderPlaylist(playlistDetail.id, orderedSongIds);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (reorderErr: any) {
+            } catch (error_: any) {
                 // If reorder endpoint doesn't exist, use alternative method
-                if (reorderErr?.response?.status === 404 || reorderErr?.message?.includes('Network Error')) {
+                if (error_?.response?.status === 404 || error_?.message?.includes('Network Error')) {
                     console.log("Reorder endpoint not available, using alternative method");
 
                     // Get current songs
@@ -214,7 +214,7 @@ export default function PlaylistDetailPage() {
                         await playlistApi.addSongToPlaylist(playlistDetail.id, songId);
                     }
                 } else {
-                    throw reorderErr;
+                    throw error_;
                 }
             }
 
@@ -340,15 +340,7 @@ export default function PlaylistDetailPage() {
                                 Phát Tất Cả
                             </button>
 
-                            {!isEditMode ? (
-                                <button
-                                    onClick={() => setIsEditMode(true)}
-                                    className="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-full text-white font-semibold transition-colors"
-                                >
-                                    <Edit className="w-5 h-5" />
-                                    Chỉnh Sửa
-                                </button>
-                            ) : (
+                            {isEditMode ? (
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={handleSaveOrder}
@@ -367,6 +359,14 @@ export default function PlaylistDetailPage() {
                                         Hủy
                                     </button>
                                 </div>
+                            ) : (
+                                <button
+                                    onClick={() => setIsEditMode(true)}
+                                    className="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-full text-white font-semibold transition-colors"
+                                >
+                                    <Edit className="w-5 h-5" />
+                                    Chỉnh Sửa
+                                </button>
                             )}
                         </div>
                     )}

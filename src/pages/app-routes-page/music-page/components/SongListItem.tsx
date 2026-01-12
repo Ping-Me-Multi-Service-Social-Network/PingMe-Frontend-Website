@@ -36,42 +36,21 @@ export default function SongListItem({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.id]);
 
-  // // Listen for playlist updates from other components
-  // useEffect(() => {
-  //   const handlePlaylistUpdated = () => {
-  //     if (isMenuOpen) {
-  //       loadPlaylists();
-  //     }
-  //   };
-
-  //   window.addEventListener('playlist-updated', handlePlaylistUpdated);
-  //   return () => {
-  //     window.removeEventListener('playlist-updated', handlePlaylistUpdated);
-  //   };
-  // }, [isMenuOpen]);
-
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    const action = isFavorite ? favoriteApi.removeFavorite : favoriteApi.addFavorite;
+    const successMessage = isFavorite ? "Đã xóa khỏi bài hát yêu thích" : "Đã thêm vào bài hát yêu thích";
+    const eventType = isFavorite ? 'favorite-removed' : 'favorite-added';
+
     try {
-      if (isFavorite) {
-        await favoriteApi.removeFavorite(song.id);
-        setIsFavorite(false);
-        toast.success("Đã xóa khỏi bài hát yêu thích");
+      await action(song.id);
+      setIsFavorite(!isFavorite);
+      toast.success(successMessage);
 
-        // Dispatch custom event for other components
-        window.dispatchEvent(new CustomEvent('favorite-removed', {
-          detail: { songId: song.id }
-        }));
-      } else {
-        await favoriteApi.addFavorite(song.id);
-        setIsFavorite(true);
-        toast.success("Đã thêm vào bài hát yêu thích");
-
-        // Dispatch custom event for other components
-        window.dispatchEvent(new CustomEvent('favorite-added', {
-          detail: { songId: song.id }
-        }));
-      }
+      globalThis.dispatchEvent(new CustomEvent(eventType, {
+        detail: { songId: song.id }
+      }));
     } catch (error) {
       console.error("Error toggling favorite:", error);
       toast.error("Có lỗi xảy ra");
@@ -85,111 +64,109 @@ export default function SongListItem({
   };
 
   return (
-    <>
-      <div
-        className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {index && (
-          <div className="w-8 text-center">
-            <span className="text-white group-hover:hidden text-sm font-medium">
-              {index}
-            </span>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => onPlay(song)}
-              className="hidden group-hover:inline-flex h-8 w-8 text-white hover:bg-purple-600 hover:text-zinc-100 transition-colors"
-            >
-              <Play className="h-4 w-4 fill-current" />
-            </Button>
-          </div>
-        )}
-        <div className="relative w-12 h-12 flex-shrink-0">
-          {song.coverImageUrl ? (
-            <img
-              src={song.coverImageUrl || "/placeholder.svg"}
-              alt={song.title}
-              className="w-full h-full rounded object-cover shadow-md"
-            />
-          ) : (
-            <div className="w-full h-full rounded bg-gray-700 flex items-center justify-center">
-              <Music2 className="h-5 w-5 text-white" />
-            </div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white group-hover:text-purple-300 truncate text-sm transition-colors">
-            {song.title}
-          </h3>
-          <p className="text-xs text-gray-400 truncate">
-            {song.mainArtist?.name || "Unknown Artist"}
-          </p>
-        </div>
-        <div className="hidden sm:block text-sm text-gray-500">
-          {/* Support both album (singular) and albums (plural array) */}
-        </div>
-
-        {/* Three sections with fixed widths: Heart, Duration, Three Dots */}
-        <div className="flex items-center gap-2">
-          {/* Heart Icon - Show on hover or when favorited */}
-          <div className="w-14 flex justify-center">
-            {(isHovered || isFavorite) && (
-              <button
-                onClick={handleToggleFavorite}
-                className={`transition-colors cursor-pointer ${isFavorite
-                  ? "text-purple-500 hover:text-purple-400"
-                  : "text-gray-400 hover:text-white"
-                  }`}
-              >
-                <Heart
-                  className={`h-6 w-6 ${isFavorite ? "fill-current" : ""}`}
-                />
-              </button>
-            )}
-          </div>
-
-          {/* Duration - Always visible, Fixed width */}
-          <div className="w-16 text-base text-gray-400 text-center font-medium">
-            <div>{formatDuration(song.duration)}</div>
-          </div>
-
-          {/* Three Dots Menu - Show on hover */}
-          <div className="w-14 flex justify-center">
-            {(isHovered || isMenuOpen) && (
-              <PlaylistDropdown
-                songId={song.id}
-                songTitle={song.title}
-                open={isMenuOpen}
-                onOpenChange={setIsMenuOpen}
-                variant="full"
-                trigger={
-                  <button
-                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <MoreVertical className="h-6 w-6" />
-                  </button>
-                }
-              />
-            )}
-          </div>
-        </div>
-
-        {!index && !isHovered && (
+    <div
+      className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {index && (
+        <div className="w-8 text-center">
+          <span className="text-white group-hover:hidden text-sm font-medium">
+            {index}
+          </span>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => onPlay(song)}
-            className="ml-2 text-white hover:bg-purple-600 hover:text-white transition-colors"
+            className="hidden group-hover:inline-flex h-8 w-8 text-white hover:bg-purple-600 hover:text-zinc-100 transition-colors"
           >
-            <Play className="h-4 w-4" />
+            <Play className="h-4 w-4 fill-current" />
           </Button>
+        </div>
+      )}
+      <div className="relative w-12 h-12 flex-shrink-0">
+        {song.coverImageUrl ? (
+          <img
+            src={song.coverImageUrl || "/placeholder.svg"}
+            alt={song.title}
+            className="w-full h-full rounded object-cover shadow-md"
+          />
+        ) : (
+          <div className="w-full h-full rounded bg-gray-700 flex items-center justify-center">
+            <Music2 className="h-5 w-5 text-white" />
+          </div>
         )}
       </div>
-    </>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-white group-hover:text-purple-300 truncate text-sm transition-colors">
+          {song.title}
+        </h3>
+        <p className="text-xs text-gray-400 truncate">
+          {song.mainArtist?.name || "Unknown Artist"}
+        </p>
+      </div>
+
+      {/* Three sections with fixed widths: Heart, Duration, Three Dots */}
+      <div className="flex items-center gap-2">
+        {/* Heart Icon - Show on hover or when favorited */}
+        <div className="w-14 flex justify-center">
+          {(isHovered || isFavorite) && (
+            <button
+              type="button"
+              aria-label={isFavorite ? `Xóa ${song.title} khỏi yêu thích` : `Thêm ${song.title} vào yêu thích`}
+              onClick={handleToggleFavorite}
+              className={`transition-colors cursor-pointer ${isFavorite
+                ? "text-purple-500 hover:text-purple-400"
+                : "text-gray-400 hover:text-white"
+                }`}
+            >
+              <Heart
+                className={`h-6 w-6 ${isFavorite ? "fill-current" : ""}`}
+              />
+            </button>
+          )}
+        </div>
+
+        {/* Duration - Always visible, Fixed width */}
+        <div className="w-16 text-base text-gray-400 text-center font-medium">
+          {formatDuration(song.duration)}
+        </div>
+
+        {/* Three Dots Menu - Show on hover */}
+        <div className="w-14 flex justify-center">
+          {(isHovered || isMenuOpen) && (
+            <PlaylistDropdown
+              songId={song.id}
+              open={isMenuOpen}
+              onOpenChange={setIsMenuOpen}
+              variant="full"
+              trigger={
+                <button
+                  type="button"
+                  aria-label={`Thêm bài hát ${song.title} vào playlist`}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <MoreVertical className="h-6 w-6" />
+                </button>
+              }
+            />
+          )}
+        </div>
+      </div>
+
+      {!index && !isHovered && (
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => onPlay(song)}
+          className="ml-2 text-white hover:bg-purple-600 hover:text-white transition-colors"
+        >
+          <Play className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
   );
 }

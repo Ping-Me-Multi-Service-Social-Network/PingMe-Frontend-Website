@@ -56,12 +56,12 @@ export default function AudioPlayerComponent({
       }
     };
 
-    window.addEventListener('favorite-added', handleFavoriteAdded);
-    window.addEventListener('favorite-removed', handleFavoriteRemoved);
+    globalThis.addEventListener('favorite-added', handleFavoriteAdded);
+    globalThis.addEventListener('favorite-removed', handleFavoriteRemoved);
 
     return () => {
-      window.removeEventListener('favorite-added', handleFavoriteAdded);
-      window.removeEventListener('favorite-removed', handleFavoriteRemoved);
+      globalThis.removeEventListener('favorite-added', handleFavoriteAdded);
+      globalThis.removeEventListener('favorite-removed', handleFavoriteRemoved);
     };
   }, [currentSong]);
 
@@ -73,14 +73,14 @@ export default function AudioPlayerComponent({
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(new CustomEvent('favorite-removed', {
+        globalThis.dispatchEvent(new CustomEvent('favorite-removed', {
           detail: { songId: currentSong.id }
         }));
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(new CustomEvent('favorite-added', {
+        globalThis.dispatchEvent(new CustomEvent('favorite-added', {
           detail: { songId: currentSong.id }
         }));
       }
@@ -226,7 +226,6 @@ export default function AudioPlayerComponent({
             {currentSong && (
               <PlaylistDropdown
                 songId={currentSong.id}
-                songTitle={currentSong.title}
                 open={showPlaylistMenu}
                 onOpenChange={setShowPlaylistMenu}
                 variant="full"

@@ -26,7 +26,6 @@ import { toast } from "sonner";
 
 interface PlaylistDropdownProps {
     songId: number;
-    songTitle: string;
     trigger: React.ReactNode;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -39,7 +38,7 @@ export default function PlaylistDropdown({
     open,
     onOpenChange,
     variant = "full",
-}: PlaylistDropdownProps) {
+}: Readonly<PlaylistDropdownProps>) {
     const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -62,9 +61,9 @@ export default function PlaylistDropdown({
             }
         };
 
-        window.addEventListener("playlist-updated", handlePlaylistUpdated);
+        globalThis.addEventListener("playlist-updated", handlePlaylistUpdated);
         return () => {
-            window.removeEventListener("playlist-updated", handlePlaylistUpdated);
+            globalThis.removeEventListener("playlist-updated", handlePlaylistUpdated);
         };
     }, [open]);
 
@@ -88,7 +87,7 @@ export default function PlaylistDropdown({
             }
 
             // Dispatch event to notify other components
-            window.dispatchEvent(
+            globalThis.dispatchEvent(
                 new CustomEvent("playlist-updated", {
                     detail: { playlistId, songId },
                 })
@@ -124,7 +123,7 @@ export default function PlaylistDropdown({
             setIsPublic(false);
 
             // Dispatch event to notify other components
-            window.dispatchEvent(
+            globalThis.dispatchEvent(
                 new CustomEvent("playlist-updated", {
                     detail: { playlist: newPlaylist },
                 })
