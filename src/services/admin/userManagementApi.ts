@@ -19,8 +19,6 @@ export const getAllUsers = (params: UserPaginationParams) => {
         page: params.page,
         size: params.size,
         sort: params.filter || "id,desc",
-        search: params.search || undefined,
-        status: params.status === "all" ? undefined : params.status,
       },
     }
   );

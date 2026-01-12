@@ -10,17 +10,24 @@ import { toast } from "sonner";
 import { getAllUsers, deleteUser } from "@/services/admin/userManagementApi.ts";
 import { Button } from "@/components/ui/button";
 import { UpdateStatusDialog } from "./components/UpdateStatusDialog";
-
 import { ConfirmDialog } from "@/components/custom/ConfirmDialog";
 
+// Cấu hình số lượng hiển thị mỗi trang
 const ITEMS_PER_PAGE = 7;
 
 export default function AccountManagementPage() {
-  const [allUsers, setAllUsers] = useState<UserSummaryResponse[]>([]);
+  // Thay đổi: Chỉ lưu users của trang hiện tại
+  const [users, setUsers] = useState<UserSummaryResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // State quản lý Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
+
+  // State quản lý Pagination từ Server
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0); // (Optional) Để hiển thị tổng số bản ghi
 
   // --- STATE DIALOG ---
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -33,72 +40,62 @@ export default function AccountManagementPage() {
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchAllUsers = async () => {
+  // --- 1. HÀM FETCH DỮ LIỆU TỪ SERVER (Server Side Pagination) ---
+  const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      // Gọi size 1000 để lấy hết dữ liệu về frontend
+
+      // Gọi API với đầy đủ tham số phân trang & lọc
       const response = await getAllUsers({
-        page: 0,
-        size: 1000,
-        filter: "id,desc",
+        page: currentPage, // Server thường tính từ 0, UI tính từ 1
+        size: ITEMS_PER_PAGE,
+        filter: "name,desc", // Hoặc "id,desc" tùy nhu cầu sort
       });
 
       if (!response.data.errorCode && response.data.data) {
-        setAllUsers(response.data.data.content);
-        setCurrentPage(1);
+        const pageData = response.data.data;
+        setUsers(pageData.content); // Chỉ set users của trang hiện tại
+        setTotalPages(pageData.totalPages); // Cập nhật tổng số trang từ server
+        setTotalElements(pageData.totalElements);
       } else {
+        setUsers([]);
+        setTotalPages(0);
         toast.error(response.data.errorMessage || "Lỗi tải dữ liệu");
       }
     } catch (error) {
       console.error(error);
       toast.error("Không thể kết nối đến server");
+      setUsers([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // --- 2. EFFECT: Tự động gọi lại API khi Page, Search hoặc Status thay đổi ---
   useEffect(() => {
-    fetchAllUsers();
-  }, []);
+    // Kỹ thuật Debounce đơn giản cho Search để tránh spam API khi gõ phím liên tục
+    const timeoutId = setTimeout(() => {
+      fetchUsers();
+    }, 300); // Đợi 300ms sau khi ngừng gõ mới gọi API
 
-  // --- 2. LOGIC XỬ LÝ SEARCH & FILTER & PAGINATION (Client Side) ---
-
-  // Bước A: Lọc dữ liệu từ allUsers
-  const filteredUsers = allUsers.filter((user) => {
-    // Logic tìm kiếm (Tên hoặc Email)
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
-
-    // Logic lọc trạng thái
-    const matchesStatus =
-      selectedStatus === "all" || user.accountStatus === selectedStatus;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  // Bước B: Tính toán số trang
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-
-  // Bước C: Cắt dữ liệu cho trang hiện tại (Slice)
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchQuery, selectedStatus]);
+  // Lưu ý: Thêm searchQuery và selectedStatus vào dependency array
 
   // --- HANDLERS ---
 
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
-    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi từ khóa tìm kiếm
   };
 
   const handleStatusChange = (val: string) => {
     setSelectedStatus(val);
-    setCurrentPage(1); // Reset về trang 1 khi lọc
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
   };
 
-  // --- LOGIC CẬP NHẬT TRẠNG THÁI ---
+  // --- LOGIC CẬP NHẬT TRẠNG THÁI (Giữ nguyên) ---
   const handleOpenUpdateStatus = (user: UserSummaryResponse) => {
     setSelectedUser(user);
     setIsUpdateDialogOpen(true);
@@ -116,23 +113,21 @@ export default function AccountManagementPage() {
       toast.info("Chức năng Kích hoạt lại chưa có API!");
       return;
     }
-
     // Nếu chọn DEACTIVATED -> Mở ConfirmDialog
     if (newStatus === "DEACTIVATED") {
-      setIsUpdateDialogOpen(false); // Đóng dialog chọn
-      setPendingDeleteId(userId); // Lưu ID
-      setIsConfirmOpen(true); // Mở dialog xác nhận
+      setIsUpdateDialogOpen(false);
+      setPendingDeleteId(userId);
+      setIsConfirmOpen(true);
     }
   };
 
-  // --- LOGIC XÓA THẬT (Khi bấm nút Vô hiệu hóa ngay) ---
+  // --- LOGIC XÓA THẬT ---
   const handleConfirmDelete = async () => {
     if (!pendingDeleteId) return;
     try {
       setIsDeleting(true);
       const response = await deleteUser(pendingDeleteId);
 
-      // Chấp nhận các mã thành công: 200, 0, hoặc null
       const isSuccess =
         response.data.errorCode === 200 ||
         response.data.errorCode === 0 ||
@@ -140,8 +135,8 @@ export default function AccountManagementPage() {
 
       if (isSuccess) {
         toast.success("Đã vô hiệu hóa tài khoản!");
-        setIsConfirmOpen(false); // Đóng dialog
-        fetchAllUsers(); // Load lại dữ liệu mới từ server
+        setIsConfirmOpen(false);
+        fetchUsers(); // Load lại dữ liệu trang hiện tại
       } else {
         toast.error(response.data.errorMessage || "Lỗi xóa tài khoản");
       }
@@ -157,7 +152,7 @@ export default function AccountManagementPage() {
     <div className="flex-1 overflow-auto">
       <PageHeader
         title="Quản lý tài khoản"
-        description="Quản lý người dùng và trạng thái tài khoản"
+        description={`Quản lý ${totalElements} người dùng và trạng thái tài khoản`}
       />
 
       <AccountSearchFilters
@@ -174,14 +169,14 @@ export default function AccountManagementPage() {
           </div>
         ) : (
           <>
-            {/* QUAN TRỌNG: Truyền paginatedUsers (đã cắt) vào bảng */}
+            {/* Truyền trực tiếp users (đã được phân trang từ server) */}
             <AccountManagementTable
-              users={paginatedUsers}
+              users={users}
               onViewDetails={(id) => console.log(id)}
               onEditStatus={handleOpenUpdateStatus}
             />
 
-            {/* Pagination UI */}
+            {/* Pagination UI - Sử dụng totalPages từ Server */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 mt-6">
                 <Button
@@ -193,17 +188,24 @@ export default function AccountManagementPage() {
                 </Button>
 
                 <div className="flex gap-1">
+                  {/* Logic render số trang đơn giản */}
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <Button
-                        key={page}
-                        variant={currentPage === page ? "default" : "outline"}
-                        onClick={() => setCurrentPage(page)}
-                        className={currentPage === page ? "bg-purple-600" : ""}
-                      >
-                        {page}
-                      </Button>
-                    )
+                    (page) => {
+                      // Chỉ hiện trang đầu, trang cuối, và các trang xung quanh currentPage (Optional optimization)
+                      // Ở đây giữ nguyên logic cũ của bạn để hiển thị tất cả nếu ít trang
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          onClick={() => setCurrentPage(page)}
+                          className={
+                            currentPage === page ? "bg-purple-600" : ""
+                          }
+                        >
+                          {page}
+                        </Button>
+                      );
+                    }
                   )}
                 </div>
 
@@ -221,14 +223,13 @@ export default function AccountManagementPage() {
           </>
         )}
 
-        {!isLoading && filteredUsers.length === 0 && (
+        {!isLoading && users.length === 0 && (
           <div className="text-center py-10 text-gray-500">
             Không tìm thấy kết quả nào.
           </div>
         )}
       </div>
 
-      {/* Dialog Chọn trạng thái */}
       <UpdateStatusDialog
         open={isUpdateDialogOpen}
         onOpenChange={setIsUpdateDialogOpen}
@@ -236,14 +237,13 @@ export default function AccountManagementPage() {
         onConfirm={handleRequestUpdateStatus}
       />
 
-      {/* Dialog Xác nhận (Sử dụng ConfirmDialog của bạn) */}
       <ConfirmDialog
         open={isConfirmOpen}
         onOpenChange={setIsConfirmOpen}
         title="Xác nhận vô hiệu hóa?"
-        description="Hành động này sẽ vô hiệu hóa tài khoản người dùng này và không thể hoàn tác thông qua giao diện quản trị hiện tại. Bạn có chắc chắn muốn tiếp tục?"
+        description="Hành động này sẽ vô hiệu hóa tài khoản người dùng này. Bạn có chắc chắn muốn tiếp tục?"
         onConfirm={handleConfirmDelete}
-        confirmLabel="Vô hiệu hóa ngay" // Đổi tên prop cho khớp component của bạn
+        confirmLabel="Vô hiệu hóa ngay"
         variant="destructive"
         isLoading={isDeleting}
       />
