@@ -7,27 +7,26 @@ import type {
   UserSummaryResponse,
 } from "@/types/common/userSummary";
 import { toast } from "sonner";
-import { getAllUsers, deleteUser } from "@/services/admin/userManagementApi.ts";
+// Import hàm updateAccountStatus mới sửa
+import {
+  getAllUsers,
+  updateAccountStatus,
+} from "@/services/admin/userManagementApi.ts";
 import { Button } from "@/components/ui/button";
 import { UpdateStatusDialog } from "./components/UpdateStatusDialog";
 import { ConfirmDialog } from "@/components/custom/ConfirmDialog";
 
-// Cấu hình số lượng hiển thị mỗi trang
 const ITEMS_PER_PAGE = 7;
 
 export default function AccountManagementPage() {
-  // Thay đổi: Chỉ lưu users của trang hiện tại
   const [users, setUsers] = useState<UserSummaryResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // State quản lý Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
 
-  // State quản lý Pagination từ Server
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0); // (Optional) Để hiển thị tổng số bản ghi
+  const [totalElements, setTotalElements] = useState(0);
 
   // --- STATE DIALOG ---
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -40,22 +39,22 @@ export default function AccountManagementPage() {
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // --- 1. HÀM FETCH DỮ LIỆU TỪ SERVER (Server Side Pagination) ---
+  // --- FETCH DATA ---
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-
-      // Gọi API với đầy đủ tham số phân trang & lọc
       const response = await getAllUsers({
-        page: currentPage, // Server thường tính từ 0, UI tính từ 1
+        page: currentPage - 1, // Giả sử backend tính từ 0
         size: ITEMS_PER_PAGE,
-        filter: "name,desc", // Hoặc "id,desc" tùy nhu cầu sort
+        filter: "name,desc",
+        search: searchQuery,
+        status: selectedStatus,
       });
 
       if (!response.data.errorCode && response.data.data) {
         const pageData = response.data.data;
-        setUsers(pageData.content); // Chỉ set users của trang hiện tại
-        setTotalPages(pageData.totalPages); // Cập nhật tổng số trang từ server
+        setUsers(pageData.content);
+        setTotalPages(pageData.totalPages);
         setTotalElements(pageData.totalElements);
       } else {
         setUsers([]);
@@ -71,77 +70,78 @@ export default function AccountManagementPage() {
     }
   };
 
-  // --- 2. EFFECT: Tự động gọi lại API khi Page, Search hoặc Status thay đổi ---
   useEffect(() => {
-    // Kỹ thuật Debounce đơn giản cho Search để tránh spam API khi gõ phím liên tục
     const timeoutId = setTimeout(() => {
       fetchUsers();
-    }, 300); // Đợi 300ms sau khi ngừng gõ mới gọi API
-
+    }, 300);
     return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchQuery, selectedStatus]);
-  // Lưu ý: Thêm searchQuery và selectedStatus vào dependency array
 
   // --- HANDLERS ---
-
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
-    setCurrentPage(1); // Reset về trang 1 khi thay đổi từ khóa tìm kiếm
+    setCurrentPage(1);
   };
 
   const handleStatusChange = (val: string) => {
     setSelectedStatus(val);
-    setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+    setCurrentPage(1);
   };
 
-  // --- LOGIC CẬP NHẬT TRẠNG THÁI (Giữ nguyên) ---
   const handleOpenUpdateStatus = (user: UserSummaryResponse) => {
     setSelectedUser(user);
     setIsUpdateDialogOpen(true);
   };
 
+  // --- LOGIC GỌI API CHUNG ---
+  // Hàm này dùng để gọi API cập nhật trạng thái cho mọi trường hợp
+  const performUpdateStatus = async (id: number, status: AccountStatusType) => {
+    try {
+      // Gọi API patch/put
+      const response = await updateAccountStatus(id, status);
+      console.log(response);
+
+      const isSuccess = response.data.data === true;
+
+      if (isSuccess) {
+        toast.success(`Cập nhật trạng thái ${status} thành công!`);
+        fetchUsers();
+      } else {
+        toast.error(response.data.errorMessage || "Lỗi cập nhật trạng thái");
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối: " + error);
+    }
+  };
+
+  // --- LOGIC KHI BẤM NÚT LƯU TRONG DIALOG CẬP NHẬT ---
   const handleRequestUpdateStatus = async (
     userId: number,
     newStatus: AccountStatusType
   ) => {
-    if (newStatus === "SUSPENDED") {
-      toast.info("Chức năng Tạm khóa đang phát triển!");
-      return;
-    }
-    if (newStatus === "ACTIVE") {
-      toast.info("Chức năng Kích hoạt lại chưa có API!");
-      return;
-    }
-    // Nếu chọn DEACTIVATED -> Mở ConfirmDialog
+    // 1. Nếu chọn DEACTIVATED -> Mở Confirm Dialog (chưa gọi API vội)
     if (newStatus === "DEACTIVATED") {
-      setIsUpdateDialogOpen(false);
-      setPendingDeleteId(userId);
-      setIsConfirmOpen(true);
+      setIsUpdateDialogOpen(false); // Đóng dialog chọn
+      setPendingDeleteId(userId); // Lưu ID
+      setIsConfirmOpen(true); // Mở dialog xác nhận
+      return;
     }
+
+    // 2. Nếu chọn ACTIVE hoặc SUSPENDED -> Gọi API luôn
+    // Đóng dialog trước khi gọi API cho mượt
+    setIsUpdateDialogOpen(false);
+    await performUpdateStatus(userId, newStatus);
   };
 
-  // --- LOGIC XÓA THẬT ---
+  // --- LOGIC KHI BẤM XÁC NHẬN VÔ HIỆU HÓA ---
   const handleConfirmDelete = async () => {
     if (!pendingDeleteId) return;
     try {
       setIsDeleting(true);
-      const response = await deleteUser(pendingDeleteId);
-
-      const isSuccess =
-        response.data.errorCode === 200 ||
-        response.data.errorCode === 0 ||
-        response.data.errorCode === null;
-
-      if (isSuccess) {
-        toast.success("Đã vô hiệu hóa tài khoản!");
-        setIsConfirmOpen(false);
-        fetchUsers(); // Load lại dữ liệu trang hiện tại
-      } else {
-        toast.error(response.data.errorMessage || "Lỗi xóa tài khoản");
-      }
-    } catch (error) {
-      toast.error("Lỗi kết nối khi xóa: " + error);
+      // Gọi API với trạng thái DEACTIVATED
+      await performUpdateStatus(pendingDeleteId, "DEACTIVATED");
+      setIsConfirmOpen(false); // Đóng dialog xác nhận
     } finally {
       setIsDeleting(false);
       setPendingDeleteId(null);
@@ -169,14 +169,12 @@ export default function AccountManagementPage() {
           </div>
         ) : (
           <>
-            {/* Truyền trực tiếp users (đã được phân trang từ server) */}
             <AccountManagementTable
               users={users}
               onViewDetails={(id) => console.log(id)}
               onEditStatus={handleOpenUpdateStatus}
             />
 
-            {/* Pagination UI - Sử dụng totalPages từ Server */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 mt-6">
                 <Button
@@ -188,24 +186,17 @@ export default function AccountManagementPage() {
                 </Button>
 
                 <div className="flex gap-1">
-                  {/* Logic render số trang đơn giản */}
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => {
-                      // Chỉ hiện trang đầu, trang cuối, và các trang xung quanh currentPage (Optional optimization)
-                      // Ở đây giữ nguyên logic cũ của bạn để hiển thị tất cả nếu ít trang
-                      return (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? "default" : "outline"}
-                          onClick={() => setCurrentPage(page)}
-                          className={
-                            currentPage === page ? "bg-purple-600" : ""
-                          }
-                        >
-                          {page}
-                        </Button>
-                      );
-                    }
+                    (page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        onClick={() => setCurrentPage(page)}
+                        className={currentPage === page ? "bg-purple-600" : ""}
+                      >
+                        {page}
+                      </Button>
+                    )
                   )}
                 </div>
 
