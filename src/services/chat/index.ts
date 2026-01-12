@@ -103,7 +103,12 @@ export const sendMessageApi = (data: SendMessageRequest) => {
 export const sendFileMessageApi = (data: FormData) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
     "/messages/files",
-    data
+    data,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
 };
 
