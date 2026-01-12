@@ -32,6 +32,92 @@ interface PlaylistDropdownProps {
     variant?: "full" | "simple"; // full = with search, simple = without search
 }
 
+interface CreatePlaylistDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    playlistName: string;
+    onPlaylistNameChange: (name: string) => void;
+    isPublic: boolean;
+    onIsPublicChange: (isPublic: boolean) => void;
+    onCreatePlaylist: () => void;
+    isLoading: boolean;
+    idSuffix?: string;
+}
+
+function CreatePlaylistDialog({
+    open,
+    onOpenChange,
+    playlistName,
+    onPlaylistNameChange,
+    isPublic,
+    onIsPublicChange,
+    onCreatePlaylist,
+    isLoading,
+    idSuffix = "",
+}: Readonly<CreatePlaylistDialogProps>) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="bg-gray-800 border-gray-700 text-white">
+                <DialogHeader>
+                    <DialogTitle>Tạo danh sách phát mới</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="playlistName">Tên danh sách phát</Label>
+                        <Input
+                            id="playlistName"
+                            placeholder="Nhập tên danh sách phát"
+                            value={playlistName}
+                            onChange={(e) => onPlaylistNameChange(e.target.value)}
+                            className="bg-gray-700 border-gray-600 text-white"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    onCreatePlaylist();
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            id={`is-public${idSuffix}`}
+                            checked={isPublic}
+                            onChange={(e) => onIsPublicChange(e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-600 accent-purple-600"
+                        />
+                        <label
+                            htmlFor={`is-public${idSuffix}`}
+                            className="text-sm text-gray-300 cursor-pointer select-none"
+                        >
+                            Chia sẻ playlist này công khai
+                        </label>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button
+                        variant="ghost"
+                        onClick={() => {
+                            onOpenChange(false);
+                            onPlaylistNameChange("");
+                            onIsPublicChange(false);
+                        }}
+                        className="text-gray-400 hover:text-white"
+                    >
+                        Hủy
+                    </Button>
+                    <Button
+                        onClick={onCreatePlaylist}
+                        disabled={isLoading || !playlistName.trim()}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                        {isLoading ? "Đang tạo..." : "Tạo"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export default function PlaylistDropdown({
     songId,
     trigger,
@@ -189,66 +275,17 @@ export default function PlaylistDropdown({
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Create Playlist Dialog */}
-                <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                    <DialogContent className="bg-gray-800 border-gray-700 text-white">
-                        <DialogHeader>
-                            <DialogTitle>Tạo danh sách phát mới</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="playlistName">Tên danh sách phát</Label>
-                                <Input
-                                    id="playlistName"
-                                    placeholder="Nhập tên danh sách phát"
-                                    value={newPlaylistName}
-                                    onChange={(e) => setNewPlaylistName(e.target.value)}
-                                    className="bg-gray-700 border-gray-600 text-white"
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            handleCreatePlaylist();
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="checkbox"
-                                    id="is-public-simple"
-                                    checked={isPublic}
-                                    onChange={(e) => setIsPublic(e.target.checked)}
-                                    className="h-4 w-4 rounded border-gray-600 accent-purple-600"
-                                />
-                                <label
-                                    htmlFor="is-public-simple"
-                                    className="text-sm text-gray-300 cursor-pointer select-none"
-                                >
-                                    Chia sẻ playlist này công khai
-                                </label>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button
-                                variant="ghost"
-                                onClick={() => {
-                                    setShowCreateDialog(false);
-                                    setNewPlaylistName("");
-                                    setIsPublic(false);
-                                }}
-                                className="text-gray-400 hover:text-white"
-                            >
-                                Hủy
-                            </Button>
-                            <Button
-                                onClick={handleCreatePlaylist}
-                                disabled={isLoading || !newPlaylistName.trim()}
-                                className="bg-purple-600 hover:bg-purple-700 text-white"
-                            >
-                                {isLoading ? "Đang tạo..." : "Tạo"}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <CreatePlaylistDialog
+                    open={showCreateDialog}
+                    onOpenChange={setShowCreateDialog}
+                    playlistName={newPlaylistName}
+                    onPlaylistNameChange={setNewPlaylistName}
+                    isPublic={isPublic}
+                    onIsPublicChange={setIsPublic}
+                    onCreatePlaylist={handleCreatePlaylist}
+                    isLoading={isLoading}
+                    idSuffix="-simple"
+                />
             </>
         );
     }
@@ -326,66 +363,17 @@ export default function PlaylistDropdown({
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Create Playlist Dialog */}
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                <DialogContent className="bg-gray-800 border-gray-700 text-white">
-                    <DialogHeader>
-                        <DialogTitle>Tạo danh sách phát mới</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="playlistName">Tên danh sách phát</Label>
-                            <Input
-                                id="playlistName"
-                                placeholder="Nhập tên danh sách phát"
-                                value={newPlaylistName}
-                                onChange={(e) => setNewPlaylistName(e.target.value)}
-                                className="bg-gray-700 border-gray-600 text-white"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        handleCreatePlaylist();
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="checkbox"
-                                id="is-public-full"
-                                checked={isPublic}
-                                onChange={(e) => setIsPublic(e.target.checked)}
-                                className="h-4 w-4 rounded border-gray-600 accent-purple-600"
-                            />
-                            <label
-                                htmlFor="is-public-full"
-                                className="text-sm text-gray-300 cursor-pointer select-none"
-                            >
-                                Chia sẻ playlist này công khai
-                            </label>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button
-                            variant="ghost"
-                            onClick={() => {
-                                setShowCreateDialog(false);
-                                setNewPlaylistName("");
-                                setIsPublic(false);
-                            }}
-                            className="text-gray-400 hover:text-white"
-                        >
-                            Hủy
-                        </Button>
-                        <Button
-                            onClick={handleCreatePlaylist}
-                            disabled={isLoading || !newPlaylistName.trim()}
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
-                        >
-                            {isLoading ? "Đang tạo..." : "Tạo"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <CreatePlaylistDialog
+                open={showCreateDialog}
+                onOpenChange={setShowCreateDialog}
+                playlistName={newPlaylistName}
+                onPlaylistNameChange={setNewPlaylistName}
+                isPublic={isPublic}
+                onIsPublicChange={setIsPublic}
+                onCreatePlaylist={handleCreatePlaylist}
+                isLoading={isLoading}
+                idSuffix="-full"
+            />
         </>
     );
 }
