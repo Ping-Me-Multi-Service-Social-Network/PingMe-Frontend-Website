@@ -12,3 +12,4 @@ export interface UserSummaryResponse {
 }
 
 export type AccountStatusType = "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+export type AccountFilterType = AccountStatusType | "ALL";
