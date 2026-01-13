@@ -37,7 +37,7 @@ export const updateCurrentUserProfileApi = (
 
 export const updateCurrentUserAvatarApi = (data: FormData) => {
   return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/auth/me/avatar",
+    "/users/me/avatar",
     data,
     {
       headers: {
