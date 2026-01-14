@@ -1,3 +1,5 @@
+import type React from "react";
+
 import {
   MessageCircle,
   Users,
@@ -80,6 +82,13 @@ export default function AppNavigation() {
     );
   };
 
+  const handleOverlayKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setIsOpen(false);
+    }
+  };
+
   const renderNavItem = (item: (typeof socialNavigationItems)[0]) => {
     const isActive = isItemActive(item.href);
 
@@ -126,8 +135,12 @@ export default function AppNavigation() {
 
       {isOpen && (
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Đóng menu"
           className="lg:hidden fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
+          onKeyDown={handleOverlayKeyDown}
         />
       )}
 
