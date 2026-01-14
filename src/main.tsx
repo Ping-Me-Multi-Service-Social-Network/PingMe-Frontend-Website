@@ -2,7 +2,12 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-// import axios from "axios";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // axios.defaults.headers.common["ngrok-skip-browser-warning"] = "true";
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <>
+    <App />
+    <SpeedInsights />
+  </>
+);
