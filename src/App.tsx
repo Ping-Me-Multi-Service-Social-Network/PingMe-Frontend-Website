@@ -24,13 +24,9 @@ const CallProvider = lazy(() =>
   )
 );
 
-const PersistLoader = () => (
-  <AppLoader type="pulse" message="Restoring session..." />
-);
+const PersistLoader = () => <AppLoader />;
 
-const InitialLoader = () => (
-  <AppLoader type="dots" message="Loading PingMe..." />
-);
+const InitialLoader = () => <AppLoader />;
 
 function App() {
   const [persistReady, setPersistReady] = useState(false);
