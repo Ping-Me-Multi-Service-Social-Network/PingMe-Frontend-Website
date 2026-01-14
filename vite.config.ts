@@ -17,5 +17,26 @@ export default defineConfig({
   build: {
     sourcemap: false,
     minify: "esbuild",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "redux-vendor": ["@reduxjs/toolkit", "react-redux", "redux-persist"],
+          "ui-vendor": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-select",
+            "@radix-ui/react-avatar",
+            "@radix-ui/react-tooltip",
+          ],
+          "framer-motion": ["framer-motion"],
+          "chart-libs": ["recharts"],
+          "rich-text": ["react-quill-new", "quill"],
+          zego: ["@zegocloud/zego-uikit-prebuilt"],
+          socket: ["@stomp/stompjs", "sockjs-client"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 });
