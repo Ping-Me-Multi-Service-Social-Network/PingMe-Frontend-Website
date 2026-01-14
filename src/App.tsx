@@ -8,6 +8,7 @@ import { setupAxiosInterceptors } from "./lib/axiosClient";
 import { persistor, store } from "./features/store";
 import { updateTokenManually } from "./features/slices/authSlice";
 import { logout } from "./features/slices/authThunk";
+import AppLoader from "./components/custom/AppLoader";
 
 const PersistGate = lazy(() =>
   import("redux-persist/integration/react").then((module) => ({
@@ -24,18 +25,11 @@ const CallProvider = lazy(() =>
 );
 
 const PersistLoader = () => (
-  <div className="flex h-screen w-full items-center justify-center">
-    <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-  </div>
+  <AppLoader type="pulse" message="Restoring session..." />
 );
 
 const InitialLoader = () => (
-  <div className="flex h-screen w-full items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      <p className="text-sm text-muted-foreground">Loading...</p>
-    </div>
-  </div>
+  <AppLoader type="dots" message="Loading PingMe..." />
 );
 
 function App() {
