@@ -16,17 +16,13 @@ const PersistGate = lazy(() =>
   }))
 );
 
-const CallProvider = lazy(() =>
-  import("@/pages/app-routes-page/chat-page/components/call/CallProvider").then(
-    (module) => ({
-      default: module.CallProvider,
-    })
-  )
+const PersistLoader = () => (
+  <AppLoader type="pulse" message="Restoring session..." />
 );
 
-const PersistLoader = () => <AppLoader />;
-
-const InitialLoader = () => <AppLoader />;
+const InitialLoader = () => (
+  <AppLoader type="dots" message="Loading PingMe..." />
+);
 
 function App() {
   const [persistReady, setPersistReady] = useState(false);
@@ -47,13 +43,9 @@ function App() {
       {persistReady ? (
         <Suspense fallback={<InitialLoader />}>
           <PersistGate loading={<PersistLoader />} persistor={persistor}>
-            <Suspense fallback={<InitialLoader />}>
-              <CallProvider>
-                <ScrollArea className="min-h-screen">
-                  <RouterProvider router={router}></RouterProvider>
-                </ScrollArea>
-              </CallProvider>
-            </Suspense>
+            <ScrollArea className="min-h-screen">
+              <RouterProvider router={router}></RouterProvider>
+            </ScrollArea>
           </PersistGate>
         </Suspense>
       ) : (

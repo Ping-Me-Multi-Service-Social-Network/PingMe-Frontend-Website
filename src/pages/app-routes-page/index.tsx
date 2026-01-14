@@ -1,10 +1,16 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import AppNavigation from "./components/navigation/AppNavigation.tsx";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerProvider.tsx";
 import GlobalAudioPlayer from "./components/audio/GlobalAudioPlayer.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
-import { CallProvider } from "@/pages/app-routes-page/chat-page/components/call/CallProvider.tsx";
+const CallProvider = lazy(() =>
+  import("@/pages/app-routes-page/chat-page/components/call/CallProvider").then(
+    (module) => ({
+      default: module.CallProvider,
+    })
+  )
+);
 import { SocketManager } from "@/services/ws/socketManager";
 import { useAppSelector } from "@/features/hooks";
 import type {
@@ -127,28 +133,30 @@ export default function AppPageLayout() {
 
   return (
     <AudioPlayerProvider>
-      <CallProvider>
-        <div
-          className={`h-screen bg-gray-100 flex overflow-hidden ${
-            !isMusicPage && isTransitioning ? "light-module-enter" : ""
-          }`}
-          style={{
-            transition: "background-color 0.6s ease-in-out",
-          }}
-        >
-          <div className="flex-shrink-0 lg:block">
-            <AppNavigation />
+      <Suspense fallback={null}>
+        <CallProvider>
+          <div
+            className={`h-screen bg-gray-100 flex overflow-hidden ${
+              !isMusicPage && isTransitioning ? "light-module-enter" : ""
+            }`}
+            style={{
+              transition: "background-color 0.6s ease-in-out",
+            }}
+          >
+            <div className="flex-shrink-0 lg:block">
+              <AppNavigation />
+            </div>
+
+            <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
+              <Outlet />
+            </div>
+
+            {isMusicPage && <GlobalAudioPlayer />}
+
+            {!isMusicPage && <DraggableMiniPlayer />}
           </div>
-
-          <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-            <Outlet />
-          </div>
-
-          {isMusicPage && <GlobalAudioPlayer />}
-
-          {!isMusicPage && <DraggableMiniPlayer />}
-        </div>
-      </CallProvider>
+        </CallProvider>
+      </Suspense>
     </AudioPlayerProvider>
   );
 }
