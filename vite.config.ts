@@ -14,4 +14,8 @@ export default defineConfig({
     open: true,
     port: 3000,
   },
+  build: {
+    sourcemap: false,
+    minify: "esbuild",
+  },
 });
