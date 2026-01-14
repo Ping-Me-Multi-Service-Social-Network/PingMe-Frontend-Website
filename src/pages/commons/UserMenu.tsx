@@ -61,12 +61,12 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-72 p-2"
+        className="w-72 p-2 z-80"
         sideOffset={5}
         alignOffset={-5}
       >
         {/* User Info Header */}
-        <div className="mb-2 flex items-center gap-3 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100 p-3">
+        <div className="mb-2 flex items-center gap-3 rounded-lg bg-linear-to-r from-purple-50 to-purple-100 p-3">
           <Avatar className="h-12 w-12 ring-2 ring-white">
             <AvatarImage
               src={

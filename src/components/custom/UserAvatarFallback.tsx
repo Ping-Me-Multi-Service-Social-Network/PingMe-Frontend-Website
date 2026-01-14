@@ -27,7 +27,7 @@ export function UserAvatarFallback({
   return (
     <AvatarFallback
       className={cn(
-        "bg-gradient-to-br from-purple-500 to-purple-600 font-semibold text-white",
+        "bg-linear-to-br from-purple-500 to-purple-600 font-semibold text-white",
         sizeClass,
         className
       )}
