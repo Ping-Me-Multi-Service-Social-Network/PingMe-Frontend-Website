@@ -5,8 +5,11 @@ import {
   BookOpen,
   Music4Icon,
   Film,
+  Menu,
+  X,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -69,6 +72,7 @@ const homeNavigationItem = {
 
 export default function AppNavigation() {
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const isItemActive = (href: string) => {
     return (
@@ -84,6 +88,7 @@ export default function AppNavigation() {
         <TooltipTrigger asChild>
           <NavLink
             to={item.href}
+            onClick={() => setIsOpen(false)}
             className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
               isActive
                 ? "bg-white text-purple-600 shadow-lg scale-110"
@@ -110,7 +115,40 @@ export default function AppNavigation() {
 
   return (
     <TooltipProvider>
-      <div className="w-16 h-screen bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800 flex flex-col items-center py-4 shadow-xl">
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="lg:hidden fixed top-4 left-4 z-40 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      )}
+
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <div
+        className={`
+          fixed lg:relative
+          h-screen bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800 
+          flex flex-col items-center py-4 shadow-xl
+          transition-transform duration-300 ease-in-out
+          z-[70]
+          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          w-16
+        `}
+      >
+        <button
+          onClick={() => setIsOpen(false)}
+          className="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+        >
+          <X className="w-5 h-5 text-white" />
+        </button>
+
         <div className="flex flex-col space-y-2 pb-3">
           {renderNavItem(homeNavigationItem)}
         </div>
@@ -127,21 +165,18 @@ export default function AppNavigation() {
           {mediaNavigationItems.map((item) => renderNavItem(item))}
         </div>
 
-        <div className="w-10 h-px bg-purple-400/30 my-2" />
-
         <div className="flex-1 flex flex-col space-y-2 py-3">
           {contentNavigationItems.map((item) => renderNavItem(item))}
         </div>
 
         <div className="w-10 h-px bg-purple-400/30 my-2" />
 
-        {/* Bottom Section - Logo & User */}
         <div className="flex flex-col space-y-3 pt-3">
-          {/* Logo */}
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/home"
+                to="/public"
+                onClick={() => setIsOpen(false)}
                 className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all duration-300 hover:scale-105"
               >
                 <img
@@ -164,7 +199,6 @@ export default function AppNavigation() {
             </TooltipContent>
           </Tooltip>
 
-          {/* UserMenu */}
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex justify-center">
