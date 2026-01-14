@@ -136,11 +136,11 @@ export default function AppPageLayout() {
             transition: "background-color 0.6s ease-in-out",
           }}
         >
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 lg:block">
             <AppNavigation />
           </div>
 
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
             <Outlet />
           </div>
 

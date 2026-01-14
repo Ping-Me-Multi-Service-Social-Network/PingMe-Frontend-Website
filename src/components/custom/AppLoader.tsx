@@ -8,7 +8,7 @@ interface AppLoaderProps {
 
 export default function AppLoader({
   type = "dots",
-  message = "Loading...",
+  message = "Đang tải... chờ xíu cậu nha",
   className,
 }: AppLoaderProps) {
   return (
@@ -23,11 +23,14 @@ export default function AppLoader({
         {type === "dots" && <DotsAnimation />}
         {type === "pulse" && <PulseAnimation />}
 
-        {message && (
-          <p className="animate-pulse text-sm font-medium text-muted-foreground">
-            {message}
-          </p>
-        )}
+        <div className="flex flex-col items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground">Ping Me</h1>
+          {message && (
+            <p className="animate-pulse text-sm font-medium text-muted-foreground">
+              {message}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

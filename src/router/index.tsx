@@ -1,41 +1,127 @@
-import AuthPage from "@/pages/public-routes-page/auth-page";
-import ContactsPage from "@/pages/app-routes-page/contact-page";
-import MessagesPage from "@/pages/app-routes-page/chat-page";
-import HomePage from "@/pages/public-routes-page/home-page";
-import RootPageLayout from "@/pages/public-routes-page";
-import ProfilePage from "@/pages/app-routes-page/user-page";
-import ChangePasswordPage from "@/pages/app-routes-page/user-page/change-password-page";
-import DeviceManagementPage from "@/pages/app-routes-page/user-page/device-management-page";
-import UserInfoPage from "@/pages/app-routes-page/user-page/user-info-page";
+import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
-import BlogPage from "@/pages/app-routes-page/blog-page";
-import AdminPage from "@/pages/admin-route-pages";
-import AccountManagementPage from "@/pages/admin-route-pages/account-management-page";
-import BlogManagementPage from "@/pages/admin-route-pages/blog-management-page";
-import StatisticsManagementPage from "@/pages/admin-route-pages/statistics-management-page";
-import UpsertBlogPage from "@/pages/app-routes-page/blog-page/upsert-blog-page";
-import BlogDetailsPage from "@/pages/app-routes-page/blog-page/blog-details-page";
 import { AdminRoute } from "@/pages/commons/AdminRoute";
-import MusicPage from "@/pages/app-routes-page/music-page";
-import AppPageLayout from "@/pages/app-routes-page";
-import ReelsPage from "@/pages/app-routes-page/reels-page";
-import VideoManagerPage from "@/pages/app-routes-page/reels-page/video-manager";
-import SearchResultsPage from "@/pages/app-routes-page/reels-page/search-results";
-import MusicManagementPage from "@/pages/admin-route-pages/music-management-page";
-import AlbumManagementPage from "@/pages/admin-route-pages/album-management-page";
-import ArtistManagementPage from "@/pages/admin-route-pages/artist-management-page";
-import GenreManagementPage from "@/pages/admin-route-pages/genre-management-page";
-import ReelManagementPage from "@/pages/admin-route-pages/reel-management-page";
-import SongListPage from "@/pages/app-routes-page/music-page/components/SongListPage";
-import AlbumsPage from "@/pages/app-routes-page/music-page/components/AlbumsPage";
-import ArtistsPage from "@/pages/app-routes-page/music-page/components/ArtistsPage";
-import RankingsPage from "@/pages/app-routes-page/music-page/components/RankingsPage";
-import FavoritesPage from "@/pages/app-routes-page/music-page/components/FavoritesPage";
-import PlaylistsPage from "@/pages/app-routes-page/music-page/components/PlaylistsPage";
-import PlaylistDetailPage from "@/pages/app-routes-page/music-page/components/PlaylistDetailPage";
-import DiscoverPlaylistsPage from "@/pages/app-routes-page/music-page/components/DiscoverPlaylistsPage";
-import MusicLayout from "@/pages/app-routes-page/music-page/components/MusicLayout";
+import { LazyElement } from "@/components/custom/LazyElement";
+
+// ===========================================================
+// PUBLIC PAGES
+// ===========================================================
+const RootPageLayout = lazy(() => import("@/pages/public-routes-page"));
+const HomePage = lazy(() => import("@/pages/public-routes-page/home-page"));
+const AuthPage = lazy(() => import("@/pages/public-routes-page/auth-page"));
+
+// ===========================================================
+// APP PAGES - Layout
+// ===========================================================
+const AppPageLayout = lazy(() => import("@/pages/app-routes-page"));
+
+// ===========================================================
+// APP PAGES - Profile
+// ===========================================================
+const ProfilePage = lazy(() => import("@/pages/app-routes-page/user-page"));
+const UserInfoPage = lazy(
+  () => import("@/pages/app-routes-page/user-page/user-info-page")
+);
+const ChangePasswordPage = lazy(
+  () => import("@/pages/app-routes-page/user-page/change-password-page")
+);
+const DeviceManagementPage = lazy(
+  () => import("@/pages/app-routes-page/user-page/device-management-page")
+);
+
+// ===========================================================
+// APP PAGES - Chat & Contacts
+// ===========================================================
+const MessagesPage = lazy(() => import("@/pages/app-routes-page/chat-page"));
+const ContactsPage = lazy(() => import("@/pages/app-routes-page/contact-page"));
+
+// ===========================================================
+// APP PAGES - Music
+// ===========================================================
+const MusicPage = lazy(() => import("@/pages/app-routes-page/music-page"));
+const MusicLayout = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/MusicLayout")
+);
+const SongListPage = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/SongListPage")
+);
+const AlbumsPage = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/AlbumsPage")
+);
+const ArtistsPage = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/ArtistsPage")
+);
+const RankingsPage = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/RankingsPage")
+);
+const FavoritesPage = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/FavoritesPage")
+);
+const PlaylistsPage = lazy(
+  () => import("@/pages/app-routes-page/music-page/components/PlaylistsPage")
+);
+const PlaylistDetailPage = lazy(
+  () =>
+    import("@/pages/app-routes-page/music-page/components/PlaylistDetailPage")
+);
+const DiscoverPlaylistsPage = lazy(
+  () =>
+    import(
+      "@/pages/app-routes-page/music-page/components/DiscoverPlaylistsPage"
+    )
+);
+
+// ===========================================================
+// APP PAGES - Blogs
+// ===========================================================
+const BlogPage = lazy(() => import("@/pages/app-routes-page/blog-page"));
+const BlogDetailsPage = lazy(
+  () => import("@/pages/app-routes-page/blog-page/blog-details-page")
+);
+const UpsertBlogPage = lazy(
+  () => import("@/pages/app-routes-page/blog-page/upsert-blog-page")
+);
+
+// ===========================================================
+// APP PAGES - Reels
+// ===========================================================
+const ReelsPage = lazy(() => import("@/pages/app-routes-page/reels-page"));
+const VideoManagerPage = lazy(
+  () => import("@/pages/app-routes-page/reels-page/video-manager")
+);
+const SearchResultsPage = lazy(
+  () => import("@/pages/app-routes-page/reels-page/search-results")
+);
+
+// ===========================================================
+// ADMIN PAGES
+// ===========================================================
+const AdminPage = lazy(() => import("@/pages/admin-route-pages"));
+const AccountManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/account-management-page")
+);
+const BlogManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/blog-management-page")
+);
+const StatisticsManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/statistics-management-page")
+);
+const MusicManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/music-management-page")
+);
+const AlbumManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/album-management-page")
+);
+const ArtistManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/artist-management-page")
+);
+const GenreManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/genre-management-page")
+);
+const ReelManagementPage = lazy(
+  () => import("@/pages/admin-route-pages/reel-management-page")
+);
 
 export const router = createBrowserRouter([
   // ===========================================================
@@ -43,101 +129,330 @@ export const router = createBrowserRouter([
   // ===========================================================
   {
     path: "/",
-    element: <RootPageLayout />,
+    element: (
+      <LazyElement>
+        <RootPageLayout />
+      </LazyElement>
+    ),
     children: [
       { index: true, element: <Navigate to="/home" /> },
-      { path: "home", element: <HomePage /> },
-      { path: "auth", element: <AuthPage /> },
+      {
+        path: "home",
+        element: (
+          <LazyElement>
+            <HomePage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "auth",
+        element: (
+          <LazyElement>
+            <AuthPage />
+          </LazyElement>
+        ),
+      },
     ],
   },
 
   // ===========================================================
-  // APP ROUTES
+  // APP ROUTES (Protected)
   // ===========================================================
   {
     path: "app",
     element: (
       <ProtectedRoute>
-        <AppPageLayout />
+        <LazyElement>
+          <AppPageLayout />
+        </LazyElement>
       </ProtectedRoute>
     ),
     children: [
-      {
-        path: "blogs/upsert/:id?",
-        element: (
-          <ProtectedRoute>
-            <UpsertBlogPage />
-          </ProtectedRoute>
-        ),
-      },
+      // ---------------------------------------------------------
+      // Profile Routes
+      // ---------------------------------------------------------
       {
         path: "profile",
         element: (
           <ProtectedRoute>
-            <ProfilePage />
+            <LazyElement>
+              <ProfilePage />
+            </LazyElement>
           </ProtectedRoute>
         ),
         children: [
           { index: true, element: <Navigate to="/app/profile/user-info" /> },
-          { path: "user-info", element: <UserInfoPage /> },
-          { path: "change-password", element: <ChangePasswordPage /> },
-          { path: "device-management", element: <DeviceManagementPage /> },
+          {
+            path: "user-info",
+            element: (
+              <LazyElement>
+                <UserInfoPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "change-password",
+            element: (
+              <LazyElement>
+                <ChangePasswordPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "device-management",
+            element: (
+              <LazyElement>
+                <DeviceManagementPage />
+              </LazyElement>
+            ),
+          },
         ],
       },
-      { path: "chat", element: <MessagesPage /> },
-      { path: "contacts", element: <ContactsPage /> },
+
+      // ---------------------------------------------------------
+      // Chat & Contacts Routes
+      // ---------------------------------------------------------
+      {
+        path: "chat",
+        element: (
+          <LazyElement>
+            <MessagesPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "contacts",
+        element: (
+          <LazyElement>
+            <ContactsPage />
+          </LazyElement>
+        ),
+      },
+
+      // ---------------------------------------------------------
+      // Music Routes
+      // ---------------------------------------------------------
       {
         path: "music",
-        element: <MusicLayout />,
+        element: (
+          <LazyElement>
+            <MusicLayout />
+          </LazyElement>
+        ),
         children: [
-          { index: true, element: <MusicPage /> },
-          { path: "songs", element: <SongListPage /> },
-          { path: "albums", element: <AlbumsPage /> },
-          { path: "artists", element: <ArtistsPage /> },
-          { path: "rankings", element: <RankingsPage /> },
-          { path: "favorites", element: <FavoritesPage /> },
-          { path: "playlists", element: <PlaylistsPage /> },
-          { path: "playlists/discover", element: <DiscoverPlaylistsPage /> },
-          { path: "playlists/:id", element: <PlaylistDetailPage /> },
+          {
+            index: true,
+            element: (
+              <LazyElement>
+                <MusicPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "songs",
+            element: (
+              <LazyElement>
+                <SongListPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "albums",
+            element: (
+              <LazyElement>
+                <AlbumsPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "artists",
+            element: (
+              <LazyElement>
+                <ArtistsPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "rankings",
+            element: (
+              <LazyElement>
+                <RankingsPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "favorites",
+            element: (
+              <LazyElement>
+                <FavoritesPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "playlists",
+            element: (
+              <LazyElement>
+                <PlaylistsPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "playlists/discover",
+            element: (
+              <LazyElement>
+                <DiscoverPlaylistsPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "playlists/:id",
+            element: (
+              <LazyElement>
+                <PlaylistDetailPage />
+              </LazyElement>
+            ),
+          },
         ],
       },
-      { path: "blogs", element: <BlogPage /> },
-      { path: "blogs/:id", element: <BlogDetailsPage /> },
+
+      // ---------------------------------------------------------
+      // Blog Routes
+      // ---------------------------------------------------------
+      {
+        path: "blogs",
+        element: (
+          <LazyElement>
+            <BlogPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "blogs/:id",
+        element: (
+          <LazyElement>
+            <BlogDetailsPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "blogs/upsert/:id?",
+        element: (
+          <ProtectedRoute>
+            <LazyElement>
+              <UpsertBlogPage />
+            </LazyElement>
+          </ProtectedRoute>
+        ),
+      },
+
+      // ---------------------------------------------------------
+      // Reels Routes
+      // ---------------------------------------------------------
       {
         path: "reels",
-        element: <ReelsPage />,
+        element: (
+          <LazyElement>
+            <ReelsPage />
+          </LazyElement>
+        ),
       },
       {
         path: "reels/search",
-        element: <SearchResultsPage />,
+        element: (
+          <LazyElement>
+            <SearchResultsPage />
+          </LazyElement>
+        ),
       },
       {
         path: "reels/video-manager",
-        element: <VideoManagerPage />,
+        element: (
+          <LazyElement>
+            <VideoManagerPage />
+          </LazyElement>
+        ),
       },
     ],
   },
 
   // ===========================================================
-  // ADMIN ROUTES
+  // ADMIN ROUTES (Admin Only)
   // ===========================================================
   {
     path: "admin",
     element: (
       <AdminRoute>
-        <AdminPage />
+        <LazyElement>
+          <AdminPage />
+        </LazyElement>
       </AdminRoute>
     ),
     children: [
       { index: true, element: <Navigate to="/admin/accounts" /> },
-      { path: "accounts", element: <AccountManagementPage /> },
-      { path: "blogs", element: <BlogManagementPage /> },
-      { path: "statistics", element: <StatisticsManagementPage /> },
-      { path: "music", element: <MusicManagementPage /> },
-      { path: "albums", element: <AlbumManagementPage /> },
-      { path: "artists", element: <ArtistManagementPage /> },
-      { path: "genres", element: <GenreManagementPage /> },
-      { path: "reels", element: <ReelManagementPage /> },
+      {
+        path: "accounts",
+        element: (
+          <LazyElement>
+            <AccountManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "blogs",
+        element: (
+          <LazyElement>
+            <BlogManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "statistics",
+        element: (
+          <LazyElement>
+            <StatisticsManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "music",
+        element: (
+          <LazyElement>
+            <MusicManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "albums",
+        element: (
+          <LazyElement>
+            <AlbumManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "artists",
+        element: (
+          <LazyElement>
+            <ArtistManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "genres",
+        element: (
+          <LazyElement>
+            <GenreManagementPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "reels",
+        element: (
+          <LazyElement>
+            <ReelManagementPage />
+          </LazyElement>
+        ),
+      },
     ],
   },
 ]);
