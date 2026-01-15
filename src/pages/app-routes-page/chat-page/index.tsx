@@ -1,7 +1,9 @@
+"use client";
+
 import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAppSelector } from "@/features/hooks.ts";
+import { useAppSelector, useAppDispatch } from "@/features/hooks.ts";
 import { ChatActionBar } from "../components/chat-shared-components/ChatActionBar.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import { ChatBox, type ChatBoxRef } from "./components";
@@ -21,13 +23,12 @@ import type {
   RoomMemberRoleChangedEventPayload,
 } from "@/services/ws/module/chatSocket";
 import type { UserStatusPayload } from "@/types/common/userStatus.ts";
+import { selectChatEvent, clearChatEvent } from "@/features/slices/chatSlice";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
-  // =======================================================================
-  // Lấy danh sách các ChatBoxes
-  // =======================================================================
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
 
@@ -77,10 +78,6 @@ export default function MessagesPage() {
     fetchRooms(1, 20);
   }, [fetchRooms]);
 
-  // =======================================================================
-  // Xử lý scroll để load thêm phòng
-  // Khi scroll đến 100% chiều cao container sẽ load thêm
-  // =======================================================================
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
@@ -94,12 +91,6 @@ export default function MessagesPage() {
     }
   };
 
-  // =======================================================================
-  // Xử lý chọn chat box để hiển thị
-  // Xử lý khi thay đổi phòng chat được chọn
-  //  - Cập nhật selectedRoomIdRef cho WebSocket tracking
-  //  - Enter/leave room để nhận tin nhắn đúng phòng
-  // =======================================================================
   const [selectedChat, setSelectedChat] = useState<RoomResponse | null>(null);
   const selectedRoomIdRef = useRef<number | null>(null);
 
@@ -122,9 +113,6 @@ export default function MessagesPage() {
     };
   }, [selectedChat]);
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến MESSAGE_CREATED từ WebSocket
-  // =======================================================================
   const chatBoxRef = useRef<ChatBoxRef>(null);
 
   const handleNewMessage = useCallback((event: MessageCreatedEventPayload) => {
@@ -148,31 +136,24 @@ export default function MessagesPage() {
       return [updatedRoom, ...otherRooms];
     });
 
-    // Add message to chat box if viewing this room
     if (selectedRoomIdRef.current === message.roomId && chatBoxRef.current) {
       chatBoxRef.current.handleIncomingMessage(message);
     }
   }, []);
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến ROOM_UPDATED từ WebSocket
-  // =======================================================================
   const upsertRoom = useCallback((incoming: RoomResponse) => {
     setRooms((prev) => {
       const idx = prev.findIndex((r) => r.roomId === incoming.roomId);
 
       if (idx === -1) {
-        // Room mới, thêm vào đầu
         return [incoming, ...prev];
       }
 
-      // Update và đưa lên đầu (reorder)
       const merged = { ...prev[idx], ...incoming };
       const filtered = prev.filter((r) => r.roomId !== incoming.roomId);
       return [merged, ...filtered];
     });
 
-    // Sync selectedChat với incoming data by roomId (not reference)
     setSelectedChat((prev) => {
       if (prev && prev.roomId === incoming.roomId) {
         return { ...prev, ...incoming };
@@ -185,7 +166,6 @@ export default function MessagesPage() {
     (event: RoomUpdatedEventPayload) => {
       upsertRoom(event.roomResponse);
 
-      // Add system message to chat if it exists and we're viewing this room
       if (
         event.systemMessage &&
         selectedRoomIdRef.current === event.roomResponse.roomId &&
@@ -197,9 +177,6 @@ export default function MessagesPage() {
     [upsertRoom]
   );
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến MESSAGE_RECALLED từ WebSocket
-  // =======================================================================
   const handleRecallMessage = useCallback(
     (event: MessageRecalledEventPayload) => {
       if (chatBoxRef.current) {
@@ -211,9 +188,6 @@ export default function MessagesPage() {
     []
   );
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến ROOM_CREATED từ WebSocket
-  // =======================================================================
   const handleRoomCreated = useCallback(
     (event: RoomCreatedEventPayload) => {
       upsertRoom(event.roomResponse);
@@ -221,9 +195,6 @@ export default function MessagesPage() {
     [upsertRoom]
   );
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến MEMBER_ADDED từ WebSocket
-  // =======================================================================
   const handleMemberAdded = useCallback(
     (event: RoomMemberAddedEventPayload) => {
       const isCurrentUserAdded = event.targetUserId === userSession?.id;
@@ -234,7 +205,6 @@ export default function MessagesPage() {
         upsertRoom(event.roomResponse);
       }
 
-      // Add system message to chat if it exists and we're viewing this room
       if (
         event.systemMessage &&
         selectedRoomIdRef.current === event.roomResponse.roomId &&
@@ -246,9 +216,6 @@ export default function MessagesPage() {
     [upsertRoom, userSession?.id]
   );
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến MEMBER_REMOVED từ WebSocket
-  // =======================================================================
   const handleMemberRemoved = useCallback(
     (event: RoomMemberRemovedEventPayload) => {
       console.log("[PingMe] Member removed event:", event);
@@ -265,7 +232,6 @@ export default function MessagesPage() {
       } else {
         upsertRoom(event.roomResponse);
 
-        // Add system message to chat if it exists and we're viewing this room
         if (
           event.systemMessage &&
           selectedRoomIdRef.current === event.roomResponse.roomId &&
@@ -278,14 +244,10 @@ export default function MessagesPage() {
     [upsertRoom, userSession?.id]
   );
 
-  // =======================================================================
-  // Hàm xử lý sự kiện liên quan đến MEMBER_ROLE_CHANGED từ WebSocket
-  // =======================================================================
   const handleMemberRoleChanged = useCallback(
     (event: RoomMemberRoleChangedEventPayload) => {
       upsertRoom(event.roomResponse);
 
-      // Add system message to chat if it exists and we're viewing this room
       if (
         event.systemMessage &&
         selectedRoomIdRef.current === event.roomResponse.roomId &&
@@ -297,92 +259,39 @@ export default function MessagesPage() {
     [upsertRoom]
   );
 
-  // =======================================================================
-  // Setup WebSocket connection và event handlers
-  // Chạy một lần khi component mount
-  // =======================================================================
+  const chatEvent = useAppSelector(selectChatEvent);
 
-  // Listen to socket events from SocketManager via window events
   useEffect(() => {
-    const handleMessageCreated = (e: Event) => {
-      const event = (e as CustomEvent).detail as MessageCreatedEventPayload;
-      handleNewMessage(event);
-    };
+    if (!chatEvent) return;
 
-    const handleRoomUpdatedEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as RoomUpdatedEventPayload;
-      handleRoomUpdated(event);
-    };
+    switch (chatEvent.type) {
+      case "MESSAGE_CREATED":
+        handleNewMessage(chatEvent.payload);
+        break;
+      case "ROOM_UPDATED":
+        handleRoomUpdated(chatEvent.payload);
+        break;
+      case "MESSAGE_RECALLED":
+        handleRecallMessage(chatEvent.payload);
+        break;
+      case "ROOM_CREATED":
+        handleRoomCreated(chatEvent.payload);
+        break;
+      case "MEMBER_ADDED":
+        handleMemberAdded(chatEvent.payload);
+        break;
+      case "MEMBER_REMOVED":
+        handleMemberRemoved(chatEvent.payload);
+        break;
+      case "MEMBER_ROLE_CHANGED":
+        handleMemberRoleChanged(chatEvent.payload);
+        break;
+    }
 
-    const handleMessageRecalledEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as MessageRecalledEventPayload;
-      handleRecallMessage(event);
-    };
-
-    const handleRoomCreatedEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as RoomCreatedEventPayload;
-      handleRoomCreated(event);
-    };
-
-    const handleMemberAddedEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as RoomMemberAddedEventPayload;
-      handleMemberAdded(event);
-    };
-
-    const handleMemberRemovedEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as RoomMemberRemovedEventPayload;
-      handleMemberRemoved(event);
-    };
-
-    const handleMemberRoleChangedEvent = (e: Event) => {
-      const event = (e as CustomEvent)
-        .detail as RoomMemberRoleChangedEventPayload;
-      handleMemberRoleChanged(event);
-    };
-
-    const handleUserStatusEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as UserStatusPayload;
-      setStatusPayload(event);
-    };
-
-    window.addEventListener("socket:message-created", handleMessageCreated);
-    window.addEventListener("socket:room-updated", handleRoomUpdatedEvent);
-    window.addEventListener(
-      "socket:message-recalled",
-      handleMessageRecalledEvent
-    );
-    window.addEventListener("socket:room-created", handleRoomCreatedEvent);
-    window.addEventListener("socket:member-added", handleMemberAddedEvent);
-    window.addEventListener("socket:member-removed", handleMemberRemovedEvent);
-    window.addEventListener(
-      "socket:member-role-changed",
-      handleMemberRoleChangedEvent
-    );
-    window.addEventListener("socket:user-status", handleUserStatusEvent);
-
-    return () => {
-      window.removeEventListener(
-        "socket:message-created",
-        handleMessageCreated
-      );
-      window.removeEventListener("socket:room-updated", handleRoomUpdatedEvent);
-      window.removeEventListener(
-        "socket:message-recalled",
-        handleMessageRecalledEvent
-      );
-      window.removeEventListener("socket:room-created", handleRoomCreatedEvent);
-      window.removeEventListener("socket:member-added", handleMemberAddedEvent);
-      window.removeEventListener(
-        "socket:member-removed",
-        handleMemberRemovedEvent
-      );
-      window.removeEventListener(
-        "socket:member-role-changed",
-        handleMemberRoleChangedEvent
-      );
-      window.removeEventListener("socket:user-status", handleUserStatusEvent);
-    };
+    dispatch(clearChatEvent());
   }, [
+    chatEvent,
+    dispatch,
     handleNewMessage,
     handleRecallMessage,
     handleRoomCreated,
@@ -392,10 +301,22 @@ export default function MessagesPage() {
     handleRoomUpdated,
   ]);
 
-  // Websocket cho hiển thị trạng thái trực tuyến người dùng
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
     null
   );
+
+  useEffect(() => {
+    const handleUserStatusEvent = (e: Event) => {
+      const event = (e as CustomEvent).detail as UserStatusPayload;
+      setStatusPayload(event);
+    };
+
+    window.addEventListener("socket:user-status", handleUserStatusEvent);
+
+    return () => {
+      window.removeEventListener("socket:user-status", handleUserStatusEvent);
+    };
+  }, []);
 
   useEffect(() => {
     if (!statusPayload) return;
@@ -414,8 +335,6 @@ export default function MessagesPage() {
       }))
     );
   }, [statusPayload]);
-
-  // =======================================================================
 
   return (
     <div className="flex h-screen bg-gray-50">

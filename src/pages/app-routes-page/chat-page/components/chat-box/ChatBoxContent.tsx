@@ -7,6 +7,9 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import SentMessageBubble from "../message-bubbles/SentMessageBubble.tsx";
 import ReceivedMessageBubble from "../message-bubbles/ReceivedMessageBubble.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
+import { useSelector } from "react-redux";
+import { selectTypingUsers } from "@/features/slices/chatSlice";
+import { selectUser } from "@/features/slices/authSlice";
 
 interface ChatBoxContentProps {
   selectedChat: RoomResponse;
@@ -37,6 +40,26 @@ export const ChatBoxContent = ({
   const prevScrollHeightRef = useRef<number>(0);
 
   const theme = getTheme(selectedChat.theme);
+
+  const currentUser = useSelector(selectUser);
+  const typingUsers = useSelector(selectTypingUsers(selectedChat.roomId));
+
+  console.log("[v0] Current user:", currentUser);
+  console.log("[v0] All typing users:", typingUsers);
+
+  const otherUsersTyping = typingUsers.filter((u) => {
+    const isNotCurrentUser = u.userId !== currentUser?.id;
+    const isTyping = u.isTyping;
+    console.log("[v0] Typing user check:", {
+      userId: u.userId,
+      currentUserId: currentUser?.id,
+      isNotCurrentUser,
+      isTyping,
+    });
+    return isNotCurrentUser && isTyping;
+  });
+
+  console.log("[v0] Other users typing:", otherUsersTyping);
 
   useEffect(() => {
     if (messagesEndRef.current && shouldScrollToBottom && !isLoadingMore) {
@@ -111,7 +134,7 @@ export const ChatBoxContent = ({
       {/* Content layer */}
       <div
         ref={messagesContainerRef}
-        className="relative z-10 h-full overflow-y-auto p-4 space-y-4"
+        className="relative z-10 h-full overflow-y-auto px-4 space-y-4"
         onScroll={handleScroll}
       >
         {isLoadingMore && (
@@ -155,6 +178,27 @@ export const ChatBoxContent = ({
             )}
           </div>
         ))}
+
+        <div className="min-h-8 flex items-center pl-2">
+          {otherUsersTyping.length > 0 && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full animate-in fade-in duration-200">
+              <span className="text-sm text-muted-foreground italic">
+                {otherUsersTyping.length === 1
+                  ? `${otherUsersTyping[0].name}`
+                  : otherUsersTyping.length === 2
+                  ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`
+                  : `${otherUsersTyping[0].name} và ${
+                      otherUsersTyping.length - 1
+                    } người khác`}
+              </span>
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" />
+              </div>
+            </div>
+          )}
+        </div>
 
         <div ref={messagesEndRef} />
       </div>

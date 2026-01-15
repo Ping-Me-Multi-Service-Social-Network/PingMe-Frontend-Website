@@ -95,3 +95,13 @@ const authSlice = createSlice({
 // ===========================================
 export const { updateTokenManually } = authSlice.actions;
 export default authSlice.reducer;
+
+// ===========================================
+// SELECTORS
+// ===========================================
+export const selectUser = (state: { auth: AuthState }) =>
+  state.auth.userSession;
+export const selectIsLogin = (state: { auth: AuthState }) => state.auth.isLogin;
+export const selectAuthLoading = (state: { auth: AuthState }) =>
+  state.auth.isLoading;
+export const selectAuthError = (state: { auth: AuthState }) => state.auth.error;

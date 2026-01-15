@@ -12,10 +12,12 @@ import {
 import storage from "redux-persist/lib/storage";
 import authReducer from "./slices/authSlice";
 import musicReducer from "./slices/musicSlice";
+import chatReducer from "./slices/chatSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
   music: musicReducer,
+  chat: chatReducer,
 });
 
 const persistConfig = {

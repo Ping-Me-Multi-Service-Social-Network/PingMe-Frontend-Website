@@ -2,7 +2,7 @@ import type React from "react";
 import { getTheme } from "../../utils/chatThemes.ts";
 import type { RoomResponse } from "@/types/chat/room";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {
@@ -18,6 +18,7 @@ import {
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { SocketManager } from "@/services/ws/socketManager";
 
 interface FilePreview {
   file: File;
@@ -51,6 +52,8 @@ export function ChatBoxInput({
   const [isSending, setIsSending] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleEmojiSelect = (emojiData: EmojiClickData) => {
     setNewMessage(newMessage + emojiData.emoji);
@@ -67,9 +70,60 @@ export function ChatBoxInput({
     }
   };
 
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setNewMessage(value);
+
+      console.log("[v0] Input changed:", {
+        value,
+        valueLength: value.length,
+        isTyping,
+        roomId: selectedChat.roomId,
+      });
+
+      if (!isTyping && value.trim()) {
+        setIsTyping(true);
+        console.log("[v0] Starting typing - sending isTyping=true");
+        SocketManager.sendTyping(selectedChat.roomId, true);
+      }
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      typingTimeoutRef.current = setTimeout(() => {
+        console.log("[v0] Typing timeout - sending isTyping=false");
+        setIsTyping(false);
+        SocketManager.sendTyping(selectedChat.roomId, false);
+      }, 2000);
+    },
+    [selectedChat.roomId, isTyping, setNewMessage]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      if (isTyping) {
+        SocketManager.sendTyping(selectedChat.roomId, false);
+      }
+    };
+  }, [selectedChat.roomId, isTyping]);
+
   const handleSend = async () => {
     if ((!newMessage.trim() && selectedFiles.length === 0) || isSending) {
       return;
+    }
+
+    if (isTyping) {
+      console.log("[v0] Sending message - stopping typing");
+      setIsTyping(false);
+      SocketManager.sendTyping(selectedChat.roomId, false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
     }
 
     setIsSending(true);
@@ -343,7 +397,7 @@ export function ChatBoxInput({
           <div className="relative flex-1">
             <Input
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Nhập tin nhắn..."
               className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
               onKeyPress={handleKeyPress}
