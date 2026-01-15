@@ -1,5 +1,4 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
-import type { ApiResponse } from "@/types/base/apiResponse";
 import type { DefaultAuthResponse } from "@/types/authentication";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 
@@ -88,13 +87,11 @@ axiosClient.interceptors.response.use(
     };
 
     // 1. Phân tích lỗi
-    const payload = error.response?.data as ApiResponse<unknown> | undefined;
-    const code = payload?.errorCode;
+    const status = error.response?.status;
 
-    // Điều kiện: 401 VÀ ErrorCode 1102 (Token Expired)
-    const isTokenExpired = error.response?.status === 401 && code == 1102;
+    const isUnauthorized = status === 401;
 
-    if (!isTokenExpired || !originalRequest || originalRequest._retry) {
+    if (!isUnauthorized || !originalRequest || originalRequest._retry) {
       return Promise.reject(error);
     }
 
