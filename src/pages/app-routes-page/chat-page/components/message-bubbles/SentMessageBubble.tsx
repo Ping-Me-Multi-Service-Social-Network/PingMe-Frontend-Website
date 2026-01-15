@@ -100,7 +100,7 @@ export default function SentMessageBubble({
       case "TEXT":
       default:
         return (
-          <p className="text-sm leading-relaxed break-words">
+          <p className="text-sm leading-relaxed wrap-break-word">
             {message.content}
           </p>
         );
