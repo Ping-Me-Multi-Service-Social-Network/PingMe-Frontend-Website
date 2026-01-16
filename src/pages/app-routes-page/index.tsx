@@ -28,6 +28,7 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
 } from "@/services/ws/module/chatSocket";
+import AppLoader from "@/components/custom/AppLoader.tsx";
 
 export default function AppPageLayout() {
   const location = useLocation();
@@ -133,7 +134,7 @@ export default function AppPageLayout() {
 
   return (
     <AudioPlayerProvider>
-      <Suspense fallback={null}>
+      <Suspense fallback={<AppLoader />}>
         <CallProvider>
           <div
             className={`h-screen bg-gray-100 flex overflow-hidden ${
