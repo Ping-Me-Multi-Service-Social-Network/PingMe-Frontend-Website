@@ -52,7 +52,7 @@ const StatsSection = () => {
   return (
     <section className="py-16 bg-white relative overflow-hidden">
       {/* Background Decoration */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-50 via-transparent to-pink-50 opacity-50" />
+      <div className="absolute inset-0 bg-linear-to-r from-purple-50 via-transparent to-pink-50 opacity-50" />
 
       <div className="max-w-7xl mx-auto px-4 relative">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -81,7 +81,7 @@ const StatCard = ({ stat, index }: StatCardProps) => {
       <motion.div
         whileHover={{ scale: 1.1, rotate: 5 }}
         transition={{ type: "spring", stiffness: 300 }}
-        className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${stat.gradient} rounded-2xl mb-4 shadow-lg`}
+        className={`inline-flex items-center justify-center w-16 h-16 bg-linear-to-br ${stat.gradient} rounded-2xl mb-4 shadow-lg`}
       >
         <Icon className="w-8 h-8 text-white" />
       </motion.div>
@@ -89,7 +89,7 @@ const StatCard = ({ stat, index }: StatCardProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ delay: index * 0.1 + 0.2 }}
-        className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2"
+        className="text-4xl md:text-5xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2"
       >
         {stat.number}
       </motion.div>

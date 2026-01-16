@@ -11,11 +11,11 @@ const CTASection = () => {
       {/* Background with Image */}
       <div className="absolute inset-0">
         <img
-          src="/images/cta-background.jpg"
+          src="/images/cta-background.webp"
           alt="Join PingMe"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-purple-800/90 to-pink-900/95" />
+        <div className="absolute inset-0 bg-linear-to-r from-purple-900/95 via-purple-800/90 to-pink-900/95" />
       </div>
 
       {/* Content */}
