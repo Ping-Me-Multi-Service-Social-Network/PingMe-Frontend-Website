@@ -43,7 +43,7 @@ const FeaturesSection = () => {
       title: "Nhật ký",
       description:
         "Chia sẻ khoảnh khắc hàng ngày, cảm xúc và suy nghĩ của bạn với bạn bè. Giống như mạng xã hội, đăng tức thì không cần duyệt.",
-      image: "/images/feature-diary.jpg",
+      image: "/images/feature-diary.webp",
       gradient: "from-blue-500 to-cyan-500",
       link: "/diaries",
     },
@@ -52,7 +52,7 @@ const FeaturesSection = () => {
       title: "Blog",
       description:
         "Viết và chia sẻ bài viết chuyên sâu, hướng dẫn và kiến thức. Nội dung được kiểm duyệt để đảm bảo chất lượng cao.",
-      image: "/images/feature-blog.jpg",
+      image: "/images/feature-blog.webp",
       gradient: "from-purple-500 to-pink-500",
       link: "/blogs",
     },
@@ -61,7 +61,7 @@ const FeaturesSection = () => {
       title: "Chat",
       description:
         "Trò chuyện trực tiếp với bạn bè, chia sẻ tin nhắn, hình ảnh và cảm xúc. Kết nối nhanh chóng và tiện lợi mọi lúc mọi nơi.",
-      image: "/images/feature-video.jpg",
+      image: "/images/feature-video.webp",
       gradient: "from-green-500 to-emerald-500",
       link: "/chat/messages",
     },
@@ -70,7 +70,7 @@ const FeaturesSection = () => {
       title: "Danh bạ",
       description:
         "Quản lý danh sách bạn bè, tìm kiếm người dùng mới và kết nối với những người bạn quan tâm. Xây dựng mạng lưới của bạn.",
-      image: "/images/feature-contacts.jpg",
+      image: "/images/feature-contacts.webp",
       gradient: "from-indigo-500 to-purple-500",
       link: "/chat/contacts",
     },
@@ -87,7 +87,7 @@ const FeaturesSection = () => {
   return (
     <section
       id="features-section"
-      className="py-20 bg-gradient-to-b from-white via-purple-50/30 to-white"
+      className="py-20 bg-linear-to-b from-white via-purple-50/30 to-white"
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
@@ -166,7 +166,7 @@ const FeatureCard = ({
               }`}
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}
+                className={`absolute inset-0 bg-linear-to-br ${feature.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}
               />
               <img
                 src={feature.image || "/placeholder.svg"}
@@ -177,7 +177,7 @@ const FeatureCard = ({
                 initial={{ scale: 0 }}
                 animate={isInView ? { scale: 1 } : { scale: 0 }}
                 transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                className={`absolute top-6 left-6 w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center shadow-lg`}
+                className={`absolute top-6 left-6 w-16 h-16 bg-linear-to-br ${feature.gradient} rounded-2xl flex items-center justify-center shadow-lg`}
               >
                 <Icon className="w-8 h-8 text-white" />
               </motion.div>
