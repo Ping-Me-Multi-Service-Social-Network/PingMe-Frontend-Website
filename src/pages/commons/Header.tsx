@@ -107,7 +107,7 @@ export default function Header() {
             <div className="flex items-center space-x-3 group">
               <div className="flex items-center justify-center w-10 h-10 rounded-full group-hover:scale-110 transition-all duration-300">
                 <img
-                  src="/logo.png"
+                  src="/icons/logo.webp"
                   alt="PingMe Logo"
                   className="w-10 h-10 object-contain"
                 />

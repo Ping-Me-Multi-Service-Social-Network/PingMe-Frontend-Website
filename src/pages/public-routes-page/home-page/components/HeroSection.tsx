@@ -21,7 +21,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 overflow-hidden">
+    <section className="relative bg-linear-to-br from-purple-600 via-purple-700 to-pink-600 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div
@@ -60,7 +60,7 @@ const HeroSection = () => {
               className="text-5xl md:text-6xl font-bold leading-tight"
             >
               Trải nghiệm giao tiếp
-              <span className="block bg-gradient-to-r from-pink-200 to-purple-200 bg-clip-text text-transparent">
+              <span className="block bg-linear-to-r from-pink-200 to-purple-200 bg-clip-text text-transparent">
                 thế hệ mới
               </span>
             </motion.h1>
@@ -99,12 +99,12 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="relative"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-400 to-purple-400 rounded-3xl blur-3xl opacity-50" />
+            <div className="absolute inset-0 bg-linear-to-br from-pink-400 to-purple-400 rounded-3xl blur-3xl opacity-50" />
             <motion.img
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              src="/images/hero-chat.jpg"
+              src="/images/hero-chat.webp"
               alt="PingMe Chat Interface"
               className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
             />
