@@ -85,7 +85,7 @@ export default function RegisterForm() {
 
           <div className="relative z-10 text-center space-y-6">
             <div className="flex items-center justify-center space-x-3 mb-8">
-              <img src="/logo.png" alt="PingMe" className="w-16 h-16" />
+              <img src="/icons/logo.webp" alt="PingMe" className="w-16 h-16" />
               <h1 className="text-4xl font-bold text-white">PingMe</h1>
             </div>
 
@@ -126,7 +126,7 @@ export default function RegisterForm() {
           <div className="w-full max-w-md mx-auto space-y-6">
             {/* Mobile Logo */}
             <div className="lg:hidden flex items-center justify-center space-x-3 mb-6">
-              <img src="/logo.png" alt="PingMe" className="w-12 h-12" />
+              <img src="/icons/logo.webp" alt="PingMe" className="w-12 h-12" />
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
                 PingMe
               </h1>

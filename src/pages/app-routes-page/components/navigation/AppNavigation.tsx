@@ -193,7 +193,7 @@ export default function AppNavigation() {
                 className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all duration-300 hover:scale-105"
               >
                 <img
-                  src="/logo.png"
+                  src="/icons/logo.webp"
                   alt="PingMe Logo"
                   className="w-8 h-8 drop-shadow-lg"
                 />
