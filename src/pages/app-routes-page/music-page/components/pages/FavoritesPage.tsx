@@ -124,7 +124,7 @@ export default function FavoritesPage() {
                     </button>
 
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-lg bg-linear-to-br from-red-500 to-pink-600 flex items-center justify-center">
                             <Heart className="w-8 h-8 text-white fill-white" />
                         </div>
                         <div>

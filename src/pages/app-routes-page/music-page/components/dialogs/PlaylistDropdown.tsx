@@ -235,14 +235,14 @@ export default function PlaylistDropdown({
                     <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="end"
-                        className="w-[280px] bg-gray-800 border-gray-700"
+                        className="w-70 bg-gray-800 border-gray-700"
                     >
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger className="text-white hover:bg-gray-700">
                                 <ListPlus className="mr-2 h-4 w-4" />
                                 <span>Thêm vào danh sách phát</span>
                             </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className="w-[280px] bg-gray-800 border-gray-700 max-h-[400px] overflow-y-auto">
+                            <DropdownMenuSubContent className="w-70 bg-gray-800 border-gray-700 max-h-100 overflow-y-auto">
                                 <DropdownMenuItem
                                     onClick={(e) => {
                                         e.preventDefault();
@@ -297,7 +297,7 @@ export default function PlaylistDropdown({
                 <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
                 <DropdownMenuContent
                     align="end"
-                    className="w-[280px] bg-gray-800 border-gray-700"
+                    className="w-70 bg-gray-800 border-gray-700"
                     onEscapeKeyDown={(e) => e.stopPropagation()}
                     onPointerDownOutside={(e) => e.stopPropagation()}
                 >
@@ -306,7 +306,7 @@ export default function PlaylistDropdown({
                             <ListPlus className="mr-2 h-4 w-4" />
                             <span>Thêm vào danh sách phát</span>
                         </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="w-[280px] bg-gray-800 border-gray-700 max-h-[400px] overflow-y-auto">
+                        <DropdownMenuSubContent className="w-70 bg-gray-800 border-gray-700 max-h-100 overflow-y-auto">
                             {/* Search Playlist */}
                             <div className="p-2">
                                 <div className="relative">

@@ -6,7 +6,7 @@ import { Heart, MoreVertical } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
-import PlaylistDropdown from "./PlaylistDropdown";
+import PlaylistDropdown from "../dialogs/PlaylistDropdown";
 
 interface AudioPlayerComponentProps {
   currentSong?: Song | null;
@@ -172,7 +172,7 @@ export default function AudioPlayerComponent({
 
   if (playlist.length === 0) {
     return (
-      <div className="w-full bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-xl bg-opacity-95">
+      <div className="w-full bg-gradient from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-xl bg-opacity-95">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <p className="text-center text-zinc-500 text-sm">
             No songs available. Select a track to play.
@@ -188,7 +188,7 @@ export default function AudioPlayerComponent({
   }
 
   return (
-    <div className="w-full bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-xl bg-opacity-95 shadow-2xl">
+    <div className="w-full bg-linear-to-r from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-xl bg-opacity-95 shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 py-3">
         {/* Top row: Song info and Action Buttons */}
         <div className="flex items-center justify-between gap-3 mb-3">
@@ -196,7 +196,7 @@ export default function AudioPlayerComponent({
             <img
               src={track.coverImageUrl || "/placeholder.svg"}
               alt={track.title}
-              className="w-14 h-14 rounded-md object-cover shadow-lg flex-shrink-0"
+              className="w-14 h-14 rounded-md object-cover shadow-lg shrink-0"
             />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-white truncate text-sm">
@@ -209,7 +209,7 @@ export default function AudioPlayerComponent({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             {/* Favorite Button */}
             <button
               onClick={handleToggleFavorite}

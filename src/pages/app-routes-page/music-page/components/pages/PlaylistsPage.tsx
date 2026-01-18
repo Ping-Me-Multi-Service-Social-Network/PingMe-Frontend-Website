@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { LoadingState, ErrorState } from "./LoadingErrorStates";
+import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 
 export default function PlaylistsPage() {
     const navigate = useNavigate();
@@ -192,7 +192,7 @@ export default function PlaylistsPage() {
                                 className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-colors cursor-pointer w-full text-left"
                                 onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
                             >
-                                <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4">
+                                <div className="aspect-square rounded-lg bg-linear-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4">
                                     <Music className="w-12 h-12 text-white" />
                                 </div>
 

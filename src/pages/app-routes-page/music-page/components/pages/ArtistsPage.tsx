@@ -4,8 +4,8 @@ import { searchService } from "@/services/music/musicService.ts";
 import type { ArtistResponse, SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play } from "lucide-react";
-import { convertToSong } from "../utils/commonHandlers";
-import { LoadingState, ErrorState } from "./LoadingErrorStates";
+import { convertToSong } from "../../utils/commonHandlers.ts";
+import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { fetchAllArtists } from "@/features/slices/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
@@ -78,7 +78,7 @@ export default function ArtistsPage() {
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
             {/* Hero Banner */}
-            <div className="relative h-80 bg-gradient-to-b from-zinc-800/50 to-transparent">
+            <div className="relative h-80 bg-linear-to-b from-zinc-800/50 to-transparent">
                 <div className="absolute inset-0 bg-cover bg-center opacity-30"
                     style={{ backgroundImage: `url(${artists[0]?.imgUrl || ''})` }} />
                 <div className="relative max-w-7xl mx-auto px-8 h-full flex flex-col justify-end pb-8">

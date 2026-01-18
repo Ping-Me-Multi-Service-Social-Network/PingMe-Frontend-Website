@@ -39,36 +39,36 @@ const ContactsPage = lazy(() => import("@/pages/app-routes-page/contact-page"));
 // ===========================================================
 // APP PAGES - Music
 // ===========================================================
-const MusicPage = lazy(() => import("@/pages/app-routes-page/music-page"));
+const MusicHomePage = lazy(() => import("@/pages/app-routes-page/music-page"));
 const MusicLayout = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/MusicLayout")
+  () => import("@/pages/app-routes-page/music-page/components/layout/MusicLayout")
 );
 const SongListPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/SongListPage")
+  () => import("@/pages/app-routes-page/music-page/components/pages/SongListPage")
 );
 const AlbumsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/AlbumsPage")
+  () => import("@/pages/app-routes-page/music-page/components/pages/AlbumsPage")
 );
 const ArtistsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/ArtistsPage")
+  () => import("@/pages/app-routes-page/music-page/components/pages/ArtistsPage")
 );
 const RankingsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/RankingsPage")
+  () => import("@/pages/app-routes-page/music-page/components/pages/RankingsPage")
 );
 const FavoritesPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/FavoritesPage")
+  () => import("@/pages/app-routes-page/music-page/components/pages/FavoritesPage")
 );
 const PlaylistsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/PlaylistsPage")
+  () => import("@/pages/app-routes-page/music-page/components/pages/PlaylistsPage")
 );
 const PlaylistDetailPage = lazy(
   () =>
-    import("@/pages/app-routes-page/music-page/components/PlaylistDetailPage")
+    import("@/pages/app-routes-page/music-page/components/pages/PlaylistDetailPage")
 );
 const DiscoverPlaylistsPage = lazy(
   () =>
     import(
-      "@/pages/app-routes-page/music-page/components/DiscoverPlaylistsPage"
+      "@/pages/app-routes-page/music-page/components/pages/DiscoverPlaylistsPage"
     )
 );
 
@@ -244,7 +244,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <LazyElement>
-                <MusicPage />
+                <MusicHomePage />
               </LazyElement>
             ),
           },
