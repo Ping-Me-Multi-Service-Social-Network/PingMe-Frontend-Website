@@ -139,9 +139,7 @@ export default function AudioPlayerComponent({
     if (playlist.length === 0) return;
     const nextIndex = (currentTrackIndex + 1) % playlist.length;
     setCurrentTrackIndex(nextIndex);
-    if (onSongChange && playlist[nextIndex]) {
-      onSongChange(playlist[nextIndex]);
-    }
+    onSongChange?.(playlist[nextIndex]);
   };
 
   const handleClickPrev = () => {
@@ -149,9 +147,7 @@ export default function AudioPlayerComponent({
     const prevIndex =
       currentTrackIndex > 0 ? currentTrackIndex - 1 : playlist.length - 1;
     setCurrentTrackIndex(prevIndex);
-    if (onSongChange && playlist[prevIndex]) {
-      onSongChange(playlist[prevIndex]);
-    }
+    onSongChange?.(playlist[prevIndex]);
   };
 
   if (playlist.length === 0) {
