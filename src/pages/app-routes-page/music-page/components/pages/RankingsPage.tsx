@@ -6,6 +6,7 @@ import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { TopSongPlayCounter } from "@/types/music";
 import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
+import RankingSongItem from "../shared/RankingSongItem";
 
 type RankingTab = "today" | "week" | "month";
 
@@ -106,12 +107,6 @@ export default function RankingsPage() {
         } catch (err) {
             console.error("Error fetching song details:", err);
         }
-    };
-
-    const formatPlayCount = (count: number) => {
-        if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-        if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-        return count.toString();
     };
 
     if (loading) {
@@ -241,99 +236,24 @@ export default function RankingsPage() {
                             {/* Left Column - Songs 1-25 */}
                             <div className="space-y-3">
                                 {currentSongs.slice(0, 25).map((item, index) => (
-                                    <button
+                                    <RankingSongItem
                                         key={item.songId}
-                                        className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer w-full text-left"
+                                        item={item}
+                                        rank={index + 1}
                                         onClick={() => handleSongPlay(item)}
-                                    >
-                                        {/* Rank Number */}
-                                        <div className="w-12 text-center">
-                                            <span
-                                                className={`text-2xl font-bold ${index < 3
-                                                    ? "bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
-                                                    : "text-gray-400"
-                                                    }`}
-                                            >
-                                                {index + 1}
-                                            </span>
-                                        </div>
-
-                                        {/* Album Cover */}
-                                        <div className="relative w-14 h-14 shrink-0">
-                                            <img
-                                                src={item.imgUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover rounded"
-                                            />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
-                                                <Play className="w-6 h-6 text-white fill-white" />
-                                            </div>
-                                        </div>
-
-                                        {/* Song Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-medium truncate group-hover:text-purple-400 transition-colors">
-                                                {item.title}
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                                                <span className="truncate">
-                                                    {item.playCount} plays
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Play Count */}
-                                        <div className="text-sm text-gray-400">
-                                            {formatPlayCount(item.playCount)}
-                                        </div>
-                                    </button>
+                                    />
                                 ))}
                             </div>
 
                             {/* Right Column - Songs 26-50 */}
                             <div className="space-y-3">
                                 {currentSongs.slice(25, 50).map((item, index) => (
-                                    <button
+                                    <RankingSongItem
                                         key={item.songId}
-                                        className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer w-full text-left"
+                                        item={item}
+                                        rank={index + 26}
                                         onClick={() => handleSongPlay(item)}
-                                    >
-                                        {/* Rank Number */}
-                                        <div className="w-12 text-center">
-                                            <span className="text-2xl font-bold text-gray-400">
-                                                {index + 26}
-                                            </span>
-                                        </div>
-
-                                        {/* Album Cover */}
-                                        <div className="relative w-14 h-14 shrink-0">
-                                            <img
-                                                src={item.imgUrl}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover rounded"
-                                            />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
-                                                <Play className="w-6 h-6 text-white fill-white" />
-                                            </div>
-                                        </div>
-
-                                        {/* Song Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-medium truncate group-hover:text-purple-400 transition-colors">
-                                                {item.title}
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                                                <span className="truncate">
-                                                    {item.playCount} plays
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Play Count */}
-                                        <div className="text-sm text-gray-400">
-                                            {formatPlayCount(item.playCount)}
-                                        </div>
-                                    </button>
+                                    />
                                 ))}
                             </div>
                         </>
