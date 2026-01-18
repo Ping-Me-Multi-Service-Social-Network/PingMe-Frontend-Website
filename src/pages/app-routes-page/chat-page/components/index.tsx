@@ -142,7 +142,24 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
             roomId: selectedChat.roomId,
           };
 
-          await sendMessageApi(messageData);
+          const response = await sendMessageApi(messageData);
+          const sentMessage = response.data.data as MessageResponse;
+
+          // Thêm message vào UI từ API response (cho trường hợp retry sau refresh token)
+          setMessages((prev) => {
+            const existingIds = new Set(prev.map((msg) => msg.id));
+            const existingClientIds = new Set(
+              prev.map((msg) => msg.clientMsgId)
+            );
+            if (
+              existingIds.has(sentMessage.id) ||
+              existingClientIds.has(sentMessage.clientMsgId)
+            ) {
+              return prev;
+            }
+            return [...prev, sentMessage];
+          });
+
           setNewMessage("");
         } catch (err) {
           toast.error(getErrorMessage(err));
@@ -172,7 +189,20 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
         );
         formData.append("file", file);
 
-        await sendFileMessageApi(formData);
+        const response = await sendFileMessageApi(formData);
+        const sentMessage = response.data.data as MessageResponse;
+
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((msg) => msg.id));
+          const existingClientIds = new Set(prev.map((msg) => msg.clientMsgId));
+          if (
+            existingIds.has(sentMessage.id) ||
+            existingClientIds.has(sentMessage.clientMsgId)
+          ) {
+            return prev;
+          }
+          return [...prev, sentMessage];
+        });
       } catch (err) {
         toast.error(getErrorMessage(err, "Không thể gửi file"));
       }
@@ -187,7 +217,20 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           clientMsgId: crypto.randomUUID(),
         };
 
-        await sendWeatherMessage(weatherRequest);
+        const response = await sendWeatherMessage(weatherRequest);
+        const sentMessage = response.data.data as MessageResponse;
+
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((msg) => msg.id));
+          const existingClientIds = new Set(prev.map((msg) => msg.clientMsgId));
+          if (
+            existingIds.has(sentMessage.id) ||
+            existingClientIds.has(sentMessage.clientMsgId)
+          ) {
+            return prev;
+          }
+          return [...prev, sentMessage];
+        });
       } catch (err) {
         toast.error(getErrorMessage(err, "Không thể gửi thông tin thời tiết"));
       }
