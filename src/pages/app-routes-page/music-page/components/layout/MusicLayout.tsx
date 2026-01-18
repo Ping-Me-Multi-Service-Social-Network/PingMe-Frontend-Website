@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import MusicSearchBar from "./MusicSearchBar.tsx";
+import MusicSearchBar from "../search/MusicSearchBar.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import type { Song } from "@/types/music/song";
 import type { SongResponseWithAllAlbum } from "@/types/music";

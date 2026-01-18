@@ -24,13 +24,13 @@ interface SongItemProps {
   onSelect: (song: SongResponseWithAllAlbum) => void;
 }
 
-function SongItem({ song, onSelect }: SongItemProps) {
+function SongItem({ song, onSelect }: Readonly<SongItemProps>) {
   return (
     <button
       onClick={() => onSelect(song)}
       className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
     >
-      <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="relative w-10 h-10 shrink-0">
         {song.coverImageUrl ? (
           <img
             src={song.coverImageUrl || "/placeholder.svg"}
@@ -60,13 +60,13 @@ interface AlbumItemProps {
   onSelect: (album: AlbumResponse) => void;
 }
 
-function AlbumItem({ album, onSelect }: AlbumItemProps) {
+function AlbumItem({ album, onSelect }: Readonly<AlbumItemProps>) {
   return (
     <button
       onClick={() => onSelect(album)}
       className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
     >
-      <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="relative w-10 h-10 shrink-0">
         {album.coverImgUrl ? (
           <img
             src={album.coverImgUrl || "/placeholder.svg"}
@@ -96,13 +96,13 @@ interface ArtistItemProps {
   onSelect: (artist: ArtistResponse) => void;
 }
 
-function ArtistItem({ artist, onSelect }: ArtistItemProps) {
+function ArtistItem({ artist, onSelect }: Readonly<ArtistItemProps>) {
   return (
     <button
       onClick={() => onSelect(artist)}
       className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
     >
-      <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="relative w-10 h-10 shrink-0">
         {artist.imgUrl ? (
           <img
             src={artist.imgUrl || "/placeholder.svg"}
@@ -136,7 +136,7 @@ export default function SearchDropdown({
   onViewMoreSongs,
   onViewMoreAlbums,
   onViewMoreArtists,
-}: SearchDropdownProps) {
+}: Readonly<SearchDropdownProps>) {
   const [songs, setSongs] = useState<SongResponseWithAllAlbum[]>([]);
   const [albums, setAlbums] = useState<AlbumResponse[]>([]);
   const [artists, setArtists] = useState<ArtistResponse[]>([]);

@@ -137,14 +137,13 @@ export default function AppPageLayout() {
       <Suspense fallback={<AppLoader />}>
         <CallProvider>
           <div
-            className={`h-screen bg-gray-100 flex overflow-hidden ${
-              !isMusicPage && isTransitioning ? "light-module-enter" : ""
-            }`}
+            className={`h-screen bg-gray-100 flex overflow-hidden ${!isMusicPage && isTransitioning ? "light-module-enter" : ""
+              }`}
             style={{
               transition: "background-color 0.6s ease-in-out",
             }}
           >
-            <div className="shrink-0 lg:block">
+            <div className="shrink-0">
               <AppNavigation />
             </div>
 

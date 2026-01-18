@@ -4,7 +4,7 @@ interface LoadingStateProps {
     message?: string;
 }
 
-export function LoadingState({ message }: LoadingStateProps) {
+export function LoadingState({ message }: Readonly<LoadingStateProps>) {
     return (
         <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
             <LoadingSpinner />
@@ -17,7 +17,7 @@ interface ErrorStateProps {
     message: string;
 }
 
-export function ErrorState({ message }: ErrorStateProps) {
+export function ErrorState({ message }: Readonly<ErrorStateProps>) {
     return (
         <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
             <p className="text-red-400">{message}</p>

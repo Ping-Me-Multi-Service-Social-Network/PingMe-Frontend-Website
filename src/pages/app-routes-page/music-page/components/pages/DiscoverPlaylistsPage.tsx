@@ -5,7 +5,7 @@ import { playlistApi } from "@/services/music/playlistApi.ts";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { LoadingState, ErrorState } from "./LoadingErrorStates";
+import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 
 export default function DiscoverPlaylistsPage() {
     const navigate = useNavigate();
@@ -109,7 +109,7 @@ export default function DiscoverPlaylistsPage() {
                                     className="group relative rounded-lg bg-zinc-800/50 p-4 hover:bg-zinc-700/50 transition-all cursor-pointer hover:scale-105 w-full text-left"
                                     onClick={() => handlePlaylistClick(playlist.id)}
                                 >
-                                    <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 relative">
+                                    <div className="aspect-square rounded-lg bg-linear-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-4 relative">
                                         <Music className="w-12 h-12 text-white" />
                                         <div className="absolute top-2 right-2">
                                             <Globe className="w-5 h-5 text-white/80" />

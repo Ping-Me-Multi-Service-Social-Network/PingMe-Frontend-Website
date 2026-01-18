@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { useState, useEffect } from "react";
 import { favoriteApi } from "@/services/music/favoriteApi";
 import { toast } from "sonner";
-import PlaylistDropdown from "./PlaylistDropdown";
+import PlaylistDropdown from "../dialogs/PlaylistDropdown";
+import { dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
 
 interface SongListItemProps {
   song: Song | SongResponseWithAllAlbum;
@@ -17,7 +18,7 @@ export default function SongListItem({
   song,
   onPlay,
   index,
-}: SongListItemProps) {
+}: Readonly<SongListItemProps>) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,10 +48,7 @@ export default function SongListItem({
       await action(song.id);
       setIsFavorite(!isFavorite);
       toast.success(successMessage);
-
-      globalThis.dispatchEvent(new CustomEvent(eventType, {
-        detail: { songId: song.id }
-      }));
+      dispatchFavoriteEvent(eventType, song.id);
     } catch (error) {
       console.error("Error toggling favorite:", error);
       toast.error("Có lỗi xảy ra");
@@ -72,7 +70,7 @@ export default function SongListItem({
       type="button"
       onClick={handleRowClick}
       aria-label={`Phát bài hát ${song.title} của ${song.mainArtist?.name || "Unknown Artist"}`}
-      className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-gradient-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full text-left"
+      className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-linear-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full text-left"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -91,7 +89,7 @@ export default function SongListItem({
           </Button>
         </div>
       )}
-      <div className="relative w-12 h-12 flex-shrink-0">
+      <div className="relative w-12 h-12 shrink-0">
         {song.coverImageUrl ? (
           <img
             src={song.coverImageUrl || "/placeholder.svg"}

@@ -9,7 +9,7 @@ import type {
   AlbumResponse,
   ArtistResponse,
 } from "@/types/music";
-import SongListItem from "./SongListItem.tsx";
+import SongListItem from "../cards/SongListItem.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import Pagination from "@/components/custom/Pagination.tsx";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
@@ -215,15 +215,19 @@ export default function SongListPage() {
     const iconClass = "w-20 h-20 text-zinc-600";
     const containerClass = `w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"} flex items-center justify-center shadow-2xl`;
 
+    const renderIcon = () => {
+      if (type === "album") {
+        return <Disc3 className={iconClass} />;
+      }
+      if (type === "artist") {
+        return <User2 className={iconClass} />;
+      }
+      return <Music className={iconClass} />;
+    };
+
     return (
       <div className={containerClass}>
-        {type === "album" ? (
-          <Disc3 className={iconClass} />
-        ) : type === "artist" ? (
-          <User2 className={iconClass} />
-        ) : (
-          <Music className={iconClass} />
-        )}
+        {renderIcon()}
       </div>
     );
   };
@@ -333,7 +337,7 @@ export default function SongListPage() {
               </div>
 
               {songs.length > itemsPerPage && (
-                <div className="bg-zinc-800/50 rounded-lg p-4 [&_.flex]:!bg-zinc-800/50 [&_.flex]:border-zinc-700 [&_button]:!bg-zinc-700 [&_button]:!text-zinc-200 [&_button]:!border-zinc-600 [&_button:hover]:!bg-zinc-600 [&_button.bg-purple-600]:!bg-purple-600 [&_button.bg-purple-600]:!text-white [&_button.bg-purple-600:hover]:!bg-purple-500 [&_span]:!text-zinc-300 [&_select]:!bg-zinc-700 [&_select]:!text-zinc-200 [&_select]:!border-zinc-600">
+                <div className="bg-zinc-800/50 rounded-lg p-4 [&_.flex]:bg-zinc-800/50! [&_.flex]:border-zinc-700 [&_button]:bg-zinc-700! [&_button]:text-zinc-200! [&_button]:border-zinc-600! [&_button:hover]:bg-zinc-600! [&_button.bg-purple-600]:bg-purple-600! [&_button.bg-purple-600]:text-white! [&_button.bg-purple-600:hover]:bg-purple-500! [&_span]:text-zinc-300! [&_select]:bg-zinc-700! [&_select]:text-zinc-200 [&_select]:border-zinc-600">
                   <Pagination
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
