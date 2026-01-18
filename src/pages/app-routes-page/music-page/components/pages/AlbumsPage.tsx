@@ -4,13 +4,14 @@ import type { AlbumResponse } from "@/services/music/albumApi.ts";
 import { searchService } from "@/services/music/musicService.ts";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
-import { ArrowLeft, Play, Music2 } from "lucide-react";
+import { ArrowLeft, Music2 } from "lucide-react";
 import { convertToSong } from "../../utils/commonHandlers.ts";
 import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { fetchAllAlbums } from "@/features/slices/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_ALBUMS_LIMIT, TOP_ARTISTS_FOR_PREVIEW } from "@/constants/musicConstants";
+import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColumnLayout";
 
 export default function AlbumsPage() {
     const dispatch = useAppDispatch();
@@ -97,106 +98,71 @@ export default function AlbumsPage() {
             </div>
 
             <div className="max-w-7xl mx-auto px-8 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Rank Column */}
-                    <div>
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <span className="text-2xl">🏆</span> Rank
-                        </h2>
-                        <div className="space-y-3">
-                            {albums.slice(0, 10).map((album, index) => (
-                                <button
+                <TwoColumnLayout
+                    items={albums}
+                    itemSongsMap={albumSongs}
+                    getItemId={(album) => album.id}
+                    rankTitle="🏆 Rank"
+                    songTitle="🎵 Top song"
+                    renderRankItem={(album, index) => (
+                        <button
+                            key={album.id}
+                            onClick={() => handleAlbumClick(album)}
+                            className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group w-full text-left"
+                        >
+                            <div className="text-2xl font-bold text-white w-8">
+                                #{index + 1}
+                            </div>
+                            <img
+                                src={album.coverImgUrl || "/placeholder.svg"}
+                                alt={album.title}
+                                className="w-16 h-16 rounded-lg object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-white font-semibold truncate">{album.title}</h3>
+                                <p className="text-sm text-zinc-400">
+                                    {album.playCount?.toLocaleString()} plays
+                                </p>
+                            </div>
+                        </button>
+                    )}
+                    renderSongItem={(album, song) => {
+                        if (!song) {
+                            return (
+                                <EmptySongItem
                                     key={album.id}
-                                    onClick={() => handleAlbumClick(album)}
-                                    className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition cursor-pointer group w-full text-left"
-                                >
-                                    <div className="text-2xl font-bold text-white w-8">
-                                        #{index + 1}
-                                    </div>
-                                    <img
-                                        src={album.coverImgUrl || "/placeholder.svg"}
-                                        alt={album.title}
-                                        className="w-16 h-16 rounded-lg object-cover"
-                                    />
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-white font-semibold truncate">{album.title}</h3>
-                                        <p className="text-sm text-zinc-400">
-                                            {album.playCount?.toLocaleString()} plays
-                                        </p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                    imageUrl={album.coverImgUrl || "/placeholder.svg"}
+                                    imageAlt={album.title}
+                                    emptyMessage="No songs available"
+                                    subtitle={album.title}
+                                />
+                            );
+                        }
 
-                    {/* Top Song Column */}
-                    <div>
-                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <span className="text-2xl">🎵</span> Top song
-                        </h2>
-                        <div className="space-y-3">
-                            {albums.slice(0, 10).map((album) => {
-                                const songs = albumSongs.get(album.id);
-                                const song = songs?.[0];
-
-                                if (!song) {
-                                    return (
-                                        <div
-                                            key={album.id}
-                                            className="flex items-center gap-4 p-4 bg-zinc-800/30 rounded-lg"
-                                        >
-                                            <img
-                                                src={album.coverImgUrl || "/placeholder.svg"}
-                                                alt={album.title}
-                                                className="w-16 h-16 rounded-lg object-cover"
-                                            />
-                                            <div className="flex-1">
-                                                <p className="text-zinc-500 text-sm">No songs available</p>
-                                                <p className="text-zinc-600 text-xs">{album.title}</p>
-                                            </div>
-                                        </div>
-                                    );
+                        return (
+                            <SongItemCard
+                                key={album.id}
+                                imageUrl={song.coverImageUrl || album.coverImgUrl || "/placeholder.svg"}
+                                imageAlt={song.title}
+                                title={song.title}
+                                subtitle={`${song.mainArtist.name}${song.otherArtists && song.otherArtists.length > 0
+                                    ? `, ${song.otherArtists.map((a) => a.name).join(", ")}`
+                                    : ''
+                                    }`}
+                                additionalInfo={
+                                    <p className="text-xs text-zinc-500 flex items-center gap-1">
+                                        <Music2 className="w-3 h-3" /> {album.title}
+                                    </p>
                                 }
-
-                                return (
-                                    <button
-                                        key={album.id}
-                                        onClick={() => handleSongPlay(song)}
-                                        className="flex items-center gap-4 p-4 bg-zinc-800/30 hover:bg-zinc-800/60 rounded-lg transition group cursor-pointer w-full text-left"
-                                    >
-                                        <div className="relative">
-                                            <img
-                                                src={song.coverImageUrl || album.coverImgUrl || "/placeholder.svg"}
-                                                alt={song.title}
-                                                className="w-16 h-16 rounded-lg object-cover"
-                                            />
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleSongPlay(song);
-                                                }}
-                                                className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition rounded-lg"
-                                            >
-                                                <Play className="w-6 h-6 text-white fill-white" />
-                                            </button>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-medium truncate">{song.title}</h3>
-                                            <p className="text-sm text-zinc-400 truncate">
-                                                {song.mainArtist.name}
-                                                {song.otherArtists && song.otherArtists.length > 0 &&
-                                                    `, ${song.otherArtists.map((a) => a.name).join(", ")}`}
-                                            </p>
-                                            <p className="text-xs text-zinc-500 flex items-center gap-1">
-                                                <Music2 className="w-3 h-3" /> {album.title}
-                                            </p>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
+                                onItemClick={() => handleSongPlay(song)}
+                                onPlayClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSongPlay(song);
+                                }}
+                            />
+                        );
+                    }}
+                />
             </div>
         </div>
     );
