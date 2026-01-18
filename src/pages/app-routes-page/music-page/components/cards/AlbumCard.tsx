@@ -6,7 +6,7 @@ interface AlbumCardProps {
   album: AlbumResponse;
 }
 
-export default function AlbumCard({ album }: AlbumCardProps) {
+export default function AlbumCard({ album }: Readonly<AlbumCardProps>) {
   const navigate = useNavigate();
 
   const handleClick = () => {

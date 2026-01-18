@@ -24,7 +24,7 @@ export default function RankingCard({
     hoverTo,
     fetchData,
     tabType
-}: RankingCardProps) {
+}: Readonly<RankingCardProps>) {
     const navigate = useNavigate();
     const [songs, setSongs] = useState<TopSongPlayCounter[]>([]);
     const [loading, setLoading] = useState(true);
@@ -68,7 +68,7 @@ export default function RankingCard({
             return (
                 <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-black/20 animate-pulse">
+                        <div key={`loading-${title}-${i}`} className="flex items-center gap-3 p-2 rounded-lg bg-black/20 animate-pulse">
                             <div className="w-10 h-10 bg-gray-700 rounded"></div>
                             <div className="flex-1 space-y-2">
                                 <div className="h-3 bg-gray-700 rounded w-3/4"></div>
@@ -89,7 +89,7 @@ export default function RankingCard({
                     </div>
                     {[1, 2, 3, 4].map((i) => (
                         <div
-                            key={`error-${i}`}
+                            key={`error-${title}-${i}`}
                             className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-30"
                         >
                             <span className="text-gray-600 font-bold text-sm w-5">{i}</span>
@@ -108,7 +108,7 @@ export default function RankingCard({
                 <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
                         <div
-                            key={`empty-${i}`}
+                            key={`empty-${title}-${i}`}
                             className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-30"
                         >
                             <span className="text-gray-600 font-bold text-sm w-5">{i}</span>
@@ -141,7 +141,7 @@ export default function RankingCard({
                         // Empty placeholder
                         return (
                             <div
-                                key={`empty-${index}`}
+                                key={`placeholder-${title}-${song.songId}`}
                                 className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-40"
                             >
                                 <span className="text-gray-500 font-bold text-sm w-5">{index + 1}</span>

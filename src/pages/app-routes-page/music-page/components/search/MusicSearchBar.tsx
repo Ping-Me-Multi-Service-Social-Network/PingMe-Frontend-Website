@@ -9,7 +9,7 @@ interface MusicSearchBarProps {
     onSongPlay?: (song: SongResponseWithAllAlbum) => void;
 }
 
-export default function MusicSearchBar({ onSongPlay }: MusicSearchBarProps) {
+export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarProps>) {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
