@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { favoriteApi } from "@/services/music/favoriteApi";
 import { toast } from "sonner";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
+import { dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
 
 interface SongListItemProps {
   song: Song | SongResponseWithAllAlbum;
@@ -47,10 +48,7 @@ export default function SongListItem({
       await action(song.id);
       setIsFavorite(!isFavorite);
       toast.success(successMessage);
-
-      globalThis.dispatchEvent(new CustomEvent(eventType, {
-        detail: { songId: song.id }
-      }));
+      dispatchFavoriteEvent(eventType, song.id);
     } catch (error) {
       console.error("Error toggling favorite:", error);
       toast.error("Có lỗi xảy ra");

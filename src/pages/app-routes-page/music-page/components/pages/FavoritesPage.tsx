@@ -7,6 +7,7 @@ import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { FavoriteDto } from "@/types/music/favorite.ts";
+import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
 
 export default function FavoritesPage() {
     const navigate = useNavigate();
@@ -20,23 +21,10 @@ export default function FavoritesPage() {
     }, []);
 
     // Listen for favorite updates from audio players
-    useEffect(() => {
-        const handleFavoriteAdded = () => {
-            fetchFavorites();
-        };
-
-        const handleFavoriteRemoved = () => {
-            fetchFavorites();
-        };
-
-        globalThis.addEventListener('favorite-added', handleFavoriteAdded);
-        globalThis.addEventListener('favorite-removed', handleFavoriteRemoved);
-
-        return () => {
-            globalThis.removeEventListener('favorite-added', handleFavoriteAdded);
-            globalThis.removeEventListener('favorite-removed', handleFavoriteRemoved);
-        };
-    }, []);
+    useFavoriteEventListener(
+        () => fetchFavorites(),
+        () => fetchFavorites()
+    );
 
     const fetchFavorites = async () => {
         try {
@@ -57,9 +45,7 @@ export default function FavoritesPage() {
             await favoriteApi.removeFavorite(songId);
             setFavorites(prev => prev.filter(fav => fav.songId !== songId));
             // Dispatch event to update heart icon in audio players
-            globalThis.dispatchEvent(new CustomEvent('favorite-removed', {
-                detail: { songId }
-            }));
+            dispatchFavoriteEvent('favorite-removed', songId);
         } catch (err) {
             console.error("Error removing favorite:", err);
         }

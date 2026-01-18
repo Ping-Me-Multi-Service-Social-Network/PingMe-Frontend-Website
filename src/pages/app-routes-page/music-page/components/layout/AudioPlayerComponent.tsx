@@ -7,6 +7,7 @@ import type { Song } from "@/types/music/song";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
+import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
 
 interface AudioPlayerComponentProps {
   currentSong?: Song | null;
@@ -41,29 +42,18 @@ export default function AudioPlayerComponent({
   }, [currentSong]);
 
   // Listen for favorite updates from other components
-  useEffect(() => {
-    const handleFavoriteAdded = (event: Event) => {
-      const customEvent = event as CustomEvent<{ songId: number }>;
-      if (currentSong && customEvent.detail.songId === currentSong.id) {
+  useFavoriteEventListener(
+    (songId) => {
+      if (currentSong && songId === currentSong.id) {
         setIsFavorite(true);
       }
-    };
-
-    const handleFavoriteRemoved = (event: Event) => {
-      const customEvent = event as CustomEvent<{ songId: number }>;
-      if (currentSong && customEvent.detail.songId === currentSong.id) {
+    },
+    (songId) => {
+      if (currentSong && songId === currentSong.id) {
         setIsFavorite(false);
       }
-    };
-
-    globalThis.addEventListener('favorite-added', handleFavoriteAdded);
-    globalThis.addEventListener('favorite-removed', handleFavoriteRemoved);
-
-    return () => {
-      globalThis.removeEventListener('favorite-added', handleFavoriteAdded);
-      globalThis.removeEventListener('favorite-removed', handleFavoriteRemoved);
-    };
-  }, [currentSong]);
+    }
+  );
 
   const handleToggleFavorite = async () => {
     if (!currentSong) return;
@@ -72,17 +62,11 @@ export default function AudioPlayerComponent({
       if (isFavorite) {
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
-        // Dispatch event to notify FavoritesPage to refresh
-        globalThis.dispatchEvent(new CustomEvent('favorite-removed', {
-          detail: { songId: currentSong.id }
-        }));
+        dispatchFavoriteEvent('favorite-removed', currentSong.id);
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
-        // Dispatch event to notify FavoritesPage to refresh
-        globalThis.dispatchEvent(new CustomEvent('favorite-added', {
-          detail: { songId: currentSong.id }
-        }));
+        dispatchFavoriteEvent('favorite-added', currentSong.id);
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
