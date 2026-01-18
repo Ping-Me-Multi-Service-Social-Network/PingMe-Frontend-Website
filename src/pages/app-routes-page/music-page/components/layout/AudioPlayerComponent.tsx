@@ -44,12 +44,12 @@ export default function AudioPlayerComponent({
   // Listen for favorite updates from other components
   useFavoriteEventListener(
     (songId) => {
-      if (currentSong && songId === currentSong.id) {
+      if (currentSong?.id === songId) {
         setIsFavorite(true);
       }
     },
     (songId) => {
-      if (currentSong && songId === currentSong.id) {
+      if (currentSong?.id === songId) {
         setIsFavorite(false);
       }
     }
