@@ -17,7 +17,7 @@ const formatPlayCount = (count: number): string => {
     return count.toString();
 };
 
-export default function RankingSongItem({ item, rank, onClick }: RankingSongItemProps) {
+export default function RankingSongItem({ item, rank, onClick }: Readonly<RankingSongItemProps>) {
     return (
         <button
             className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-800/50 transition-colors cursor-pointer w-full text-left"
@@ -27,8 +27,8 @@ export default function RankingSongItem({ item, rank, onClick }: RankingSongItem
             <div className="w-12 text-center">
                 <span
                     className={`text-2xl font-bold ${rank <= 3
-                            ? "bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
-                            : "text-gray-400"
+                        ? "bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
+                        : "text-gray-400"
                         }`}
                 >
                     {rank}

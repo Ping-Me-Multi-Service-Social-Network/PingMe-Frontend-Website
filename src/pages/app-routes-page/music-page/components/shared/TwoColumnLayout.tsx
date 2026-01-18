@@ -19,7 +19,7 @@ export default function TwoColumnLayout<T>({
     getItemId,
     rankTitle = "🏆 Rank",
     songTitle = "🔥 Trending song"
-}: TwoColumnLayoutProps<T>) {
+}: Readonly<TwoColumnLayoutProps<T>>) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Rank Column */}
@@ -69,7 +69,7 @@ export function SongItemCard({
     onItemClick,
     onPlayClick,
     showPlayButton = true
-}: SongItemCardProps) {
+}: Readonly<SongItemCardProps>) {
     return (
         <button
             onClick={onItemClick}
@@ -106,7 +106,7 @@ interface EmptySongItemProps {
     subtitle: string;
 }
 
-export function EmptySongItem({ imageUrl, imageAlt, emptyMessage, subtitle }: EmptySongItemProps) {
+export function EmptySongItem({ imageUrl, imageAlt, emptyMessage, subtitle }: Readonly<EmptySongItemProps>) {
     return (
         <div className="flex items-center gap-4 p-4 bg-zinc-800/30 rounded-lg">
             <img
