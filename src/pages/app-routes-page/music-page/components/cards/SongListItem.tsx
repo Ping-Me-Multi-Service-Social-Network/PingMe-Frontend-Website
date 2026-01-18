@@ -17,7 +17,7 @@ export default function SongListItem({
   song,
   onPlay,
   index,
-}: SongListItemProps) {
+}: Readonly<SongListItemProps>) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);

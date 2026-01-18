@@ -215,15 +215,19 @@ export default function SongListPage() {
     const iconClass = "w-20 h-20 text-zinc-600";
     const containerClass = `w-48 h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 ${type === "artist" ? "rounded-full" : "rounded-lg"} flex items-center justify-center shadow-2xl`;
 
+    const renderIcon = () => {
+      if (type === "album") {
+        return <Disc3 className={iconClass} />;
+      }
+      if (type === "artist") {
+        return <User2 className={iconClass} />;
+      }
+      return <Music className={iconClass} />;
+    };
+
     return (
       <div className={containerClass}>
-        {type === "album" ? (
-          <Disc3 className={iconClass} />
-        ) : type === "artist" ? (
-          <User2 className={iconClass} />
-        ) : (
-          <Music className={iconClass} />
-        )}
+        {renderIcon()}
       </div>
     );
   };

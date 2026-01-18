@@ -133,9 +133,9 @@ export default function PlaylistDetailPage() {
             }
         };
 
-        window.addEventListener('playlist-updated', handlePlaylistUpdate);
+        globalThis.addEventListener('playlist-updated', handlePlaylistUpdate);
         return () => {
-            window.removeEventListener('playlist-updated', handlePlaylistUpdate);
+            globalThis.removeEventListener('playlist-updated', handlePlaylistUpdate);
         };
     }, [id]);
 

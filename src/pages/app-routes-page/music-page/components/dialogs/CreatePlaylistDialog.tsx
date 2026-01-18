@@ -21,7 +21,7 @@ export default function CreatePlaylistDialog({
     open,
     onOpenChange,
     onSuccess,
-}: CreatePlaylistDialogProps) {
+}: Readonly<CreatePlaylistDialogProps>) {
     const [newPlaylistName, setNewPlaylistName] = useState("");
     const [isPublic, setIsPublic] = useState(false);
     const [creating, setCreating] = useState(false);

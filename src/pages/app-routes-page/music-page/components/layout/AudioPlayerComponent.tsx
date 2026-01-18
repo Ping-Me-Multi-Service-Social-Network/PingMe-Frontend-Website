@@ -18,7 +18,7 @@ export default function AudioPlayerComponent({
   currentSong,
   playlist = [],
   onSongChange,
-}: AudioPlayerComponentProps) {
+}: Readonly<AudioPlayerComponentProps>) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);

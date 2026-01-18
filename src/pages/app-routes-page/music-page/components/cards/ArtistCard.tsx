@@ -6,7 +6,7 @@ interface ArtistCardProps {
   artist: ArtistResponse;
 }
 
-export default function ArtistCard({ artist }: ArtistCardProps) {
+export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
   const navigate = useNavigate();
 
   const handleClick = () => {

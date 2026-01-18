@@ -29,12 +29,12 @@ export default function FavoritesPage() {
             fetchFavorites();
         };
 
-        window.addEventListener('favorite-added', handleFavoriteAdded);
-        window.addEventListener('favorite-removed', handleFavoriteRemoved);
+        globalThis.addEventListener('favorite-added', handleFavoriteAdded);
+        globalThis.addEventListener('favorite-removed', handleFavoriteRemoved);
 
         return () => {
-            window.removeEventListener('favorite-added', handleFavoriteAdded);
-            window.removeEventListener('favorite-removed', handleFavoriteRemoved);
+            globalThis.removeEventListener('favorite-added', handleFavoriteAdded);
+            globalThis.removeEventListener('favorite-removed', handleFavoriteRemoved);
         };
     }, []);
 
@@ -57,7 +57,7 @@ export default function FavoritesPage() {
             await favoriteApi.removeFavorite(songId);
             setFavorites(prev => prev.filter(fav => fav.songId !== songId));
             // Dispatch event to update heart icon in audio players
-            window.dispatchEvent(new CustomEvent('favorite-removed', {
+            globalThis.dispatchEvent(new CustomEvent('favorite-removed', {
                 detail: { songId }
             }));
         } catch (err) {
