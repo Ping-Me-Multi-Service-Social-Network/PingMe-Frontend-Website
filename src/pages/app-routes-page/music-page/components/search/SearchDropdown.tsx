@@ -30,7 +30,7 @@ function SongItem({ song, onSelect }: SongItemProps) {
       onClick={() => onSelect(song)}
       className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
     >
-      <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="relative w-10 h-10 shrink-0">
         {song.coverImageUrl ? (
           <img
             src={song.coverImageUrl || "/placeholder.svg"}
@@ -66,7 +66,7 @@ function AlbumItem({ album, onSelect }: AlbumItemProps) {
       onClick={() => onSelect(album)}
       className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
     >
-      <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="relative w-10 h-10 shrink-0">
         {album.coverImgUrl ? (
           <img
             src={album.coverImgUrl || "/placeholder.svg"}
@@ -102,7 +102,7 @@ function ArtistItem({ artist, onSelect }: ArtistItemProps) {
       onClick={() => onSelect(artist)}
       className="flex items-center gap-3 cursor-pointer hover:bg-zinc-800 rounded p-2 transition w-full text-left"
     >
-      <div className="relative w-10 h-10 flex-shrink-0">
+      <div className="relative w-10 h-10 shrink-0">
         {artist.imgUrl ? (
           <img
             src={artist.imgUrl || "/placeholder.svg"}

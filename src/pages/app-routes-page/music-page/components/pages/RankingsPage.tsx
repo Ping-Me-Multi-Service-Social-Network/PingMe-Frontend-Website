@@ -174,7 +174,7 @@ export default function RankingsPage() {
                             >
                                 Top 50 Hôm Nay
                                 {activeTab === "today" && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-pink-600 to-red-700" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-pink-600 to-red-700" />
                                 )}
                             </button>
                             <button
@@ -186,7 +186,7 @@ export default function RankingsPage() {
                             >
                                 Top 50 Tuần Này
                                 {activeTab === "week" && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-violet-700" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-purple-600 to-violet-700" />
                                 )}
                             </button>
                             <button
@@ -198,7 +198,7 @@ export default function RankingsPage() {
                             >
                                 Top 50 Tháng Này
                                 {activeTab === "month" && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-700" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-purple-600 to-indigo-700" />
                                 )}
                             </button>
                         </div>
@@ -209,7 +209,7 @@ export default function RankingsPage() {
             {/* Content */}
             <div className="max-w-7xl mx-auto px-8 py-8">
                 {/* Hero Section */}
-                <div className={`relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-br ${config.bgColor}`}>
+                <div className={`relative rounded-2xl overflow-hidden mb-8 bg-linear-to-br ${config.bgColor}`}>
                     <div className="p-8 md:p-12">
                         <div className="flex items-center gap-4 mb-4">
                             <h1 className="text-4xl md:text-5xl font-bold text-white">
@@ -217,7 +217,7 @@ export default function RankingsPage() {
                             </h1>
                             <button
                                 onClick={() => currentSongs.length > 0 && handleSongPlay(currentSongs[0])}
-                                className={`p-4 rounded-full bg-gradient-to-r ${config.accentColor} hover:scale-110 transition-transform shadow-lg`}
+                                className={`p-4 rounded-full bg-linear-to-r ${config.accentColor} hover:scale-110 transition-transform shadow-lg`}
                             >
                                 <Play className="w-8 h-8 text-white fill-white" />
                             </button>
@@ -250,7 +250,7 @@ export default function RankingsPage() {
                                         <div className="w-12 text-center">
                                             <span
                                                 className={`text-2xl font-bold ${index < 3
-                                                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
+                                                    ? "bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
                                                     : "text-gray-400"
                                                     }`}
                                             >
@@ -259,7 +259,7 @@ export default function RankingsPage() {
                                         </div>
 
                                         {/* Album Cover */}
-                                        <div className="relative w-14 h-14 flex-shrink-0">
+                                        <div className="relative w-14 h-14 shrink-0">
                                             <img
                                                 src={item.imgUrl}
                                                 alt={item.title}
@@ -306,7 +306,7 @@ export default function RankingsPage() {
                                         </div>
 
                                         {/* Album Cover */}
-                                        <div className="relative w-14 h-14 flex-shrink-0">
+                                        <div className="relative w-14 h-14 shrink-0">
                                             <img
                                                 src={item.imgUrl}
                                                 alt={item.title}

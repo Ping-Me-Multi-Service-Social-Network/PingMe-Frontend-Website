@@ -61,7 +61,7 @@ export default function RankingCard({
         return () => {
             isMounted = false;
         };
-    }, [title]); // Re-fetch if title changes (component type changes)
+    }, [title, fetchData]); // Re-fetch if title changes (component type changes)
 
     const renderSongsContent = () => {
         if (loading) {
@@ -183,7 +183,7 @@ export default function RankingCard({
 
     return (
         <button
-            className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${gradientFrom} ${gradientVia} to-gray-800 p-6 cursor-pointer hover:scale-105 transition-transform w-full text-left`}
+            className={`group relative overflow-hidden rounded-xl bg-linear-to-br ${gradientFrom} ${gradientVia} to-gray-800 p-6 cursor-pointer hover:scale-105 transition-transform w-full text-left`}
             onClick={() => navigate(`/app/music/rankings?tab=${tabType}`)}
         >
             <div className="relative z-10">
@@ -193,7 +193,7 @@ export default function RankingCard({
                 {/* Top 4 Songs */}
                 {renderSongsContent()}
             </div>
-            <div className={`absolute inset-0 bg-gradient-to-r ${hoverFrom} ${hoverTo} opacity-0 group-hover:opacity-100 transition-opacity`} />
+            <div className={`absolute inset-0 bg-linear-to-r ${hoverFrom} ${hoverTo} opacity-0 group-hover:opacity-100 transition-opacity`} />
         </button>
     );
 }

@@ -5,8 +5,8 @@ import { searchService } from "@/services/music/musicService.ts";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import { ArrowLeft, Play, Music2 } from "lucide-react";
-import { convertToSong } from "../utils/commonHandlers";
-import { LoadingState, ErrorState } from "./LoadingErrorStates";
+import { convertToSong } from "../../utils/commonHandlers.ts";
+import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { fetchAllAlbums } from "@/features/slices/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
@@ -79,7 +79,7 @@ export default function AlbumsPage() {
     return (
         <div className="bg-gray-900 pb-32" style={{ minHeight: '100vh' }}>
             {/* Hero Banner */}
-            <div className="relative h-80 bg-gradient-to-b from-zinc-800/50 to-transparent">
+            <div className="relative h-80 bg-linear-to-b from-zinc-800/50 to-transparent">
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-30"
                     style={{ backgroundImage: `url(${albums[0]?.coverImgUrl || ""})` }}
