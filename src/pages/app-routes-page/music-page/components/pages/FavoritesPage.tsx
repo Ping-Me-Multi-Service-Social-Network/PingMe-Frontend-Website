@@ -7,6 +7,7 @@ import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { FavoriteDto } from "@/types/music/favorite.ts";
+import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
 
 export default function FavoritesPage() {
     const navigate = useNavigate();
@@ -20,23 +21,10 @@ export default function FavoritesPage() {
     }, []);
 
     // Listen for favorite updates from audio players
-    useEffect(() => {
-        const handleFavoriteAdded = () => {
-            fetchFavorites();
-        };
-
-        const handleFavoriteRemoved = () => {
-            fetchFavorites();
-        };
-
-        window.addEventListener('favorite-added', handleFavoriteAdded);
-        window.addEventListener('favorite-removed', handleFavoriteRemoved);
-
-        return () => {
-            window.removeEventListener('favorite-added', handleFavoriteAdded);
-            window.removeEventListener('favorite-removed', handleFavoriteRemoved);
-        };
-    }, []);
+    useFavoriteEventListener(
+        () => fetchFavorites(),
+        () => fetchFavorites()
+    );
 
     const fetchFavorites = async () => {
         try {
@@ -57,9 +45,7 @@ export default function FavoritesPage() {
             await favoriteApi.removeFavorite(songId);
             setFavorites(prev => prev.filter(fav => fav.songId !== songId));
             // Dispatch event to update heart icon in audio players
-            window.dispatchEvent(new CustomEvent('favorite-removed', {
-                detail: { songId }
-            }));
+            dispatchFavoriteEvent('favorite-removed', songId);
         } catch (err) {
             console.error("Error removing favorite:", err);
         }
@@ -124,7 +110,7 @@ export default function FavoritesPage() {
                     </button>
 
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-lg bg-linear-to-br from-red-500 to-pink-600 flex items-center justify-center">
                             <Heart className="w-8 h-8 text-white fill-white" />
                         </div>
                         <div>

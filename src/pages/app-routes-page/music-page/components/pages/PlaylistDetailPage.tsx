@@ -133,9 +133,9 @@ export default function PlaylistDetailPage() {
             }
         };
 
-        window.addEventListener('playlist-updated', handlePlaylistUpdate);
+        globalThis.addEventListener('playlist-updated', handlePlaylistUpdate);
         return () => {
-            window.removeEventListener('playlist-updated', handlePlaylistUpdate);
+            globalThis.removeEventListener('playlist-updated', handlePlaylistUpdate);
         };
     }, [id]);
 
@@ -298,7 +298,7 @@ export default function PlaylistDetailPage() {
                     </button>
 
                     <div className="flex items-start gap-6 mb-6">
-                        <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center flex-shrink-0">
+                        <div className="w-48 h-48 rounded-lg bg-linear-to-br from-purple-500 to-purple-700 flex items-center justify-center shrink-0">
                             <Music2 className="w-24 h-24 text-white" />
                         </div>
 

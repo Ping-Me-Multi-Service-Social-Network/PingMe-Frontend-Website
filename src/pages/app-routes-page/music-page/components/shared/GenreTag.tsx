@@ -46,17 +46,17 @@ const getGenreColor = (genreName: string): string => {
 
   // Màu mặc định
   const colors = Object.values(genreColors);
-  const hash = genreName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const hash = genreName.split('').reduce((acc, char) => acc + (char.codePointAt(0) ?? 0), 0);
   return colors[hash % colors.length];
 };
 
-export default function GenreTag({ genre, onClick }: GenreTagProps) {
+export default function GenreTag({ genre, onClick }: Readonly<GenreTagProps>) {
   const colorClass = getGenreColor(genre.name);
 
   return (
     <button
       onClick={() => onClick?.(genre)}
-      className={`relative h-32 w-full rounded-xl bg-gradient-to-br ${colorClass} overflow-hidden group hover:scale-105 transition-transform duration-200 shadow-lg`}
+      className={`relative h-32 w-full rounded-xl bg-linear-to-br ${colorClass} overflow-hidden group hover:scale-105 transition-transform duration-200 shadow-lg`}
     >
       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
       <div className="relative h-full flex items-center justify-center p-4">

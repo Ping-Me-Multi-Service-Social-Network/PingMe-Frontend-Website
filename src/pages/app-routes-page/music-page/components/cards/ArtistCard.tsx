@@ -6,7 +6,7 @@ interface ArtistCardProps {
   artist: ArtistResponse;
 }
 
-export default function ArtistCard({ artist }: ArtistCardProps) {
+export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -36,7 +36,7 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
           </div>
         )}
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
         {/* Text overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <h3 className="font-semibold text-white truncate text-sm">

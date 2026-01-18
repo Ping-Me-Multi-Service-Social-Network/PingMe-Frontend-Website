@@ -1,4 +1,12 @@
-// Enums
+/**
+ * Central type definitions for Music module
+ * All music-related types should be exported from this file
+ */
+
+// ============================================================================
+// ENUMS & TYPES
+// ============================================================================
+
 export type ArtistRole =
   | "MAIN_ARTIST"
   | "FEATURED_ARTIST"
@@ -6,17 +14,11 @@ export type ArtistRole =
   | "PRODUCER"
   | "VOCALIST";
 
-// Export types from separate files
-export * from './favorite';
-export * from './playlist';
+// ============================================================================
+// BASE DTOs (Data Transfer Objects)
+// ============================================================================
 
-// Base Types
 export interface GenreDto {
-  id: number;
-  name: string;
-}
-
-export interface GenreResponse {
   id: number;
   name: string;
 }
@@ -34,6 +36,15 @@ export interface AlbumSummaryDto {
   playCount: number;
 }
 
+// ============================================================================
+// RESPONSE TYPES
+// ============================================================================
+
+export interface GenreResponse {
+  id: number;
+  name: string;
+}
+
 export interface ArtistResponse {
   id: number;
   name: string;
@@ -47,13 +58,6 @@ export interface AlbumResponse {
   coverImgUrl: string;
   playCount: number;
   albumOwnerId?: number;
-}
-
-export interface TopSongPlayCounter {
-  songId: number;
-  title: string;
-  imgUrl: string;
-  playCount: number;
 }
 
 export interface SongResponse {
@@ -82,7 +86,17 @@ export interface SongResponseWithAllAlbum {
   albums: AlbumSummaryDto[];
 }
 
-// Request Types
+export interface TopSongPlayCounter {
+  songId: number;
+  title: string;
+  imgUrl: string;
+  playCount: number;
+}
+
+// ============================================================================
+// REQUEST TYPES
+// ============================================================================
+
 export interface SongArtistRequest {
   artistId: number;
   role: ArtistRole;
@@ -114,3 +128,15 @@ export interface ArtistRequest {
 export interface GenreRequest {
   name: string;
 }
+
+// ============================================================================
+// RE-EXPORTS FROM SPECIALIZED FILES
+// ============================================================================
+
+// Export all types from separate domain files
+export * from "./favorite";
+export * from "./playlist";
+export * from "./genre.d";
+export * from "./song.d";
+export type { Genre } from "./genre.d";
+export type { Song } from "./song.d";
