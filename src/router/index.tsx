@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
-import { AdminRoute } from "@/pages/commons/AdminRoute";
 import { LazyElement } from "@/components/custom/LazyElement";
 
 // ===========================================================
@@ -21,13 +20,13 @@ const AppPageLayout = lazy(() => import("@/pages/app-routes-page"));
 // ===========================================================
 const ProfilePage = lazy(() => import("@/pages/app-routes-page/user-page"));
 const UserInfoPage = lazy(
-  () => import("@/pages/app-routes-page/user-page/user-info-page")
+  () => import("@/pages/app-routes-page/user-page/user-info-page"),
 );
 const ChangePasswordPage = lazy(
-  () => import("@/pages/app-routes-page/user-page/change-password-page")
+  () => import("@/pages/app-routes-page/user-page/change-password-page"),
 );
 const DeviceManagementPage = lazy(
-  () => import("@/pages/app-routes-page/user-page/device-management-page")
+  () => import("@/pages/app-routes-page/user-page/device-management-page"),
 );
 
 // ===========================================================
@@ -41,35 +40,40 @@ const ContactsPage = lazy(() => import("@/pages/app-routes-page/contact-page"));
 // ===========================================================
 const MusicHomePage = lazy(() => import("@/pages/app-routes-page/music-page"));
 const MusicLayout = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/layout/MusicLayout")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/layout/MusicLayout"),
 );
 const SongListPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/pages/SongListPage")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/SongListPage"),
 );
 const AlbumsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/pages/AlbumsPage")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/AlbumsPage"),
 );
 const ArtistsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/pages/ArtistsPage")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/ArtistsPage"),
 );
 const RankingsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/pages/RankingsPage")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/RankingsPage"),
 );
 const FavoritesPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/pages/FavoritesPage")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/FavoritesPage"),
 );
 const PlaylistsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/pages/PlaylistsPage")
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/PlaylistsPage"),
 );
 const PlaylistDetailPage = lazy(
   () =>
-    import("@/pages/app-routes-page/music-page/components/pages/PlaylistDetailPage")
+    import("@/pages/app-routes-page/music-page/components/pages/PlaylistDetailPage"),
 );
 const DiscoverPlaylistsPage = lazy(
   () =>
-    import(
-      "@/pages/app-routes-page/music-page/components/pages/DiscoverPlaylistsPage"
-    )
+    import("@/pages/app-routes-page/music-page/components/pages/DiscoverPlaylistsPage"),
 );
 
 // ===========================================================
@@ -77,10 +81,10 @@ const DiscoverPlaylistsPage = lazy(
 // ===========================================================
 const BlogPage = lazy(() => import("@/pages/app-routes-page/blog-page"));
 const BlogDetailsPage = lazy(
-  () => import("@/pages/app-routes-page/blog-page/blog-details-page")
+  () => import("@/pages/app-routes-page/blog-page/blog-details-page"),
 );
 const UpsertBlogPage = lazy(
-  () => import("@/pages/app-routes-page/blog-page/upsert-blog-page")
+  () => import("@/pages/app-routes-page/blog-page/upsert-blog-page"),
 );
 
 // ===========================================================
@@ -88,39 +92,10 @@ const UpsertBlogPage = lazy(
 // ===========================================================
 const ReelsPage = lazy(() => import("@/pages/app-routes-page/reels-page"));
 const VideoManagerPage = lazy(
-  () => import("@/pages/app-routes-page/reels-page/video-manager")
+  () => import("@/pages/app-routes-page/reels-page/video-manager"),
 );
 const SearchResultsPage = lazy(
-  () => import("@/pages/app-routes-page/reels-page/search-results")
-);
-
-// ===========================================================
-// ADMIN PAGES
-// ===========================================================
-const AdminPage = lazy(() => import("@/pages/admin-route-pages"));
-const AccountManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/account-management-page")
-);
-const BlogManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/blog-management-page")
-);
-const StatisticsManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/statistics-management-page")
-);
-const MusicManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/music-management-page")
-);
-const AlbumManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/album-management-page")
-);
-const ArtistManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/artist-management-page")
-);
-const GenreManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/genre-management-page")
-);
-const ReelManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/reel-management-page")
+  () => import("@/pages/app-routes-page/reels-page/search-results"),
 );
 
 export const router = createBrowserRouter([
@@ -369,87 +344,6 @@ export const router = createBrowserRouter([
         element: (
           <LazyElement>
             <VideoManagerPage />
-          </LazyElement>
-        ),
-      },
-    ],
-  },
-
-  // ===========================================================
-  // ADMIN ROUTES (Admin Only)
-  // ===========================================================
-  {
-    path: "admin",
-    element: (
-      <AdminRoute>
-        <LazyElement>
-          <AdminPage />
-        </LazyElement>
-      </AdminRoute>
-    ),
-    children: [
-      { index: true, element: <Navigate to="/admin/accounts" /> },
-      {
-        path: "accounts",
-        element: (
-          <LazyElement>
-            <AccountManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "blogs",
-        element: (
-          <LazyElement>
-            <BlogManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "statistics",
-        element: (
-          <LazyElement>
-            <StatisticsManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "music",
-        element: (
-          <LazyElement>
-            <MusicManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "albums",
-        element: (
-          <LazyElement>
-            <AlbumManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "artists",
-        element: (
-          <LazyElement>
-            <ArtistManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "genres",
-        element: (
-          <LazyElement>
-            <GenreManagementPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "reels",
-        element: (
-          <LazyElement>
-            <ReelManagementPage />
           </LazyElement>
         ),
       },
