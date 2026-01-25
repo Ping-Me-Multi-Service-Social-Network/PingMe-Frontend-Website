@@ -187,33 +187,6 @@ export default function AppNavigation() {
         <div className="flex flex-col space-y-3 pt-3">
           <Tooltip>
             <TooltipTrigger asChild>
-              <NavLink
-                to="/public"
-                onClick={() => setIsOpen(false)}
-                className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all duration-300 hover:scale-105"
-              >
-                <img
-                  src="/icons/logo.webp"
-                  alt="PingMe Logo"
-                  className="w-8 h-8 drop-shadow-lg"
-                />
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
-            >
-              <div>
-                <div className="font-semibold">PingMe</div>
-                <div className="text-xs text-purple-100 mt-0.5">
-                  Về trang chủ
-                </div>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
               <div className="flex justify-center">
                 <UserMenu openInNewTab={false} />
               </div>
