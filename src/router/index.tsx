@@ -6,9 +6,7 @@ import { LazyElement } from "@/components/custom/LazyElement";
 // ===========================================================
 // PUBLIC PAGES
 // ===========================================================
-const RootPageLayout = lazy(() => import("@/pages/public-routes-page"));
-const HomePage = lazy(() => import("@/pages/public-routes-page/home-page"));
-const AuthPage = lazy(() => import("@/pages/public-routes-page/auth-page"));
+const LandingPage = lazy(() => import("@/pages/landing-page"));
 
 // ===========================================================
 // APP PAGES - Layout
@@ -100,34 +98,24 @@ const SearchResultsPage = lazy(
 
 export const router = createBrowserRouter([
   // ===========================================================
-  // PUBLIC ROUTES
+  // PUBLIC ROUTES - Single Landing Page
   // ===========================================================
   {
     path: "/",
     element: (
       <LazyElement>
-        <RootPageLayout />
+        <LandingPage />
       </LazyElement>
     ),
-    children: [
-      { index: true, element: <Navigate to="/home" /> },
-      {
-        path: "home",
-        element: (
-          <LazyElement>
-            <HomePage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "auth",
-        element: (
-          <LazyElement>
-            <AuthPage />
-          </LazyElement>
-        ),
-      },
-    ],
+  },
+  // Redirect old routes to landing page
+  {
+    path: "/home",
+    element: <Navigate to="/" replace />,
+  },
+  {
+    path: "/auth",
+    element: <Navigate to="/" replace />,
   },
 
   // ===========================================================
@@ -143,6 +131,9 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      // Default redirect to chat
+      { index: true, element: <Navigate to="/app/chat" replace /> },
+
       // ---------------------------------------------------------
       // Profile Routes
       // ---------------------------------------------------------
