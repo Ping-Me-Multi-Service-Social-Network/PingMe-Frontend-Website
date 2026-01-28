@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { logout } from "@/features/slices/authThunk";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
+import { setLogoutReason } from "@/features/slices/authSlice";
 
 interface UserMenuProps {
   openInNewTab?: boolean;
@@ -26,6 +27,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const [avatarVersion, setAvatarVersion] = useState(Date.now());
 
   const handleLogout = () => {
+    dispatch(setLogoutReason("MANUAL"));
     dispatch(logout());
   };
 

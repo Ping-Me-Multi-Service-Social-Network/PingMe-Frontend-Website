@@ -10,7 +10,10 @@ import { persistor, store } from "./features/store";
 import { useAppDispatch } from "./features/hooks";
 import { getCurrentUserSession, logout } from "./features/slices/authThunk";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
-import { updateTokenManually } from "./features/slices/authSlice";
+import {
+  setLogoutReason,
+  updateUserSession,
+} from "./features/slices/authSlice";
 
 const PersistLoader = () => (
   <AppLoader type="pulse" message="Restoring session..." />
@@ -29,9 +32,11 @@ function SessionBootstrap() {
 function AppInner() {
   useEffect(() => {
     setupAxiosInterceptors({
-      onTokenRefreshed: (payload) =>
-        store.dispatch(updateTokenManually(payload)),
-      onLogout: () => store.dispatch(logout()),
+      onTokenRefreshed: (payload) => store.dispatch(updateUserSession(payload)),
+      onLogout: () => {
+        store.dispatch(setLogoutReason("EXPIRED"));
+        store.dispatch(logout());
+      },
     });
   }, []);
 
