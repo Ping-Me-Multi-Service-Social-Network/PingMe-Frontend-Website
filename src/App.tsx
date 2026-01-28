@@ -7,7 +7,7 @@ import { ScrollArea } from "./components/ui/scroll-area";
 import AppLoader from "./components/custom/AppLoader";
 import { router } from "./router";
 import { persistor, store } from "./features/store";
-import { useAppDispatch } from "./features/hooks";
+import { useAppDispatch, useAppSelector } from "./features/hooks";
 import { getCurrentUserSession, logout } from "./features/slices/authThunk";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
 import {
@@ -20,11 +20,15 @@ const PersistLoader = () => (
 );
 
 function SessionBootstrap() {
+  const { isLogin } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getCurrentUserSession());
-  }, [dispatch]);
+    const token = localStorage.getItem("access_token");
+    if (isLogin && token) {
+      dispatch(getCurrentUserSession());
+    }
+  }, [isLogin, dispatch]);
 
   return null;
 }
