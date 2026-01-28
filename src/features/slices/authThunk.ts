@@ -9,6 +9,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import { getCurrentUserSessionApi } from "@/services/user/currentUserProfileApi.ts";
 
+// =========================================================
+// THUNK LOGIN
+// =========================================================
 export const login = createAsyncThunk<
   DefaultAuthResponse,
   LoginRequest,
@@ -26,6 +29,9 @@ export const login = createAsyncThunk<
   }
 });
 
+// =========================================================
+// THUNK LOGOUT
+// =========================================================
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
     await logoutApi();
@@ -36,6 +42,9 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   }
 });
 
+// =========================================================
+// THUNK GET CURRENT USER SESSION
+// =========================================================
 export const getCurrentUserSession = createAsyncThunk<
   CurrentUserSessionResponse,
   void,
