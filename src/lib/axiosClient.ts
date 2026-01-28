@@ -2,7 +2,6 @@ import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
 import type { DefaultAuthResponse } from "@/types/authentication";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 
-// 1. Cấu hình cơ bản
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
   withCredentials: true,
@@ -32,21 +31,17 @@ let refreshPromise: Promise<string> | null = null;
 
 const performRefreshToken = async (): Promise<string> => {
   try {
-    // Gọi API Refresh
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
       getSessionMetaRequest(),
-      { withCredentials: true }
+      { withCredentials: true },
     );
 
     const payload = response.data.data as DefaultAuthResponse;
 
-    // Lưu token mới vào LocalStorage
     localStorage.setItem("access_token", payload.accessToken);
 
-    if (onTokenRefreshed) {
-      onTokenRefreshed(payload);
-    }
+    if (onTokenRefreshed) onTokenRefreshed(payload);
 
     return payload.accessToken;
   } catch (error) {
@@ -73,7 +68,7 @@ axiosClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // ============================================================
@@ -124,7 +119,7 @@ axiosClient.interceptors.response.use(
     } catch (e) {
       return Promise.reject(e);
     }
-  }
+  },
 );
 
 export default axiosClient;

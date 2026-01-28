@@ -18,11 +18,12 @@ export const ProtectedRoute = ({
   //
   // nên là biến này đáng tin cậy để kiểm tra
   // người dùng đã đăng nhập hay chưa.
-  const { isLogin } = useAppSelector((state) => state.auth);
+  const { isLogin, logoutReason } = useAppSelector((state) => state.auth);
 
   // Nếu chưa đăng nhập thì hiển thị thông báo và chuyển hướng sang trang chỉ định
   if (!isLogin) {
-    toast.error("Vui lòng đăng nhập");
+    if (logoutReason === "EXPIRED") toast.error("Phiên đăng nhập đã hết hạn");
+
     return <Navigate to={to} />;
   }
 
