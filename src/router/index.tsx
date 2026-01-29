@@ -21,13 +21,13 @@ const AppPageLayout = lazy(() => import("@/pages/app-routes-page"));
 // ===========================================================
 const ProfilePage = lazy(() => import("@/pages/app-routes-page/user-page"));
 const UserInfoPage = lazy(
-  () => import("@/pages/app-routes-page/user-page/user-info-page")
+  () => import("@/pages/app-routes-page/user-page/user-info-page"),
 );
 const ChangePasswordPage = lazy(
-  () => import("@/pages/app-routes-page/user-page/change-password-page")
+  () => import("@/pages/app-routes-page/user-page/change-password-page"),
 );
 const DeviceManagementPage = lazy(
-  () => import("@/pages/app-routes-page/user-page/device-management-page")
+  () => import("@/pages/app-routes-page/user-page/device-management-page"),
 );
 
 // ===========================================================
@@ -41,35 +41,33 @@ const ContactsPage = lazy(() => import("@/pages/app-routes-page/contact-page"));
 // ===========================================================
 const MusicPage = lazy(() => import("@/pages/app-routes-page/music-page"));
 const MusicLayout = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/MusicLayout")
+  () => import("@/pages/app-routes-page/music-page/components/MusicLayout"),
 );
 const SongListPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/SongListPage")
+  () => import("@/pages/app-routes-page/music-page/components/SongListPage"),
 );
 const AlbumsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/AlbumsPage")
+  () => import("@/pages/app-routes-page/music-page/components/AlbumsPage"),
 );
 const ArtistsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/ArtistsPage")
+  () => import("@/pages/app-routes-page/music-page/components/ArtistsPage"),
 );
 const RankingsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/RankingsPage")
+  () => import("@/pages/app-routes-page/music-page/components/RankingsPage"),
 );
 const FavoritesPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/FavoritesPage")
+  () => import("@/pages/app-routes-page/music-page/components/FavoritesPage"),
 );
 const PlaylistsPage = lazy(
-  () => import("@/pages/app-routes-page/music-page/components/PlaylistsPage")
+  () => import("@/pages/app-routes-page/music-page/components/PlaylistsPage"),
 );
 const PlaylistDetailPage = lazy(
   () =>
-    import("@/pages/app-routes-page/music-page/components/PlaylistDetailPage")
+    import("@/pages/app-routes-page/music-page/components/PlaylistDetailPage"),
 );
 const DiscoverPlaylistsPage = lazy(
   () =>
-    import(
-      "@/pages/app-routes-page/music-page/components/DiscoverPlaylistsPage"
-    )
+    import("@/pages/app-routes-page/music-page/components/DiscoverPlaylistsPage"),
 );
 
 // ===========================================================
@@ -77,10 +75,10 @@ const DiscoverPlaylistsPage = lazy(
 // ===========================================================
 const BlogPage = lazy(() => import("@/pages/app-routes-page/blog-page"));
 const BlogDetailsPage = lazy(
-  () => import("@/pages/app-routes-page/blog-page/blog-details-page")
+  () => import("@/pages/app-routes-page/blog-page/blog-details-page"),
 );
 const UpsertBlogPage = lazy(
-  () => import("@/pages/app-routes-page/blog-page/upsert-blog-page")
+  () => import("@/pages/app-routes-page/blog-page/upsert-blog-page"),
 );
 
 // ===========================================================
@@ -88,10 +86,10 @@ const UpsertBlogPage = lazy(
 // ===========================================================
 const ReelsPage = lazy(() => import("@/pages/app-routes-page/reels-page"));
 const VideoManagerPage = lazy(
-  () => import("@/pages/app-routes-page/reels-page/video-manager")
+  () => import("@/pages/app-routes-page/reels-page/video-manager"),
 );
 const SearchResultsPage = lazy(
-  () => import("@/pages/app-routes-page/reels-page/search-results")
+  () => import("@/pages/app-routes-page/reels-page/search-results"),
 );
 
 // ===========================================================
@@ -99,28 +97,48 @@ const SearchResultsPage = lazy(
 // ===========================================================
 const AdminPage = lazy(() => import("@/pages/admin-route-pages"));
 const AccountManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/account-management-page")
+  () => import("@/pages/admin-route-pages/account-management-page"),
 );
 const BlogManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/blog-management-page")
+  () => import("@/pages/admin-route-pages/blog-management-page"),
 );
 const StatisticsManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/statistics-management-page")
+  () => import("@/pages/admin-route-pages/statistics-management-page"),
 );
 const MusicManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/music-management-page")
+  () => import("@/pages/admin-route-pages/music-management-page"),
 );
 const AlbumManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/album-management-page")
+  () => import("@/pages/admin-route-pages/album-management-page"),
 );
 const ArtistManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/artist-management-page")
+  () => import("@/pages/admin-route-pages/artist-management-page"),
 );
 const GenreManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/genre-management-page")
+  () => import("@/pages/admin-route-pages/genre-management-page"),
 );
 const ReelManagementPage = lazy(
-  () => import("@/pages/admin-route-pages/reel-management-page")
+  () => import("@/pages/admin-route-pages/reel-management-page"),
+);
+
+// ===========================================================
+// FORGET PASSWORD PAGES
+// ===========================================================
+
+const EmailInputPage = lazy(
+  () =>
+    import("@/pages/public-routes-page/forget-password-page/components/EmailInputPage"),
+);
+const VerifyOtpPage = lazy(
+  () =>
+    import("@/pages/public-routes-page/forget-password-page/components/VerifyOtpPage"),
+);
+const ResetPasswordPage = lazy(
+  () =>
+    import("@/pages/public-routes-page/forget-password-page/components/ResetPasswordPage"),
+);
+const ForgetPasswordPage = lazy(
+  () => import("@/pages/public-routes-page/forget-password-page"),
 );
 
 export const router = createBrowserRouter([
@@ -151,6 +169,44 @@ export const router = createBrowserRouter([
             <AuthPage />
           </LazyElement>
         ),
+      },
+      {
+        path: "forgot-password",
+        element: (
+          <LazyElement>
+            <ForgetPasswordPage />
+          </LazyElement>
+        ),
+        children: [
+          {
+            index: true,
+            element: <Navigate to="email" replace />,
+          },
+          {
+            path: "email",
+            element: (
+              <LazyElement>
+                <EmailInputPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "verify-otp",
+            element: (
+              <LazyElement>
+                <VerifyOtpPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "reset-password",
+            element: (
+              <LazyElement>
+                <ResetPasswordPage />
+              </LazyElement>
+            ),
+          },
+        ],
       },
     ],
   },
