@@ -116,6 +116,7 @@ function LoginFormContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,6 +131,11 @@ function LoginFormContent() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    console.log("[PingMe] Forgot password clicked");
+    navigate("/forgot-password");
   };
 
   return (
@@ -210,6 +216,7 @@ function LoginFormContent() {
         <div className="flex justify-end">
           <button
             type="button"
+            onClick={handleForgotPassword}
             className="text-sm text-purple-600 hover:text-purple-700 font-medium hover:underline transition-colors"
           >
             Quên mật khẩu?

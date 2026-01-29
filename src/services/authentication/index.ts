@@ -11,7 +11,7 @@ import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 export const registerLocalApi = (data: RegisterRequest) => {
   return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth/register",
-    data
+    data,
   );
 };
 
@@ -21,7 +21,7 @@ export const loginLocalApi = (data: LoginRequest) => {
 
   return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth/login",
-    data
+    data,
   );
 };
 

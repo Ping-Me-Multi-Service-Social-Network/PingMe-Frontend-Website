@@ -95,7 +95,25 @@ const VideoManagerPage = lazy(
 const SearchResultsPage = lazy(
   () => import("@/pages/app-routes-page/reels-page/search-results"),
 );
+// ===========================================================
+// FORGET PASSWORD PAGES
+// ===========================================================
 
+const EmailInputPage = lazy(
+  () =>
+    import("@/pages/public-routes-page/forget-password-page/components/EmailInputPage"),
+);
+const VerifyOtpPage = lazy(
+  () =>
+    import("@/pages/public-routes-page/forget-password-page/components/VerifyOtpPage"),
+);
+const ResetPasswordPage = lazy(
+  () =>
+    import("@/pages/public-routes-page/forget-password-page/components/ResetPasswordPage"),
+);
+const ForgetPasswordPage = lazy(
+  () => import("@/pages/public-routes-page/forget-password-page"),
+);
 export const router = createBrowserRouter([
   // ===========================================================
   // PUBLIC ROUTES - Single Landing Page
@@ -117,7 +135,44 @@ export const router = createBrowserRouter([
     path: "/auth",
     element: <Navigate to="/" replace />,
   },
-
+  {
+    path: "forgot-password",
+    element: (
+      <LazyElement>
+        <ForgetPasswordPage />
+      </LazyElement>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="email" replace />,
+      },
+      {
+        path: "email",
+        element: (
+          <LazyElement>
+            <EmailInputPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "verify-otp",
+        element: (
+          <LazyElement>
+            <VerifyOtpPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "reset-password",
+        element: (
+          <LazyElement>
+            <ResetPasswordPage />
+          </LazyElement>
+        ),
+      },
+    ],
+  },
   // ===========================================================
   // APP ROUTES (Protected)
   // ===========================================================
