@@ -5,8 +5,19 @@ import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { store } from "@/features/store";
+import {
+  messageCreated,
+  messageRecalled,
+  readStateChanged,
+  userTyping,
+  roomCreated,
+  roomUpdated,
+  memberAdded,
+  memberRemoved,
+  memberRoleChanged,
+} from "@/features/slices/chatSlice";
 
-// Import các type từ module con
 import type {
   ChatEventHandlers,
   MessageCreatedEventPayload,
@@ -17,6 +28,7 @@ import type {
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
+  TypingSignalPayload,
 } from "./module/chatSocket";
 
 import type {
@@ -56,6 +68,7 @@ class SocketManagerClass {
   private currentRoomIdRef: number | null = null;
   private roomMsgSub: StompSubscription | null = null;
   private roomReadSub: StompSubscription | null = null;
+  private roomTypingSub: StompSubscription | null = null;
 
   // Global subscriptions
   private friendshipSub: StompSubscription | null = null;
@@ -137,6 +150,15 @@ class SocketManagerClass {
     this.client = null;
   }
 
+  sendTyping(roomId: number, isTyping: boolean): void {
+    if (!this.isConnected() || !this.client) return;
+
+    this.client.publish({
+      destination: `/app/rooms/${roomId}/typing`,
+      body: JSON.stringify({ isTyping }),
+    });
+  }
+
   // =================================================================
   // Chat-specific Methods
   // =================================================================
@@ -160,6 +182,7 @@ class SocketManagerClass {
     // Subscribe to new room
     this.subscribeRoomMessages(roomId);
     this.subscribeRoomReadStates(roomId);
+    this.subscribeRoomTyping(roomId);
     this.currentRoomIdRef = roomId;
   }
 
@@ -190,6 +213,7 @@ class SocketManagerClass {
       console.log("[PingMe] Resubscribing to room:", this.currentRoomIdRef);
       this.subscribeRoomMessages(this.currentRoomIdRef);
       this.subscribeRoomReadStates(this.currentRoomIdRef);
+      this.subscribeRoomTyping(this.currentRoomIdRef);
     }
   }
 
@@ -207,26 +231,35 @@ class SocketManagerClass {
 
           switch (ev.chatEventType) {
             case "ROOM_CREATED":
+              store.dispatch(roomCreated(ev as RoomCreatedEventPayload));
               this.options?.chat?.onRoomCreated?.(
                 ev as RoomCreatedEventPayload
               );
               break;
             case "ROOM_UPDATED":
+              store.dispatch(roomUpdated(ev as RoomUpdatedEventPayload));
               this.options?.chat?.onRoomUpdated?.(
                 ev as RoomUpdatedEventPayload
               );
               break;
             case "MEMBER_ADDED":
+              store.dispatch(memberAdded(ev as RoomMemberAddedEventPayload));
               this.options?.chat?.onMemberAdded?.(
                 ev as RoomMemberAddedEventPayload
               );
               break;
             case "MEMBER_REMOVED":
+              store.dispatch(
+                memberRemoved(ev as RoomMemberRemovedEventPayload)
+              );
               this.options?.chat?.onMemberRemoved?.(
                 ev as RoomMemberRemovedEventPayload
               );
               break;
             case "MEMBER_ROLE_CHANGED":
+              store.dispatch(
+                memberRoleChanged(ev as RoomMemberRoleChangedEventPayload)
+              );
               this.options?.chat?.onMemberRoleChanged?.(
                 ev as RoomMemberRoleChangedEventPayload
               );
@@ -312,11 +345,13 @@ class SocketManagerClass {
 
         switch (ev.chatEventType) {
           case "MESSAGE_CREATED":
+            store.dispatch(messageCreated(ev as MessageCreatedEventPayload));
             this.options?.chat?.onMessageCreated?.(
               ev as MessageCreatedEventPayload
             );
             break;
           case "MESSAGE_RECALLED":
+            store.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
             this.options?.chat?.onMessageRecalled?.(
               ev as MessageRecalledEventPayload
             );
@@ -344,6 +379,7 @@ class SocketManagerClass {
       try {
         const ev = JSON.parse(msg.body) as ReadStateChangedEvent;
         if (ev?.chatEventType === "READ_STATE_CHANGED") {
+          store.dispatch(readStateChanged(ev));
           this.options?.chat?.onReadStateChanged?.(ev);
         }
       } catch (err) {
@@ -352,15 +388,39 @@ class SocketManagerClass {
     });
   }
 
+  private subscribeRoomTyping(roomId: number): void {
+    if (!this.isConnected() || !this.client) return;
+
+    try {
+      this.roomTypingSub?.unsubscribe();
+    } catch (e) {
+      console.warn("[PingMe] Error unsubscribing room typing:", e);
+    }
+
+    const dest = `/topic/rooms/${roomId}/typing`;
+
+    this.roomTypingSub = this.client.subscribe(dest, (msg: IMessage) => {
+      try {
+        const ev = JSON.parse(msg.body) as TypingSignalPayload;
+        store.dispatch(userTyping(ev));
+        this.options?.chat?.onTyping?.(ev);
+      } catch (err) {
+        console.error("[PingMe] Error parsing typing event:", err);
+      }
+    });
+  }
+
   private unsubscribeRoom(): void {
     try {
       this.roomMsgSub?.unsubscribe();
       this.roomReadSub?.unsubscribe();
+      this.roomTypingSub?.unsubscribe();
     } catch (e) {
       console.warn("[PingMe] Error unsubscribing room:", e);
     }
     this.roomMsgSub = null;
     this.roomReadSub = null;
+    this.roomTypingSub = null;
   }
 
   private cleanupAllSubscriptions(): void {
@@ -371,6 +431,7 @@ class SocketManagerClass {
       this.userRoomsSub?.unsubscribe();
       this.roomMsgSub?.unsubscribe();
       this.roomReadSub?.unsubscribe();
+      this.roomTypingSub?.unsubscribe();
 
       // Global subscriptions
       this.friendshipSub?.unsubscribe();
@@ -386,8 +447,8 @@ class SocketManagerClass {
     this.friendshipSub = null;
     this.statusSub = null;
     this.signalingSub = null;
+    this.roomTypingSub = null;
   }
 }
 
-// Export singleton instance
 export const SocketManager = new SocketManagerClass();

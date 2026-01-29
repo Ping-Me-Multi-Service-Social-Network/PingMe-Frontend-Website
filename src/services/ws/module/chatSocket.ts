@@ -72,6 +72,14 @@ export interface RoomMemberRoleChangedEventPayload {
   systemMessage?: MessageResponse;
 }
 
+export interface TypingSignalPayload {
+  roomId: number;
+  userId: number;
+  name: string;
+  avatar?: string;
+  isTyping: boolean;
+}
+
 export interface ChatEventHandlers {
   // Message events
   onMessageCreated?: (ev: MessageCreatedEventPayload) => void;
@@ -88,4 +96,7 @@ export interface ChatEventHandlers {
 
   // Read state
   onReadStateChanged?: (ev: ReadStateChangedEvent) => void;
+
+  // Typing state
+  onTyping?: (ev: TypingSignalPayload) => void;
 }

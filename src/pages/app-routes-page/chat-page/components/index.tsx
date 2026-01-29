@@ -18,11 +18,12 @@ import {
   sendFileMessageApi,
   sendWeatherMessage,
 } from "@/services/chat";
-import { useAppSelector } from "@/features/hooks.ts";
+import { useAppSelector, useAppDispatch } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
 import { ChatBoxContent } from "./chat-box/ChatBoxContent.tsx";
 import ChatBoxHeader from "./chat-box/ChatBoxHeader.tsx";
 import ConversationSidebar from "./conversation-sidebar";
+import { selectMessages, setCurrentRoom } from "@/features/slices/chatSlice";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -36,6 +37,8 @@ export interface ChatBoxRef {
 export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
   ({ selectedChat }, ref) => {
     const { userSession } = useAppSelector((state) => state.auth);
+    const dispatch = useAppDispatch();
+    const reduxMessages = useAppSelector(selectMessages);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -99,6 +102,22 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     );
 
     useEffect(() => {
+      dispatch(setCurrentRoom(selectedChat.roomId));
+    }, [selectedChat.roomId, dispatch]);
+
+    useEffect(() => {
+      if (reduxMessages.length > 0) {
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((msg) => msg.id));
+          const newMessages = reduxMessages.filter(
+            (msg) => !existingIds.has(msg.id)
+          );
+          return [...prev, ...newMessages];
+        });
+      }
+    }, [reduxMessages]);
+
+    useEffect(() => {
       if (selectedChat.roomId) {
         setMessages([]);
         setHasMoreMessages(true);
@@ -124,9 +143,23 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           };
 
           const response = await sendMessageApi(messageData);
-          const sentMessage = response.data.data;
+          const sentMessage = response.data.data as MessageResponse;
 
-          setMessages((prev) => [...prev, sentMessage]);
+          // Thêm message vào UI từ API response (cho trường hợp retry sau refresh token)
+          setMessages((prev) => {
+            const existingIds = new Set(prev.map((msg) => msg.id));
+            const existingClientIds = new Set(
+              prev.map((msg) => msg.clientMsgId)
+            );
+            if (
+              existingIds.has(sentMessage.id) ||
+              existingClientIds.has(sentMessage.clientMsgId)
+            ) {
+              return prev;
+            }
+            return [...prev, sentMessage];
+          });
+
           setNewMessage("");
         } catch (err) {
           toast.error(getErrorMessage(err));
@@ -157,9 +190,19 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
         formData.append("file", file);
 
         const response = await sendFileMessageApi(formData);
-        const sentMessage = response.data.data;
+        const sentMessage = response.data.data as MessageResponse;
 
-        setMessages((prev) => [...prev, sentMessage]);
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((msg) => msg.id));
+          const existingClientIds = new Set(prev.map((msg) => msg.clientMsgId));
+          if (
+            existingIds.has(sentMessage.id) ||
+            existingClientIds.has(sentMessage.clientMsgId)
+          ) {
+            return prev;
+          }
+          return [...prev, sentMessage];
+        });
       } catch (err) {
         toast.error(getErrorMessage(err, "Không thể gửi file"));
       }
@@ -175,9 +218,19 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
         };
 
         const response = await sendWeatherMessage(weatherRequest);
-        const sentMessage = response.data.data;
+        const sentMessage = response.data.data as MessageResponse;
 
-        setMessages((prev) => [...prev, sentMessage]);
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((msg) => msg.id));
+          const existingClientIds = new Set(prev.map((msg) => msg.clientMsgId));
+          if (
+            existingIds.has(sentMessage.id) ||
+            existingClientIds.has(sentMessage.clientMsgId)
+          ) {
+            return prev;
+          }
+          return [...prev, sentMessage];
+        });
       } catch (err) {
         toast.error(getErrorMessage(err, "Không thể gửi thông tin thời tiết"));
       }

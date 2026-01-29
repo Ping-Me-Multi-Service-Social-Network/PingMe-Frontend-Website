@@ -104,7 +104,7 @@ const MiniPlayerContent: React.FC = () => {
       style={style}
       {...listeners}
       {...attributes}
-      className="fixed bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30 z-[100]"
+      className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30"
     >
       {/* Close button */}
       <button
@@ -115,7 +115,7 @@ const MiniPlayerContent: React.FC = () => {
         <X className="w-4 h-4" />
       </button>
 
-      <div className="p-3">
+      <div className="p-4">
         {/* Album Art & Info */}
         <div className="flex items-center gap-2 mb-2">
           <img
@@ -249,6 +249,7 @@ const DraggableMiniPlayer: React.FC = () => {
           left: `${position.x}px`,
           top: `${position.y}px`,
           width: "280px",
+          zIndex: 9999,
         }}
       >
         <MiniPlayerContent />

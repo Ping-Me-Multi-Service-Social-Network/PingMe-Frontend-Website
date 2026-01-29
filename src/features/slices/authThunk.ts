@@ -9,6 +9,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import { getCurrentUserSessionApi } from "@/services/user/currentUserProfileApi.ts";
 
+// =========================================================
+// THUNK LOGIN
+// =========================================================
 export const login = createAsyncThunk<
   DefaultAuthResponse,
   LoginRequest,
@@ -16,6 +19,7 @@ export const login = createAsyncThunk<
 >("auth/login", async (data, thunkAPI) => {
   try {
     const res = await loginLocalApi(data);
+    localStorage.setItem("access_token", res.data.data.accessToken);
     toast.success("Đăng nhập thành công");
     return res.data.data;
   } catch (err: unknown) {
@@ -25,15 +29,22 @@ export const login = createAsyncThunk<
   }
 });
 
+// =========================================================
+// THUNK LOGOUT
+// =========================================================
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
     await logoutApi();
+    localStorage.removeItem("access_token");
   } catch (err: unknown) {
     const message = getErrorMessage(err, "Đăng xuất thất bại");
     return thunkAPI.rejectWithValue(message);
   }
 });
 
+// =========================================================
+// THUNK GET CURRENT USER SESSION
+// =========================================================
 export const getCurrentUserSession = createAsyncThunk<
   CurrentUserSessionResponse,
   void,

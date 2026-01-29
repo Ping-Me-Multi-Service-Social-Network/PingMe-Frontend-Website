@@ -1,56 +1,56 @@
-import { RouterProvider } from "react-router-dom";
-import { router } from "./router";
 import { Provider } from "react-redux";
-import { lazy, Suspense, useEffect, useState } from "react";
-import { ScrollArea } from "./components/ui/scroll-area";
+import { PersistGate } from "redux-persist/integration/react";
+import { useEffect } from "react";
+import { RouterProvider } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
-import { setupAxiosInterceptors } from "./lib/axiosClient";
-import { persistor, store } from "./features/store";
-import { updateTokenManually } from "./features/slices/authSlice";
-import { logout } from "./features/slices/authThunk";
+import { ScrollArea } from "./components/ui/scroll-area";
 import AppLoader from "./components/custom/AppLoader";
-
-const PersistGate = lazy(() =>
-  import("redux-persist/integration/react").then((module) => ({
-    default: module.PersistGate,
-  }))
-);
+import { router } from "./router";
+import { persistor, store } from "./features/store";
+import { useAppDispatch, useAppSelector } from "./features/hooks";
+import { getCurrentUserSession, logout } from "./features/slices/authThunk";
+import { setupAxiosInterceptors } from "./lib/axiosClient";
+import {
+  setLogoutReason,
+  updateUserSession,
+} from "./features/slices/authSlice";
 
 const PersistLoader = () => (
   <AppLoader type="pulse" message="Restoring session..." />
 );
 
-const InitialLoader = () => (
-  <AppLoader type="dots" message="Loading PingMe..." />
-);
-
-function App() {
-  const [persistReady, setPersistReady] = useState(false);
+function SessionBootstrap() {
+  const { isLogin } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    setupAxiosInterceptors({
-      onTokenRefreshed: (payload) =>
-        store.dispatch(updateTokenManually(payload)),
-      onLogout: () => store.dispatch(logout()),
-    });
+    const token = localStorage.getItem("access_token");
+    if (isLogin && token) {
+      dispatch(getCurrentUserSession());
+    }
+  }, [isLogin, dispatch]);
 
-    const timer = setTimeout(() => setPersistReady(true), 0);
-    return () => clearTimeout(timer);
+  return null;
+}
+
+function AppInner() {
+  useEffect(() => {
+    setupAxiosInterceptors({
+      onTokenRefreshed: (payload) => store.dispatch(updateUserSession(payload)),
+      onLogout: () => {
+        store.dispatch(setLogoutReason("EXPIRED"));
+        store.dispatch(logout());
+      },
+    });
   }, []);
 
   return (
-    <Provider store={store}>
-      {persistReady ? (
-        <Suspense fallback={<InitialLoader />}>
-          <PersistGate loading={<PersistLoader />} persistor={persistor}>
-            <ScrollArea className="min-h-screen">
-              <RouterProvider router={router}></RouterProvider>
-            </ScrollArea>
-          </PersistGate>
-        </Suspense>
-      ) : (
-        <InitialLoader />
-      )}
+    <PersistGate loading={<PersistLoader />} persistor={persistor}>
+      <SessionBootstrap />
+      <ScrollArea className="min-h-screen">
+        <RouterProvider router={router} />
+      </ScrollArea>
+
       <Toaster
         duration={3000}
         closeButton
@@ -58,8 +58,14 @@ function App() {
         theme="system"
         richColors
       />
-    </Provider>
+    </PersistGate>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AppInner />
+    </Provider>
+  );
+}

@@ -1,4 +1,4 @@
-import { User, LogOut, Shield } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { logout } from "@/features/slices/authThunk";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
+import { setLogoutReason } from "@/features/slices/authSlice";
 
 interface UserMenuProps {
   openInNewTab?: boolean;
@@ -26,6 +27,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const [avatarVersion, setAvatarVersion] = useState(Date.now());
 
   const handleLogout = () => {
+    dispatch(setLogoutReason("MANUAL"));
     dispatch(logout());
   };
 
@@ -106,24 +108,6 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
             </div>
           </Link>
         </DropdownMenuItem>
-
-        {userSession.roleName === "ADMIN" && (
-          <DropdownMenuItem>
-            <Link
-              to={"/admin"}
-              target={openInNewTab ? "_blank" : undefined}
-              rel={openInNewTab ? "noopener noreferrer" : undefined}
-              className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                <Shield className="h-4 w-4 text-blue-600" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-medium">Quản trị hệ thống</p>
-              </div>
-            </Link>
-          </DropdownMenuItem>
-        )}
 
         <DropdownMenuItem
           onClick={handleLogout}

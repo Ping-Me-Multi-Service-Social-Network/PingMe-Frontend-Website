@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
-import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/PlaylistDropdown";
+import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/dialogs/PlaylistDropdown";
 
 const GlobalAudioPlayer: React.FC = () => {
   const {
@@ -69,12 +69,12 @@ const GlobalAudioPlayer: React.FC = () => {
       }
     };
 
-    window.addEventListener('favorite-added', handleFavoriteAdded);
-    window.addEventListener('favorite-removed', handleFavoriteRemoved);
+    window.addEventListener("favorite-added", handleFavoriteAdded);
+    window.addEventListener("favorite-removed", handleFavoriteRemoved);
 
     return () => {
-      window.removeEventListener('favorite-added', handleFavoriteAdded);
-      window.removeEventListener('favorite-removed', handleFavoriteRemoved);
+      window.removeEventListener("favorite-added", handleFavoriteAdded);
+      window.removeEventListener("favorite-removed", handleFavoriteRemoved);
     };
   }, [currentSong]);
 
@@ -86,16 +86,20 @@ const GlobalAudioPlayer: React.FC = () => {
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(new CustomEvent('favorite-removed', {
-          detail: { songId: currentSong.id }
-        }));
+        window.dispatchEvent(
+          new CustomEvent("favorite-removed", {
+            detail: { songId: currentSong.id },
+          })
+        );
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(new CustomEvent('favorite-added', {
-          detail: { songId: currentSong.id }
-        }));
+        window.dispatchEvent(
+          new CustomEvent("favorite-added", {
+            detail: { songId: currentSong.id },
+          })
+        );
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
@@ -165,7 +169,7 @@ const GlobalAudioPlayer: React.FC = () => {
 
   return (
     <div
-      className={`fixed bottom-0 left-16 right-0 bg-gradient-to-t from-gray-900 via-gray-800 to-gray-900 border-t border-gray-700 shadow-2xl transition-all duration-300 z-50 ${isMinimized ? "h-16" : "h-24"
+      className={`fixed bottom-0 left-16 right-0 bg-linear-to-t from-gray-900 via-gray-800 to-gray-900 border-t border-gray-700 shadow-2xl transition-all duration-300 z-50 ${isMinimized ? "h-16" : "h-24"
         }`}
     >
       {/* Minimized View */}
@@ -233,11 +237,17 @@ const GlobalAudioPlayer: React.FC = () => {
                 {/* Favorite Button */}
                 <button
                   onClick={handleToggleFavorite}
-                  className={`transition-colors ${isFavorite ? "text-purple-500" : "text-gray-400 hover:text-white"
+                  className={`transition-colors ${isFavorite
+                      ? "text-purple-500"
+                      : "text-gray-400 hover:text-white"
                     }`}
-                  title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  title={
+                    isFavorite ? "Remove from favorites" : "Add to favorites"
+                  }
                 >
-                  <Heart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
+                  <Heart
+                    className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`}
+                  />
                 </button>
 
                 <button
@@ -314,10 +324,10 @@ const GlobalAudioPlayer: React.FC = () => {
               <button
                 onClick={cycleRepeatMode}
                 className={`transition-colors ${repeatMode === "off"
-                  ? "text-gray-400 hover:text-white"
-                  : repeatMode === "one"
-                    ? "text-blue-400 hover:text-blue-300"
-                    : "text-green-400 hover:text-green-300"
+                    ? "text-gray-400 hover:text-white"
+                    : repeatMode === "one"
+                      ? "text-blue-400 hover:text-blue-300"
+                      : "text-green-400 hover:text-green-300"
                   }`}
                 title={
                   repeatMode === "off"
@@ -363,9 +373,8 @@ const GlobalAudioPlayer: React.FC = () => {
             </div>
           </div>
         </>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 

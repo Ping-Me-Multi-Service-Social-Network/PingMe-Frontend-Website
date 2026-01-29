@@ -28,6 +28,7 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
 } from "@/services/ws/module/chatSocket";
+import AppLoader from "@/components/custom/AppLoader.tsx";
 
 export default function AppPageLayout() {
   const location = useLocation();
@@ -133,17 +134,16 @@ export default function AppPageLayout() {
 
   return (
     <AudioPlayerProvider>
-      <Suspense fallback={null}>
+      <Suspense fallback={<AppLoader />}>
         <CallProvider>
           <div
-            className={`h-screen bg-gray-100 flex overflow-hidden ${
-              !isMusicPage && isTransitioning ? "light-module-enter" : ""
-            }`}
+            className={`h-screen bg-gray-100 flex overflow-hidden ${!isMusicPage && isTransitioning ? "light-module-enter" : ""
+              }`}
             style={{
               transition: "background-color 0.6s ease-in-out",
             }}
           >
-            <div className="flex-shrink-0 lg:block">
+            <div className="shrink-0">
               <AppNavigation />
             </div>
 

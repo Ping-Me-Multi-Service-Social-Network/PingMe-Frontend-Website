@@ -102,7 +102,7 @@ export const chatThemes: Record<string, ChatTheme> = {
   OCEAN: {
     name: "Đại dương (Xanh dương)",
     backgroundImage:
-      "/chat-themes/ocean-waves-underwater-blue-cyan-pattern.jpg",
+      "/chat-themes/ocean-waves-underwater-blue-cyan-pattern.webp",
     header: {
       background: "bg-gradient-to-r from-blue-50 to-cyan-50",
       textColor: "text-gray-900",
@@ -151,7 +151,7 @@ export const chatThemes: Record<string, ChatTheme> = {
   },
   SUNSET: {
     name: "Hoàng hôn (Cam)",
-    backgroundImage: "/chat-themes/sunset-sky-orange-red-gradient-clouds.jpg",
+    backgroundImage: "/chat-themes/sunset-sky-orange-red-gradient-clouds.webp",
     header: {
       background: "bg-gradient-to-r from-orange-50 to-red-50",
       textColor: "text-gray-900",
@@ -202,7 +202,7 @@ export const chatThemes: Record<string, ChatTheme> = {
   FOREST: {
     name: "Rừng xanh",
     backgroundImage:
-      "/chat-themes/forest-trees-green-nature-leaves-pattern.jpg",
+      "/chat-themes/forest-trees-green-nature-leaves-pattern.webp",
     header: {
       background: "bg-gradient-to-r from-green-50 to-emerald-50",
       textColor: "text-gray-900",
@@ -253,7 +253,7 @@ export const chatThemes: Record<string, ChatTheme> = {
   ROSE: {
     name: "Hồng pastel",
     backgroundImage:
-      "/chat-themes/pink-rose-petals-soft-pastel-floral-pattern.jpg",
+      "/chat-themes/pink-rose-petals-soft-pastel-floral-pattern.webp",
     header: {
       background: "bg-gradient-to-r from-pink-50 to-rose-50",
       textColor: "text-gray-900",
@@ -302,7 +302,7 @@ export const chatThemes: Record<string, ChatTheme> = {
   },
   DARK: {
     name: "Tối",
-    backgroundImage: "/chat-themes/dark-starry-night-sky-galaxy-pattern.jpg",
+    backgroundImage: "/chat-themes/dark-starry-night-sky-galaxy-pattern.webp",
     header: {
       background: "bg-gradient-to-r from-gray-800 to-gray-900",
       textColor: "text-white",
