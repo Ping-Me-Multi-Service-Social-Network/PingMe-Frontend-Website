@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Eye, EyeOff, Mail, Lock, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { LoginRequest } from "@/types/authentication";
 import { useAppDispatch } from "@/features/hooks.ts";
 import { login } from "@/features/slices/authThunk.ts";
@@ -20,6 +20,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
 
   const dispatch = useAppDispatch();
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +43,7 @@ export default function LoginForm() {
 
   const handleForgotPassword = () => {
     console.log("[PingMe] Forgot password clicked");
+    navigate("/forgot-password");
   };
 
   return (
