@@ -135,44 +135,44 @@ export const router = createBrowserRouter([
     path: "/auth",
     element: <Navigate to="/" replace />,
   },
-{
-        path: "forgot-password",
+  {
+    path: "forgot-password",
+    element: (
+      <LazyElement>
+        <ForgetPasswordPage />
+      </LazyElement>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="email" replace />,
+      },
+      {
+        path: "email",
         element: (
           <LazyElement>
-            <ForgetPasswordPage />
+            <EmailInputPage />
           </LazyElement>
         ),
-        children: [
-          {
-            index: true,
-            element: <Navigate to="email" replace />,
-          },
-          {
-            path: "email",
-            element: (
-              <LazyElement>
-                <EmailInputPage />
-              </LazyElement>
-            ),
-          },
-          {
-            path: "verify-otp",
-            element: (
-              <LazyElement>
-                <VerifyOtpPage />
-              </LazyElement>
-            ),
-          },
-          {
-            path: "reset-password",
-            element: (
-              <LazyElement>
-                <ResetPasswordPage />
-              </LazyElement>
-            ),
-          },
-        ],
       },
+      {
+        path: "verify-otp",
+        element: (
+          <LazyElement>
+            <VerifyOtpPage />
+          </LazyElement>
+        ),
+      },
+      {
+        path: "reset-password",
+        element: (
+          <LazyElement>
+            <ResetPasswordPage />
+          </LazyElement>
+        ),
+      },
+    ],
+  },
   // ===========================================================
   // APP ROUTES (Protected)
   // ===========================================================
