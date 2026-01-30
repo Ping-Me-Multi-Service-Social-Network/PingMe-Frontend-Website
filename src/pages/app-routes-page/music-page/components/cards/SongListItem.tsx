@@ -34,6 +34,29 @@ export default function SongListItem({
 
   useEffect(() => {
     checkIfFavorite();
+
+    // Listen for favorite events from other components (e.g., GlobalAudioPlayer)
+    const handleFavoriteAdded = (event: Event) => {
+      const customEvent = event as CustomEvent<{ songId: number }>;
+      if (customEvent.detail.songId === song.id) {
+        setIsFavorite(true);
+      }
+    };
+
+    const handleFavoriteRemoved = (event: Event) => {
+      const customEvent = event as CustomEvent<{ songId: number }>;
+      if (customEvent.detail.songId === song.id) {
+        setIsFavorite(false);
+      }
+    };
+
+    globalThis.addEventListener("favorite-added", handleFavoriteAdded);
+    globalThis.addEventListener("favorite-removed", handleFavoriteRemoved);
+
+    return () => {
+      globalThis.removeEventListener("favorite-added", handleFavoriteAdded);
+      globalThis.removeEventListener("favorite-removed", handleFavoriteRemoved);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.id]);
 

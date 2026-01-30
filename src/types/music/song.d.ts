@@ -7,10 +7,10 @@ export type Song = {
   title: string;
   duration: number;
   songUrl: string;
-  coverImageUrl: string;
+  coverImageUrl?: string | null;
   playCount: number;
-  mainArtist: ArtistSummary;
-  featuredArtists: ArtistSummaryDto[];
-  genre: Genre[];
-  album: AlbumSummary[];
+  mainArtist?: ArtistSummary | null;
+  featuredArtists?: ArtistSummary[] | null;
+  genre?: Genre[] | null;
+  album?: AlbumSummary[] | null;
 };

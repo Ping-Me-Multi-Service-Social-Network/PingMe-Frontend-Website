@@ -94,7 +94,7 @@ const MiniPlayerContent: React.FC = () => {
     return () => {
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [currentSong, playlist, audioRef,]);
+  }, [currentSong, playlist, audioRef]);
 
   if (!currentSong) return null;
 
@@ -104,7 +104,7 @@ const MiniPlayerContent: React.FC = () => {
       style={style}
       {...listeners}
       {...attributes}
-      className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30"
+      className="bg-linear-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30"
     >
       {/* Close button */}
       <button
@@ -227,15 +227,15 @@ const MiniPlayerContent: React.FC = () => {
 const DraggableMiniPlayer: React.FC = () => {
   const { currentSong } = useAudioPlayer();
   const [position, setPosition] = useState({
-    x: window.innerWidth - 320,
-    y: window.innerHeight - 140,
+    x: globalThis.innerWidth - 320,
+    y: globalThis.innerHeight - 140,
   });
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { delta } = event;
     setPosition((prev) => ({
-      x: Math.max(0, Math.min(prev.x + delta.x, window.innerWidth - 280)),
-      y: Math.max(0, Math.min(prev.y + delta.y, window.innerHeight - 120)),
+      x: Math.max(0, Math.min(prev.x + delta.x, globalThis.innerWidth - 280)),
+      y: Math.max(0, Math.min(prev.y + delta.y, globalThis.innerHeight - 120)),
     }));
   };
 

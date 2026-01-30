@@ -141,8 +141,8 @@ export default function ArtistsPage() {
                                 imageAlt={song.title}
                                 title={song.title}
                                 subtitle={`${song.mainArtist.name}${song.otherArtists && song.otherArtists.length > 0
-                                        ? `, ${song.otherArtists.map(a => a.name).join(', ')}`
-                                        : ''
+                                    ? `, ${song.otherArtists.map(a => a.name).join(', ')}`
+                                    : ''
                                     }`}
                                 additionalInfo={
                                     song.albums && song.albums.length > 0 && (

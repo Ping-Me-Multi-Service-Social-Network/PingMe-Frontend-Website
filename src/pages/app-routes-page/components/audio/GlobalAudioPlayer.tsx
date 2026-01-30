@@ -18,6 +18,7 @@ import {
 import type { Song } from "@/types/music/song";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/dialogs/PlaylistDropdown";
+import { toast } from "sonner";
 
 const GlobalAudioPlayer: React.FC = () => {
   const {
@@ -36,18 +37,21 @@ const GlobalAudioPlayer: React.FC = () => {
   } = useAudioPlayer();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isHoveringProgress, setIsHoveringProgress] = useState(false);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
 
   // Check if current song is favorited
   useEffect(() => {
     const checkFavorite = async () => {
-      if (currentSong) {
+      if (currentSong?.id) {
         try {
           const result = await favoriteApi.isFavorite(currentSong.id);
           setIsFavorite(result);
         } catch (err) {
           console.error("Error checking favorite:", err);
         }
+      } else {
+        setIsFavorite(false);
       }
     };
     checkFavorite();
@@ -57,24 +61,24 @@ const GlobalAudioPlayer: React.FC = () => {
   useEffect(() => {
     const handleFavoriteAdded = (event: Event) => {
       const customEvent = event as CustomEvent<{ songId: number }>;
-      if (currentSong && customEvent.detail.songId === currentSong.id) {
+      if (currentSong?.id === customEvent.detail.songId) {
         setIsFavorite(true);
       }
     };
 
     const handleFavoriteRemoved = (event: Event) => {
       const customEvent = event as CustomEvent<{ songId: number }>;
-      if (currentSong && customEvent.detail.songId === currentSong.id) {
+      if (currentSong?.id === customEvent.detail.songId) {
         setIsFavorite(false);
       }
     };
 
-    window.addEventListener("favorite-added", handleFavoriteAdded);
-    window.addEventListener("favorite-removed", handleFavoriteRemoved);
+    globalThis.addEventListener("favorite-added", handleFavoriteAdded);
+    globalThis.addEventListener("favorite-removed", handleFavoriteRemoved);
 
     return () => {
-      window.removeEventListener("favorite-added", handleFavoriteAdded);
-      window.removeEventListener("favorite-removed", handleFavoriteRemoved);
+      globalThis.removeEventListener("favorite-added", handleFavoriteAdded);
+      globalThis.removeEventListener("favorite-removed", handleFavoriteRemoved);
     };
   }, [currentSong]);
 
@@ -85,8 +89,9 @@ const GlobalAudioPlayer: React.FC = () => {
       if (isFavorite) {
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
+        toast.success("Đã xóa khỏi yêu thích");
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(
+        globalThis.dispatchEvent(
           new CustomEvent("favorite-removed", {
             detail: { songId: currentSong.id },
           })
@@ -94,8 +99,9 @@ const GlobalAudioPlayer: React.FC = () => {
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
+        toast.success("Đã thêm vào yêu thích");
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(
+        globalThis.dispatchEvent(
           new CustomEvent("favorite-added", {
             detail: { songId: currentSong.id },
           })
@@ -186,7 +192,7 @@ const GlobalAudioPlayer: React.FC = () => {
                 {currentSong.title}
               </p>
               <p className="text-xs text-gray-400 truncate max-w-xs">
-                {currentSong.mainArtist.name}
+                {currentSong.mainArtist?.name || "Unknown Artist"}
               </p>
             </div>
           </div>
@@ -209,9 +215,9 @@ const GlobalAudioPlayer: React.FC = () => {
             <ChevronDown className="w-5 h-5" />
           </button>
 
-          <div className="h-full flex items-center px-6 gap-4">
-            {/* Song Info */}
-            <div className="flex items-center gap-4 w-1/4 min-w-0">
+          <div className="h-full flex items-center px-6 justify-between max-w-480 mx-auto w-full">
+            {/* Left Section: Song Info (30%) */}
+            <div className="flex items-center gap-4 w-[30%] min-w-50">
               <img
                 src={currentSong.coverImageUrl || "/abstract-album-cover.png"}
                 alt={currentSong.title}
@@ -222,24 +228,26 @@ const GlobalAudioPlayer: React.FC = () => {
                   {currentSong.title}
                 </p>
                 <p className="text-xs text-gray-400 truncate">
-                  {currentSong.mainArtist.name}
-                  {currentSong.featuredArtists?.length > 0 &&
-                    `, ${currentSong.featuredArtists
+                  {currentSong.mainArtist?.name || "Unknown Artist"}
+                  {currentSong.featuredArtists?.length && currentSong.featuredArtists.length > 0
+                    ? `, ${currentSong.featuredArtists
                       .map((a) => a.name)
-                      .join(", ")}`}
+                      .join(", ")}`
+                    : ""}
                 </p>
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-2">
+            {/* Center Section: Controls (40%) */}
+            <div className="flex flex-col gap-2 w-[40%] max-w-150 items-center">
               {/* Controls */}
               <div className="flex items-center justify-center gap-4">
                 {/* Favorite Button */}
                 <button
                   onClick={handleToggleFavorite}
                   className={`transition-colors ${isFavorite
-                      ? "text-purple-500"
-                      : "text-gray-400 hover:text-white"
+                    ? "text-purple-500"
+                    : "text-gray-400 hover:text-white"
                     }`}
                   title={
                     isFavorite ? "Remove from favorites" : "Add to favorites"
@@ -277,7 +285,7 @@ const GlobalAudioPlayer: React.FC = () => {
                 </button>
 
                 {/* Add to Playlist Button */}
-                {currentSong && (
+                {currentSong?.id && (
                   <PlaylistDropdown
                     songId={currentSong.id}
                     open={showPlaylistMenu}
@@ -295,39 +303,50 @@ const GlobalAudioPlayer: React.FC = () => {
                 )}
               </div>
 
+
               {/* Progress Bar */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 w-10 text-right">
+              <div className="flex items-center gap-3 w-full">
+                <span className="text-xs text-gray-400 w-10 text-right font-variant-numeric tabular-nums">
                   {formatTime(currentTime)}
                 </span>
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 0}
-                  value={currentTime || 0}
-                  onChange={handleSeek}
-                  className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-white"
-                  style={{
-                    background: `linear-gradient(to right, white 0%, white ${(currentTime / duration) * 100
-                      }%, #4b5563 ${(currentTime / duration) * 100
-                      }%, #4b5563 100%)`,
-                  }}
-                />
-                <span className="text-xs text-gray-400 w-10">
+                <div className="flex-1 relative h-4 flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration || 0}
+                    value={currentTime || 0}
+                    onChange={handleSeek}
+                    onMouseEnter={() => setIsHoveringProgress(true)}
+                    onMouseLeave={() => setIsHoveringProgress(false)}
+                    className="w-full h-1 rounded-lg custom-range transition-all duration-200 ease-out hover:h-1.5 focus:outline-none bg-gray-600"
+                    style={{
+                      background: `linear-gradient(to right, ${isHoveringProgress ? '#a855f7' : 'white'} 0%, ${isHoveringProgress ? '#a855f7' : 'white'} ${(currentTime / duration) * 100
+                        }%, #4b5563 ${(currentTime / duration) * 100
+                        }%, #4b5563 100%)`,
+                    }}
+                    aria-label="Seek progress"
+                    aria-valuemin={0}
+                    aria-valuemax={duration || 0}
+                    aria-valuenow={currentTime || 0}
+                    aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
+                  />
+                </div>
+                <span className="text-xs text-gray-400 w-10 font-variant-numeric tabular-nums">
                   {formatTime(duration)}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Right Section: Volume (30%) */}
+            <div className="flex items-center gap-3 w-[30%] min-w-50 justify-end">
               {/* Loop/Repeat Button */}
               <button
                 onClick={cycleRepeatMode}
                 className={`transition-colors ${repeatMode === "off"
-                    ? "text-gray-400 hover:text-white"
-                    : repeatMode === "one"
-                      ? "text-blue-400 hover:text-blue-300"
-                      : "text-green-400 hover:text-green-300"
+                  ? "text-gray-400 hover:text-white"
+                  : repeatMode === "one"
+                    ? "text-blue-400 hover:text-blue-300"
+                    : "text-green-400 hover:text-green-300"
                   }`}
                 title={
                   repeatMode === "off"

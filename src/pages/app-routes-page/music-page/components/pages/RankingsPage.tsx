@@ -100,6 +100,12 @@ export default function RankingsPage() {
         try {
             // Fetch full song details to play
             const songDetails = await songApi.getSongById(topSong.songId);
+
+            if (!songDetails) {
+                console.error('[PingMe] No song data returned from API');
+                return;
+            }
+
             playSong(songDetails);
 
             // Set playlist to current tab's songs (will need to fetch each one)

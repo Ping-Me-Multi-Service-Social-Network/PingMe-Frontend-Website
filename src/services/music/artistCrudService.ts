@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/base/apiResponse";
+import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type { ArtistResponse, ArtistRequest } from "@/types/music";
 import { createFormDataForArtist } from "./helpers/formDataHelper";
 
@@ -12,11 +12,11 @@ export const artistCrudService = {
   /**
    * Get all artists
    */
-  getAll: async (): Promise<ArtistResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>(
-      `${BASE_URL}/artists/all`,
-    );
-    return response.data.data;
+  getAll: async (): Promise<ApiResponse<PageResponse<ArtistResponse>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<ArtistResponse>>
+    >(`${BASE_URL}/artists/all`);
+    return response.data;
   },
 
   /**
@@ -32,14 +32,15 @@ export const artistCrudService = {
   /**
    * Search artists by name
    */
-  search: async (name: string): Promise<ArtistResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<ArtistResponse[]>>(
-      `${BASE_URL}/artists/search`,
-      {
-        params: { name },
-      },
-    );
-    return response.data.data;
+  search: async (
+    name: string,
+  ): Promise<ApiResponse<PageResponse<ArtistResponse>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<ArtistResponse>>
+    >(`${BASE_URL}/artists/search`, {
+      params: { name },
+    });
+    return response.data;
   },
 
   /**

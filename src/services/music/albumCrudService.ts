@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/base/apiResponse";
+import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type { AlbumResponse, AlbumRequest } from "@/types/music";
 import { createFormDataForAlbum } from "./helpers/formDataHelper";
 
@@ -12,11 +12,11 @@ export const albumCrudService = {
   /**
    * Get all albums
    */
-  getAll: async (): Promise<AlbumResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
-      `${BASE_URL}/albums/all`,
-    );
-    return response.data.data;
+  getAll: async (): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<AlbumResponse>>
+    >(`${BASE_URL}/albums/all`);
+    return response.data;
   },
 
   /**
@@ -32,14 +32,15 @@ export const albumCrudService = {
   /**
    * Search albums by title
    */
-  search: async (title: string): Promise<AlbumResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>(
-      `${BASE_URL}/albums/search`,
-      {
-        params: { title },
-      },
-    );
-    return response.data.data;
+  search: async (
+    title: string,
+  ): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<AlbumResponse>>
+    >(`${BASE_URL}/albums/search`, {
+      params: { title },
+    });
+    return response.data;
   },
 
   /**

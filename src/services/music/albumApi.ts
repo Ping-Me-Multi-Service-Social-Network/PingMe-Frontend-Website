@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/base/apiResponse";
+import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 
 export interface AlbumResponse {
   id: number;
@@ -9,16 +9,20 @@ export interface AlbumResponse {
 }
 
 export const albumApi = {
-  getAllAlbums: async () => {
-    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>("/albums/all");
-    const data = response.data.data || response.data;
-    return Array.isArray(data) ? data : [];
+  getAllAlbums: async (): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
+    const response =
+      await axiosClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
+        "/albums/all",
+      );
+    return response.data;
   },
 
-  getPopularAlbums: async (limit?: number) => {
-    const response = await axiosClient.get<ApiResponse<AlbumResponse[]>>("/albums/all");
-    const data = response.data.data || response.data;
-    const albums = Array.isArray(data) ? data : [];
+  getPopularAlbums: async (limit?: number): Promise<AlbumResponse[]> => {
+    const response =
+      await axiosClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
+        "/albums/all",
+      );
+    const albums = response.data?.data?.content || [];
     const sortedAlbums = [...albums].sort((a, b) => b.playCount - a.playCount);
     return limit ? sortedAlbums.slice(0, limit) : sortedAlbums;
   },

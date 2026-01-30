@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/base/apiResponse";
+import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type { GenreResponse, GenreRequest } from "@/types/music";
 import { createFormDataForGenre } from "./helpers/formDataHelper";
 
@@ -12,11 +12,11 @@ export const genreCrudService = {
   /**
    * Get all genres
    */
-  getAll: async (): Promise<GenreResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<GenreResponse[]>>(
-      `${BASE_URL}/genres/all`,
-    );
-    return response.data.data;
+  getAll: async (): Promise<ApiResponse<PageResponse<GenreResponse>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<GenreResponse>>
+    >(`${BASE_URL}/genres/all`);
+    return response.data;
   },
 
   /**
@@ -32,14 +32,15 @@ export const genreCrudService = {
   /**
    * Search genres by name
    */
-  search: async (name: string): Promise<GenreResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<GenreResponse[]>>(
-      `${BASE_URL}/genres/search`,
-      {
-        params: { name },
-      },
-    );
-    return response.data.data;
+  search: async (
+    name: string,
+  ): Promise<ApiResponse<PageResponse<GenreResponse>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<GenreResponse>>
+    >(`${BASE_URL}/genres/search`, {
+      params: { name },
+    });
+    return response.data;
   },
 
   /**

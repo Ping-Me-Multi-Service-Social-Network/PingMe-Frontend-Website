@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import type { ApiResponse } from "@/types/base/apiResponse";
+import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type {
   SongResponse,
   SongResponseWithAllAlbum,
@@ -16,48 +16,54 @@ export const songCrudService = {
   /**
    * Get all songs
    */
-  getAll: async (): Promise<SongResponseWithAllAlbum[]> => {
+  getAll: async (): Promise<
+    ApiResponse<PageResponse<SongResponseWithAllAlbum>>
+  > => {
     const response = await axiosClient.get<
-      ApiResponse<SongResponseWithAllAlbum[]>
+      ApiResponse<PageResponse<SongResponseWithAllAlbum>>
     >(`${BASE_URL}/songs/all`);
-    return response.data.data;
+    return response.data;
   },
 
   /**
    * Get song by ID
    */
-  getById: async (id: number): Promise<SongResponseWithAllAlbum> => {
+  getById: async (
+    id: number,
+  ): Promise<ApiResponse<SongResponseWithAllAlbum>> => {
     const response = await axiosClient.get<
       ApiResponse<SongResponseWithAllAlbum>
     >(`${BASE_URL}/songs/${id}`);
-    return response.data.data;
+    return response.data;
   },
 
   /**
    * Search songs by title
    */
-  search: async (title: string): Promise<SongResponseWithAllAlbum[]> => {
+  search: async (
+    title: string,
+  ): Promise<ApiResponse<PageResponse<SongResponseWithAllAlbum>>> => {
     const response = await axiosClient.get<
-      ApiResponse<SongResponseWithAllAlbum[]>
+      ApiResponse<PageResponse<SongResponseWithAllAlbum>>
     >(`${BASE_URL}/songs/search`, {
       params: { title },
     });
-    return response.data.data;
+    return response.data;
   },
 
   /**
    * Filter songs by genre
    */
-  filterByGenre: async (genreId: number): Promise<SongResponse[]> => {
-    const response = await axiosClient.get<ApiResponse<SongResponse[]>>(
-      `${BASE_URL}/songs/genre`,
-      {
-        params: { id: genreId },
-      },
-    );
-    return response.data.data;
+  filterByGenre: async (
+    genreId: number,
+  ): Promise<ApiResponse<PageResponse<SongResponseWithAllAlbum>>> => {
+    const response = await axiosClient.get<
+      ApiResponse<PageResponse<SongResponseWithAllAlbum>>
+    >(`${BASE_URL}/songs/genre`, {
+      params: { id: genreId },
+    });
+    return response.data;
   },
-
   /**
    * Create new song
    */
