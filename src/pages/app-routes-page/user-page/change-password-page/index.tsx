@@ -74,11 +74,11 @@ const ChangePasswordPage = () => {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-          <Lock className="w-5 h-5 mr-2 text-purple-600" />
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+          <Lock className="w-6 h-6 mr-3 text-purple-600" />
           Đổi mật khẩu
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-gray-500 mt-2">
           Thay đổi mật khẩu để bảo mật tài khoản của bạn
         </p>
       </div>
@@ -94,7 +94,7 @@ const ChangePasswordPage = () => {
               Mật khẩu hiện tại <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 id="currentPassword"
                 type={showPasswords.current ? "text" : "password"}
@@ -103,18 +103,18 @@ const ChangePasswordPage = () => {
                   handleInputChange("currentPassword", e.target.value)
                 }
                 placeholder="Nhập mật khẩu hiện tại"
-                className="pl-10 pr-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                 required
               />
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility("current")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {showPasswords.current ? (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-5 w-5" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -129,7 +129,7 @@ const ChangePasswordPage = () => {
               Mật khẩu mới <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 id="newPassword"
                 type={showPasswords.new ? "text" : "password"}
@@ -138,19 +138,19 @@ const ChangePasswordPage = () => {
                   handleInputChange("newPassword", e.target.value)
                 }
                 placeholder="Nhập mật khẩu mới"
-                className="pl-10 pr-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                 required
                 minLength={6}
               />
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility("new")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {showPasswords.new ? (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-5 w-5" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -165,7 +165,7 @@ const ChangePasswordPage = () => {
               Xác nhận mật khẩu mới <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 id="confirmPassword"
                 type={showPasswords.confirm ? "text" : "password"}
@@ -174,18 +174,18 @@ const ChangePasswordPage = () => {
                   handleInputChange("confirmPassword", e.target.value)
                 }
                 placeholder="Nhập lại mật khẩu mới"
-                className="pl-10 pr-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                 required
               />
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility("confirm")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {showPasswords.confirm ? (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-5 w-5" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -216,12 +216,12 @@ const ChangePasswordPage = () => {
             disabled={
               isLoading || formData.newPassword !== formData.confirmPassword
             }
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 font-medium"
+            className="h-12 bg-purple-600 hover:bg-purple-700 text-white px-8 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Đang cập nhật...
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <span>Đang cập nhật...</span>
               </>
             ) : (
               "Đổi mật khẩu"
