@@ -215,9 +215,9 @@ const GlobalAudioPlayer: React.FC = () => {
             <ChevronDown className="w-5 h-5" />
           </button>
 
-          <div className="h-full flex items-center px-6 justify-between max-w-[1920px] mx-auto w-full">
+          <div className="h-full flex items-center px-6 justify-between max-w-480 mx-auto w-full">
             {/* Left Section: Song Info (30%) */}
-            <div className="flex items-center gap-4 w-[30%] min-w-[200px]">
+            <div className="flex items-center gap-4 w-[30%] min-w-50">
               <img
                 src={currentSong.coverImageUrl || "/abstract-album-cover.png"}
                 alt={currentSong.title}
@@ -238,7 +238,7 @@ const GlobalAudioPlayer: React.FC = () => {
             </div>
 
             {/* Center Section: Controls (40%) */}
-            <div className="flex flex-col gap-2 w-[40%] max-w-[600px] items-center">
+            <div className="flex flex-col gap-2 w-[40%] max-w-150 items-center">
               {/* Controls */}
               <div className="flex items-center justify-center gap-4">
                 {/* Favorite Button */}
@@ -333,7 +333,7 @@ const GlobalAudioPlayer: React.FC = () => {
             </div>
 
             {/* Right Section: Volume (30%) */}
-            <div className="flex items-center gap-3 w-[30%] min-w-[200px] justify-end">
+            <div className="flex items-center gap-3 w-[30%] min-w-50 justify-end">
               {/* Loop/Repeat Button */}
               <button
                 onClick={cycleRepeatMode}

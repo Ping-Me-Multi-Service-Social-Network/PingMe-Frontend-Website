@@ -94,7 +94,7 @@ const MiniPlayerContent: React.FC = () => {
     return () => {
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [currentSong, playlist, audioRef,]);
+  }, [currentSong, playlist, audioRef]);
 
   if (!currentSong) return null;
 
@@ -104,7 +104,7 @@ const MiniPlayerContent: React.FC = () => {
       style={style}
       {...listeners}
       {...attributes}
-      className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30"
+      className="bg-linear-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl shadow-2xl backdrop-blur-sm border border-purple-500/30"
     >
       {/* Close button */}
       <button

@@ -162,9 +162,9 @@ export default function SearchDropdown({
           searchService.searchArtists(query),
         ]);
 
-        setSongs(songsRes?.data?.content || []);
-        setAlbums(albumsRes?.data?.content || []);
-        setArtists(artistsRes?.data?.content || []);
+        setSongs(songsRes || []);
+        setAlbums(albumsRes || []);
+        setArtists(artistsRes || []);
       } catch (error) {
         console.error("Error searching:", error);
         setSongs([]);

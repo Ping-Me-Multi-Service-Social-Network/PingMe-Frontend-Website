@@ -38,8 +38,7 @@ export default function AlbumsPage() {
                 await Promise.all(
                     albumsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (album) => {
                         try {
-                            const res = await searchService.getSongsByAlbum(album.id);
-                            const songs = res?.data?.content || [];
+                            const songs = await searchService.getSongsByAlbum(album.id);
                             if (songs.length > 0) {
                                 songsMap.set(album.id, [songs[0]]);
                             }
