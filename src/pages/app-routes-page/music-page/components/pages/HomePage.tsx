@@ -91,14 +91,14 @@ export default function HomePage() {
         const scrollElement = genreScrollRef.current;
         if (scrollElement) {
             scrollElement.addEventListener("scroll", checkScroll);
-            window.addEventListener("resize", checkScroll);
+            globalThis.addEventListener("resize", checkScroll);
         }
 
         return () => {
             if (scrollElement) {
                 scrollElement.removeEventListener("scroll", checkScroll);
             }
-            window.removeEventListener("resize", checkScroll);
+            globalThis.removeEventListener("resize", checkScroll);
         };
     }, [genres]);
 

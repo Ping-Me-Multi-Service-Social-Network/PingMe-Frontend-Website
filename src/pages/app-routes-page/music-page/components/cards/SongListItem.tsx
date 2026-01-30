@@ -50,12 +50,12 @@ export default function SongListItem({
       }
     };
 
-    window.addEventListener("favorite-added", handleFavoriteAdded);
-    window.addEventListener("favorite-removed", handleFavoriteRemoved);
+    globalThis.addEventListener("favorite-added", handleFavoriteAdded);
+    globalThis.addEventListener("favorite-removed", handleFavoriteRemoved);
 
     return () => {
-      window.removeEventListener("favorite-added", handleFavoriteAdded);
-      window.removeEventListener("favorite-removed", handleFavoriteRemoved);
+      globalThis.removeEventListener("favorite-added", handleFavoriteAdded);
+      globalThis.removeEventListener("favorite-removed", handleFavoriteRemoved);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.id]);

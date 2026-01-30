@@ -43,7 +43,7 @@ const GlobalAudioPlayer: React.FC = () => {
   // Check if current song is favorited
   useEffect(() => {
     const checkFavorite = async () => {
-      if (currentSong && currentSong.id) {
+      if (currentSong?.id) {
         try {
           const result = await favoriteApi.isFavorite(currentSong.id);
           setIsFavorite(result);
@@ -61,24 +61,24 @@ const GlobalAudioPlayer: React.FC = () => {
   useEffect(() => {
     const handleFavoriteAdded = (event: Event) => {
       const customEvent = event as CustomEvent<{ songId: number }>;
-      if (currentSong && customEvent.detail.songId === currentSong.id) {
+      if (currentSong?.id === customEvent.detail.songId) {
         setIsFavorite(true);
       }
     };
 
     const handleFavoriteRemoved = (event: Event) => {
       const customEvent = event as CustomEvent<{ songId: number }>;
-      if (currentSong && customEvent.detail.songId === currentSong.id) {
+      if (currentSong?.id === customEvent.detail.songId) {
         setIsFavorite(false);
       }
     };
 
-    window.addEventListener("favorite-added", handleFavoriteAdded);
-    window.addEventListener("favorite-removed", handleFavoriteRemoved);
+    globalThis.addEventListener("favorite-added", handleFavoriteAdded);
+    globalThis.addEventListener("favorite-removed", handleFavoriteRemoved);
 
     return () => {
-      window.removeEventListener("favorite-added", handleFavoriteAdded);
-      window.removeEventListener("favorite-removed", handleFavoriteRemoved);
+      globalThis.removeEventListener("favorite-added", handleFavoriteAdded);
+      globalThis.removeEventListener("favorite-removed", handleFavoriteRemoved);
     };
   }, [currentSong]);
 
@@ -91,7 +91,7 @@ const GlobalAudioPlayer: React.FC = () => {
         setIsFavorite(false);
         toast.success("Đã xóa khỏi yêu thích");
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(
+        globalThis.dispatchEvent(
           new CustomEvent("favorite-removed", {
             detail: { songId: currentSong.id },
           })
@@ -101,7 +101,7 @@ const GlobalAudioPlayer: React.FC = () => {
         setIsFavorite(true);
         toast.success("Đã thêm vào yêu thích");
         // Dispatch event to notify FavoritesPage to refresh
-        window.dispatchEvent(
+        globalThis.dispatchEvent(
           new CustomEvent("favorite-added", {
             detail: { songId: currentSong.id },
           })
@@ -229,10 +229,11 @@ const GlobalAudioPlayer: React.FC = () => {
                 </p>
                 <p className="text-xs text-gray-400 truncate">
                   {currentSong.mainArtist?.name || "Unknown Artist"}
-                  {currentSong.featuredArtists && currentSong.featuredArtists.length > 0 &&
-                    `, ${currentSong.featuredArtists
+                  {currentSong.featuredArtists?.length && currentSong.featuredArtists.length > 0
+                    ? `, ${currentSong.featuredArtists
                       .map((a) => a.name)
-                      .join(", ")}`}
+                      .join(", ")}`
+                    : ""}
                 </p>
               </div>
             </div>
@@ -284,7 +285,7 @@ const GlobalAudioPlayer: React.FC = () => {
                 </button>
 
                 {/* Add to Playlist Button */}
-                {currentSong && (
+                {currentSong?.id && (
                   <PlaylistDropdown
                     songId={currentSong.id}
                     open={showPlaylistMenu}
@@ -302,28 +303,32 @@ const GlobalAudioPlayer: React.FC = () => {
                 )}
               </div>
 
+
               {/* Progress Bar */}
               <div className="flex items-center gap-3 w-full">
                 <span className="text-xs text-gray-400 w-10 text-right font-variant-numeric tabular-nums">
                   {formatTime(currentTime)}
                 </span>
-                <div
-                  className="flex-1 relative h-4 flex items-center group"
-                  onMouseEnter={() => setIsHoveringProgress(true)}
-                  onMouseLeave={() => setIsHoveringProgress(false)}
-                >
+                <div className="flex-1 relative h-4 flex items-center">
                   <input
                     type="range"
                     min="0"
                     max={duration || 0}
                     value={currentTime || 0}
                     onChange={handleSeek}
+                    onMouseEnter={() => setIsHoveringProgress(true)}
+                    onMouseLeave={() => setIsHoveringProgress(false)}
                     className="w-full h-1 rounded-lg custom-range transition-all duration-200 ease-out hover:h-1.5 focus:outline-none bg-gray-600"
                     style={{
                       background: `linear-gradient(to right, ${isHoveringProgress ? '#a855f7' : 'white'} 0%, ${isHoveringProgress ? '#a855f7' : 'white'} ${(currentTime / duration) * 100
                         }%, #4b5563 ${(currentTime / duration) * 100
                         }%, #4b5563 100%)`,
                     }}
+                    aria-label="Seek progress"
+                    aria-valuemin={0}
+                    aria-valuemax={duration || 0}
+                    aria-valuenow={currentTime || 0}
+                    aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
                   />
                 </div>
                 <span className="text-xs text-gray-400 w-10 font-variant-numeric tabular-nums">
