@@ -1,6 +1,12 @@
 import { verifyOtpApi } from "@/services/mail/mailManageMentApi";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 const VerifyOtpPage: React.FC = () => {
   const [otp, setOtp] = useState("");
@@ -22,6 +28,11 @@ const VerifyOtpPage: React.FC = () => {
 
     if (!email) return;
 
+    if (!otp || otp.length < 6) {
+      toast.error("Vui lòng nhập mã OTP hợp lệ");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -34,12 +45,12 @@ const VerifyOtpPage: React.FC = () => {
       const resData = response.data;
 
       if (resData.errorCode === 200 && resData.data.isValid === true) {
-        console.log("OTP Validated:", resData.data);
+        toast.success("Xác thực OTP thành công");
 
         if (resData.data.resetPasswordToken) {
           localStorage.setItem(
             "resetPasswordToken",
-            resData.data.resetPasswordToken,
+            resData.data.resetPasswordToken
           );
         }
 
@@ -49,58 +60,75 @@ const VerifyOtpPage: React.FC = () => {
           },
         });
       } else {
-        alert("Mã OTP không chính xác hoặc đã hết hạn.");
+        toast.error("Mã OTP không chính xác hoặc đã hết hạn.");
       }
     } catch (error) {
-      console.error("Verify OTP Error:", error);
-      alert("Có lỗi xảy ra khi xác thực OTP.");
+      toast.error(getErrorMessage(error, "Xác thực OTP thất bại"));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4">Verify OTP</h1>
+    <div className="w-full space-y-6">
+      <div className="text-center space-y-2">
+        <div className="flex justify-center mb-4">
+          <div className="p-3 bg-purple-100 rounded-full">
+            <ShieldCheck className="w-8 h-8 text-purple-600" />
+          </div>
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900">Xác thực OTP</h1>
+        <p className="text-gray-500 text-sm">
+          Nhập mã 6 số chúng tôi đã gửi đến email
+          <br />
+          <span className="font-medium text-purple-600">{email}</span>
+        </p>
+      </div>
 
-      {/* Hiển thị email để user biết đang verify cho nick nào */}
-      <p className="text-sm text-gray-500 mb-6">
-        Sent to: <span className="font-medium text-gray-700">{email}</span>
-      </p>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
+            Mã OTP
+          </Label>
+          <Input
+            id="otp"
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replaceAll(/\D/g, ""))}
+            className="h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg text-center text-xl tracking-[0.5em] font-semibold"
+            required
+            maxLength={6}
+            placeholder="......"
+            disabled={isLoading}
+            autoFocus
+          />
+        </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-80"
-      >
-        <label
-          htmlFor="otp"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Enter the OTP code
-        </label>
-        <input
-          type="text"
-          id="otp"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest text-center text-lg"
-          required
-          maxLength={6} // Thường OTP có 6 số
-          placeholder="XXXXXX"
-          disabled={isLoading}
-        />
-        <button
+        <Button
           type="submit"
+          className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
           disabled={isLoading}
-          className={`w-full mt-4 text-white py-2 px-4 rounded transition-colors ${
-            isLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          }`}
         >
-          {isLoading ? "Verifying..." : "Verify OTP"}
-        </button>
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Đang xác thực...
+            </>
+          ) : (
+            "Xác nhận"
+          )}
+        </Button>
       </form>
+
+      <div className="text-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center text-sm text-gray-600 hover:text-purple-600 font-medium transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Quay lại nhập email
+        </button>
+      </div>
     </div>
   );
 };
