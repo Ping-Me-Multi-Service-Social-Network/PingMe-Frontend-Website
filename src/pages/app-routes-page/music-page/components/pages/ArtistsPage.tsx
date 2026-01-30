@@ -37,7 +37,8 @@ export default function ArtistsPage() {
                 await Promise.all(
                     artistsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (artist: ArtistResponse) => {
                         try {
-                            const songs = await searchService.getSongsByArtist(artist.id);
+                            const res = await searchService.getSongsByArtist(artist.id);
+                            const songs = res?.data?.content || [];
                             if (songs.length > 0) {
                                 songsMap.set(artist.id, [songs[0]]);
                             }
@@ -141,8 +142,8 @@ export default function ArtistsPage() {
                                 imageAlt={song.title}
                                 title={song.title}
                                 subtitle={`${song.mainArtist.name}${song.otherArtists && song.otherArtists.length > 0
-                                        ? `, ${song.otherArtists.map(a => a.name).join(', ')}`
-                                        : ''
+                                    ? `, ${song.otherArtists.map(a => a.name).join(', ')}`
+                                    : ''
                                     }`}
                                 additionalInfo={
                                     song.albums && song.albums.length > 0 && (

@@ -240,6 +240,12 @@ export default function PlaylistDetailPage() {
     const handlePlaySong = async (playlistSong: PlaylistSongDto) => {
         try {
             const songDetails = await songApi.getSongById(playlistSong.songId);
+
+            if (!songDetails) {
+                console.error('[PingMe] No song data returned from API');
+                return;
+            }
+
             playSong(songDetails);
 
             // Set playlist to all songs in order
@@ -247,7 +253,7 @@ export default function PlaylistDetailPage() {
                 const allSongs = await Promise.all(
                     playlistDetail.items.map(item => songApi.getSongById(item.songId))
                 );
-                setAudioPlaylist(allSongs);
+                setAudioPlaylist(allSongs.filter(Boolean));
             }
         } catch (err) {
             console.error("Error playing song:", err);
@@ -261,6 +267,12 @@ export default function PlaylistDetailPage() {
             const allSongs = await Promise.all(
                 playlistDetail.items.map(item => songApi.getSongById(item.songId))
             );
+
+            if (allSongs.length === 0) {
+                console.error('[PingMe] No valid songs to play');
+                return;
+            }
+
             setAudioPlaylist(allSongs);
             playSong(allSongs[0]);
         } catch (err) {

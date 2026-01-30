@@ -16,7 +16,11 @@ import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
 import type { Song } from "@/types/music/song";
 import { ArrowLeft, Disc3, User2, Play, Music } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { fetchSongsByGenre, fetchSongsByAlbum, fetchSongsByArtist } from "@/features/slices/musicSlice";
+import {
+  fetchSongsByGenre,
+  fetchSongsByAlbum,
+  fetchSongsByArtist
+} from "@/features/slices/musicSlice";
 import { getCachedData } from "@/utils/musicCacheUtils";
 import { DEFAULT_ITEMS_PER_PAGE } from "@/constants/musicConstants";
 
@@ -51,16 +55,24 @@ export default function SongListPage() {
     additionalFetch?: () => Promise<T>,
     setAdditional?: (data: T) => void
   ): Promise<SongResponseWithAllAlbum[]> => {
+
     // Check cache first
     const cachedData = getCachedData(cache?.[id], cacheExpiry);
 
     if (cachedData) {
-      // Cache hit: fetch additional data if needed
-      if (additionalFetch && setAdditional) {
-        const additionalData = await additionalFetch();
-        setAdditional(additionalData);
+      // If cache is not an array (e.g., it's an object), invalidate and refetch
+      if (!Array.isArray(cachedData)) {
+        // Don't return cached non-array data, continue to fetch from API
+      } else if (cachedData.length === 0) {
+        // Don't return cached empty array, continue to fetch from API
+      } else {
+        // Cache hit with valid data: fetch additional data if needed
+        if (additionalFetch && setAdditional) {
+          const additionalData = await additionalFetch();
+          setAdditional(additionalData);
+        }
+        return cachedData;
       }
-      return cachedData;
     }
 
     // Cache miss: fetch both in parallel if additional fetch exists
@@ -69,13 +81,25 @@ export default function SongListPage() {
         dispatch(fetchAction(id)).unwrap(),
         additionalFetch()
       ]);
+
       setAdditional(additionalData);
-      return result.songs;
+
+      // Redux thunks return { albumId/artistId/genreId, songs }
+      // searchService already unwraps, so songs is a clean array
+      const songs = result?.songs || [];
+
+      return Array.isArray(songs) ? songs : [];
     }
 
     // Only fetch songs
     const result = await dispatch(fetchAction(id)).unwrap();
-    return result.songs;
+
+    // Redux thunks return { albumId/artistId/genreId, songs }
+    // searchService already unwraps, so songs is a clean array
+    const songs = result?.songs || [];
+
+
+    return Array.isArray(songs) ? songs : [];
   };
 
   const convertToPlaylist = (songsData: SongResponseWithAllAlbum[]): Song[] => {
@@ -126,11 +150,13 @@ export default function SongListPage() {
           songsData = await fetchWithCache(numId, songsByGenre, fetchSongsByGenre);
         }
 
-        setSongs(songsData);
-        setPlaylist(convertToPlaylist(songsData));
+
+
+        setSongs(Array.isArray(songsData) ? songsData : []);
+        setPlaylist(convertToPlaylist(Array.isArray(songsData) ? songsData : []));
         setError(null);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("[PingMe SongListPage] Error fetching data:", err);
         setError("Đã xảy ra lỗi khi tải dữ liệu");
       } finally {
         setLoading(false);
@@ -173,16 +199,16 @@ export default function SongListPage() {
   };
 
   const handlePlayAll = () => {
-    if (songs.length > 0) {
+    if (Array.isArray(songs) && songs.length > 0) {
       const firstSong = convertToSong(songs[0]);
       playSong(firstSong);
     }
   };
 
-  const totalPages = Math.ceil(songs.length / itemsPerPage);
+  const totalPages = Math.ceil((Array.isArray(songs) ? songs.length : 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedSongs = songs.slice(startIndex, endIndex);
+  const paginatedSongs = Array.isArray(songs) ? songs.slice(startIndex, endIndex) : [];
 
   const getDisplayImage = () => {
     if (type === "album") return albumDetails?.coverImgUrl;
@@ -256,7 +282,7 @@ export default function SongListPage() {
         )}
 
         <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
-          <span>{songs.length} bài hát</span>
+          <span>{Array.isArray(songs) ? songs.length : 0} bài hát</span>
           {playCount !== null && playCount !== undefined && (
             <>
               <span>•</span>
@@ -265,7 +291,7 @@ export default function SongListPage() {
           )}
         </div>
 
-        {songs.length > 0 && (
+        {Array.isArray(songs) && songs.length > 0 && (
           <button
             onClick={handlePlayAll}
             className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
@@ -323,7 +349,7 @@ export default function SongListPage() {
         {/* Songs List */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-white mb-4">Bài Hát</h2>
-          {songs.length > 0 ? (
+          {Array.isArray(songs) && songs.length > 0 ? (
             <>
               <div className="space-y-2 mb-4">
                 {paginatedSongs.map((song, index) => (
@@ -336,7 +362,7 @@ export default function SongListPage() {
                 ))}
               </div>
 
-              {songs.length > itemsPerPage && (
+              {Array.isArray(songs) && songs.length > itemsPerPage && (
                 <div className="bg-zinc-800/50 rounded-lg p-4 [&_.flex]:bg-zinc-800/50! [&_.flex]:border-zinc-700 [&_button]:bg-zinc-700! [&_button]:text-zinc-200! [&_button]:border-zinc-600! [&_button:hover]:bg-zinc-600! [&_button.bg-purple-600]:bg-purple-600! [&_button.bg-purple-600]:text-white! [&_button.bg-purple-600:hover]:bg-purple-500! [&_span]:text-zinc-300! [&_select]:bg-zinc-700! [&_select]:text-zinc-200 [&_select]:border-zinc-600">
                   <Pagination
                     currentPage={currentPage}

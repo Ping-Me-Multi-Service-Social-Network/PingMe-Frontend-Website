@@ -54,13 +54,19 @@ export default function FavoritesPage() {
     const handlePlaySong = async (favorite: FavoriteDto) => {
         try {
             const songDetails = await songApi.getSongById(favorite.songId);
+
+            if (!songDetails) {
+                console.error('[PingMe] No song data returned from API');
+                return;
+            }
+
             playSong(songDetails);
 
             // Set playlist to all favorite songs
             const allSongs = await Promise.all(
                 favorites.map(fav => songApi.getSongById(fav.songId))
             );
-            setPlaylist(allSongs);
+            setPlaylist(allSongs.filter(Boolean));
         } catch (err) {
             console.error("Error playing song:", err);
         }
@@ -73,6 +79,12 @@ export default function FavoritesPage() {
             const allSongs = await Promise.all(
                 favorites.map(fav => songApi.getSongById(fav.songId))
             );
+
+            if (allSongs.length === 0) {
+                console.error('[PingMe] No valid songs to play');
+                return;
+            }
+
             setPlaylist(allSongs);
             playSong(allSongs[0]);
         } catch (err) {

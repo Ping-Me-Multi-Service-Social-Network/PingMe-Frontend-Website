@@ -156,15 +156,15 @@ export default function SearchDropdown({
       setLoading(true);
       setError(null);
       try {
-        const [songsData, albumsData, artistsData] = await Promise.all([
+        const [songsRes, albumsRes, artistsRes] = await Promise.all([
           searchService.searchSongs(query),
           searchService.searchAlbums(query),
           searchService.searchArtists(query),
         ]);
 
-        setSongs(songsData);
-        setAlbums(albumsData);
-        setArtists(artistsData);
+        setSongs(songsRes?.data?.content || []);
+        setAlbums(albumsRes?.data?.content || []);
+        setArtists(artistsRes?.data?.content || []);
       } catch (error) {
         console.error("Error searching:", error);
         setSongs([]);

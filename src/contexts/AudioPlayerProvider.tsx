@@ -28,12 +28,21 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   const playCountTrackedRef = useRef<Set<number>>(new Set());
 
   const playSong = useCallback((song: Song) => {
+    // Validate song has required data
+    if (!song.songUrl || song.songUrl.trim() === '') {
+      console.error('[PingMe] Cannot play song: Invalid or missing songUrl', song);
+      return;
+    }
+
     setCurrentSong(song);
     setIsPlaying(true);
     playCountTrackedRef.current.delete(song.id);
     if (audioRef.current) {
       audioRef.current.src = song.songUrl;
-      audioRef.current.play().catch(console.error);
+      audioRef.current.play().catch((error) => {
+        console.error('[PingMe] Audio playback failed:', error);
+        setIsPlaying(false);
+      });
     }
   }, []);
 
@@ -120,10 +129,21 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
           );
           const nextIndex = (currentIndex + 1) % playlist.length;
           const nextSong = playlist[nextIndex];
+
+          // Validate next song has valid URL
+          if (!nextSong?.songUrl || nextSong.songUrl.trim() === '') {
+            console.error('[PingMe] Cannot play next song: Invalid or missing songUrl', nextSong);
+            setIsPlaying(false);
+            return;
+          }
+
           setCurrentSong(nextSong);
           playCountTrackedRef.current.delete(nextSong.id);
           audio.src = nextSong.songUrl;
-          audio.play().catch(console.error);
+          audio.play().catch((error) => {
+            console.error('[PingMe] Failed to play next song:', error);
+            setIsPlaying(false);
+          });
         }
       } else {
         setIsPlaying(false);
@@ -138,8 +158,15 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       setIsPlaying(false);
     };
 
-    const handleError = () => {
-      console.error("Audio playback error");
+    const handleError = (e: Event) => {
+      const audioElement = e.target as HTMLAudioElement;
+      const error = audioElement.error;
+      console.error('[PingMe] Audio playback error:', {
+        code: error?.code,
+        message: error?.message,
+        currentSong: currentSong?.title,
+        songUrl: currentSong?.songUrl,
+      });
       setIsPlaying(false);
     };
 

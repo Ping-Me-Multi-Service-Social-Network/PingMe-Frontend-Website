@@ -72,6 +72,7 @@ export const fetchMusicData = createAsyncThunk(
       artistApi.getPopularArtists(limit),
       genreApi.getAllGenres(),
     ]);
+    
     return { songs, albums, artists, genres };
   },
 );

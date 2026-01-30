@@ -54,17 +54,18 @@ export default function MusicLayout() {
                 transition: 'background-color 0.6s ease-in-out'
             }}
         >
+            <MusicSearchBar onSongPlay={handleSongPlay} />
+
             <div
                 ref={scrollRef}
-                className="flex-1"
+                className="flex-1 custom-scrollbar relative"
                 style={{
                     overflowY: 'scroll',
                     scrollbarGutter: 'stable',
-                    scrollbarWidth: 'auto'
+                    // scrollbarWidth handled by CSS class
                 }}
             >
-                <MusicSearchBar onSongPlay={handleSongPlay} />
-                <div style={{ minHeight: 'calc(100vh - 80px)' }}>
+                <div style={{ minHeight: 'calc(100vh - 160px)' }}>
                     <Outlet />
                 </div>
             </div>
