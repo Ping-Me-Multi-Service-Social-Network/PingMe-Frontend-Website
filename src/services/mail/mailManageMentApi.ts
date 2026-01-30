@@ -10,17 +10,11 @@ import type {
 } from "@/types/mail/mail";
 
 export const sendOtpToEmailApi = (data: SendOtpRequest) => {
-  return axiosClient.post<ApiResponse<SendOtpResponse>>(
-    "/mail-management/api/v1/mails/send-otp",
-    data,
-  );
+  return axiosClient.post<ApiResponse<SendOtpResponse>>("/otp/send", data);
 };
 
 export const verifyOtpApi = (data: VerifyOtpRequest) => {
-  return axiosClient.post<ApiResponse<VerifyOtpResponse>>(
-    "/mail-management/api/v1/mails/otp-verification",
-    data,
-  );
+  return axiosClient.post<ApiResponse<VerifyOtpResponse>>("/otp/verify", data);
 };
 
 export const resetPasswordApi = (data: ResetPasswordRequest) => {
