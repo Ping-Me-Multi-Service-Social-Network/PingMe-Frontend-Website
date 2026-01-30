@@ -94,7 +94,7 @@ const VerifyOtpPage: React.FC = () => {
             id="otp"
             type="text"
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            onChange={(e) => setOtp(e.target.value.replaceAll(/\D/g, ""))}
             className="h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg text-center text-xl tracking-[0.5em] font-semibold"
             required
             maxLength={6}
