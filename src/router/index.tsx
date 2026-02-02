@@ -75,17 +75,6 @@ const DiscoverPlaylistsPage = lazy(
 );
 
 // ===========================================================
-// APP PAGES - Blogs
-// ===========================================================
-const BlogPage = lazy(() => import("@/pages/app-routes-page/blog-page"));
-const BlogDetailsPage = lazy(
-  () => import("@/pages/app-routes-page/blog-page/blog-details-page"),
-);
-const UpsertBlogPage = lazy(
-  () => import("@/pages/app-routes-page/blog-page/upsert-blog-page"),
-);
-
-// ===========================================================
 // APP PAGES - Reels
 // ===========================================================
 const ReelsPage = lazy(() => import("@/pages/app-routes-page/reels-page"));
@@ -335,37 +324,6 @@ export const router = createBrowserRouter([
           },
         ],
       },
-
-      // ---------------------------------------------------------
-      // Blog Routes
-      // ---------------------------------------------------------
-      {
-        path: "blogs",
-        element: (
-          <LazyElement>
-            <BlogPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "blogs/:id",
-        element: (
-          <LazyElement>
-            <BlogDetailsPage />
-          </LazyElement>
-        ),
-      },
-      {
-        path: "blogs/upsert/:id?",
-        element: (
-          <ProtectedRoute>
-            <LazyElement>
-              <UpsertBlogPage />
-            </LazyElement>
-          </ProtectedRoute>
-        ),
-      },
-
       // ---------------------------------------------------------
       // Reels Routes
       // ---------------------------------------------------------

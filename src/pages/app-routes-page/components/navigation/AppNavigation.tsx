@@ -4,7 +4,6 @@ import {
   MessageCircle,
   Users,
   Home,
-  BookOpen,
   Music4Icon,
   Film,
   Menu,
@@ -54,16 +53,6 @@ const mediaNavigationItems = [
   },
 ];
 
-const contentNavigationItems = [
-  {
-    title: "Blog",
-    icon: BookOpen,
-    href: "/app/blogs",
-    description: "Khám phá bài viết",
-    external: false,
-  },
-];
-
 const homeNavigationItem = {
   title: "Trang chủ",
   icon: Home,
@@ -98,18 +87,17 @@ export default function AppNavigation() {
           <NavLink
             to={item.href}
             onClick={() => setIsOpen(false)}
-            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-              isActive
-                ? "bg-white text-purple-600 shadow-lg scale-110"
-                : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
-            }`}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive
+              ? "bg-white text-purple-600 shadow-lg scale-110"
+              : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
+              }`}
           >
             <item.icon className="w-6 h-6" />
           </NavLink>
         </TooltipTrigger>
         <TooltipContent
           side="right"
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
+          className="bg-linear-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
         >
           <div>
             <div className="font-semibold">{item.title}</div>
@@ -127,7 +115,7 @@ export default function AppNavigation() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-40 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          className="lg:hidden fixed top-4 left-4 z-40 w-12 h-12 rounded-xl bg-linear-to-br from-purple-600 to-purple-700 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -138,7 +126,7 @@ export default function AppNavigation() {
           role="button"
           tabIndex={0}
           aria-label="Đóng menu"
-          className="lg:hidden fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 bg-black/50 z-60 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
           onKeyDown={handleOverlayKeyDown}
         />
@@ -147,10 +135,10 @@ export default function AppNavigation() {
       <div
         className={`
           fixed lg:relative
-          h-screen bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800 
+          h-screen bg-linear-to-b from-purple-600 via-purple-700 to-purple-800 
           flex flex-col items-center py-4 shadow-xl
           transition-transform duration-300 ease-in-out
-          z-[70]
+          z-70
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           w-16
         `}
@@ -178,13 +166,8 @@ export default function AppNavigation() {
           {mediaNavigationItems.map((item) => renderNavItem(item))}
         </div>
 
-        <div className="flex-1 flex flex-col space-y-2 py-3">
-          {contentNavigationItems.map((item) => renderNavItem(item))}
-        </div>
-
-        <div className="w-10 h-px bg-purple-400/30 my-2" />
-
-        <div className="flex flex-col space-y-3 pt-3">
+        <div className="mt-auto flex flex-col space-y-3 pt-3">
+          <div className="w-10 h-px bg-purple-400/30 mb-2" />
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex justify-center">
@@ -193,7 +176,7 @@ export default function AppNavigation() {
             </TooltipTrigger>
             <TooltipContent
               side="right"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
+              className="bg-linear-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
             >
               <div>
                 <div className="font-semibold">Tài khoản</div>
