@@ -31,14 +31,20 @@ import {
   getCurrentUserInfoApi,
   updateCurrentUserProfileApi,
 } from "@/services/user/currentUserProfileApi.ts";
+import type { AccountStatusType } from "@/types/common/userSummary";
+
+import { AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { sendOtpToEmailApi } from "@/services/mail/mailManageMentApi";
 
 const UserInfoPage = () => {
   const { userSession, isLoading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
-
+  const navigate = useNavigate();
   // Status State
   const [isFetchLoading, setIsFetchLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState<ChangeProfileRequest>({
@@ -47,12 +53,17 @@ const UserInfoPage = () => {
     address: "",
   });
   const [dob, setDob] = useState<Date | undefined>(undefined);
+  // Thêm state lưu accountStatus
+  const [accountStatus, setAccountStatus] = useState<AccountStatusType | null>(
+    null,
+  );
 
   const fetchUserDetails = useCallback(async () => {
     setIsFetchLoading(true);
     try {
       const res = await getCurrentUserInfoApi();
       const data = res.data.data;
+      console.log(data);
 
       setFormData({
         name: data.name || "",
@@ -60,6 +71,7 @@ const UserInfoPage = () => {
         address: data.address || "",
       });
       setDob(data.dob ? new Date(data.dob) : undefined);
+      setAccountStatus(data.accountStatus || null);
     } catch (err) {
       toast.error(getErrorMessage(err, "Không thể lấy thông tin người dùng"));
     } finally {
@@ -106,6 +118,32 @@ const UserInfoPage = () => {
       </div>
     );
 
+  // Hàm xử lý khi bấm nút Kích hoạt
+  const handleActivate = async () => {
+    if (!userSession.email) return;
+    setIsSendingOtp(true);
+    try {
+      await sendOtpToEmailApi({
+        email: userSession.email,
+        otpType: "ACCOUNT_ACTIVATION", // [Lưu ý] Đảm bảo field tên là otpType giống interface
+      });
+
+      toast.success("Mã kích hoạt đã được gửi đến email của bạn!");
+
+      // Chuyển hướng, truyền đúng type để bên kia bắt
+      navigate("/auth/verify-otp", {
+        state: {
+          email: userSession.email,
+          type: "ACCOUNT_ACTIVATION", // Truyền type qua state
+        },
+      });
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Gửi mã kích hoạt thất bại"));
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="mb-6">
@@ -117,7 +155,33 @@ const UserInfoPage = () => {
           Cập nhật thông tin cá nhân của bạn
         </p>
       </div>
-
+      {/* NÚT KÍCH HOẠT (Chỉ hiện khi NON_ACTIVATED) */}
+      {accountStatus === "NON_ACTIVATED" && (
+        <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+          <div className="flex items-center gap-2 text-yellow-700">
+            <AlertTriangle className="w-5 h-5" />
+            <span className="text-sm font-medium">
+              Tài khoản chưa kích hoạt
+            </span>
+          </div>
+          <Button
+            size="sm"
+            variant="default"
+            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            onClick={handleActivate}
+            disabled={isSendingOtp}
+          >
+            {isSendingOtp ? (
+              <>
+                <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                Đang gửi...
+              </>
+            ) : (
+              "Kích hoạt ngay"
+            )}
+          </Button>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Email (Read-only) */}
@@ -179,7 +243,7 @@ const UserInfoPage = () => {
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal border-gray-200 focus:border-purple-300 focus:ring-purple-200",
-                    !dob && "text-muted-foreground"
+                    !dob && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
