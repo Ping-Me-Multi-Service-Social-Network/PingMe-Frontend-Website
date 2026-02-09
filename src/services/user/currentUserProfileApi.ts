@@ -13,25 +13,25 @@ export const getCurrentUserSessionApi = () => {
 
 export const getCurrentUserInfoApi = () => {
   return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>(
-    "/users/me/info"
+    "/users/me/info",
   );
 };
 
 export const updateCurrentUserPasswordApi = (
-  changePasswordRequest: ChangePasswordRequest
+  changePasswordRequest: ChangePasswordRequest,
 ) => {
   return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/users/me/password",
-    changePasswordRequest
+    changePasswordRequest,
   );
 };
 
 export const updateCurrentUserProfileApi = (
-  changeProfileRequest: ChangeProfileRequest
+  changeProfileRequest: ChangeProfileRequest,
 ) => {
   return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/users/me/profile",
-    changeProfileRequest
+    changeProfileRequest,
   );
 };
 
@@ -43,6 +43,12 @@ export const updateCurrentUserAvatarApi = (data: FormData) => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
+  );
+};
+
+export const activateAccountApi = () => {
+  return axiosClient.post<ApiResponse<{ isActivated: boolean }>>(
+    "/users/me/activate",
   );
 };
