@@ -1,5 +1,8 @@
 // =============================
 // MAIN INTERFACE
+
+import type { AccountStatusType } from "../common/userSummary";
+
 // =============================
 export interface DefaultAuthResponse {
   accessToken: string;
@@ -23,6 +26,7 @@ export interface CurrentUserProfileResponse {
   address?: string;
   dob?: string;
   roleName: string | null;
+  accountStatus: AccountStatusType | null;
 }
 
 export interface RegisterRequest {

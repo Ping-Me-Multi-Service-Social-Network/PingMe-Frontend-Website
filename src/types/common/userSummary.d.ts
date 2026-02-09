@@ -11,5 +11,9 @@ export interface UserSummaryResponse {
   friendshipSummary: FriendshipSummary | null;
 }
 
-export type AccountStatusType = "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+export type AccountStatusType =
+  | "ACTIVE"
+  | "SUSPENDED"
+  | "DEACTIVATED"
+  | "NON_ACTIVATED";
 export type AccountFilterType = AccountStatusType | "ALL";
