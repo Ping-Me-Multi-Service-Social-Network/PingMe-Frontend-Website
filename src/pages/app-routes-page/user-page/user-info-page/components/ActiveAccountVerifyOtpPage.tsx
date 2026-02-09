@@ -62,10 +62,10 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
 
             // 4. Quay về trang Profile
             navigate("/app/profile/user-info");
-          } catch (actErr) {
+          } catch (error_) {
             toast.error(
               getErrorMessage(
-                actErr,
+                error_,
                 "Lỗi khi kích hoạt tài khoản sau khi xác thực OTP",
               ),
             );
