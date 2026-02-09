@@ -87,8 +87,8 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
       } else {
         toast.error("Mã OTP không chính xác hoặc đã hết hạn.");
       }
-    } catch (error) {
-      toast.error(getErrorMessage(error, "Xác thực OTP thất bại"));
+    } catch (error_) {
+      toast.error(getErrorMessage(error_, "Xác thực OTP thất bại"));
     } finally {
       setIsLoading(false);
     }

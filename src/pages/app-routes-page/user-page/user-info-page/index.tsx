@@ -17,7 +17,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
-import { CalendarIcon, Loader2, User, MapPin } from "lucide-react";
+import {
+  CalendarIcon,
+  Loader2,
+  User,
+  MapPin,
+  AlertTriangle,
+} from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils.ts";
@@ -33,7 +39,6 @@ import {
 } from "@/services/user/currentUserProfileApi.ts";
 import type { AccountStatusType } from "@/types/common/userSummary";
 
-import { AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { sendOtpToEmailApi } from "@/services/mail/mailManageMentApi";
 
