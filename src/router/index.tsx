@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
 import { LazyElement } from "@/components/custom/LazyElement";
+import ActiveAccountVerifyOtpPage from "@/pages/app-routes-page/user-page/user-info-page/components/ActiveAccountVerifyOtpPage";
 
 // ===========================================================
 // PUBLIC PAGES
@@ -123,6 +124,14 @@ export const router = createBrowserRouter([
   {
     path: "/auth",
     element: <Navigate to="/" replace />,
+  },
+  {
+    path: "/auth/verify-otp",
+    element: (
+      <LazyElement>
+        <ActiveAccountVerifyOtpPage />
+      </LazyElement>
+    ),
   },
   {
     path: "forgot-password",
