@@ -50,7 +50,7 @@ const VerifyOtpPage: React.FC = () => {
         if (resData.data.resetPasswordToken) {
           localStorage.setItem(
             "resetPasswordToken",
-            resData.data.resetPasswordToken
+            resData.data.resetPasswordToken,
           );
         }
 
