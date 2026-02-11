@@ -31,7 +31,6 @@ export default defineConfig({
           ],
           "framer-motion": ["framer-motion"],
           "chart-libs": ["recharts"],
-          "rich-text": ["react-quill-new", "quill"],
           zego: ["@zegocloud/zego-uikit-prebuilt"],
           socket: ["@stomp/stompjs", "sockjs-client"],
         },
