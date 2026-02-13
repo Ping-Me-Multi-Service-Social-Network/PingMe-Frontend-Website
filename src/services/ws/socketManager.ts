@@ -270,7 +270,7 @@ class SocketManagerClass {
 
   // Setup user-level chat stream (room lifecycle events).
   private setupChatSubscriptions(): void {
-    if (!this.client || !this.options?.chat) return;
+    if (!this.client) return;
 
     console.log("[PingMe] Setting up chat subscriptions");
 
