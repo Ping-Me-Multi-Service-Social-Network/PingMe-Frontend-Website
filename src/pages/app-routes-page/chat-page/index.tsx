@@ -22,8 +22,8 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
 } from "@/services/ws/module/chatSocket";
-import type { UserStatusPayload } from "@/types/common/userStatus.ts";
 import { selectChatEvent, clearChatEvent } from "@/features/slices/chatSlice";
+import { selectUserStatusEvent } from "@/features/slices/socketSlice";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -301,24 +301,10 @@ export default function MessagesPage() {
     handleRoomUpdated,
   ]);
 
-  const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
-    null
-  );
+  const userStatusEvent = useAppSelector(selectUserStatusEvent);
 
   useEffect(() => {
-    const handleUserStatusEvent = (e: Event) => {
-      const event = (e as CustomEvent).detail as UserStatusPayload;
-      setStatusPayload(event);
-    };
-
-    window.addEventListener("socket:user-status", handleUserStatusEvent);
-
-    return () => {
-      window.removeEventListener("socket:user-status", handleUserStatusEvent);
-    };
-  }, []);
-
-  useEffect(() => {
+    const statusPayload = userStatusEvent.payload;
     if (!statusPayload) return;
 
     setRooms((prevRooms) =>
@@ -334,7 +320,7 @@ export default function MessagesPage() {
         ),
       }))
     );
-  }, [statusPayload]);
+  }, [userStatusEvent.id, userStatusEvent.payload]);
 
   return (
     <div className="flex h-screen bg-gray-50">

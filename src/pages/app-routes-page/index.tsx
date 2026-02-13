@@ -13,11 +13,6 @@ const CallProvider = lazy(() =>
 );
 import { SocketManager } from "@/services/ws/socketManager";
 import { useAppSelector } from "@/features/hooks";
-import type {
-  FriendshipEventPayload,
-  UserStatusPayload,
-  SignalingPayload,
-} from "@/services/ws/module/globalSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
 
 export default function AppPageLayout() {
@@ -46,22 +41,6 @@ export default function AppPageLayout() {
     SocketManager.connect({
       baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
 
-      // Global handlers - will be used by ContactPage and CallProvider
-      onFriendEvent: (ev: FriendshipEventPayload) => {
-        window.dispatchEvent(
-          new CustomEvent("socket:friend-event", { detail: ev })
-        );
-      },
-      onUserStatus: (ev: UserStatusPayload) => {
-        window.dispatchEvent(
-          new CustomEvent("socket:user-status", { detail: ev })
-        );
-      },
-      onSignaling: (ev: SignalingPayload) => {
-        window.dispatchEvent(
-          new CustomEvent("socket:signaling", { detail: ev })
-        );
-      },
 
       onDisconnect: (reason?: string) => {
         console.warn(
