@@ -8,6 +8,7 @@ import {
 import { CallContext, type CallContextType } from "@/contexts/CallContext.tsx";
 import { sendSignalingApi } from "@/services/call/callApi.ts";
 import { useAppSelector } from "@/features/hooks.ts";
+import { selectSignalingEvent } from "@/features/slices/socketSlice";
 import { CallNotification } from "./CallNotification.tsx";
 import { ZegoCallUI } from "./ZegoCallUI.tsx";
 import type { RoomParticipantResponse } from "@/types/chat/room";
@@ -25,6 +26,7 @@ interface CallProviderProps {
 
 export function CallProvider({ children }: CallProviderProps) {
   const { userSession } = useAppSelector((state) => state.auth);
+  const signalingEvent = useAppSelector(selectSignalingEvent);
 
   // --- STATE ---
   const [isIncomingCall, setIsIncomingCall] = useState(false);
@@ -76,45 +78,44 @@ export function CallProvider({ children }: CallProviderProps) {
 
   // --- WEBSOCKET ---
   useEffect(() => {
-    if (!userSession?.id) return;
+    if (!userSession?.id || !signalingEvent.payload) return;
 
-    const handleSignalingEvent = async (e: Event) => {
-      const event = (e as CustomEvent).detail as SignalingResponse;
+    const event = signalingEvent.payload as SignalingResponse;
 
-      if (event.senderId === userSession.id) return;
+    if (event.senderId === userSession.id) return;
 
-      console.log(
-        `[PingMe CallProvider] Signal: ${event.type} from ${event.senderId}`
-      );
+    console.log(
+      `[PingMe CallProvider] Signal: ${event.type} from ${event.senderId}`
+    );
 
-      if (event.type === "INVITE") {
-        if (isInCall || isIncomingCall) return;
+    if (event.type === "INVITE") {
+      if (isInCall || isIncomingCall) return;
 
-        activeRoomIdRef.current = event.roomId.toString();
-        const incomingCallType = event.payload?.callType || "VIDEO";
+      activeRoomIdRef.current = event.roomId.toString();
+      const incomingCallType = event.payload?.callType || "VIDEO";
 
-        setCallerInfo({
-          userId: event.senderId,
-          name: "Đang tải...",
-          avatarUrl: "null",
-          status: "ONLINE",
-          role: "MEMBER",
-          lastReadMessageId: null,
-          lastReadAt: null,
-        });
+      setCallerInfo({
+        userId: event.senderId,
+        name: "Đang tải...",
+        avatarUrl: "null",
+        status: "ONLINE",
+        role: "MEMBER",
+        lastReadMessageId: null,
+        lastReadAt: null,
+      });
 
-        setCallType(incomingCallType);
-        setCallState({
-          status: "ringing",
-          callType: incomingCallType,
-          callerId: event.senderId,
-          roomId: event.roomId,
-          isInitiator: false,
-        });
-        setIsIncomingCall(true);
+      setCallType(incomingCallType);
+      setCallState({
+        status: "ringing",
+        callType: incomingCallType,
+        callerId: event.senderId,
+        roomId: event.roomId,
+        isInitiator: false,
+      });
+      setIsIncomingCall(true);
 
-        try {
-          const res = await lookupByIdApi(event.senderId);
+      lookupByIdApi(event.senderId)
+        .then((res) => {
           const userInfo = res.data.data;
           setCallerInfo((prev) =>
             prev
@@ -125,33 +126,34 @@ export function CallProvider({ children }: CallProviderProps) {
                 }
               : undefined
           );
-        } catch (e) {
-          console.error("[PingMe CallProvider] Lỗi lấy thông tin người gọi", e);
-        }
-      } else if (event.type === "ACCEPT") {
-        console.log("Đối phương đã nghe máy!");
-        setCallState((prev) => ({ ...prev, status: "connected" }));
-      } else if (event.type === "REJECT") {
-        console.log("Đối phương từ chối -> Tắt máy ngay");
-        toast.info("Người dùng đang bận");
+        })
+        .catch((err) => {
+          console.error("[PingMe CallProvider] Lỗi lấy thông tin người gọi", err);
+        });
+    } else if (event.type === "ACCEPT") {
+      console.log("Đối phương đã nghe máy!");
+      setCallState((prev) => ({ ...prev, status: "connected" }));
+    } else if (event.type === "REJECT") {
+      console.log("Đối phương từ chối -> Tắt máy ngay");
+      toast.info("Người dùng đang bận");
 
-        setCallState((prev) => ({ ...prev, status: "ended" }));
-        resetCallState();
-      } else if (event.type === "HANGUP") {
-        console.log("[PingMe CallProvider] NHẬN TÍN HIỆU KẾT THÚC -> TẮT MÁY");
-        toast.info("Cuộc gọi kết thúc");
+      setCallState((prev) => ({ ...prev, status: "ended" }));
+      resetCallState();
+    } else if (event.type === "HANGUP") {
+      console.log("[PingMe CallProvider] NHẬN TÍN HIỆU KẾT THÚC -> TẮT MÁY");
+      toast.info("Cuộc gọi kết thúc");
 
-        setCallState((prev) => ({ ...prev, status: "ended" }));
-        resetCallState();
-      }
-    };
-
-    window.addEventListener("socket:signaling", handleSignalingEvent);
-
-    return () => {
-      window.removeEventListener("socket:signaling", handleSignalingEvent);
-    };
-  }, [userSession?.id, isInCall, isIncomingCall, resetCallState]);
+      setCallState((prev) => ({ ...prev, status: "ended" }));
+      resetCallState();
+    }
+  }, [
+    signalingEvent.id,
+    signalingEvent.payload,
+    userSession?.id,
+    isInCall,
+    isIncomingCall,
+    resetCallState,
+  ]);
 
   // --- ACTIONS ---
   const initiateCall = useCallback(

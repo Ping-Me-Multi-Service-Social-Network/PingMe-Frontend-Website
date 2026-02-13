@@ -17,6 +17,11 @@ import {
   memberRemoved,
   memberRoleChanged,
 } from "@/features/slices/chatSlice";
+import {
+  friendshipEventReceived,
+  signalingEventReceived,
+  userStatusEventReceived,
+} from "@/features/slices/socketSlice";
 
 import type {
   ChatEventHandlers,
@@ -337,14 +342,20 @@ class SocketManagerClass {
     this.friendshipSub = this.subscribeQueueEvent<FriendshipEventPayload>(
       "/user/queue/friendship",
       "friendship event",
-      this.options?.onFriendEvent
+      (ev) => {
+        store.dispatch(friendshipEventReceived(ev));
+        this.options?.onFriendEvent?.(ev);
+      }
     );
 
     // Subscribe to user status events
     this.statusSub = this.subscribeQueueEvent<UserStatusPayload>(
       "/user/queue/status",
       "status event",
-      this.options?.onUserStatus
+      (ev) => {
+        store.dispatch(userStatusEventReceived(ev));
+        this.options?.onUserStatus?.(ev);
+      }
     );
 
     // Subscribe to signaling events
@@ -353,6 +364,7 @@ class SocketManagerClass {
       "signaling event",
       (ev) => {
         console.log("[PingMe] Received signaling event:", ev);
+        store.dispatch(signalingEventReceived(ev));
         this.options?.onSignaling?.(ev);
       }
     );
