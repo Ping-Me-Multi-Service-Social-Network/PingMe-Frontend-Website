@@ -5,7 +5,6 @@ import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { store } from "@/features/store";
 import {
   messageCreated,
   messageRecalled,
@@ -16,12 +15,12 @@ import {
   memberAdded,
   memberRemoved,
   memberRoleChanged,
-} from "@/features/slices/chatSlice";
+} from "@/websocket/slices/chatSlice";
 import {
   friendshipEventReceived,
   signalingEventReceived,
   userStatusEventReceived,
-} from "@/features/slices/socketSlice";
+} from "@/websocket/slices/socketSlice";
 
 import type {
   ChatEventHandlers,
@@ -47,6 +46,7 @@ import type {
 // =================================================================
 export interface SocketManagerOptions {
   baseUrl: string;
+  dispatch: (action: any) => void;
 
   // Chat event handlers
   chat?: ChatEventHandlers;
@@ -288,25 +288,25 @@ class SocketManagerClass {
 
           switch (ev.chatEventType) {
             case "ROOM_CREATED":
-              store.dispatch(roomCreated(ev as RoomCreatedEventPayload));
+              this.options?.dispatch(roomCreated(ev as RoomCreatedEventPayload));
               this.options?.chat?.onRoomCreated?.(
                 ev as RoomCreatedEventPayload
               );
               break;
             case "ROOM_UPDATED":
-              store.dispatch(roomUpdated(ev as RoomUpdatedEventPayload));
+              this.options?.dispatch(roomUpdated(ev as RoomUpdatedEventPayload));
               this.options?.chat?.onRoomUpdated?.(
                 ev as RoomUpdatedEventPayload
               );
               break;
             case "MEMBER_ADDED":
-              store.dispatch(memberAdded(ev as RoomMemberAddedEventPayload));
+              this.options?.dispatch(memberAdded(ev as RoomMemberAddedEventPayload));
               this.options?.chat?.onMemberAdded?.(
                 ev as RoomMemberAddedEventPayload
               );
               break;
             case "MEMBER_REMOVED":
-              store.dispatch(
+              this.options?.dispatch(
                 memberRemoved(ev as RoomMemberRemovedEventPayload)
               );
               this.options?.chat?.onMemberRemoved?.(
@@ -314,7 +314,7 @@ class SocketManagerClass {
               );
               break;
             case "MEMBER_ROLE_CHANGED":
-              store.dispatch(
+              this.options?.dispatch(
                 memberRoleChanged(ev as RoomMemberRoleChangedEventPayload)
               );
               this.options?.chat?.onMemberRoleChanged?.(
@@ -343,7 +343,7 @@ class SocketManagerClass {
       "/user/queue/friendship",
       "friendship event",
       (ev) => {
-        store.dispatch(friendshipEventReceived(ev));
+        this.options?.dispatch(friendshipEventReceived(ev));
         this.options?.onFriendEvent?.(ev);
       }
     );
@@ -353,7 +353,7 @@ class SocketManagerClass {
       "/user/queue/status",
       "status event",
       (ev) => {
-        store.dispatch(userStatusEventReceived(ev));
+        this.options?.dispatch(userStatusEventReceived(ev));
         this.options?.onUserStatus?.(ev);
       }
     );
@@ -364,7 +364,7 @@ class SocketManagerClass {
       "signaling event",
       (ev) => {
         console.log("[PingMe] Received signaling event:", ev);
-        store.dispatch(signalingEventReceived(ev));
+        this.options?.dispatch(signalingEventReceived(ev));
         this.options?.onSignaling?.(ev);
       }
     );
@@ -389,13 +389,13 @@ class SocketManagerClass {
 
         switch (ev.chatEventType) {
           case "MESSAGE_CREATED":
-            store.dispatch(messageCreated(ev as MessageCreatedEventPayload));
+            this.options?.dispatch(messageCreated(ev as MessageCreatedEventPayload));
             this.options?.chat?.onMessageCreated?.(
               ev as MessageCreatedEventPayload
             );
             break;
           case "MESSAGE_RECALLED":
-            store.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
+            this.options?.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
             this.options?.chat?.onMessageRecalled?.(
               ev as MessageRecalledEventPayload
             );
@@ -423,7 +423,7 @@ class SocketManagerClass {
       );
       if (!ev || ev.chatEventType !== "READ_STATE_CHANGED") return;
 
-      store.dispatch(readStateChanged(ev));
+      this.options?.dispatch(readStateChanged(ev));
       this.options?.chat?.onReadStateChanged?.(ev);
     });
   }
@@ -440,7 +440,7 @@ class SocketManagerClass {
       const ev = this.parsePayload<TypingSignalPayload>(msg, "typing event");
       if (!ev) return;
 
-      store.dispatch(userTyping(ev));
+      this.options?.dispatch(userTyping(ev));
       this.options?.chat?.onTyping?.(ev);
     });
   }

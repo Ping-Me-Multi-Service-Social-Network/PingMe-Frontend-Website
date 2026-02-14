@@ -3,7 +3,7 @@ import type {
   FriendshipEventPayload,
   SignalingPayload,
   UserStatusPayload,
-} from "@/services/ws/module/globalSocket";
+} from "../module/globalSocket";
 import type { RootState } from "@/features/store";
 
 interface SocketEventState<T> {

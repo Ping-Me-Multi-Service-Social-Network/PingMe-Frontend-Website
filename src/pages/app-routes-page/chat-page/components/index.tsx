@@ -23,7 +23,10 @@ import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
 import { ChatBoxContent } from "./chat-box/ChatBoxContent.tsx";
 import ChatBoxHeader from "./chat-box/ChatBoxHeader.tsx";
 import ConversationSidebar from "./conversation-sidebar";
-import { selectMessages, setCurrentRoom } from "@/features/slices/chatSlice";
+import {
+  setCurrentRoom,
+  selectMessages,
+} from "@/websocket/slices/chatSlice";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;

@@ -5,17 +5,17 @@ import { AudioPlayerProvider } from "@/hooks/useAudio.tsx";
 import GlobalAudioPlayer from "./components/audio/GlobalAudioPlayer.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
 const CallProvider = lazy(() =>
-  import("@/hooks/useCall").then((module) => ({
+  import("@/websocket/hooks/useCall").then((module) => ({
     default: module.CallProvider,
   }))
 );
-import { SocketManager } from "@/services/ws/socketManager";
-import { useAppSelector } from "@/features/hooks";
+import { useSocket } from "@/websocket/useSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
+
 
 export default function AppPageLayout() {
   const location = useLocation();
-  const { userSession } = useAppSelector((state) => state.auth);
+
   const isMusicPage = location.pathname.startsWith("/app/music");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const previousIsMusicPage = useRef(isMusicPage);
@@ -31,28 +31,8 @@ export default function AppPageLayout() {
     previousIsMusicPage.current = isMusicPage;
   }, [isMusicPage]);
 
-  useEffect(() => {
-    if (!userSession) return;
-
-    console.log("[PingMe AppPageLayout] Connecting SocketManager...");
-
-    SocketManager.connect({
-      baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
-
-
-      onDisconnect: (reason?: string) => {
-        console.warn(
-          "[PingMe AppPageLayout] SocketManager disconnected:",
-          reason
-        );
-      },
-    });
-
-    return () => {
-      console.log("[PingMe AppPageLayout] Disconnecting SocketManager...");
-      SocketManager.disconnect();
-    };
-  }, [userSession]);
+  // Handle socket connection and global notifications
+  useSocket();
 
   return (
     <AudioPlayerProvider>

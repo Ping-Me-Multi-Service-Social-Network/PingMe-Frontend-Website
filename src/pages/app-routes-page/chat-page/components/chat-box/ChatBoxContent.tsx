@@ -8,7 +8,7 @@ import SentMessageBubble from "../message-bubbles/SentMessageBubble.tsx";
 import ReceivedMessageBubble from "../message-bubbles/ReceivedMessageBubble.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
 import { useSelector } from "react-redux";
-import { selectTypingUsers } from "@/features/slices/chatSlice";
+import { selectTypingUsers } from "@/websocket/slices/chatSlice";
 import { selectUser } from "@/features/slices/authSlice";
 
 interface ChatBoxContentProps {

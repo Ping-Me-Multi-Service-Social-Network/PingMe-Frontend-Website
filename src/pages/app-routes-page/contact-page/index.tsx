@@ -4,7 +4,7 @@ import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
 import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
 import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
 import { ContactSidebar } from "./components/ContactSidebar";
-import { useFriendshipSocketHandler } from "@/hooks/useFriendshipSocketHandler";
+import { useFriendshipSocketHandler } from "@/websocket/hooks/useFriendshipSocketHandler";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
@@ -12,9 +12,9 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
 import {
-  selectFriendshipEvent,
   selectUserStatusEvent,
-} from "@/features/slices/socketSlice";
+  selectFriendshipEvent,
+} from "@/websocket/slices/socketSlice";
 
 
 
