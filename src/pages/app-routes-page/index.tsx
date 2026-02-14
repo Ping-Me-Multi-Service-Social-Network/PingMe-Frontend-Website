@@ -13,21 +13,6 @@ const CallProvider = lazy(() =>
 );
 import { SocketManager } from "@/services/ws/socketManager";
 import { useAppSelector } from "@/features/hooks";
-import type {
-  FriendshipEventPayload,
-  UserStatusPayload,
-  SignalingPayload,
-} from "@/services/ws/module/globalSocket";
-import type {
-  MessageCreatedEventPayload,
-  MessageRecalledEventPayload,
-  ReadStateChangedEvent,
-  RoomCreatedEventPayload,
-  RoomUpdatedEventPayload,
-  RoomMemberAddedEventPayload,
-  RoomMemberRemovedEventPayload,
-  RoomMemberRoleChangedEventPayload,
-} from "@/services/ws/module/chatSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
 
 export default function AppPageLayout() {
@@ -56,67 +41,6 @@ export default function AppPageLayout() {
     SocketManager.connect({
       baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
 
-      // Chat handlers - will be used by ChatPage
-      chat: {
-        onMessageCreated: (ev: MessageCreatedEventPayload) => {
-          // Dispatch custom event for ChatPage to listen
-          window.dispatchEvent(
-            new CustomEvent("socket:message-created", { detail: ev })
-          );
-        },
-        onMessageRecalled: (ev: MessageRecalledEventPayload) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:message-recalled", { detail: ev })
-          );
-        },
-        onRoomCreated: (ev: RoomCreatedEventPayload) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:room-created", { detail: ev })
-          );
-        },
-        onRoomUpdated: (ev: RoomUpdatedEventPayload) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:room-updated", { detail: ev })
-          );
-        },
-        onMemberAdded: (ev: RoomMemberAddedEventPayload) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:member-added", { detail: ev })
-          );
-        },
-        onMemberRemoved: (ev: RoomMemberRemovedEventPayload) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:member-removed", { detail: ev })
-          );
-        },
-        onMemberRoleChanged: (ev: RoomMemberRoleChangedEventPayload) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:member-role-changed", { detail: ev })
-          );
-        },
-        onReadStateChanged: (ev: ReadStateChangedEvent) => {
-          window.dispatchEvent(
-            new CustomEvent("socket:read-state-changed", { detail: ev })
-          );
-        },
-      },
-
-      // Global handlers - will be used by ContactPage and CallProvider
-      onFriendEvent: (ev: FriendshipEventPayload) => {
-        window.dispatchEvent(
-          new CustomEvent("socket:friend-event", { detail: ev })
-        );
-      },
-      onUserStatus: (ev: UserStatusPayload) => {
-        window.dispatchEvent(
-          new CustomEvent("socket:user-status", { detail: ev })
-        );
-      },
-      onSignaling: (ev: SignalingPayload) => {
-        window.dispatchEvent(
-          new CustomEvent("socket:signaling", { detail: ev })
-        );
-      },
 
       onDisconnect: (reason?: string) => {
         console.warn(
