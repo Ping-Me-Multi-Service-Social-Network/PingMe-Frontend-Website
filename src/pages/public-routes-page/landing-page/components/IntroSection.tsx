@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 interface Feature {
+  id: string;
   icon: LucideIcon;
   title: string;
   description: string;
@@ -32,6 +33,7 @@ function FeaturesSection() {
 
   const features: Feature[] = [
     {
+      id: "chat",
       icon: MessageSquare,
       title: "Chat",
       description:
@@ -40,6 +42,7 @@ function FeaturesSection() {
       gradient: "from-green-500 to-emerald-500",
     },
     {
+      id: "contacts",
       icon: Contact,
       title: "Danh bạ",
       description:
@@ -48,6 +51,7 @@ function FeaturesSection() {
       gradient: "from-indigo-500 to-purple-500",
     },
     {
+      id: "reels",
       icon: MessageCircle,
       title: "Thước phim",
       description:
@@ -56,6 +60,7 @@ function FeaturesSection() {
       gradient: "from-blue-500 to-cyan-500",
     },
     {
+      id: "music",
       icon: Music,
       title: "Âm nhạc",
       description:
@@ -91,7 +96,7 @@ function FeaturesSection() {
 
             return (
               <FeatureCard
-                key={index}
+                key={feature.id}
                 feature={feature}
                 index={index}
                 isEven={isEven}
@@ -112,13 +117,13 @@ function FeatureCard({
   isEven,
   Icon,
   onNavigate,
-}: {
+}: Readonly<{
   feature: Feature;
   index: number;
   isEven: boolean;
   Icon: LucideIcon;
   onNavigate: () => void;
-}) {
+}>) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 

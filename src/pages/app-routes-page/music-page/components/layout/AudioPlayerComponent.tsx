@@ -4,7 +4,7 @@ import "../audio-player-styles.css";
 import { useState, useEffect, useRef } from "react";
 import { Heart, MoreVertical } from "lucide-react";
 import type { Song } from "@/types/music/song";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
 import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
@@ -24,7 +24,7 @@ export default function AudioPlayerComponent({
   const [isFavorite, setIsFavorite] = useState(false);
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
   const audioPlayerRef = useRef<AudioPlayer | null>(null);
-  const { audioRef, setIsPlaying } = useAudioPlayer();
+  const { audioRef, setIsPlaying } = useAudio();
 
   // Check if current song is favorited
   useEffect(() => {

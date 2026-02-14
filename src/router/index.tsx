@@ -7,7 +7,7 @@ import ActiveAccountVerifyOtpPage from "@/pages/app-routes-page/user-page/user-i
 // ===========================================================
 // PUBLIC PAGES
 // ===========================================================
-const LandingPage = lazy(() => import("@/pages/landing-page"));
+const LandingPage = lazy(() => import("@/pages/public-routes-page/landing-page"));
 
 // ===========================================================
 // APP PAGES - Layout
