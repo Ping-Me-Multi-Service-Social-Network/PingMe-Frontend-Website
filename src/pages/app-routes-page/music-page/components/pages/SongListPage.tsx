@@ -12,7 +12,7 @@ import type {
 import SongListItem from "../cards/SongListItem.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import Pagination from "@/components/custom/Pagination.tsx";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import type { Song } from "@/types/music/song";
 import { ArrowLeft, Disc3, User2, Play, Music } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
@@ -20,7 +20,7 @@ import {
   fetchSongsByGenre,
   fetchSongsByAlbum,
   fetchSongsByArtist
-} from "@/features/slices/musicSlice";
+} from "@/features/music/musicSlice";
 import { getCachedData } from "@/utils/musicCacheUtils";
 import { DEFAULT_ITEMS_PER_PAGE } from "@/constants/musicConstants";
 
@@ -28,7 +28,7 @@ export default function SongListPage() {
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { playSong, setPlaylist } = useAudioPlayer();
+  const { playSong, setPlaylist } = useAudio();
   const { songsByGenre, songsByAlbum, songsByArtist, cacheExpiry } = useAppSelector(state => state.music);
 
   const type = searchParams.get("type"); // "album", "artist", or "genre"

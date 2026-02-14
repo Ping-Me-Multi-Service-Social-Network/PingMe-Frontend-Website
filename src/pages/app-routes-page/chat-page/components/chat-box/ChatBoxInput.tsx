@@ -18,7 +18,7 @@ import {
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { SocketManager } from "@/services/ws/socketManager";
+import { SocketManager } from "@/features/websocket/socketManager";
 
 interface FilePreview {
   file: File;
