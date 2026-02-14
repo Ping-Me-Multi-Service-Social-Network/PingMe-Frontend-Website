@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useEffect, useState } from "react";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import {
   Music2,
   Play,
@@ -30,7 +30,9 @@ const MiniPlayerContent: React.FC = () => {
     setVolume,
     repeatMode,
     cycleRepeatMode,
-  } = useAudioPlayer();
+    setCurrentSong,
+    setIsPlaying
+  } = useAudio();
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: "mini-player",
@@ -68,9 +70,8 @@ const MiniPlayerContent: React.FC = () => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
-
-    //MẶC KỆ LỖI, NÓ CHẠY LÀ ĐƯỢC, MAI MỐT FIX SAU
-    playSong(null as unknown as Song);
+    setIsPlaying(false);
+    setCurrentSong(null);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,7 +226,7 @@ const MiniPlayerContent: React.FC = () => {
 };
 
 const DraggableMiniPlayer: React.FC = () => {
-  const { currentSong } = useAudioPlayer();
+  const { currentSong } = useAudio();
   const [position, setPosition] = useState({
     x: globalThis.innerWidth - 320,
     y: globalThis.innerHeight - 140,

@@ -1,7 +1,7 @@
-import { useCallContext } from "@/hooks/useCallContext.ts";
+import { useCall } from "@/features/websocket/hooks/useCall";
 
 export function CallStatus() {
-  const { callState } = useCallContext();
+  const { callState } = useCall();
 
   const getStatusMessage = () => {
     switch (callState.status) {

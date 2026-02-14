@@ -8,12 +8,12 @@ import AppLoader from "./components/custom/AppLoader";
 import { router } from "./router";
 import { persistor, store } from "./features/store";
 import { useAppDispatch, useAppSelector } from "./features/hooks";
-import { getCurrentUserSession, logout } from "./features/slices/authThunk";
+import { getCurrentUserSession, logout } from "@/features/auth/authThunk";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
 import {
   setLogoutReason,
   updateUserSession,
-} from "./features/slices/authSlice";
+} from "@/features/auth/authSlice";
 
 const PersistLoader = () => (
   <AppLoader type="pulse" message="Restoring session..." />
