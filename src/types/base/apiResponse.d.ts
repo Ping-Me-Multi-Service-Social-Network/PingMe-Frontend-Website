@@ -4,6 +4,16 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+interface Slice<T> {
+  content: T[];
+  last: boolean;
+  number: number;
+  size: number;
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
+}
+
 export interface PageResponse<T> {
   content: T[];
   page: number;

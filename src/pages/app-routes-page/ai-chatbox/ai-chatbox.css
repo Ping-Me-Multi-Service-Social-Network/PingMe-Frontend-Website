@@ -1,0 +1,406 @@
+/* ============================================================
+   AI CHATBOX — Custom Styles
+   ============================================================ */
+
+/* --- Scrollbar --- */
+.ai-chat-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.ai-chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ai-chat-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 160, 0.25);
+  border-radius: 999px;
+}
+.ai-chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 140, 160, 0.45);
+}
+
+/* --- Sidebar scrollbar (thinner) --- */
+.ai-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.ai-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ai-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 160, 0.2);
+  border-radius: 999px;
+}
+
+/* --- Message entrance animation --- */
+@keyframes msg-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.msg-enter {
+  animation: msg-slide-in 0.3s ease-out;
+}
+
+/* --- Typing dots --- */
+@keyframes bounce-dot {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  display: inline-block;
+  margin: 0 2px;
+  animation: bounce-dot 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(3) { animation-delay: 0s; }
+
+/* --- Textarea auto-sizing --- */
+.chat-textarea {
+  resize: none;
+  max-height: 160px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.chat-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-textarea::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 160, 0.2);
+  border-radius: 999px;
+}
+
+/* --- Image preview thumbnails --- */
+.img-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+}
+.img-preview-item {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  transition: border-color 0.2s;
+}
+.img-preview-item:hover {
+  border-color: rgba(139, 92, 246, 0.7);
+}
+.img-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.img-preview-remove {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: transform 0.15s;
+  line-height: 1;
+}
+.img-preview-remove:hover {
+  transform: scale(1.15);
+}
+
+/* --- Welcome page pulse animation --- */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
+  50%      { box-shadow: 0 0 40px rgba(139, 92, 246, 0.35); }
+}
+.welcome-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* --- Sidebar room item hover --- */
+.room-item {
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.room-item:hover {
+  background-color: rgba(139, 92, 246, 0.08);
+}
+.room-item:active {
+  transform: scale(0.98);
+}
+
+/* --- Send button pulse on enable --- */
+@keyframes send-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+.send-btn-active {
+  animation: send-pulse 1.5s ease-out infinite;
+}
+
+/* --- Loading spinner for sidebar --- */
+@keyframes spin-smooth {
+  to { transform: rotate(360deg); }
+}
+.ai-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: spin-smooth 0.8s linear infinite;
+}
+
+/* --- Message attachment images --- */
+.msg-attachment-img {
+  max-width: 240px;
+  max-height: 200px;
+  border-radius: 10px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.msg-attachment-img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* ============================================================
+   AI MARKDOWN CONTENT STYLES
+   ============================================================ */
+
+/* --- Base --- */
+.ai-markdown {
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.ai-markdown > *:first-child {
+  margin-top: 0;
+}
+
+.ai-markdown > *:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Headings --- */
+.ai-markdown h1 {
+  font-size: 1.35em;
+  font-weight: 700;
+  margin: 1.2em 0 0.5em;
+  color: #1e1b4b;
+}
+
+.ai-markdown h2 {
+  font-size: 1.2em;
+  font-weight: 700;
+  margin: 1em 0 0.4em;
+  color: #1e1b4b;
+}
+
+.ai-markdown h3 {
+  font-size: 1.08em;
+  font-weight: 600;
+  margin: 0.9em 0 0.35em;
+  color: #312e81;
+}
+
+.ai-markdown h4 {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  color: #312e81;
+}
+
+/* --- Paragraphs --- */
+.ai-markdown p {
+  margin: 0.5em 0;
+}
+
+/* --- Lists --- */
+.ai-markdown ul {
+  list-style: disc;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ai-markdown ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ai-markdown li {
+  margin: 0.25em 0;
+  padding-left: 0.25em;
+}
+
+.ai-markdown li > ul,
+.ai-markdown li > ol {
+  margin: 0.15em 0;
+}
+
+/* --- Strong & Emphasis --- */
+.ai-markdown strong {
+  font-weight: 600;
+  color: #1e1b4b;
+}
+
+.ai-markdown em {
+  font-style: italic;
+}
+
+/* --- Links --- */
+.ai-markdown a {
+  color: #7c3aed;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+
+.ai-markdown a:hover {
+  color: #5b21b6;
+}
+
+/* --- Inline code --- */
+.ai-inline-code {
+  background: rgba(139, 92, 246, 0.1);
+  color: #6d28d9;
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  font-size: 0.88em;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+/* --- Code block container --- */
+.ai-code-block {
+  margin: 0.75em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* --- Code block header --- */
+.ai-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #2d2d2d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ai-code-lang {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Fira Code', monospace;
+  text-transform: lowercase;
+}
+
+.ai-code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.ai-code-copy-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Blockquote --- */
+.ai-markdown blockquote {
+  border-left: 3px solid #8b5cf6;
+  padding: 0.4em 0.8em;
+  margin: 0.6em 0;
+  background: rgba(139, 92, 246, 0.05);
+  border-radius: 0 6px 6px 0;
+  color: #4c1d95;
+}
+
+.ai-markdown blockquote p {
+  margin: 0.2em 0;
+}
+
+/* --- Horizontal rule --- */
+.ai-markdown hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 1em 0;
+}
+
+/* --- Tables --- */
+.ai-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6em 0;
+  font-size: 0.92em;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.ai-markdown thead {
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.ai-markdown th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #312e81;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.ai-markdown td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.ai-markdown tr:last-child td {
+  border-bottom: none;
+}
+
+.ai-markdown tr:hover td {
+  background: rgba(139, 92, 246, 0.03);
+}
+
+/* --- Strikethrough (GFM) --- */
+.ai-markdown del {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* --- Task list (GFM) --- */
+.ai-markdown input[type="checkbox"] {
+  margin-right: 0.4em;
+  accent-color: #8b5cf6;
+}
