@@ -10,7 +10,7 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { Song } from "@/types/music/song";
 import type { Genre } from "@/types/music/genre";
 import type { SongResponseWithAllAlbum } from "@/types/music";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { fetchMusicData } from "@/features/slices/musicSlice";
@@ -23,7 +23,7 @@ import { DEFAULT_TOP_SONGS_LIMIT } from "@/constants/musicConstants";
  */
 export default function HomePage() {
     const dispatch = useAppDispatch();
-    const { playSong, setPlaylist } = useAudioPlayer();
+    const { playSong, setPlaylist } = useAudio();
     const navigate = useNavigate();
     const genreScrollRef = useRef<HTMLDivElement>(null);
 

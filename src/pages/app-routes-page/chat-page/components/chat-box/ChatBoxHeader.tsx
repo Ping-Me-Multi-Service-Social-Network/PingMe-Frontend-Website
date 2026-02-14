@@ -4,7 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar.tsx"
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
-import { CallButton } from "@/pages/app-routes-page/chat-page/components/call/CallButton.tsx";
+import { CallButton } from "@/components/call/CallButton";
 
 interface ChatBoxHeaderProps {
   selectedChat: RoomResponse;
