@@ -5,11 +5,9 @@ import { AudioPlayerProvider } from "@/contexts/AudioPlayerProvider.tsx";
 import GlobalAudioPlayer from "./components/audio/GlobalAudioPlayer.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
 const CallProvider = lazy(() =>
-  import("@/pages/app-routes-page/chat-page/components/call/CallProvider").then(
-    (module) => ({
-      default: module.CallProvider,
-    })
-  )
+  import("@/hooks/useCall").then((module) => ({
+    default: module.CallProvider,
+  }))
 );
 import { SocketManager } from "@/services/ws/socketManager";
 import { useAppSelector } from "@/features/hooks";

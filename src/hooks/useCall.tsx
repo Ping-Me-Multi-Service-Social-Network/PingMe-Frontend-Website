@@ -1,25 +1,50 @@
 import {
+  createContext,
+  useContext,
   useCallback,
   useEffect,
   useState,
   useRef,
   type ReactNode,
 } from "react";
-import { CallContext, type CallContextType } from "@/contexts/CallContext.tsx";
-import { sendSignalingApi } from "@/services/call/callApi.ts";
-import { useAppSelector } from "@/features/hooks.ts";
+import { useAppSelector } from "@/features/hooks";
 import { selectSignalingEvent } from "@/features/slices/socketSlice";
-import { CallNotification } from "./CallNotification.tsx";
-import { ZegoCallUI } from "./ZegoCallUI.tsx";
-import type { RoomParticipantResponse } from "@/types/chat/room";
-import type {
-  SignalingResponse,
-  CallType,
-  CallState,
-} from "@/types/call/call.ts";
-import { lookupByIdApi } from "@/services/user/userLookupApi.ts";
+import type { SignalingResponse, CallType, CallState } from "@/types/call/call";
+import { sendSignalingApi } from "@/services/call/callApi";
+import { lookupByIdApi } from "@/services/user/userLookupApi";
 import { toast } from "sonner";
+import { CallNotification } from "@/components/call/CallNotification";
+import { ZegoCallUI } from "@/components/call/ZegoCallUI";
+import type { RoomParticipantResponse } from "@/types/chat/room";
 
+// --- Context Definition ---
+interface CallContextType {
+  callState: CallState;
+  isInCall: boolean;
+
+  // Call control
+  initiateCall: (
+    targetUserId: number,
+    roomId: number,
+    callType: CallType
+  ) => Promise<void>;
+  answerCall: () => Promise<void>;
+  rejectCall: () => Promise<void>;
+  endCall: () => void;
+}
+
+const CallContext = createContext<CallContextType | undefined>(undefined);
+
+// --- Hook to use the context ---
+export function useCall() {
+  const context = useContext(CallContext);
+  if (!context) {
+    throw new Error("useCall must be used within CallProvider");
+  }
+  return context;
+}
+
+// --- Provider Component ---
 interface CallProviderProps {
   children: ReactNode;
 }
@@ -32,7 +57,6 @@ export function CallProvider({ children }: CallProviderProps) {
   const [isIncomingCall, setIsIncomingCall] = useState(false);
   const [isInCall, setIsInCall] = useState(false);
   const [callType, setCallType] = useState<CallType>("VIDEO");
-  // const [isEndingCall, setIsEndingCall] = useState(false);
 
   const [callState, setCallState] = useState<CallState>({
     status: "idle",
@@ -45,32 +69,15 @@ export function CallProvider({ children }: CallProviderProps) {
   >(undefined);
   const activeRoomIdRef = useRef<string>("");
 
-  // --- LOGIC HIỂN THỊ ZEGO (Quan trọng: Tính toán kỹ lưỡng điều kiện hiển thị) ---
-  // Chỉ hiện Zego khi:
-  // 1. isInCall = true
-  // 2. Status không phải là rejected (đã từ chối) hoặc ended (đã kết thúc)
-  // const shouldShowZego = useMemo(() => {
-  //   return (
-  //     isInCall &&
-  //     userSession &&
-  //     callState.status !== "rejected" &&
-  //     callState.status !== "ended"
-  //   );
-  // }, [isInCall, userSession, callState.status]);
-
   // --- HÀM RESET ---
   const resetCallState = useCallback(() => {
     console.log("[CallProvider] START RESET...");
 
-    // 1. Bật cờ báo hiệu cho Zego biết để tự hủy
-    // setIsEndingCall(true);
-
-    // 2. Đợi 200ms cho Zego dọn dẹp xong mới Unmount hoàn toàn
+    // Đợi 200ms cho Zego dọn dẹp xong mới Unmount hoàn toàn
     setTimeout(() => {
       console.log("[CallProvider] HARD RESET NOW");
       setIsInCall(false);
       setIsIncomingCall(false);
-      // setIsEndingCall(false); // Reset cờ
       activeRoomIdRef.current = "";
       setCallState({ status: "idle", callType: "VIDEO", isInitiator: false });
     }, 200);
@@ -240,7 +247,7 @@ export function CallProvider({ children }: CallProviderProps) {
     answerCall,
     rejectCall,
     endCall,
-  } as unknown as CallContextType;
+  };
 
   return (
     <CallContext.Provider value={value}>
@@ -257,15 +264,12 @@ export function CallProvider({ children }: CallProviderProps) {
       )}
 
       {/* Giao diện Video Call */}
-      {/* SỬA: Chỉ check isInCall, bỏ shouldShowZego đi để tránh unmount quá sớm */}
       {isInCall && userSession && (
         <ZegoCallUI
           roomId={activeRoomIdRef.current}
           currentUserId={userSession.id.toString()}
           currentUserName={userSession.name || "User"}
           callType={callType}
-          // QUAN TRỌNG: Truyền status xuống để con biết khi nào tự hủy
-          // callStatus={callState.status}
           onEndCall={endCall}
         />
       )}
