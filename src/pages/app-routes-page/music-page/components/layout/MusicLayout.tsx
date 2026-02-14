@@ -1,12 +1,12 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import MusicSearchBar from "../search/MusicSearchBar.tsx";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import type { Song } from "@/types/music/song";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 
 export default function MusicLayout() {
-    const { playSong } = useAudioPlayer();
+    const { currentSong, playSong } = useAudio();
     const location = useLocation();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isEntering, setIsEntering] = useState(true);

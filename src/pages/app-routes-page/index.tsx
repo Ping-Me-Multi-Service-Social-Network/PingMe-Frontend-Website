@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import AppNavigation from "./components/navigation/AppNavigation.tsx";
-import { AudioPlayerProvider } from "@/contexts/AudioPlayerProvider.tsx";
+import { AudioPlayerProvider } from "@/hooks/useAudio.tsx";
 import GlobalAudioPlayer from "./components/audio/GlobalAudioPlayer.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
 const CallProvider = lazy(() =>

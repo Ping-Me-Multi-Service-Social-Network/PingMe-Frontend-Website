@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { AlbumResponse } from "@/services/music/albumApi.ts";
 import { searchService } from "@/services/music/musicService.ts";
 import type { SongResponseWithAllAlbum } from "@/types/music";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import { ArrowLeft, Music2 } from "lucide-react";
 import { convertToSong } from "../../utils/commonHandlers.ts";
 import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
@@ -16,7 +16,7 @@ import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColum
 export default function AlbumsPage() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { playSong } = useAudioPlayer();
+    const { playSong } = useAudio();
     const { allAlbums, cacheExpiry } = useAppSelector(state => state.music);
     const [albumSongs, setAlbumSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);
