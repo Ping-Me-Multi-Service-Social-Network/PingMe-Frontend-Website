@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import type { LoginRequest, RegisterRequest } from "@/types/authentication";
 import { useAppDispatch } from "@/features/hooks";
-import { login } from "@/features/slices/authThunk";
+import { login } from "@/features/auth/authThunk";
 import { registerLocalApi } from "@/services/authentication";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
