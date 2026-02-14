@@ -6,7 +6,7 @@ import type { Song } from "@/types/music/song";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 
 export default function MusicLayout() {
-    const { currentSong, playSong } = useAudio();
+    const { playSong } = useAudio();
     const location = useLocation();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isEntering, setIsEntering] = useState(true);
