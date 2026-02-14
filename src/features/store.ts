@@ -12,8 +12,8 @@ import {
 import storage from "redux-persist/lib/storage";
 import authReducer from "./slices/authSlice";
 import musicReducer from "./slices/musicSlice";
-import chatReducer from "./slices/chatSlice";
-import socketReducer from "./slices/socketSlice";
+import chatReducer from "@/websocket/slices/chatSlice";
+import socketReducer from "@/websocket/slices/socketSlice";
 import audioPlayerReducer from "./slices/audioPlayerSlice";
 
 const rootReducer = combineReducers({
