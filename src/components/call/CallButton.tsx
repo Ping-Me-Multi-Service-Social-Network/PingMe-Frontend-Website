@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Phone, Video } from "lucide-react";
-import { useCallContext } from "@/hooks/useCallContext.ts";
+import { useCall } from "@/hooks/useCall";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 
@@ -17,7 +17,7 @@ export function CallButton({
   isTargetOnline,
   targetName = "User",
 }: CallButtonProps) {
-  const { callState, initiateCall } = useCallContext();
+  const { callState, initiateCall } = useCall();
   const [isLoading, setIsLoading] = useState(false);
 
   const isCallActive = ["calling", "ringing", "connected"].includes(
