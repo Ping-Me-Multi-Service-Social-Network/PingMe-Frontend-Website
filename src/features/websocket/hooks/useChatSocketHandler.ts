@@ -140,13 +140,7 @@ export const useChatSocketHandler = ({
 
   const handleMemberAdded = useCallback(
     (event: RoomMemberAddedEventPayload) => {
-      const isCurrentUserAdded = event.targetUserId === userSession?.id;
-
-      if (isCurrentUserAdded) {
-        upsertRoom(event.roomResponse);
-      } else {
-        upsertRoom(event.roomResponse);
-      }
+      upsertRoom(event.roomResponse);
 
       if (
         event.systemMessage &&
@@ -156,7 +150,7 @@ export const useChatSocketHandler = ({
         chatBoxRef.current.handleIncomingMessage(event.systemMessage);
       }
     },
-    [upsertRoom, userSession?.id, selectedRoomIdRef, chatBoxRef]
+    [upsertRoom, selectedRoomIdRef, chatBoxRef]
   );
 
   const handleMemberRemoved = useCallback(
