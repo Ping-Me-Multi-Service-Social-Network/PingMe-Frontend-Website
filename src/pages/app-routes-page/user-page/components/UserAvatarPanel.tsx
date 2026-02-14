@@ -21,7 +21,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { Camera, Upload, Loader2, X, ImageIcon } from "lucide-react";
-import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
+import { getCurrentUserSession } from "@/features/auth/authThunk.ts";
 import { updateCurrentUserAvatarApi } from "@/services/user/currentUserProfileApi.ts";
 
 const UserAvatarPanel = () => {

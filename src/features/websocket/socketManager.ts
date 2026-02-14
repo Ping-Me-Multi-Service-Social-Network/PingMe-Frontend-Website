@@ -5,7 +5,6 @@ import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
-import { store } from "@/features/store";
 import {
   messageCreated,
   messageRecalled,
@@ -16,7 +15,12 @@ import {
   memberAdded,
   memberRemoved,
   memberRoleChanged,
-} from "@/features/slices/chatSlice";
+} from "@/features/websocket/slices/chatSlice";
+import {
+  friendshipEventReceived,
+  signalingEventReceived,
+  userStatusEventReceived,
+} from "@/features/websocket/slices/socketSlice";
 
 import type {
   ChatEventHandlers,
@@ -42,6 +46,7 @@ import type {
 // =================================================================
 export interface SocketManagerOptions {
   baseUrl: string;
+  dispatch: (action: any) => void;
 
   // Chat event handlers
   chat?: ChatEventHandlers;
@@ -74,6 +79,7 @@ class SocketManagerClass {
   private friendshipSub: StompSubscription | null = null;
   private statusSub: StompSubscription | null = null;
   private signalingSub: StompSubscription | null = null;
+
 
   // =================================================================
   // Public Methods
@@ -210,15 +216,66 @@ class SocketManagerClass {
 
     // Resubscribe to current room if exists
     if (this.currentRoomIdRef !== null) {
-      console.log("[PingMe] Resubscribing to room:", this.currentRoomIdRef);
-      this.subscribeRoomMessages(this.currentRoomIdRef);
-      this.subscribeRoomReadStates(this.currentRoomIdRef);
-      this.subscribeRoomTyping(this.currentRoomIdRef);
+      this.resubscribeCurrentRoom();
     }
   }
 
+  // Re-attach room-level listeners after reconnect to keep UI state continuous.
+  private resubscribeCurrentRoom(): void {
+    if (this.currentRoomIdRef === null) return;
+
+    console.log("[PingMe] Resubscribing to room:", this.currentRoomIdRef);
+    this.subscribeRoomMessages(this.currentRoomIdRef);
+    this.subscribeRoomReadStates(this.currentRoomIdRef);
+    this.subscribeRoomTyping(this.currentRoomIdRef);
+  }
+
+  // Shared JSON parser for all incoming frames. Returns null on invalid payload.
+  private parsePayload<T>(
+    message: IMessage,
+    context: string,
+    onError?: (err: unknown) => void
+  ): T | null {
+    try {
+      return JSON.parse(message.body) as T;
+    } catch (err) {
+      console.error(`[PingMe] Error parsing ${context}:`, err);
+      onError?.(err);
+      return null;
+    }
+  }
+
+  // Unsubscribe defensively because STOMP may throw when subscription is stale.
+  private safeUnsubscribe(
+    subscription: StompSubscription | null,
+    context: string
+  ): void {
+    try {
+      subscription?.unsubscribe();
+    } catch (err) {
+      console.warn(`[PingMe] Error unsubscribing ${context}:`, err);
+    }
+  }
+
+  // Generic wrapper for /user/queue subscriptions to avoid repeating parse + guard logic.
+  private subscribeQueueEvent<T>(
+    destination: string,
+    context: string,
+    handler: ((payload: T) => void) | undefined,
+    onParseError?: (err: unknown) => void
+  ): StompSubscription | null {
+    if (!this.client || !handler) return null;
+
+    return this.client.subscribe(destination, (msg: IMessage) => {
+      const payload = this.parsePayload<T>(msg, context, onParseError);
+      if (!payload) return;
+      handler(payload);
+    });
+  }
+
+  // Setup user-level chat stream (room lifecycle events).
   private setupChatSubscriptions(): void {
-    if (!this.client || !this.options?.chat) return;
+    if (!this.client) return;
 
     console.log("[PingMe] Setting up chat subscriptions");
 
@@ -231,25 +288,25 @@ class SocketManagerClass {
 
           switch (ev.chatEventType) {
             case "ROOM_CREATED":
-              store.dispatch(roomCreated(ev as RoomCreatedEventPayload));
+              this.options?.dispatch(roomCreated(ev as RoomCreatedEventPayload));
               this.options?.chat?.onRoomCreated?.(
                 ev as RoomCreatedEventPayload
               );
               break;
             case "ROOM_UPDATED":
-              store.dispatch(roomUpdated(ev as RoomUpdatedEventPayload));
+              this.options?.dispatch(roomUpdated(ev as RoomUpdatedEventPayload));
               this.options?.chat?.onRoomUpdated?.(
                 ev as RoomUpdatedEventPayload
               );
               break;
             case "MEMBER_ADDED":
-              store.dispatch(memberAdded(ev as RoomMemberAddedEventPayload));
+              this.options?.dispatch(memberAdded(ev as RoomMemberAddedEventPayload));
               this.options?.chat?.onMemberAdded?.(
                 ev as RoomMemberAddedEventPayload
               );
               break;
             case "MEMBER_REMOVED":
-              store.dispatch(
+              this.options?.dispatch(
                 memberRemoved(ev as RoomMemberRemovedEventPayload)
               );
               this.options?.chat?.onMemberRemoved?.(
@@ -257,7 +314,7 @@ class SocketManagerClass {
               );
               break;
             case "MEMBER_ROLE_CHANGED":
-              store.dispatch(
+              this.options?.dispatch(
                 memberRoleChanged(ev as RoomMemberRoleChangedEventPayload)
               );
               this.options?.chat?.onMemberRoleChanged?.(
@@ -275,171 +332,141 @@ class SocketManagerClass {
     );
   }
 
+  // Setup non-room global streams (friendship, presence, signaling).
   private setupGlobalSubscriptions(): void {
     if (!this.client) return;
 
     console.log("[PingMe] Setting up global subscriptions");
 
     // Subscribe to friendship events
-    if (this.options?.onFriendEvent) {
-      this.friendshipSub = this.client.subscribe(
-        "/user/queue/friendship",
-        (msg: IMessage) => {
-          try {
-            const ev = JSON.parse(msg.body) as FriendshipEventPayload;
-            this.options?.onFriendEvent?.(ev);
-          } catch (err) {
-            console.error("[PingMe] Error parsing friendship event:", err);
-          }
-        }
-      );
-    }
+    this.friendshipSub = this.subscribeQueueEvent<FriendshipEventPayload>(
+      "/user/queue/friendship",
+      "friendship event",
+      (ev) => {
+        this.options?.dispatch(friendshipEventReceived(ev));
+        this.options?.onFriendEvent?.(ev);
+      }
+    );
 
     // Subscribe to user status events
-    if (this.options?.onUserStatus) {
-      this.statusSub = this.client.subscribe(
-        "/user/queue/status",
-        (msg: IMessage) => {
-          try {
-            const ev = JSON.parse(msg.body) as UserStatusPayload;
-            this.options?.onUserStatus?.(ev);
-          } catch (err) {
-            console.error("[PingMe] Error parsing status event:", err);
-          }
-        }
-      );
-    }
+    this.statusSub = this.subscribeQueueEvent<UserStatusPayload>(
+      "/user/queue/status",
+      "status event",
+      (ev) => {
+        this.options?.dispatch(userStatusEventReceived(ev));
+        this.options?.onUserStatus?.(ev);
+      }
+    );
 
     // Subscribe to signaling events
-    if (this.options?.onSignaling) {
-      this.signalingSub = this.client.subscribe(
-        "/user/queue/signaling",
-        (msg: IMessage) => {
-          try {
-            const ev = JSON.parse(msg.body) as SignalingPayload;
-            console.log("[PingMe] Received signaling event:", ev);
-            this.options?.onSignaling?.(ev);
-          } catch (err) {
-            console.error("[PingMe] Error parsing signaling event:", err);
-          }
-        }
-      );
-    }
+    this.signalingSub = this.subscribeQueueEvent<SignalingPayload>(
+      "/user/queue/signaling",
+      "signaling event",
+      (ev) => {
+        console.log("[PingMe] Received signaling event:", ev);
+        this.options?.dispatch(signalingEventReceived(ev));
+        this.options?.onSignaling?.(ev);
+      }
+    );
   }
 
+  // Room message stream: new messages + recall updates.
   private subscribeRoomMessages(roomId: number): void {
     if (!this.isConnected() || !this.client) return;
 
-    try {
-      this.roomMsgSub?.unsubscribe();
-    } catch (e) {
-      console.warn("[PingMe] Error unsubscribing room messages:", e);
-    }
+    this.safeUnsubscribe(this.roomMsgSub, "room messages");
 
     const dest = `/topic/rooms/${roomId}/messages`;
     console.log("[PingMe] Subscribing to:", dest);
 
     this.roomMsgSub = this.client.subscribe(dest, (msg: IMessage) => {
       try {
-        const ev = JSON.parse(msg.body);
+        const ev = this.parsePayload<MessageCreatedEventPayload | MessageRecalledEventPayload>(
+          msg,
+          "message event"
+        );
+        if (!ev) return;
 
         switch (ev.chatEventType) {
           case "MESSAGE_CREATED":
-            store.dispatch(messageCreated(ev as MessageCreatedEventPayload));
+            this.options?.dispatch(messageCreated(ev as MessageCreatedEventPayload));
             this.options?.chat?.onMessageCreated?.(
               ev as MessageCreatedEventPayload
             );
             break;
           case "MESSAGE_RECALLED":
-            store.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
+            this.options?.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
             this.options?.chat?.onMessageRecalled?.(
               ev as MessageRecalledEventPayload
             );
             break;
         }
       } catch (err) {
-        console.error("[PingMe] Error parsing message event:", err);
+        console.error("[PingMe] Error handling message event:", err);
       }
     });
   }
 
+  // Room read-state stream: updates seen/read markers per message.
   private subscribeRoomReadStates(roomId: number): void {
     if (!this.isConnected() || !this.client) return;
 
-    try {
-      this.roomReadSub?.unsubscribe();
-    } catch (e) {
-      console.warn("[PingMe] Error unsubscribing room read states:", e);
-    }
+    this.safeUnsubscribe(this.roomReadSub, "room read states");
 
     const dest = `/topic/rooms/${roomId}/read-states`;
     console.log("[PingMe] Subscribing to:", dest);
 
     this.roomReadSub = this.client.subscribe(dest, (msg: IMessage) => {
-      try {
-        const ev = JSON.parse(msg.body) as ReadStateChangedEvent;
-        if (ev?.chatEventType === "READ_STATE_CHANGED") {
-          store.dispatch(readStateChanged(ev));
-          this.options?.chat?.onReadStateChanged?.(ev);
-        }
-      } catch (err) {
-        console.error("[PingMe] Error parsing read state event:", err);
-      }
+      const ev = this.parsePayload<ReadStateChangedEvent>(
+        msg,
+        "read state event"
+      );
+      if (!ev || ev.chatEventType !== "READ_STATE_CHANGED") return;
+
+      this.options?.dispatch(readStateChanged(ev));
+      this.options?.chat?.onReadStateChanged?.(ev);
     });
   }
 
+  // Room typing stream: emits typing indicators for active participants.
   private subscribeRoomTyping(roomId: number): void {
     if (!this.isConnected() || !this.client) return;
 
-    try {
-      this.roomTypingSub?.unsubscribe();
-    } catch (e) {
-      console.warn("[PingMe] Error unsubscribing room typing:", e);
-    }
+    this.safeUnsubscribe(this.roomTypingSub, "room typing");
 
     const dest = `/topic/rooms/${roomId}/typing`;
 
     this.roomTypingSub = this.client.subscribe(dest, (msg: IMessage) => {
-      try {
-        const ev = JSON.parse(msg.body) as TypingSignalPayload;
-        store.dispatch(userTyping(ev));
-        this.options?.chat?.onTyping?.(ev);
-      } catch (err) {
-        console.error("[PingMe] Error parsing typing event:", err);
-      }
+      const ev = this.parsePayload<TypingSignalPayload>(msg, "typing event");
+      if (!ev) return;
+
+      this.options?.dispatch(userTyping(ev));
+      this.options?.chat?.onTyping?.(ev);
     });
   }
 
+  // Remove all room-scoped listeners before switching/leaving a room.
   private unsubscribeRoom(): void {
-    try {
-      this.roomMsgSub?.unsubscribe();
-      this.roomReadSub?.unsubscribe();
-      this.roomTypingSub?.unsubscribe();
-    } catch (e) {
-      console.warn("[PingMe] Error unsubscribing room:", e);
-    }
+    this.safeUnsubscribe(this.roomMsgSub, "room messages");
+    this.safeUnsubscribe(this.roomReadSub, "room read states");
+    this.safeUnsubscribe(this.roomTypingSub, "room typing");
+
     this.roomMsgSub = null;
     this.roomReadSub = null;
     this.roomTypingSub = null;
   }
 
+  // Global cleanup used by manual disconnect and reconnect preparation.
   private cleanupAllSubscriptions(): void {
     console.log("[PingMe] Cleaning up all subscriptions");
 
-    try {
-      // Chat subscriptions
-      this.userRoomsSub?.unsubscribe();
-      this.roomMsgSub?.unsubscribe();
-      this.roomReadSub?.unsubscribe();
-      this.roomTypingSub?.unsubscribe();
-
-      // Global subscriptions
-      this.friendshipSub?.unsubscribe();
-      this.statusSub?.unsubscribe();
-      this.signalingSub?.unsubscribe();
-    } catch (e) {
-      console.warn("[PingMe] Error during cleanup:", e);
-    }
+    this.safeUnsubscribe(this.userRoomsSub, "user rooms");
+    this.safeUnsubscribe(this.roomMsgSub, "room messages");
+    this.safeUnsubscribe(this.roomReadSub, "room read states");
+    this.safeUnsubscribe(this.roomTypingSub, "room typing");
+    this.safeUnsubscribe(this.friendshipSub, "friendship");
+    this.safeUnsubscribe(this.statusSub, "status");
+    this.safeUnsubscribe(this.signalingSub, "signaling");
 
     this.userRoomsSub = null;
     this.roomMsgSub = null;

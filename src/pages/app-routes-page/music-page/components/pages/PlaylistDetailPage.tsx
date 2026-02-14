@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Play, Trash2, GripVertical, Music2, Lock, Globe, Edit, Save, X } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
 import { songApi } from "@/services/music/songApi.ts";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDetailDto, PlaylistSongDto } from "@/types/music/playlist.ts";
@@ -103,7 +103,7 @@ function SortableItem({ item, index, isEditMode, onPlay, onRemove }: Readonly<So
 export default function PlaylistDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { playSong, setPlaylist: setAudioPlaylist } = useAudioPlayer();
+    const { playSong, setPlaylist: setAudioPlaylist } = useAudio();
     const [playlistDetail, setPlaylistDetail] = useState<PlaylistDetailDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

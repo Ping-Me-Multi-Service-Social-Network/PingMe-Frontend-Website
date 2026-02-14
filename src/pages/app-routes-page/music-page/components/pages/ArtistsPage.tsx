@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { searchService } from "@/services/music/musicService.ts";
 import type { ArtistResponse, SongResponseWithAllAlbum } from "@/types/music";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import { ArrowLeft } from "lucide-react";
 import { convertToSong } from "../../utils/commonHandlers.ts";
 import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { fetchAllArtists } from "@/features/slices/musicSlice";
+import { fetchAllArtists } from "@/features/music/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_ARTISTS_LIMIT, TOP_ARTISTS_FOR_PREVIEW } from "@/constants/musicConstants";
 import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColumnLayout";
@@ -15,7 +15,7 @@ import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColum
 export default function ArtistsPage() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { playSong } = useAudioPlayer();
+    const { playSong } = useAudio();
     const { allArtists, cacheExpiry } = useAppSelector(state => state.music);
     const [artistSongs, setArtistSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);

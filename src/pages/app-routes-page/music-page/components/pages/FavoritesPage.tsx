@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Play } from "lucide-react";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import { songApi } from "@/services/music/songApi.ts";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { FavoriteDto } from "@/types/music/favorite.ts";
@@ -11,7 +11,7 @@ import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavo
 
 export default function FavoritesPage() {
     const navigate = useNavigate();
-    const { playSong, setPlaylist } = useAudioPlayer();
+    const { playSong, setPlaylist } = useAudio();
     const [favorites, setFavorites] = useState<FavoriteDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

@@ -32,7 +32,7 @@ import type { ChangeProfileRequest } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {} from "@/services/authentication";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
-import { getCurrentUserSession } from "@/features/slices/authThunk.ts";
+import { getCurrentUserSession } from "@/features/auth/authThunk.ts";
 import {
   getCurrentUserInfoApi,
   updateCurrentUserProfileApi,
