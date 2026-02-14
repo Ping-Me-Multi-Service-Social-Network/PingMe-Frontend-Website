@@ -1,9 +1,7 @@
-import type { UUID } from "crypto"
-
 export type AIChatRoomInformation = {
- id: UUID;
- userId: Number;
+ id: string;
+ userId: number;
  title: string;
- createdAt: Date;
- updatedAt: Date;   
+ createdAt: string;
+ updatedAt: string;   
 }

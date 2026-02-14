@@ -36,6 +36,7 @@ import type {
   UserStatusPayload,
   SignalingPayload,
 } from "./module/globalSocket";
+import type { TitleUpdate } from "@/types/ai/titleUpdate";
 
 // =================================================================
 // Types
@@ -50,6 +51,7 @@ export interface SocketManagerOptions {
   onFriendEvent?: (ev: FriendshipEventPayload) => void;
   onUserStatus?: (ev: UserStatusPayload) => void;
   onSignaling?: (ev: SignalingPayload) => void;
+  onUpdateAiChatRoomTitle? : (ev: TitleUpdate) => void;
 
   // Disconnect handler
   onDisconnect?: (reason?: string) => void;
@@ -72,6 +74,7 @@ class SocketManagerClass {
 
   // Global subscriptions
   private friendshipSub: StompSubscription | null = null;
+  private aiChatRoomTitleSub: StompSubscription | null = null;
   private statusSub: StompSubscription | null = null;
   private signalingSub: StompSubscription | null = null;
 
@@ -325,6 +328,21 @@ class SocketManagerClass {
         }
       );
     }
+
+    // Subscribe to AI chat room title update events
+    if (this.options?.onUpdateAiChatRoomTitle) {
+      this.aiChatRoomTitleSub = this.client.subscribe(
+        "/user/queue/title-update",
+        (msg: IMessage) => {
+          try {
+            const ev = JSON.parse(msg.body) as TitleUpdate;
+            this.options?.onUpdateAiChatRoomTitle?.(ev);
+          } catch (err) {
+            console.error("[PingMe] Error parsing AI chat room title update event:", err);
+          }
+        }
+      );
+    }
   }
 
   private subscribeRoomMessages(roomId: number): void {
@@ -447,6 +465,7 @@ class SocketManagerClass {
     this.friendshipSub = null;
     this.statusSub = null;
     this.signalingSub = null;
+    this.aiChatRoomTitleSub = null;
     this.roomTypingSub = null;
   }
 }

@@ -29,6 +29,7 @@ import type {
   RoomMemberRoleChangedEventPayload,
 } from "@/services/ws/module/chatSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
+import type { TitleUpdate } from "@/types/ai/titleUpdate.ts";
 
 export default function AppPageLayout() {
   const location = useLocation();
@@ -117,7 +118,13 @@ export default function AppPageLayout() {
           new CustomEvent("socket:signaling", { detail: ev })
         );
       },
-
+      onUpdateAiChatRoomTitle: (ev: TitleUpdate) => {
+        //Log for testing
+        console.log("[PingMe AppPageLayout] AI chat room title updated:", ev);
+        window.dispatchEvent(
+          new CustomEvent("socket:update-ai-chat-room-title", { detail: ev })
+        );
+      },
       onDisconnect: (reason?: string) => {
         console.warn(
           "[PingMe AppPageLayout] SocketManager disconnected:",

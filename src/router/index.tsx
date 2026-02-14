@@ -75,6 +75,8 @@ const DiscoverPlaylistsPage = lazy(
     import("@/pages/app-routes-page/music-page/components/pages/DiscoverPlaylistsPage"),
 );
 
+
+
 // ===========================================================
 // APP PAGES - Reels
 // ===========================================================
@@ -85,6 +87,10 @@ const VideoManagerPage = lazy(
 const SearchResultsPage = lazy(
   () => import("@/pages/app-routes-page/reels-page/search-results"),
 );
+// ===========================================================
+// APP PAGES - AI ChatBox
+// ===========================================================
+const AIChatBoxPage = lazy(() => import("@/pages/app-routes-page/ai-chatbox/index"));
 // ===========================================================
 // FORGET PASSWORD PAGES
 // ===========================================================
@@ -357,6 +363,17 @@ export const router = createBrowserRouter([
         element: (
           <LazyElement>
             <VideoManagerPage />
+          </LazyElement>
+        ),
+      },
+      // ---------------------------------------------------------
+      // AI ChatBox Routes
+      // ---------------------------------------------------------
+      {
+        path: "pingai",
+        element: (
+          <LazyElement>
+            <AIChatBoxPage />
           </LazyElement>
         ),
       },
