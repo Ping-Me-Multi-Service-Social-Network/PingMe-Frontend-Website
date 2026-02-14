@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Song } from "@/types/music/song";
-import type { RepeatMode } from "@/features/slices/audioPlayerSlice";
+import type { RepeatMode } from "@/features/music/audioPlayerSlice";
 import { songService } from "@/services/music/musicService";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import {
@@ -20,7 +20,7 @@ import {
   cycleRepeatMode,
   togglePlayPause as togglePlayPauseAction,
   playSong as playSongAction,
-} from "@/features/slices/audioPlayerSlice";
+} from "@/features/music/audioPlayerSlice";
 
 // --- Types ---
 export interface AudioPlayerContextType {

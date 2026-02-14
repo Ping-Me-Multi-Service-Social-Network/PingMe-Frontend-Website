@@ -8,7 +8,7 @@ import { ArrowLeft, Music2 } from "lucide-react";
 import { convertToSong } from "../../utils/commonHandlers.ts";
 import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { fetchAllAlbums } from "@/features/slices/musicSlice";
+import { fetchAllAlbums } from "@/features/music/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_ALBUMS_LIMIT, TOP_ARTISTS_FOR_PREVIEW } from "@/constants/musicConstants";
 import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColumnLayout";

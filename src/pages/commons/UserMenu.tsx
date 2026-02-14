@@ -12,9 +12,9 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { logout } from "@/features/slices/authThunk";
+import { logout } from "@/features/auth/authThunk";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
-import { setLogoutReason } from "@/features/slices/authSlice";
+import { setLogoutReason } from "@/features/auth/authSlice";
 
 interface UserMenuProps {
   openInNewTab?: boolean;

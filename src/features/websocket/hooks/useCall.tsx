@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAppSelector } from "@/features/hooks";
-import { selectSignalingEvent } from "@/websocket/slices/socketSlice";
+import { selectSignalingEvent } from "@/features/websocket/slices/socketSlice";
 import type { SignalingResponse, CallType, CallState } from "@/types/call/call";
 import { sendSignalingApi } from "@/services/call/callApi";
 import { lookupByIdApi } from "@/services/user/userLookupApi";
