@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useState, useCallback } from "react";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import {
   Music2,
   ChevronDown,
@@ -34,7 +34,7 @@ const GlobalAudioPlayer: React.FC = () => {
     setVolume,
     repeatMode,
     cycleRepeatMode,
-  } = useAudioPlayer();
+  } = useAudio();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHoveringProgress, setIsHoveringProgress] = useState(false);

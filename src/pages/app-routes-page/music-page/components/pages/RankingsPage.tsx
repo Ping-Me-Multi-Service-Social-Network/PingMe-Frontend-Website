@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Play, ChevronRight, ArrowLeft } from "lucide-react";
 import { songApi } from "@/services/music/songApi.ts";
-import { useAudioPlayer } from "@/contexts/useAudioPlayer.tsx";
+import { useAudio } from "@/hooks/useAudio.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { TopSongPlayCounter } from "@/types/music";
 import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
@@ -12,7 +12,7 @@ type RankingTab = "today" | "week" | "month";
 
 export default function RankingsPage() {
     const navigate = useNavigate();
-    const { playSong } = useAudioPlayer();
+    const { playSong } = useAudio();
     const [searchParams] = useSearchParams();
     const tabParam = searchParams.get("tab") as RankingTab | null;
     const [activeTab, setActiveTab] = useState<RankingTab>(tabParam || "today");

@@ -14,18 +14,20 @@ import authReducer from "./slices/authSlice";
 import musicReducer from "./slices/musicSlice";
 import chatReducer from "./slices/chatSlice";
 import socketReducer from "./slices/socketSlice";
+import audioPlayerReducer from "./slices/audioPlayerSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
   music: musicReducer,
   chat: chatReducer,
   socket: socketReducer,
+  audioPlayer: audioPlayerReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "music"],
+  whitelist: ["auth", "music", "audioPlayer"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
