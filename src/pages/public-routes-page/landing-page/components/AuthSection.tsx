@@ -46,7 +46,7 @@ interface AuthSectionProps {
 export default function AuthSection({
   mode,
   heroImageSrc = "/images/hero-chat.webp",
-}: AuthSectionProps) {
+}: Readonly<AuthSectionProps>) {
   const isLogin = mode === "login";
 
   return (
