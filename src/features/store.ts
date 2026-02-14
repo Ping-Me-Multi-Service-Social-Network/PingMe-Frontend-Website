@@ -10,11 +10,11 @@ import {
   REHYDRATE,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import authReducer from "./slices/authSlice";
-import musicReducer from "./slices/musicSlice";
-import chatReducer from "./slices/chatSlice";
-import socketReducer from "./slices/socketSlice";
-import audioPlayerReducer from "./slices/audioPlayerSlice";
+import authReducer from "./auth/authSlice";
+import musicReducer from "./music/musicSlice";
+import chatReducer from "@/features/websocket/slices/chatSlice";
+import socketReducer from "@/features/websocket/slices/socketSlice";
+import audioPlayerReducer from "./music/audioPlayerSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,

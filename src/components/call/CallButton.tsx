@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Phone, Video } from "lucide-react";
-import { useCall } from "@/hooks/useCall";
+import { useCall } from "@/features/websocket/hooks/useCall";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 

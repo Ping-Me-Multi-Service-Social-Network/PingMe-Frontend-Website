@@ -10,7 +10,7 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
   TypingSignalPayload,
-} from "@/services/ws/module/chatSocket";
+} from "../module/chatSocket";
 import type { RootState } from "@/features/store";
 
 // =================================================================

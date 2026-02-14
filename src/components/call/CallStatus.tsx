@@ -1,4 +1,4 @@
-import { useCall } from "@/hooks/useCall";
+import { useCall } from "@/features/websocket/hooks/useCall";
 
 export function CallStatus() {
   const { callState } = useCall();

@@ -1,6 +1,6 @@
 import { useEffect, type MutableRefObject } from "react";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
-import type { FriendshipEventPayload } from "@/services/ws/module/globalSocket";
+import type { FriendshipEventPayload } from "@/features/websocket/module/globalSocket";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";

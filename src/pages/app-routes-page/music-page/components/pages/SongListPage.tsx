@@ -20,7 +20,7 @@ import {
   fetchSongsByGenre,
   fetchSongsByAlbum,
   fetchSongsByArtist
-} from "@/features/slices/musicSlice";
+} from "@/features/music/musicSlice";
 import { getCachedData } from "@/utils/musicCacheUtils";
 import { DEFAULT_ITEMS_PER_PAGE } from "@/constants/musicConstants";
 
