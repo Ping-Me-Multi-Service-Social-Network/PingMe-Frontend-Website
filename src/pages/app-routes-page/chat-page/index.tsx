@@ -12,8 +12,8 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/chat/room";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chat";
-import { useChatSocketHandler } from "@/websocket/hooks/useChatSocketHandler";
-import { selectUserStatusEvent } from "@/websocket/slices/socketSlice";
+import { useChatSocketHandler } from "@/features/websocket/hooks/useChatSocketHandler";
+import { selectUserStatusEvent } from "@/features/websocket/slices/socketSlice";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);

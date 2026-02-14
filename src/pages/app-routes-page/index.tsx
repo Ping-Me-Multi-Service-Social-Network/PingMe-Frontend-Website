@@ -5,11 +5,11 @@ import { AudioPlayerProvider } from "@/hooks/useAudio.tsx";
 import GlobalAudioPlayer from "./components/audio/GlobalAudioPlayer.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
 const CallProvider = lazy(() =>
-  import("@/websocket/hooks/useCall").then((module) => ({
+  import("@/features/websocket/hooks/useCall").then((module) => ({
     default: module.CallProvider,
   }))
 );
-import { useSocket } from "@/websocket/useSocket";
+import { useSocket } from "@/features/websocket/useSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
 
 

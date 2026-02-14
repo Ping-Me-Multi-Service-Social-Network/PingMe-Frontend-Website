@@ -9,7 +9,7 @@ import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { useAppDispatch } from "@/features/hooks"; // [NEW]
-import { getCurrentUserSession } from "@/features/slices/authThunk"; // [NEW]
+import { getCurrentUserSession } from "@/features/auth/authThunk"; // [NEW]
 
 const ActiveAccountVerifyOtpPage: React.FC = () => {
   const [otp, setOtp] = useState("");

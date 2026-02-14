@@ -15,12 +15,12 @@ import {
   memberAdded,
   memberRemoved,
   memberRoleChanged,
-} from "@/websocket/slices/chatSlice";
+} from "@/features/websocket/slices/chatSlice";
 import {
   friendshipEventReceived,
   signalingEventReceived,
   userStatusEventReceived,
-} from "@/websocket/slices/socketSlice";
+} from "@/features/websocket/slices/socketSlice";
 
 import type {
   ChatEventHandlers,

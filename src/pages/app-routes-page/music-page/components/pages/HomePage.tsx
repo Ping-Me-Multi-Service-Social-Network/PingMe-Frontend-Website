@@ -13,7 +13,7 @@ import type { SongResponseWithAllAlbum } from "@/types/music";
 import { useAudio } from "@/hooks/useAudio.tsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { fetchMusicData } from "@/features/slices/musicSlice";
+import { fetchMusicData } from "@/features/music/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_TOP_SONGS_LIMIT } from "@/constants/musicConstants";
 

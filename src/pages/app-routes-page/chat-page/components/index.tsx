@@ -26,7 +26,7 @@ import ConversationSidebar from "./conversation-sidebar";
 import {
   setCurrentRoom,
   selectMessages,
-} from "@/websocket/slices/chatSlice";
+} from "@/features/websocket/slices/chatSlice";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
