@@ -52,6 +52,13 @@ export const useSocket = () => {
       onDisconnect: (reason?: string) => {
         console.warn("[PingMe] SocketManager disconnected:", reason);
       },
+
+      onUpdateAiChatRoomTitle: (ev) => {
+        console.log("[PingMe] AI chat room title updated:", ev);
+        window.dispatchEvent(
+          new CustomEvent("socket:update-ai-chat-room-title", { detail: ev })
+        );
+      },
     });
 
     return () => {

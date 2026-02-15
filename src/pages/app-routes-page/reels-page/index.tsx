@@ -1,4 +1,3 @@
-"use client"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { ReelsTopBar } from "./components/ReelTopBar.tsx"
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx"
