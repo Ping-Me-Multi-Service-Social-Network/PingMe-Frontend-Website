@@ -8,6 +8,7 @@ import {
   Film,
   Menu,
   X,
+  Stars,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -49,6 +50,13 @@ const mediaNavigationItems = [
     icon: Film,
     href: "/app/reels",
     description: "Video giải trí",
+    external: false,
+  },
+  {
+    title: "PingAI",
+    icon: Stars,
+    href: "/app/pingai",
+    description: "Trợ lý AI thông minh",
     external: false,
   },
 ];
