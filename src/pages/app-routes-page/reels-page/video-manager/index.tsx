@@ -99,7 +99,7 @@ export default function VideoManagerPage() {
             variant="ghost"
             size="icon"
             className="text-gray-400 hover:text-white hover:bg-gray-800"
-            onClick={() => navigate("/reels")}
+            onClick={() => navigate("/app/reels")}
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
@@ -123,7 +123,7 @@ export default function VideoManagerPage() {
         ) : userReels.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3">
             <p className="text-gray-400">Chưa có video nào</p>
-            <Button onClick={() => navigate("/reels")} className="mt-4">
+            <Button onClick={() => navigate("/app/reels")} className="mt-4">
               Quay lại
             </Button>
           </div>

@@ -175,7 +175,7 @@ export default function ReelsPage() {
   }
 
   const handleManageClick = () => {
-    navigate("/reels/video-manager")
+    navigate("/app/reels/video-manager")
   }
 
   const handleSearchResults = (results: Reel[]) => {
