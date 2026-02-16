@@ -27,7 +27,7 @@ export default function SearchResultsPage() {
   useEffect(() => {
     const fetchSearchResults = async () => {
       if (!query.trim()) {
-        navigate("/reels")
+        navigate("/app/reels")
         return
       }
 
@@ -75,11 +75,11 @@ export default function SearchResultsPage() {
   }
 
   const handleHashtagClick = (hashtag: string) => {
-    navigate(`/reels/search?q=${encodeURIComponent(`#${hashtag}`)}`)
+    navigate(`/app/reels/search?q=${encodeURIComponent(`#${hashtag}`)}`)
   }
 
   const handleBackToMain = () => {
-    navigate("/reels")
+    navigate("/app/reels")
   }
 
   // Keyboard navigation
