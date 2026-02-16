@@ -85,9 +85,9 @@ export function EditReelModal({
               placeholder="Viết caption cho reel của bạn..."
               className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
               rows={4}
-              maxLength={300}
+              maxLength={200}
             />
-            <p className="text-xs text-gray-500 mt-1">{caption.length}/300</p>
+            <p className="text-xs text-gray-500 mt-1">{caption.length}/200</p>
           </div>
 
           {/* Actions */}
