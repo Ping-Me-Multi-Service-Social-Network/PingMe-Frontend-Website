@@ -3,7 +3,7 @@ import type {
   Reel,
   ReelFeedResponse,
   CreateReelRequest,
-  UpdateReelRequest,
+  UpsertReelRequest,
   CreateCommentRequest,
   ReelComment,
   ReelCommentResponse,
@@ -57,22 +57,20 @@ export const reelsApi = {
   },
 
   // Update reel
-  updateReel: async (reelId: number, data: UpdateReelRequest) => {
+  updateReel: async (reelId: number, data: UpsertReelRequest) => {
     const formData = new FormData();
 
     // Add caption and hashtags as JSON in "data" field
-    const jsonData: { caption: string; hashtags?: string[] } = {
+    const jsonData = {
       caption: data.caption,
+      hashtags: data.hashtags,
     };
-    if (data.hashtags) {
-      jsonData.hashtags = data.hashtags;
-    }
-    formData.append("data", JSON.stringify(jsonData));
 
-    // Only add video if it's provided (optional update)
-    if (data.video) {
-      formData.append("video", data.video);
-    }
+    // Use Blob to specify application/json for the "data" part
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(jsonData)], { type: "application/json" })
+    );
 
     const response = await axiosClient.put<ApiResponse<Reel>>(
       `/reels/${reelId}`,

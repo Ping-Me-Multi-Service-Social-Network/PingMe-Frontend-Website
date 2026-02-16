@@ -65,10 +65,9 @@ export interface CreateReelRequest {
   video: File
 }
 
-export interface UpdateReelRequest {
+export interface UpsertReelRequest {
   caption: string
   hashtags?: string[]
-  video?: File
 }
 
 export interface ReelFeedResponse {
