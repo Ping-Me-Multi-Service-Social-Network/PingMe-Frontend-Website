@@ -158,7 +158,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
   }
 
   const handleHistoryClick = (historyQuery: string) => {
-    navigate(`/reels/search?q=${encodeURIComponent(historyQuery)}`)
+    navigate(`/app/reels/search?q=${encodeURIComponent(historyQuery)}`)
     setIsOpen(false)
   }
 
@@ -197,7 +197,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && query.trim()) {
       e.preventDefault()
-      navigate(`/reels/search?q=${encodeURIComponent(query.trim())}`)
+      navigate(`/app/reels/search?q=${encodeURIComponent(query.trim())}`)
       setIsOpen(false)
     }
   }
