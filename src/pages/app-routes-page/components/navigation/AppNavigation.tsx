@@ -97,7 +97,7 @@ export default function AppNavigation() {
         </TooltipTrigger>
         <TooltipContent
           side="right"
-          className="bg-linear-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
+          className="bg-purple-600 text-white border-none shadow-xl"
         >
           <div>
             <div className="font-semibold">{item.title}</div>
@@ -115,7 +115,7 @@ export default function AppNavigation() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-40 w-12 h-12 rounded-xl bg-linear-to-br from-purple-600 to-purple-700 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          className="lg:hidden fixed top-4 left-4 z-40 w-12 h-12 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -135,7 +135,7 @@ export default function AppNavigation() {
       <div
         className={`
           fixed lg:relative
-          h-screen bg-linear-to-b from-purple-600 via-purple-700 to-purple-800 
+          h-screen bg-purple-700 
           flex flex-col items-center py-4 shadow-xl
           transition-transform duration-300 ease-in-out
           z-70
@@ -170,7 +170,7 @@ export default function AppNavigation() {
             </TooltipTrigger>
             <TooltipContent
               side="right"
-              className="bg-linear-to-r from-purple-600 to-pink-600 text-white border-none shadow-xl"
+              className="bg-purple-600 text-white border-none shadow-xl"
             >
               <div>
                 <div className="font-semibold">Tài khoản</div>

@@ -4,6 +4,7 @@ import type { AIMessage } from "@/types/ai/aiMessage";
 import type { AIChatRoomInformation } from "@/types/ai/aiChatRoomInformation";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ChatAreaProps {
   activeRoomId: string | null;
@@ -66,7 +67,11 @@ export default function ChatArea({
       setCurrentRoomId(activeRoomId);
 
       try {
-        const res = await aiChatBoxService.getChatHistory(activeRoomId, 0, MESSAGE_PAGE_SIZE);
+        const res = await aiChatBoxService.getChatHistory(
+          activeRoomId,
+          0,
+          MESSAGE_PAGE_SIZE,
+        );
         if (cancelled) return;
         const slice = res.data.data;
         // API returns newest first, we need oldest first for display
@@ -82,13 +87,16 @@ export default function ChatArea({
     };
 
     loadMessages();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeRoomId, scrollToBottom]);
 
   // Load older messages on scroll to top
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
-    if (!container || !hasMoreMessages || loadingOlder || !currentRoomId) return;
+    if (!container || !hasMoreMessages || loadingOlder || !currentRoomId)
+      return;
 
     if (container.scrollTop < 80) {
       setLoadingOlder(true);
@@ -108,7 +116,8 @@ export default function ChatArea({
           requestAnimationFrame(() => {
             if (container) {
               const newScrollHeight = container.scrollHeight;
-              container.scrollTop = newScrollHeight - prevScrollHeightRef.current;
+              container.scrollTop =
+                newScrollHeight - prevScrollHeightRef.current;
             }
           });
         })
@@ -148,7 +157,7 @@ export default function ChatArea({
         const res = await aiChatBoxService.chatWithAI(
           prompt,
           currentRoomId || undefined,
-          files.length > 0 ? files : undefined
+          files.length > 0 ? files : undefined,
         );
 
         const data = res.data.data;
@@ -192,17 +201,31 @@ export default function ChatArea({
         setSending(false);
       }
     },
-    [currentRoomId, sending, scrollToBottom, onRoomCreated, onRoomBumpToTop]
+    [currentRoomId, sending, scrollToBottom, onRoomCreated, onRoomBumpToTop],
   );
 
   // ---- Welcome Screen (no active room) ----
-  if (activeRoomId === null && currentRoomId === null && messages.length === 0 && !sending) {
+  if (
+    activeRoomId === null &&
+    currentRoomId === null &&
+    messages.length === 0 &&
+    !sending
+  ) {
     return (
-      <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-gray-50 via-white to-violet-50/30">
+      <div className="flex-1 flex flex-col h-full bg-gray-50">
         {/* Welcome content */}
         <div className="flex-1 flex flex-col items-center justify-center px-6">
-          <div className="welcome-glow w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6 shadow-xl">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-20 h-20 rounded-2xl bg-violet-600 flex items-center justify-center mb-6 shadow-xl">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
               <path d="M9 14h6" />
               <path d="M12 14v8" />
@@ -211,11 +234,12 @@ export default function ChatArea({
               <circle cx="15" cy="6" r="1" fill="white" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Xin chào! Tôi là PingAI
           </h1>
           <p className="text-gray-500 text-center max-w-md mb-8 leading-relaxed">
-            Tôi có thể giúp bạn trả lời câu hỏi, phân tích hình ảnh, và hỗ trợ nhiều tác vụ khác. Hãy bắt đầu cuộc trò chuyện!
+            Tôi có thể giúp bạn trả lời câu hỏi, phân tích hình ảnh, và hỗ trợ
+            nhiều tác vụ khác. Hãy bắt đầu cuộc trò chuyện!
           </p>
 
           {/* Suggestion chips */}
@@ -258,68 +282,82 @@ export default function ChatArea({
 
   // ---- Active Chat Room ----
   return (
-    <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-gray-50 via-white to-violet-50/30">
+    <div className="flex-1 flex flex-col h-full bg-gray-50">
       {/* Messages */}
-      <div
+      <ScrollArea
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto ai-chat-scrollbar px-4 py-4"
+        className="flex-1 px-4 py-2"
       >
-        {/* Loading older messages */}
-        {loadingOlder && (
-          <div className="flex justify-center py-3">
-            <div className="ai-spinner" />
-          </div>
-        )}
-
-        {/* Loading initial messages */}
-        {loadingMessages && (
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="ai-spinner mb-3" style={{ width: 32, height: 32 }} />
-            <p className="text-sm text-gray-400">Đang tải tin nhắn...</p>
-          </div>
-        )}
-
-        {/* Messages list */}
-        {!loadingMessages && (
-          <div className="max-w-5xl mx-auto space-y-4">
-            {messages.map((msg, idx) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                animate={idx >= messages.length - 2 && msg.id.startsWith("ai-")}
+        <div className="flex flex-col min-h-full">
+          <div className="flex-1 invisible" />{" "}
+          {/* Spacer to push content down */}
+          {/* Loading older messages */}
+          {loadingOlder && (
+            <div className="flex justify-center py-3 shrink-0">
+              <div className="ai-spinner" />
+            </div>
+          )}
+          {/* Loading initial messages */}
+          {loadingMessages && (
+            <div className="flex flex-col items-center justify-center h-full">
+              <div
+                className="ai-spinner mb-3"
+                style={{ width: 32, height: 32 }}
               />
-            ))}
-          </div>
-        )}
-
-        {/* Typing indicator when sending */}
-        {sending && (
-          <div className="max-w-5xl mx-auto mt-4">
-            <div className="flex items-end gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-md">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
-                  <path d="M9 14h6" />
-                  <path d="M12 14v8" />
-                  <path d="M8 22h8" />
-                  <circle cx="9" cy="6" r="1" fill="white" />
-                  <circle cx="15" cy="6" r="1" fill="white" />
-                </svg>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-1">
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
+              <p className="text-sm text-gray-400">Đang tải tin nhắn...</p>
+            </div>
+          )}
+          {/* Messages list */}
+          {!loadingMessages && (
+            <div className="max-w-5xl mx-auto space-y-2 mt-auto w-full">
+              {messages.map((msg, idx) => (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  animate={
+                    idx >= messages.length - 2 && msg.id.startsWith("ai-")
+                  }
+                />
+              ))}
+            </div>
+          )}
+          {/* Typing indicator when sending */}
+          {sending && (
+            <div className="max-w-5xl mx-auto mt-4 w-full">
+              <div className="flex items-end gap-2">
+                <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center shrink-0 shadow-md">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
+                    <path d="M9 14h6" />
+                    <path d="M12 14v8" />
+                    <path d="M8 22h8" />
+                    <circle cx="9" cy="6" r="1" fill="white" />
+                    <circle cx="15" cy="6" r="1" fill="white" />
+                  </svg>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
+                  <div className="flex items-center gap-1">
+                    <div className="typing-dot" />
+                    <div className="typing-dot" />
+                    <div className="typing-dot" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
 
       {/* Input */}
       <div className="px-4 pb-4 pt-2 border-t border-gray-100 bg-white/80 backdrop-blur-sm">
