@@ -7,7 +7,9 @@ import ActiveAccountVerifyOtpPage from "@/pages/app-routes-page/user-page/user-i
 // ===========================================================
 // PUBLIC PAGES
 // ===========================================================
-const LandingPage = lazy(() => import("@/pages/public-routes-page/landing-page"));
+const LandingPage = lazy(
+  () => import("@/pages/public-routes-page/landing-page"),
+);
 
 // ===========================================================
 // APP PAGES - Layout
@@ -75,8 +77,6 @@ const DiscoverPlaylistsPage = lazy(
     import("@/pages/app-routes-page/music-page/components/pages/DiscoverPlaylistsPage"),
 );
 
-
-
 // ===========================================================
 // APP PAGES - Reels
 // ===========================================================
@@ -90,7 +90,9 @@ const SearchResultsPage = lazy(
 // ===========================================================
 // APP PAGES - AI ChatBox
 // ===========================================================
-const AIChatBoxPage = lazy(() => import("@/pages/app-routes-page/ai-chatbox/index"));
+const AIChatBoxPage = lazy(
+  () => import("@/pages/app-routes-page/ai-chatbox/index"),
+);
 // ===========================================================
 // FORGET PASSWORD PAGES
 // ===========================================================
@@ -370,7 +372,7 @@ export const router = createBrowserRouter([
       // AI ChatBox Routes
       // ---------------------------------------------------------
       {
-        path: "pingai",
+        path: "ping-ai",
         element: (
           <LazyElement>
             <AIChatBoxPage />
