@@ -3,7 +3,6 @@ import type React from "react";
 import {
   MessageCircle,
   Users,
-  Home,
   Music4Icon,
   Film,
   Menu,
@@ -53,21 +52,13 @@ const mediaNavigationItems = [
     external: false,
   },
   {
-    title: "PingAI",
+    title: "Ping AI",
     icon: Stars,
-    href: "/app/pingai",
+    href: "/app/ping-ai",
     description: "Trợ lý AI thông minh",
     external: false,
   },
 ];
-
-const homeNavigationItem = {
-  title: "Trang chủ",
-  icon: Home,
-  href: "/",
-  description: "Về trang chủ",
-  external: false,
-};
 
 export default function AppNavigation() {
   const location = useLocation();
@@ -95,10 +86,11 @@ export default function AppNavigation() {
           <NavLink
             to={item.href}
             onClick={() => setIsOpen(false)}
-            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive
-              ? "bg-white text-purple-600 shadow-lg scale-110"
-              : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
-              }`}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+              isActive
+                ? "bg-white text-purple-600 shadow-lg scale-110"
+                : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
+            }`}
           >
             <item.icon className="w-6 h-6" />
           </NavLink>
@@ -157,12 +149,6 @@ export default function AppNavigation() {
         >
           <X className="w-5 h-5 text-white" />
         </button>
-
-        <div className="flex flex-col space-y-2 pb-3">
-          {renderNavItem(homeNavigationItem)}
-        </div>
-
-        <div className="w-10 h-px bg-purple-400/30 my-2" />
 
         <div className="flex flex-col space-y-2 py-3">
           {socialNavigationItems.map((item) => renderNavItem(item))}
