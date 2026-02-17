@@ -134,51 +134,53 @@ export const ChatBoxContent = ({
       {/* Content layer */}
       <div
         ref={messagesContainerRef}
-        className="relative z-10 h-full overflow-y-auto px-4 space-y-4"
+        className="relative z-10 h-full overflow-y-auto px-4 flex flex-col py-2"
         onScroll={handleScroll}
       >
+        <div className="flex-1 invisible" />{" "}
+        {/* Spacer to help push content down */}
         {isLoadingMore && (
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center py-2 shrink-0">
             <LoadingSpinner className="w-8 h-8 text-purple-600" />
           </div>
         )}
-
-        {messages.map((message) => (
-          <div key={message.id}>
-            {message.type === "SYSTEM" ? (
-              <div className="flex justify-center my-2">
-                <div
-                  className={`px-3 py-1 ${theme.content.systemMessageBg} ${theme.content.systemMessageText} text-sm rounded-full`}
-                >
-                  {message.content}
+        <div className="mt-auto space-y-2 pb-2">
+          {messages.map((message) => (
+            <div key={message.id}>
+              {message.type === "SYSTEM" ? (
+                <div className="flex justify-center my-2">
+                  <div
+                    className={`px-3 py-1 ${theme.content.systemMessageBg} ${theme.content.systemMessageText} text-sm rounded-full`}
+                  >
+                    {message.content}
+                  </div>
                 </div>
-              </div>
-            ) : isCurrentUserMessage(message.senderId) ? (
-              <SentMessageBubble
-                message={message}
-                onMessageRecalled={onMessageRecalled}
-                theme={theme}
-              />
-            ) : (
-              <ReceivedMessageBubble
-                message={message}
-                senderName={
-                  selectedChat.participants.find(
-                    (p) => p.userId === message.senderId
-                  )?.name || "Unknown"
-                }
-                senderAvatar={
-                  selectedChat.participants.find(
-                    (p) => p.userId === message.senderId
-                  )?.avatarUrl
-                }
-                roomType={selectedChat.roomType}
-                theme={theme}
-              />
-            )}
-          </div>
-        ))}
-
+              ) : isCurrentUserMessage(message.senderId) ? (
+                <SentMessageBubble
+                  message={message}
+                  onMessageRecalled={onMessageRecalled}
+                  theme={theme}
+                />
+              ) : (
+                <ReceivedMessageBubble
+                  message={message}
+                  senderName={
+                    selectedChat.participants.find(
+                      (p) => p.userId === message.senderId,
+                    )?.name || "Unknown"
+                  }
+                  senderAvatar={
+                    selectedChat.participants.find(
+                      (p) => p.userId === message.senderId,
+                    )?.avatarUrl
+                  }
+                  roomType={selectedChat.roomType}
+                  theme={theme}
+                />
+              )}
+            </div>
+          ))}
+        </div>
         <div className="min-h-8 flex items-center pl-2">
           {otherUsersTyping.length > 0 && (
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full animate-in fade-in duration-200">
@@ -186,10 +188,10 @@ export const ChatBoxContent = ({
                 {otherUsersTyping.length === 1
                   ? `${otherUsersTyping[0].name}`
                   : otherUsersTyping.length === 2
-                  ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`
-                  : `${otherUsersTyping[0].name} và ${
-                      otherUsersTyping.length - 1
-                    } người khác`}
+                    ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`
+                    : `${otherUsersTyping[0].name} và ${
+                        otherUsersTyping.length - 1
+                      } người khác`}
               </span>
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]" />
@@ -199,7 +201,6 @@ export const ChatBoxContent = ({
             </div>
           )}
         </div>
-
         <div ref={messagesEndRef} />
       </div>
     </div>
