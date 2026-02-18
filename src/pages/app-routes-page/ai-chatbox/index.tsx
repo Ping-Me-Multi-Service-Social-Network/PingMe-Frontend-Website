@@ -31,12 +31,16 @@ export default function AIChatBoxPage() {
       } catch (err) {
         console.error("[AIChatBoxPage] Error loading rooms:", err);
       } finally {
-        if (!cancelled) setLoadingRooms(false);
+        if (!cancelled) {
+          setLoadingRooms(false);
+        }
       }
     };
 
     loadRooms();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ---- Load more rooms ----
@@ -46,7 +50,10 @@ export default function AIChatBoxPage() {
 
     const nextPage = roomsPage + 1;
     try {
-      const res = await aiChatBoxService.getUserChatRooms(nextPage, ROOMS_PAGE_SIZE);
+      const res = await aiChatBoxService.getUserChatRooms(
+        nextPage,
+        ROOMS_PAGE_SIZE,
+      );
       const slice = res.data.data;
       setRooms((prev) => [...prev, ...slice.content]);
       setHasMoreRooms(!slice.last);
@@ -90,9 +97,7 @@ export default function AIChatBoxPage() {
     const handler = (e: Event) => {
       const { chatRoomId, title } = (e as CustomEvent<TitleUpdate>).detail;
       setRooms((prev) =>
-        prev.map((r) =>
-          r.id === chatRoomId ? { ...r, title } : r
-        )
+        prev.map((r) => (r.id === chatRoomId ? { ...r, title } : r)),
       );
     };
 
