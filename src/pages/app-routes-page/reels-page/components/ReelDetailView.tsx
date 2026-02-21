@@ -361,7 +361,7 @@ export default function ReelDetailView({
                 className="w-12 h-12 rounded-full object-cover border-2 border-white"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-2 border-white">
+              <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center border-2 border-white">
                 <User className="w-6 h-6 text-white" />
               </div>
             )}
@@ -421,9 +421,9 @@ export default function ReelDetailView({
               </p>
               {reel.hashtags && reel.hashtags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {reel.hashtags.map((tag, index) => (
+                  {reel.hashtags.map((tag) => (
                     <button
-                      key={index}
+                      key={tag}
                       onClick={(e) => {
                         e.stopPropagation();
                         onHashtagClick?.(tag);

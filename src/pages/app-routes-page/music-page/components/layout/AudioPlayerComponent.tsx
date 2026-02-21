@@ -7,7 +7,10 @@ import type { Song } from "@/types/music/song";
 import { useAudio } from "@/hooks/useAudio.tsx";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
-import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
+import {
+  useFavoriteEventListener,
+  dispatchFavoriteEvent,
+} from "@/hooks/useFavoriteEvents";
 
 interface AudioPlayerComponentProps {
   currentSong?: Song | null;
@@ -15,9 +18,11 @@ interface AudioPlayerComponentProps {
   onSongChange?: (song: Song) => void;
 }
 
+const EMPTY_PLAYLIST: Song[] = [];
+
 export default function AudioPlayerComponent({
   currentSong,
-  playlist = [],
+  playlist = EMPTY_PLAYLIST,
   onSongChange,
 }: Readonly<AudioPlayerComponentProps>) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -52,7 +57,7 @@ export default function AudioPlayerComponent({
       if (currentSong?.id === songId) {
         setIsFavorite(false);
       }
-    }
+    },
   );
 
   const handleToggleFavorite = async () => {
@@ -62,11 +67,11 @@ export default function AudioPlayerComponent({
       if (isFavorite) {
         await favoriteApi.removeFavorite(currentSong.id);
         setIsFavorite(false);
-        dispatchFavoriteEvent('favorite-removed', currentSong.id);
+        dispatchFavoriteEvent("favorite-removed", currentSong.id);
       } else {
         await favoriteApi.addFavorite(currentSong.id);
         setIsFavorite(true);
-        dispatchFavoriteEvent('favorite-added', currentSong.id);
+        dispatchFavoriteEvent("favorite-added", currentSong.id);
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
@@ -193,13 +198,16 @@ export default function AudioPlayerComponent({
             {/* Favorite Button */}
             <button
               onClick={handleToggleFavorite}
-              className={`transition-colors ${isFavorite
-                ? 'text-purple-500 hover:text-purple-400'
-                : 'text-gray-400 hover:text-white'
-                }`}
+              className={`transition-colors ${
+                isFavorite
+                  ? "text-purple-500 hover:text-purple-400"
+                  : "text-gray-400 hover:text-white"
+              }`}
               title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
             >
-              <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
+              <Heart
+                className={`w-6 h-6 ${isFavorite ? "fill-current" : ""}`}
+              />
             </button>
 
             {/* Add to Playlist Menu */}

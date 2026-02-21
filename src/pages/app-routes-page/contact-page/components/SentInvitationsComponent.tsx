@@ -32,7 +32,7 @@ interface SentInvitationsComponentRef {
 
 interface SentInvitationsComponentProps {
   onStatsUpdate: (
-    updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse
+    updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse,
   ) => void;
 }
 
@@ -44,7 +44,7 @@ export const SentInvitationsComponent = forwardRef<
 
   // State quản lý danh sách lời mời đã gửi và infinite scroll
   const [sentInvitations, setSentInvitations] = useState<UserSummaryResponse[]>(
-    []
+    [],
   );
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreInvitations, setHasMoreInvitations] = useState(true);
@@ -69,7 +69,7 @@ export const SentInvitationsComponent = forwardRef<
           setSentInvitations((prev) => {
             const newInvitations = response.userSummaryResponses.filter(
               (newInvitation) =>
-                !prev.some((existing) => existing.id === newInvitation.id)
+                !prev.some((existing) => existing.id === newInvitation.id),
             );
             return [...prev, ...newInvitations];
           });
@@ -85,7 +85,7 @@ export const SentInvitationsComponent = forwardRef<
         isLoadingRef.current = false;
       }
     },
-    []
+    [],
   );
 
   // Xử lý infinite scroll
@@ -113,7 +113,7 @@ export const SentInvitationsComponent = forwardRef<
 
         setSentInvitations((prev) => {
           return prev.filter(
-            (invitation) => invitation.friendshipSummary?.id !== friendshipId
+            (invitation) => invitation.friendshipSummary?.id !== friendshipId,
           );
         });
 
@@ -127,7 +127,7 @@ export const SentInvitationsComponent = forwardRef<
         toast.error("Không thể hủy lời mời kết bạn");
       }
     },
-    [onStatsUpdate]
+    [onStatsUpdate],
   );
 
   // Expose methods cho parent component qua ref
@@ -148,7 +148,7 @@ export const SentInvitationsComponent = forwardRef<
         });
       },
     }),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -162,7 +162,7 @@ export const SentInvitationsComponent = forwardRef<
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 

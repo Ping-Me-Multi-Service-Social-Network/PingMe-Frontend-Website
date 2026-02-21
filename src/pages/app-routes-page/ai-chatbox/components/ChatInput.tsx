@@ -6,7 +6,15 @@ interface ChatInputProps {
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/svg+xml", "image/bmp"];
+const ACCEPTED_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
+  "image/bmp",
+];
 
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [text, setText] = useState("");
@@ -33,32 +41,29 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
   };
 
-  const validateAndAddFiles = useCallback(
-    (newFiles: FileList | File[]) => {
-      setError(null);
-      const validFiles: File[] = [];
-      const validPreviews: string[] = [];
+  const validateAndAddFiles = useCallback((newFiles: FileList | File[]) => {
+    setError(null);
+    const validFiles: File[] = [];
+    const validPreviews: string[] = [];
 
-      for (const file of Array.from(newFiles)) {
-        if (!ACCEPTED_TYPES.includes(file.type)) {
-          setError(`"${file.name}" không phải file ảnh hợp lệ.`);
-          continue;
-        }
-        if (file.size > MAX_FILE_SIZE) {
-          setError(`"${file.name}" vượt quá 5MB.`);
-          continue;
-        }
-        validFiles.push(file);
-        validPreviews.push(URL.createObjectURL(file));
+    for (const file of Array.from(newFiles)) {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        setError(`"${file.name}" không phải file ảnh hợp lệ.`);
+        continue;
       }
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`"${file.name}" vượt quá 5MB.`);
+        continue;
+      }
+      validFiles.push(file);
+      validPreviews.push(URL.createObjectURL(file));
+    }
 
-      if (validFiles.length > 0) {
-        setFiles((prev) => [...prev, ...validFiles]);
-        setPreviews((prev) => [...prev, ...validPreviews]);
-      }
-    },
-    []
-  );
+    if (validFiles.length > 0) {
+      setFiles((prev) => [...prev, ...validFiles]);
+      setPreviews((prev) => [...prev, ...validPreviews]);
+    }
+  }, []);
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
@@ -103,7 +108,14 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
       {/* Error message */}
       {error && (
         <div className="mb-2 px-3 py-2 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
@@ -116,9 +128,12 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
       {previews.length > 0 && (
         <div className="img-preview-grid mb-2">
           {previews.map((src, idx) => (
-            <div key={idx} className="img-preview-item">
+            <div key={src} className="img-preview-item">
               <img src={src} alt={`preview-${idx}`} />
-              <button className="img-preview-remove" onClick={() => removeFile(idx)}>
+              <button
+                className="img-preview-remove"
+                onClick={() => removeFile(idx)}
+              >
                 ×
               </button>
             </div>
@@ -132,10 +147,19 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         <button
           type="button"
           onClick={handleFileSelect}
-          className="p-2 text-gray-400 hover:text-violet-500 hover:bg-violet-50 rounded-xl transition-colors flex-shrink-0"
+          className="p-2 text-gray-400 hover:text-violet-500 hover:bg-violet-50 rounded-xl transition-colors shrink-0"
           title="Đính kèm ảnh (≤5MB)"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
             <circle cx="8.5" cy="8.5" r="1.5" />
             <polyline points="21 15 16 10 5 21" />
@@ -168,13 +192,22 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           type="button"
           onClick={handleSend}
           disabled={!canSend}
-          className={`p-2 rounded-xl transition-all flex-shrink-0 ${
+          className={`p-2 rounded-xl transition-all shrink-0 ${
             canSend
-              ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-md hover:shadow-lg send-btn-active"
+              ? "bg-linear-to-r from-violet-500 to-purple-600 text-white shadow-md hover:shadow-lg send-btn-active"
               : "bg-gray-100 text-gray-300 cursor-not-allowed"
           }`}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="22" y1="2" x2="11" y2="13" />
             <polygon points="22 2 15 22 11 13 2 9 22 2" />
           </svg>

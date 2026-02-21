@@ -55,9 +55,12 @@ export function ChatBoxInput({
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleEmojiSelect = (emojiData: EmojiClickData) => {
-    setNewMessage(newMessage + emojiData.emoji);
-  };
+  const handleEmojiSelect = useCallback(
+    (emojiData: EmojiClickData) => {
+      setNewMessage(newMessage + emojiData.emoji);
+    },
+    [newMessage, setNewMessage],
+  );
 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -98,7 +101,7 @@ export function ChatBoxInput({
         SocketManager.sendTyping(selectedChat.roomId, false);
       }, 2000);
     },
-    [selectedChat.roomId, isTyping, setNewMessage]
+    [selectedChat.roomId, isTyping, setNewMessage],
   );
 
   useEffect(() => {
@@ -241,7 +244,7 @@ export function ChatBoxInput({
             toast.success("Đã gửi thông tin thời tiết");
           } catch (error) {
             toast.error(
-              getErrorMessage(error, "Không thể gửi thông tin thời tiết")
+              getErrorMessage(error, "Không thể gửi thông tin thời tiết"),
             );
           } finally {
             setIsSending(false);
@@ -250,9 +253,9 @@ export function ChatBoxInput({
         (error) => {
           console.error("Geolocation error:", error);
           toast.error(
-            "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí."
+            "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí.",
           );
-        }
+        },
       );
     } else {
       toast.error("Trình duyệt không hỗ trợ định vị");

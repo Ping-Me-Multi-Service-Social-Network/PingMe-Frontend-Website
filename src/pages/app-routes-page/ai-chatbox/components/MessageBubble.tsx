@@ -10,18 +10,32 @@ interface MessageBubbleProps {
   animate?: boolean;
 }
 
-export default function MessageBubble({ message, animate }: MessageBubbleProps) {
+export default function MessageBubble({
+  message,
+  animate,
+}: MessageBubbleProps) {
   const isSent = message.type === "SENT";
 
   return (
     <div
       className={`flex ${isSent ? "justify-end" : "justify-start"} ${animate ? "msg-enter" : ""}`}
     >
-      <div className={`flex items-end gap-2 ${isSent ? "max-w-[75%] flex-row-reverse" : "max-w-[90%]"}`}>
+      <div
+        className={`flex items-end gap-2 ${isSent ? "max-w-[75%] flex-row-reverse" : "max-w-[90%]"}`}
+      >
         {/* AI Avatar */}
         {!isSent && (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-md">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-8 h-8 rounded-full bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
               <path d="M9 14h6" />
               <path d="M12 14v8" />
@@ -36,32 +50,37 @@ export default function MessageBubble({ message, animate }: MessageBubbleProps) 
         <div
           className={`rounded-2xl px-4 py-2.5 shadow-sm ${
             isSent
-              ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-br-sm"
+              ? "bg-linear-to-r from-violet-500 to-purple-600 text-white rounded-br-sm"
               : "bg-white text-gray-800 border border-gray-100 rounded-bl-sm"
           }`}
         >
           {/* Attachments */}
           {message.attachments && message.attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-2">
-              {message.attachments.map((att, idx) => (
-                <img
-                  key={idx}
-                  src={att.url}
-                  alt={`attachment-${idx}`}
-                  className="msg-attachment-img"
+              {message.attachments.map((att) => (
+                <button
+                  key={att.url}
+                  type="button"
                   onClick={() => window.open(att.url, "_blank")}
-                />
+                  className="appearance-none bg-transparent border-none p-0 cursor-pointer"
+                >
+                  <img
+                    src={att.url}
+                    alt="attachment"
+                    className="msg-attachment-img"
+                  />
+                </button>
               ))}
             </div>
           )}
 
           {/* Text content */}
           {isSent ? (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">
               {message.content}
             </p>
           ) : (
-            <div className="ai-markdown text-sm leading-relaxed break-words">
+            <div className="ai-markdown text-sm leading-relaxed wrap-break-word">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -72,7 +91,10 @@ export default function MessageBubble({ message, animate }: MessageBubbleProps) 
                     if (match) {
                       return (
                         <div className="ai-code-block">
-                          <CodeBlockHeader language={match[1]} code={codeString} />
+                          <CodeBlockHeader
+                            language={match[1]}
+                            code={codeString}
+                          />
                           <SyntaxHighlighter
                             style={oneDark}
                             language={match[1]}
@@ -122,7 +144,13 @@ export default function MessageBubble({ message, animate }: MessageBubbleProps) 
 }
 
 /** Small header bar above code blocks with language label + copy button */
-function CodeBlockHeader({ language, code }: { language: string; code: string }) {
+function CodeBlockHeader({
+  language,
+  code,
+}: {
+  language: string;
+  code: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -138,14 +166,32 @@ function CodeBlockHeader({ language, code }: { language: string; code: string })
       <button onClick={handleCopy} className="ai-code-copy-btn">
         {copied ? (
           <>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <polyline points="20 6 9 17 4 12" />
             </svg>
             Đã sao chép
           </>
         ) : (
           <>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
