@@ -70,7 +70,6 @@ const RenameGroupModal = ({
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             placeholder="Tên nhóm"
-            autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter" && !isLoading) handleRename();
             }}

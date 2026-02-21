@@ -89,7 +89,7 @@ export function CreateReelModal({
   };
 
   const handleHashtagInputKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -111,8 +111,10 @@ export function CreateReelModal({
     setIsLoading(true);
     try {
       // Normalize hashtags: remove '#', lowercase, ensure distinct
-      const normalizedHashtags = hashtags.map(tag => 
-        tag.startsWith('#') ? tag.substring(1).toLowerCase() : tag.toLowerCase()
+      const normalizedHashtags = hashtags.map((tag) =>
+        tag.startsWith("#")
+          ? tag.substring(1).toLowerCase()
+          : tag.toLowerCase(),
       );
 
       await reelsApi.createReel({
@@ -153,8 +155,9 @@ export function CreateReelModal({
 
         <div className="space-y-4">
           {/* Video Upload */}
-          <div
-            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-purple-500 transition"
+          <button
+            type="button"
+            className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-purple-500 transition bg-transparent"
             onClick={() => videoInputRef.current?.click()}
           >
             {videoPreview ? (
@@ -180,14 +183,18 @@ export function CreateReelModal({
               onChange={handleVideoSelect}
               className="hidden"
             />
-          </div>
+          </button>
 
           {/* Caption Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="create-reel-caption"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Caption
             </label>
             <textarea
+              id="create-reel-caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Viết caption cho reel của bạn..."
@@ -200,7 +207,10 @@ export function CreateReelModal({
 
           {/* Hashtag Input */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="create-reel-hashtag"
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
+            >
               <Hash className="w-4 h-4" />
               Hashtags
               <span className="text-red-500">*</span>
@@ -230,6 +240,7 @@ export function CreateReelModal({
             {/* Hashtag Input Field */}
             <div className="flex gap-2">
               <input
+                id="create-reel-hashtag"
                 type="text"
                 value={hashtagInput}
                 onChange={(e) => setHashtagInput(e.target.value)}
