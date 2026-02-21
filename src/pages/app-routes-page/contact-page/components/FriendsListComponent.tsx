@@ -34,7 +34,7 @@ interface FriendListComponentRef {
 
 interface FriendsListComponentProps {
   onStatsUpdate: (
-    updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse
+    updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse,
   ) => void;
 
   statusPayload?: UserStatusPayload | null;
@@ -74,8 +74,8 @@ export const FriendsListComponent = forwardRef<
             const newFriends = friendsList.filter(
               (newFriend) =>
                 !prev.some(
-                  (existingFriend) => existingFriend.id === newFriend.id
-                )
+                  (existingFriend) => existingFriend.id === newFriend.id,
+                ),
             );
             return [...prev, ...newFriends];
           });
@@ -91,7 +91,7 @@ export const FriendsListComponent = forwardRef<
         isLoadingRef.current = false;
       }
     },
-    []
+    [],
   );
 
   // Xử lý infinite scroll
@@ -116,7 +116,9 @@ export const FriendsListComponent = forwardRef<
         await deleteFriendshipApi(friendshipId);
 
         setFriends((prev) =>
-          prev.filter((friend) => friend.friendshipSummary?.id !== friendshipId)
+          prev.filter(
+            (friend) => friend.friendshipSummary?.id !== friendshipId,
+          ),
         );
 
         onStatsUpdate((prev) => ({
@@ -129,7 +131,7 @@ export const FriendsListComponent = forwardRef<
         toast.error(getErrorMessage(error, "Không thể xóa bạn bè"));
       }
     },
-    [onStatsUpdate]
+    [onStatsUpdate],
   );
 
   // Expose methods cho parent component qua ref
@@ -149,7 +151,7 @@ export const FriendsListComponent = forwardRef<
         setFriends((prev) => prev.filter((friend) => friend.id !== user.id));
       },
     }),
-    []
+    [],
   );
 
   // Load danh sách bạn bè khi component mount
@@ -164,7 +166,7 @@ export const FriendsListComponent = forwardRef<
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
@@ -179,8 +181,8 @@ export const FriendsListComponent = forwardRef<
               ...friend,
               status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
             }
-          : friend
-      )
+          : friend,
+      ),
     );
   }, [statusPayload]);
 

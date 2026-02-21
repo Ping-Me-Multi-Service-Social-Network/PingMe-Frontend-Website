@@ -11,7 +11,11 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import { Search, X, Users, UserX, Plus } from "lucide-react";
 import { getAcceptedFriendshipHistoryListApi } from "@/services/friendship";
 import { createGroupRoomApi, addGroupMembersApi } from "@/services/chat";
@@ -44,7 +48,7 @@ export function GroupMemberModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [friends, setFriends] = useState<UserSummaryResponse[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<UserSummaryResponse[]>(
-    []
+    [],
   );
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -61,13 +65,13 @@ export function GroupMemberModal({
       try {
         const response = await getAcceptedFriendshipHistoryListApi(
           beforeId,
-          20
+          20,
         );
         const { userSummaryResponses, hasMore: responseHasMore } =
           response.data.data;
 
         setFriends((prev) =>
-          beforeId ? [...prev, ...userSummaryResponses] : userSummaryResponses
+          beforeId ? [...prev, ...userSummaryResponses] : userSummaryResponses,
         );
         setHasMore(responseHasMore);
       } catch (error) {
@@ -76,7 +80,7 @@ export function GroupMemberModal({
         setIsLoading(false);
       }
     },
-    [isLoading, hasMore]
+    [isLoading, hasMore],
   );
 
   useEffect(() => {
@@ -91,7 +95,7 @@ export function GroupMemberModal({
         try {
           const response = await getAcceptedFriendshipHistoryListApi(
             undefined,
-            20
+            20,
           );
           const { userSummaryResponses, hasMore: responseHasMore } =
             response.data.data;
@@ -194,7 +198,7 @@ export function GroupMemberModal({
     (friend) =>
       friend.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
       !selectedMembers.find((m) => m.id === friend.id) &&
-      (mode === "create" || !currentMemberIds.has(friend.id))
+      (mode === "create" || !currentMemberIds.has(friend.id)),
   );
 
   const existingMemberFriends =
@@ -216,7 +220,13 @@ export function GroupMemberModal({
   return (
     <>
       {triggerButton ? (
-        <div onClick={() => setOpen(true)}>{triggerButton}</div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="appearance-none bg-transparent border-none p-0 cursor-pointer"
+        >
+          {triggerButton}
+        </button>
       ) : (
         <Button
           variant="ghost"
@@ -230,7 +240,7 @@ export function GroupMemberModal({
       )}
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="!h-11/12 !w-full !max-w-none lg:!w-2/3 flex flex-col">
+        <DialogContent className="h-11/12! w-full! max-w-none! lg:w-2/3! flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {mode === "create" ? "Tạo nhóm chat" : "Thêm thành viên"}
@@ -255,7 +265,7 @@ export function GroupMemberModal({
 
             <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
               <div className="border border-purple-200 rounded-lg flex flex-col overflow-hidden">
-                <div className="p-3 border-b border-purple-100 bg-purple-50/30 flex-shrink-0">
+                <div className="p-3 border-b border-purple-100 bg-purple-50/30 shrink-0">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400" />
                     <Input
@@ -331,8 +341,8 @@ export function GroupMemberModal({
                         searchQuery
                           ? "Thử tìm kiếm với từ khóa khác"
                           : mode === "add" && currentMemberIds.size > 0
-                          ? "Tất cả bạn bè đã có trong nhóm"
-                          : "Bạn chưa có bạn bè nào"
+                            ? "Tất cả bạn bè đã có trong nhóm"
+                            : "Bạn chưa có bạn bè nào"
                       }
                     />
                   )}
@@ -393,7 +403,7 @@ export function GroupMemberModal({
             </div>
           </div>
 
-          <DialogFooter className="flex-shrink-0">
+          <DialogFooter className="shrink-0">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Hủy
             </Button>
@@ -412,8 +422,8 @@ export function GroupMemberModal({
                   ? "Đang tạo..."
                   : "Đang thêm..."
                 : mode === "create"
-                ? "Tạo nhóm"
-                : "Thêm thành viên"}
+                  ? "Tạo nhóm"
+                  : "Thêm thành viên"}
             </Button>
           </DialogFooter>
         </DialogContent>

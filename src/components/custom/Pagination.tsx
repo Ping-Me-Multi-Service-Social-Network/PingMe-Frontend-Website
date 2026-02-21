@@ -32,14 +32,14 @@ const Pagination = ({
     if (totalPages <= 1) return [1];
 
     const center: (number | string)[] = [
-      currentPage - 2,
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      currentPage + 2,
-    ],
+        currentPage - 2,
+        currentPage - 1,
+        currentPage,
+        currentPage + 1,
+        currentPage + 2,
+      ],
       filteredCenter = center.filter(
-        (p) => (p as number) > 1 && (p as number) < totalPages
+        (p) => (p as number) > 1 && (p as number) < totalPages,
       ),
       includeThreeLeft = currentPage === 5,
       includeThreeRight = currentPage === totalPages - 4,
@@ -69,7 +69,9 @@ const Pagination = ({
           {Math.min(currentPage * itemsPerPage, totalElements)}
         </span>{" "}
         trong tổng số{" "}
-        <span className="font-medium text-purple-400 mx-1">{totalElements}</span>{" "}
+        <span className="font-medium text-purple-400 mx-1">
+          {totalElements}
+        </span>{" "}
         kết quả
       </div>
 
@@ -111,26 +113,30 @@ const Pagination = ({
 
           {pages.map((page, index) =>
             typeof page === "string" && page === "..." ? (
-              <span key={index} className="px-2 text-gray-500">
+              <span
+                key={`dots-${index === 1 ? "left" : "right"}`}
+                className="px-2 text-gray-500"
+              >
                 ...
               </span>
             ) : (
               <Button
-                key={index}
+                key={`page-${page}`}
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   if ((page as number) === currentPage) return;
                   setCurrentPage(page as number);
                 }}
-                className={`h-8 w-8 p-0 transition-all duration-200 ${page === currentPage
+                className={`h-8 w-8 p-0 transition-all duration-200 ${
+                  page === currentPage
                     ? "bg-purple-600 border-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-900/30"
                     : "bg-gray-800/60 border-gray-700 text-gray-300 hover:bg-purple-600/20 hover:border-purple-600 hover:text-purple-300"
-                  }`}
+                }`}
               >
                 {page}
               </Button>
-            )
+            ),
           )}
 
           <Button

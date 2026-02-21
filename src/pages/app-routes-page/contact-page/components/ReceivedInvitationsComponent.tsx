@@ -8,7 +8,11 @@ import {
 } from "react";
 import { Inbox, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import {
@@ -30,7 +34,7 @@ interface ReceivedInvitationsComponentRef {
 
 interface ReceivedInvitationsComponentProps {
   onStatsUpdate: (
-    updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse
+    updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse,
   ) => void;
 }
 
@@ -71,7 +75,7 @@ export const ReceivedInvitationsComponent = forwardRef<
           setReceivedInvitations((prev) => {
             const newInvitations = response.userSummaryResponses.filter(
               (newInvitation) =>
-                !prev.some((existing) => existing.id === newInvitation.id)
+                !prev.some((existing) => existing.id === newInvitation.id),
             );
             return [...prev, ...newInvitations];
           });
@@ -83,14 +87,14 @@ export const ReceivedInvitationsComponent = forwardRef<
         setHasMoreInvitations(response.hasMore);
       } catch (error) {
         toast.error(
-          getErrorMessage(error, "Không thể tải danh sách lời mời nhận được")
+          getErrorMessage(error, "Không thể tải danh sách lời mời nhận được"),
         );
       } finally {
         setIsLoading(false);
         isLoadingRef.current = false;
       }
     },
-    []
+    [],
   );
 
   // Xử lý infinite scroll
@@ -121,8 +125,8 @@ export const ReceivedInvitationsComponent = forwardRef<
 
         setReceivedInvitations((prev) =>
           prev.filter(
-            (invitation) => invitation.friendshipSummary?.id !== friendshipId
-          )
+            (invitation) => invitation.friendshipSummary?.id !== friendshipId,
+          ),
         );
 
         onStatsUpdate((prev) => ({
@@ -134,7 +138,7 @@ export const ReceivedInvitationsComponent = forwardRef<
         toast.success("Đã chấp nhận lời mời kết bạn");
       } catch (error) {
         toast.error(
-          getErrorMessage(error, "Không thể chấp nhận lời mời kết bạn")
+          getErrorMessage(error, "Không thể chấp nhận lời mời kết bạn"),
         );
       } finally {
         setProcessingInvitations((prev) => {
@@ -144,7 +148,7 @@ export const ReceivedInvitationsComponent = forwardRef<
         });
       }
     },
-    [processingInvitations, onStatsUpdate]
+    [processingInvitations, onStatsUpdate],
   );
 
   const handleRejectInvitation = useCallback(
@@ -158,8 +162,8 @@ export const ReceivedInvitationsComponent = forwardRef<
 
         setReceivedInvitations((prev) =>
           prev.filter(
-            (invitation) => invitation.friendshipSummary?.id !== friendshipId
-          )
+            (invitation) => invitation.friendshipSummary?.id !== friendshipId,
+          ),
         );
 
         onStatsUpdate((prev) => ({
@@ -170,7 +174,7 @@ export const ReceivedInvitationsComponent = forwardRef<
         toast.success("Đã từ chối lời mời kết bạn");
       } catch (error) {
         toast.error(
-          getErrorMessage(error, "Không thể từ chối lời mời kết bạn")
+          getErrorMessage(error, "Không thể từ chối lời mời kết bạn"),
         );
       } finally {
         setProcessingInvitations((prev) => {
@@ -180,7 +184,7 @@ export const ReceivedInvitationsComponent = forwardRef<
         });
       }
     },
-    [processingInvitations, onStatsUpdate]
+    [processingInvitations, onStatsUpdate],
   );
 
   // Expose methods cho parent component qua ref
@@ -190,7 +194,7 @@ export const ReceivedInvitationsComponent = forwardRef<
       handleNewInvitation: (user: UserSummaryResponse) => {
         setReceivedInvitations((prev) => {
           const invitationExists = prev.some(
-            (invitation) => invitation.id === user.id
+            (invitation) => invitation.id === user.id,
           );
           if (invitationExists) {
             return prev;
@@ -201,11 +205,11 @@ export const ReceivedInvitationsComponent = forwardRef<
       },
       removeInvitation: (user: UserSummaryResponse) => {
         setReceivedInvitations((prev) =>
-          prev.filter((invitation) => invitation.id !== user.id)
+          prev.filter((invitation) => invitation.id !== user.id),
         );
       },
     }),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -219,7 +223,7 @@ export const ReceivedInvitationsComponent = forwardRef<
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
