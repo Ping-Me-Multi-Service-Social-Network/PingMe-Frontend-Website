@@ -100,7 +100,6 @@ const VerifyOtpPage: React.FC = () => {
             maxLength={6}
             placeholder="......"
             disabled={isLoading}
-            autoFocus
           />
         </div>
 

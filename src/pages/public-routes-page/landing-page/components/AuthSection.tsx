@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,63 +50,66 @@ export default function AuthSection({
   const isLogin = mode === "login";
 
   return (
-    <section className="relative overflow-hidden h-full bg-linear-to-br from-purple-600 via-purple-700 to-pink-600">
-      {/* pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-4 h-full">
-        <div className="grid md:grid-cols-2 gap-10 items-center h-full py-3">
-          {/* LEFT: Image + content */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="text-white"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-              PingMe
-            </h1>
-
-            <p className="mt-4 text-lg text-purple-100 leading-relaxed max-w-xl">
-              Kết nối bạn bè, nhắn tin nhanh, chia sẻ khoảnh khắc và khám phá
-              nội dung theo cách hiện đại — ưu tiên bảo mật và trải nghiệm mượt.
-            </p>
-
-            <div className="mt-8 relative">
-              <div className="absolute inset-0 bg-linear-to-br from-pink-400 to-purple-400 rounded-3xl blur-3xl opacity-50" />
-              <img
-                src={heroImageSrc}
-                alt="PingMe Preview"
-                className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
-              />
-            </div>
-          </motion.div>
-
-          {/* RIGHT: Auth form */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex justify-center md:justify-end"
-          >
-            <div className="w-full max-w-lg">
-              <div className="bg-white rounded-2xl shadow-2xl border border-white/20 p-8">
-                {isLogin ? <LoginFormContent /> : <RegisterFormContent />}
-              </div>
-            </div>
-          </motion.div>
+    <LazyMotion features={domAnimation}>
+      <section className="relative overflow-hidden h-full bg-linear-to-br from-purple-600 via-purple-700 to-pink-600">
+        {/* pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+              backgroundSize: "40px 40px",
+            }}
+          />
         </div>
-      </div>
-    </section>
+
+        <div className="relative max-w-7xl mx-auto px-4 h-full">
+          <div className="grid md:grid-cols-2 gap-10 items-center h-full py-3">
+            {/* LEFT: Image + content */}
+            <m.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-white"
+            >
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+                PingMe
+              </h1>
+
+              <p className="mt-4 text-lg text-purple-100 leading-relaxed max-w-xl">
+                Kết nối bạn bè, nhắn tin nhanh, chia sẻ khoảnh khắc và khám phá
+                nội dung theo cách hiện đại — ưu tiên bảo mật và trải nghiệm
+                mượt.
+              </p>
+
+              <div className="mt-8 relative">
+                <div className="absolute inset-0 bg-linear-to-br from-pink-400 to-purple-400 rounded-3xl blur-3xl opacity-50" />
+                <img
+                  src={heroImageSrc}
+                  alt="PingMe Preview"
+                  className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
+                />
+              </div>
+            </m.div>
+
+            {/* RIGHT: Auth form */}
+            <m.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="flex justify-center md:justify-end"
+            >
+              <div className="w-full max-w-lg">
+                <div className="bg-white rounded-2xl shadow-2xl border border-white/20 p-8">
+                  {isLogin ? <LoginFormContent /> : <RegisterFormContent />}
+                </div>
+              </div>
+            </m.div>
+          </div>
+        </div>
+      </section>
+    </LazyMotion>
   );
 }
 
@@ -139,7 +142,7 @@ function LoginFormContent() {
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -259,7 +262,7 @@ function LoginFormContent() {
           </Link>
         </p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -301,7 +304,7 @@ function RegisterFormContent() {
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -500,6 +503,6 @@ function RegisterFormContent() {
           </Link>
         </p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

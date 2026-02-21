@@ -76,10 +76,14 @@ export function EditReelModal({
 
           {/* Caption Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="edit-reel-caption"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Caption
             </label>
             <textarea
+              id="edit-reel-caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Viết caption cho reel của bạn..."

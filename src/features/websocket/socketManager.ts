@@ -56,7 +56,7 @@ export interface SocketManagerOptions {
   onFriendEvent?: (ev: FriendshipEventPayload) => void;
   onUserStatus?: (ev: UserStatusPayload) => void;
   onSignaling?: (ev: SignalingPayload) => void;
-  onUpdateAiChatRoomTitle? : (ev: TitleUpdate) => void;
+  onUpdateAiChatRoomTitle?: (ev: TitleUpdate) => void;
 
   // Disconnect handler
   onDisconnect?: (reason?: string) => void;
@@ -82,7 +82,6 @@ class SocketManagerClass {
   private aiChatRoomTitleSub: StompSubscription | null = null;
   private statusSub: StompSubscription | null = null;
   private signalingSub: StompSubscription | null = null;
-
 
   // =================================================================
   // Public Methods
@@ -129,7 +128,7 @@ class SocketManagerClass {
       console.error(
         "[PingMe] STOMP error:",
         frame.headers["message"],
-        frame.body
+        frame.body,
       );
     };
 
@@ -237,7 +236,7 @@ class SocketManagerClass {
   private parsePayload<T>(
     message: IMessage,
     context: string,
-    onError?: (err: unknown) => void
+    onError?: (err: unknown) => void,
   ): T | null {
     try {
       return JSON.parse(message.body) as T;
@@ -251,7 +250,7 @@ class SocketManagerClass {
   // Unsubscribe defensively because STOMP may throw when subscription is stale.
   private safeUnsubscribe(
     subscription: StompSubscription | null,
-    context: string
+    context: string,
   ): void {
     try {
       subscription?.unsubscribe();
@@ -265,7 +264,7 @@ class SocketManagerClass {
     destination: string,
     context: string,
     handler: ((payload: T) => void) | undefined,
-    onParseError?: (err: unknown) => void
+    onParseError?: (err: unknown) => void,
   ): StompSubscription | null {
     if (!this.client || !handler) return null;
 
@@ -291,37 +290,43 @@ class SocketManagerClass {
 
           switch (ev.chatEventType) {
             case "ROOM_CREATED":
-              this.options?.dispatch(roomCreated(ev as RoomCreatedEventPayload));
+              this.options?.dispatch(
+                roomCreated(ev as RoomCreatedEventPayload),
+              );
               this.options?.chat?.onRoomCreated?.(
-                ev as RoomCreatedEventPayload
+                ev as RoomCreatedEventPayload,
               );
               break;
             case "ROOM_UPDATED":
-              this.options?.dispatch(roomUpdated(ev as RoomUpdatedEventPayload));
+              this.options?.dispatch(
+                roomUpdated(ev as RoomUpdatedEventPayload),
+              );
               this.options?.chat?.onRoomUpdated?.(
-                ev as RoomUpdatedEventPayload
+                ev as RoomUpdatedEventPayload,
               );
               break;
             case "MEMBER_ADDED":
-              this.options?.dispatch(memberAdded(ev as RoomMemberAddedEventPayload));
+              this.options?.dispatch(
+                memberAdded(ev as RoomMemberAddedEventPayload),
+              );
               this.options?.chat?.onMemberAdded?.(
-                ev as RoomMemberAddedEventPayload
+                ev as RoomMemberAddedEventPayload,
               );
               break;
             case "MEMBER_REMOVED":
               this.options?.dispatch(
-                memberRemoved(ev as RoomMemberRemovedEventPayload)
+                memberRemoved(ev as RoomMemberRemovedEventPayload),
               );
               this.options?.chat?.onMemberRemoved?.(
-                ev as RoomMemberRemovedEventPayload
+                ev as RoomMemberRemovedEventPayload,
               );
               break;
             case "MEMBER_ROLE_CHANGED":
               this.options?.dispatch(
-                memberRoleChanged(ev as RoomMemberRoleChangedEventPayload)
+                memberRoleChanged(ev as RoomMemberRoleChangedEventPayload),
               );
               this.options?.chat?.onMemberRoleChanged?.(
-                ev as RoomMemberRoleChangedEventPayload
+                ev as RoomMemberRoleChangedEventPayload,
               );
               break;
             default:
@@ -331,7 +336,7 @@ class SocketManagerClass {
           console.error("[PingMe] Error parsing chat event:", err);
           toast.error(getErrorMessage(err, "Lỗi xử lý dữ liệu từ máy chủ"));
         }
-      }
+      },
     );
   }
 
@@ -348,7 +353,7 @@ class SocketManagerClass {
       (ev) => {
         this.options?.dispatch(friendshipEventReceived(ev));
         this.options?.onFriendEvent?.(ev);
-      }
+      },
     );
 
     // Subscribe to user status events
@@ -358,7 +363,7 @@ class SocketManagerClass {
       (ev) => {
         this.options?.dispatch(userStatusEventReceived(ev));
         this.options?.onUserStatus?.(ev);
-      }
+      },
     );
 
     // Subscribe to signaling events
@@ -371,9 +376,12 @@ class SocketManagerClass {
             const ev = JSON.parse(msg.body) as TitleUpdate;
             this.options?.onUpdateAiChatRoomTitle?.(ev);
           } catch (err) {
-            console.error("[PingMe] Error parsing AI chat room title update event:", err);
+            console.error(
+              "[PingMe] Error parsing AI chat room title update event:",
+              err,
+            );
           }
-        }
+        },
       );
     }
     this.signalingSub = this.subscribeQueueEvent<SignalingPayload>(
@@ -383,7 +391,7 @@ class SocketManagerClass {
         console.log("[PingMe] Received signaling event:", ev);
         this.options?.dispatch(signalingEventReceived(ev));
         this.options?.onSignaling?.(ev);
-      }
+      },
     );
   }
 
@@ -398,23 +406,26 @@ class SocketManagerClass {
 
     this.roomMsgSub = this.client.subscribe(dest, (msg: IMessage) => {
       try {
-        const ev = this.parsePayload<MessageCreatedEventPayload | MessageRecalledEventPayload>(
-          msg,
-          "message event"
-        );
+        const ev = this.parsePayload<
+          MessageCreatedEventPayload | MessageRecalledEventPayload
+        >(msg, "message event");
         if (!ev) return;
 
         switch (ev.chatEventType) {
           case "MESSAGE_CREATED":
-            this.options?.dispatch(messageCreated(ev as MessageCreatedEventPayload));
+            this.options?.dispatch(
+              messageCreated(ev as MessageCreatedEventPayload),
+            );
             this.options?.chat?.onMessageCreated?.(
-              ev as MessageCreatedEventPayload
+              ev as MessageCreatedEventPayload,
             );
             break;
           case "MESSAGE_RECALLED":
-            this.options?.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
+            this.options?.dispatch(
+              messageRecalled(ev as MessageRecalledEventPayload),
+            );
             this.options?.chat?.onMessageRecalled?.(
-              ev as MessageRecalledEventPayload
+              ev as MessageRecalledEventPayload,
             );
             break;
         }
@@ -436,7 +447,7 @@ class SocketManagerClass {
     this.roomReadSub = this.client.subscribe(dest, (msg: IMessage) => {
       const ev = this.parsePayload<ReadStateChangedEvent>(
         msg,
-        "read state event"
+        "read state event",
       );
       if (!ev || ev.chatEventType !== "READ_STATE_CHANGED") return;
 
