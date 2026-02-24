@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState } from "react";
 import { Send, Heart, User, Shield } from "lucide-react";
@@ -142,7 +140,7 @@ export default function CommentsSection({
                       size="sm"
                       className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
                       onClick={(e) => {
-                        e.stopPropagation()
+                        e.stopPropagation();
                         // Handle menu open logic here
                       }}
                     >

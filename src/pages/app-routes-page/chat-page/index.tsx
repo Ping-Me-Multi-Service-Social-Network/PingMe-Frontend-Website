@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -56,7 +54,7 @@ export default function MessagesPage() {
         setRoomsPagination((prev) => ({ ...prev, isLoadingMore: false }));
       }
     },
-    []
+    [],
   );
 
   const refetchRooms = () => {
@@ -112,9 +110,9 @@ export default function MessagesPage() {
                 ...participant,
                 status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
               }
-            : participant
+            : participant,
         ),
-      }))
+      })),
     );
   }, [userStatusEvent.id, userStatusEvent.payload]);
 

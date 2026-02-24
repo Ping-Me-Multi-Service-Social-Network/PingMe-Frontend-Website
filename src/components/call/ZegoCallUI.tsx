@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import type { CallType } from "@/types/call/call.ts";
@@ -44,7 +42,7 @@ function ZegoCallUIInternal({
           serverSecret,
           roomId,
           currentUserId,
-          currentUserName
+          currentUserName,
         );
 
         const zp = ZegoUIKitPrebuilt.create(kitToken);
