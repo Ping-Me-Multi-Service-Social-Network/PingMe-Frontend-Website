@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { Edit2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
@@ -21,7 +19,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [editingReel, setEditingReel] = useState<Reel | undefined>();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
-    null
+    null,
   );
   const [isDeleting, setIsDeleting] = useState(false);
 

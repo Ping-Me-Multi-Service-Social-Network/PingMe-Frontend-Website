@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { Edit2, Trash2, ArrowLeft, Plus } from "lucide-react";
@@ -22,40 +20,43 @@ export default function VideoManagerPage() {
   const [editingReel, setEditingReel] = useState<Reel | undefined>();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
-    null
+    null,
   );
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const fetchUserReels = useCallback(async (page: number, append = false) => {
-    if (!currentUserId) return;
-    
-    try {
-      if (append) {
-        setIsLoadingMore(true);
-      } else {
-        setIsLoading(true);
+  const fetchUserReels = useCallback(
+    async (page: number, append = false) => {
+      if (!currentUserId) return;
+
+      try {
+        if (append) {
+          setIsLoadingMore(true);
+        } else {
+          setIsLoading(true);
+        }
+        const res = await reelsApi.getMyCreatedReels(page, 10);
+
+        if (append) {
+          setUserReels((prev) => [...prev, ...res.content]);
+        } else {
+          setUserReels(res.content);
+        }
+
+        setCurrentPage(res.page);
+        setHasMore(res.hasMore);
+      } catch (err) {
+        console.error("[v0] Error fetching user reels:", err);
+        toast.error("Không thể tải danh sách video");
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
       }
-      const res = await reelsApi.getMyCreatedReels(page, 10);
-      
-      if (append) {
-        setUserReels((prev) => [...prev, ...res.content]);
-      } else {
-        setUserReels(res.content);
-      }
-      
-      setCurrentPage(res.page);
-      setHasMore(res.hasMore);
-    } catch (err) {
-      console.error("[v0] Error fetching user reels:", err);
-      toast.error("Không thể tải danh sách video");
-    } finally {
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    }
-  }, [currentUserId]);
+    },
+    [currentUserId],
+  );
 
   useEffect(() => {
     fetchUserReels(0);

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Share, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -105,7 +103,7 @@ export function ReelViewer({
       <div
         className={cn(
           "absolute right-6 bottom-20 flex flex-col gap-6 z-20 transition-opacity duration-300",
-          showControls ? "opacity-100" : "opacity-90"
+          showControls ? "opacity-100" : "opacity-90",
         )}
       >
         {/* Like button */}
@@ -118,7 +116,7 @@ export function ReelViewer({
               "p-3 rounded-full transition",
               reel.isLikedByMe
                 ? "bg-red-500/30"
-                : "bg-white/10 hover:bg-white/20"
+                : "bg-white/10 hover:bg-white/20",
             )}
           >
             <Heart
