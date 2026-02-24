@@ -56,6 +56,15 @@ const Pagination = ({
   };
 
   const pages = pagination();
+  const goToPreviousPage = () => {
+    const previousPage = Math.max(1, currentPage - 1);
+    setCurrentPage(previousPage);
+  };
+
+  const goToNextPage = () => {
+    const nextPage = Math.min(totalPages, currentPage + 1);
+    setCurrentPage(nextPage);
+  };
 
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-gray-900/40 backdrop-blur-sm border-t border-gray-700/50">
@@ -103,7 +112,7 @@ const Pagination = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={goToPreviousPage}
             disabled={currentPage === 1}
             className="h-8 px-3 bg-gray-800/60 border-gray-700 text-gray-300 hover:bg-purple-600/20 hover:border-purple-600 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800/60 disabled:hover:border-gray-700 transition-all duration-200"
           >
@@ -142,7 +151,7 @@ const Pagination = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(currentPage + 1)}
+            onClick={goToNextPage}
             disabled={currentPage === totalPages}
             className="h-8 px-3 bg-gray-800/60 border-gray-700 text-gray-300 hover:bg-purple-600/20 hover:border-purple-600 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800/60 disabled:hover:border-gray-700 transition-all duration-200"
           >

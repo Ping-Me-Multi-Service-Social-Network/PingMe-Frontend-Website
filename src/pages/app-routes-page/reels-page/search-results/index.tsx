@@ -99,8 +99,6 @@ export default function SearchResultsPage() {
   // Wheel + Touch navigation
   const handleWheel = useCallback(
     (e: WheelEvent) => {
-      e.preventDefault()
-
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current)
       }
@@ -130,8 +128,6 @@ export default function SearchResultsPage() {
         if (touchStartRef.current === null) return
         const delta = touchStartRef.current - e.touches[0].clientY
         touchDeltaRef.current = delta
-        // prevent native scroll while swiping in the feed
-        e.preventDefault()
       }
 
       const handleTouchEnd = () => {
@@ -146,15 +142,15 @@ export default function SearchResultsPage() {
         touchDeltaRef.current = 0
       }
 
-      container.addEventListener("wheel", handleWheel, { passive: false })
+      container.addEventListener("wheel", handleWheel, { passive: true })
       container.addEventListener("touchstart", handleTouchStart, {
-        passive: false,
+        passive: true,
       })
       container.addEventListener("touchmove", handleTouchMove, {
-        passive: false,
+        passive: true,
       })
       container.addEventListener("touchend", handleTouchEnd, {
-        passive: false,
+        passive: true,
       })
 
       return () => {
