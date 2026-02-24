@@ -31,7 +31,7 @@ const UserAvatarPanel = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [avatarVersion, setAvatarVersion] = useState(Date.now());
+  const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
 
@@ -62,6 +62,12 @@ const UserAvatarPanel = () => {
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
+  };
+  const handleAvatarKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleAvatarClick();
+    }
   };
 
   const handleModalClose = () => {
@@ -135,6 +141,9 @@ const UserAvatarPanel = () => {
             <div
               className="relative cursor-pointer"
               onClick={handleAvatarClick}
+              onKeyDown={handleAvatarKeyDown}
+              role="button"
+              tabIndex={0}
             >
               <Avatar className="h-24 w-24 ring-4 ring-white/30 shadow-xl transition-all duration-200 group-hover:ring-white/50">
                 <AvatarImage

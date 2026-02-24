@@ -24,7 +24,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
-  const [avatarVersion, setAvatarVersion] = useState(Date.now());
+  const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
 
   const handleLogout = () => {
     dispatch(setLogoutReason("MANUAL"));
