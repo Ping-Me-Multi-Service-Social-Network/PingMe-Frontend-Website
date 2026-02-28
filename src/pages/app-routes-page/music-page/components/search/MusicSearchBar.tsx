@@ -60,7 +60,7 @@ export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarPr
     };
 
     return (
-        <div id="music-search-bar" className="sticky top-0 z-30 bg-gray-900 border-b border-zinc-800 shadow-lg">
+        <div className="sticky top-0 z-30 bg-gray-900 border-b border-zinc-800 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4">
                 <div className="lg:ml-0 ml-14">
                     <div className="relative">

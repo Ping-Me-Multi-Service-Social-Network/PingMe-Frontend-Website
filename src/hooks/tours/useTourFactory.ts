@@ -98,26 +98,38 @@ export function useTourFactory(options: TourOptions) {
         };
 
         const driverObj = driver({
-            showProgress: true,
+            showProgress: false,
             animate: true,
             allowClose: false,
             overlayColor: "rgba(0, 0, 0, 0.6)",
             stagePadding: 10,
             stageRadius: 12,
             popoverClass: "pingme-tour-popover",
-            progressText: "{{current}} / {{total}}",
             nextBtnText: "Tiếp theo →",
             prevBtnText: "← Quay lại",
             doneBtnText: doneText ?? "Hoàn tất ✓",
             steps: driverSteps,
 
             onPopoverRender: (popover) => {
-                const closeBtn = document.createElement("button");
-                closeBtn.innerHTML = "&times;";
-                closeBtn.className = "pingme-tour-custom-close";
-                closeBtn.title = "Bỏ qua hướng dẫn";
-                closeBtn.onclick = closeTour;
-                popover.wrapper.appendChild(closeBtn);
+                const footer = popover.footer;
+                const currentIndex = driverObj.getActiveIndex() ?? 0;
+                const isFirst = currentIndex === 0;
+                const isLast = currentIndex === tourSteps.length - 1;
+
+                // Thêm nút "Bỏ qua" bên trái (ẩn ở bước cuối)
+                if (!isLast) {
+                    const skipBtn = document.createElement("button");
+                    skipBtn.textContent = "Bỏ qua";
+                    skipBtn.className = "pingme-tour-skip-btn";
+                    skipBtn.onclick = closeTour;
+                    footer.insertBefore(skipBtn, footer.firstChild);
+                }
+
+                // Ẩn nút "← Quay lại" ở bước đầu tiên
+                if (isFirst) {
+                    const prevBtn = popover.previousButton;
+                    if (prevBtn) prevBtn.style.display = "none";
+                }
             },
 
             onNextClick: async () => {

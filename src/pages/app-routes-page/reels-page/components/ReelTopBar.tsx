@@ -21,7 +21,7 @@ export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, on
 
   return (
     <>
-      <div id="reels-topbar" className="p-4 border-b border-gray-700 bg-gray-900">
+      <div className="p-4 border-b border-gray-700 bg-gray-900">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-white whitespace-nowrap">Reels</h2>
 
