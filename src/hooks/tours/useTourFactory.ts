@@ -85,7 +85,7 @@ export function useTourFactory(options: TourOptions) {
     const markTourCompleted = useCallback(() => {
         localStorage.setItem(storageKey, "true");
         // Thông báo cho các module tour khác biết tour này đã hoàn tất
-        window.dispatchEvent(
+        globalThis.dispatchEvent(
             new CustomEvent("pingme:tour-completed", { detail: { key: storageKey } })
         );
     }, [storageKey]);
@@ -214,8 +214,8 @@ export function useTourFactory(options: TourOptions) {
             }
         };
 
-        window.addEventListener("pingme:tour-completed", handler);
-        return () => window.removeEventListener("pingme:tour-completed", handler);
+        globalThis.addEventListener("pingme:tour-completed", handler as EventListener);
+        return () => globalThis.removeEventListener("pingme:tour-completed", handler as EventListener);
     }, [prerequisiteKey, storageKey, startTour]);
 
     return { startTour, resetTour, isTourCompleted };

@@ -42,8 +42,8 @@ export function useReelNavigation({
             else if (e.key === "ArrowDown") handleNext();
         };
 
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        globalThis.addEventListener("keydown", handleKeyDown as EventListener);
+        return () => globalThis.removeEventListener("keydown", handleKeyDown as EventListener);
     }, [handlePrev, handleNext]);
 
     // Wheel navigation
