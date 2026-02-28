@@ -212,7 +212,7 @@ export default function ChatArea({
     !sending
   ) {
     return (
-      <div id="ai-chat-area" className="flex-1 flex flex-col h-full bg-gray-50">
+      <div className="flex-1 flex flex-col h-full bg-gray-50">
         {/* Welcome content */}
         <div className="flex-1 flex flex-col items-center justify-center px-6">
           <div className="w-20 h-20 rounded-2xl bg-violet-600 flex items-center justify-center mb-6 shadow-xl">

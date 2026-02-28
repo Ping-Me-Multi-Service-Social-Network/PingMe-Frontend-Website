@@ -13,7 +13,7 @@ export default function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const query = searchParams.get("q") || ""
-  
+
   const [reels, setReels] = useState<Reel[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -36,19 +36,19 @@ export default function SearchResultsPage() {
 
       try {
         const data = await reelsApi.searchReels(query, 0, 50)
-        
+
         // Client-side filtering
         const searchLower = query.toLowerCase().replace(/^#/, '')
         const filteredResults = data.content.filter((reel) => {
           const captionMatch = reel.caption?.toLowerCase().includes(searchLower)
-          const hashtagMatch = reel.hashtags?.some(tag => 
+          const hashtagMatch = reel.hashtags?.some(tag =>
             tag.toLowerCase().includes(searchLower)
           )
           const userMatch = reel.userName?.toLowerCase().includes(searchLower)
-          
+
           return captionMatch || hashtagMatch || userMatch
         })
-        
+
         setReels(filteredResults)
       } catch (err) {
         console.error("Error searching reels:", err)
@@ -165,20 +165,25 @@ export default function SearchResultsPage() {
     }
   }, [handleWheel, reels.length])
 
+  const BackHeader = ({ children }: { children?: React.ReactNode }) => (
+    <div className="p-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleBackToMain}
+        className="text-white hover:bg-gray-800"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Quay về
+      </Button>
+      {children}
+    </div>
+  )
+
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gray-900 flex-col overflow-hidden">
-        <div className="p-4 border-b border-gray-700 bg-gray-900">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBackToMain}
-            className="text-white hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay về
-          </Button>
-        </div>
+        <BackHeader />
         <div className="flex-1 flex items-center justify-center">
           <LoadingSpinner />
         </div>
@@ -189,17 +194,7 @@ export default function SearchResultsPage() {
   if (error || reels.length === 0) {
     return (
       <div className="flex h-screen bg-gray-900 flex-col overflow-hidden">
-        <div className="p-4 border-b border-gray-700 bg-gray-900">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBackToMain}
-            className="text-white hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay về
-          </Button>
-        </div>
+        <BackHeader />
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
             title={error || `Không tìm thấy kết quả cho "${query}"`}
@@ -213,21 +208,12 @@ export default function SearchResultsPage() {
   return (
     <div ref={containerRef} className="flex h-screen bg-gray-900 flex-col overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleBackToMain}
-          className="text-white hover:bg-gray-800"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Quay về
-        </Button>
+      <BackHeader>
         <div className="text-white text-sm">
           Kết quả tìm kiếm: <span className="font-semibold">{query}</span>
           <span className="ml-2 text-gray-400">({reels.length} video)</span>
         </div>
-      </div>
+      </BackHeader>
 
       {/* Reels Feed */}
       <div className="flex-1 relative overflow-hidden">

@@ -36,7 +36,7 @@ export default function Sidebar({
   };
 
   return (
-    <div id="ai-sidebar" className="w-72 h-full bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col">
+    <div className="w-72 h-full bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center gap-2 mb-4">
@@ -84,8 +84,8 @@ export default function Sidebar({
             key={room.id}
             onClick={() => onSelectRoom(room.id)}
             className={`room-item w-full text-left px-3 py-2.5 rounded-xl mb-1 group ${activeRoomId === room.id
-                ? "bg-violet-50 border border-violet-200"
-                : "hover:bg-gray-50 border border-transparent"
+              ? "bg-violet-50 border border-violet-200"
+              : "hover:bg-gray-50 border border-transparent"
               }`}
           >
             <p
