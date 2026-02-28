@@ -164,7 +164,7 @@ export default function HomePage() {
     <div className="bg-gray-900 pb-32" style={{ minHeight: "100vh" }}>
       <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
         {/* Quick Links Section */}
-        <section className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <section id="music-nav-bar" className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <button
             onClick={() => navigate("/app/music/favorites")}
             className="group relative overflow-hidden rounded-xl bg-linear-to-br from-red-900/40 via-pink-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"

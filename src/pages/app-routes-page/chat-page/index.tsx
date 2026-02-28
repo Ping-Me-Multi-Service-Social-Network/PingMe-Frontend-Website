@@ -107,9 +107,9 @@ export default function MessagesPage() {
         participants: room.participants.map((participant) =>
           participant.userId === Number(statusPayload.userId)
             ? {
-                ...participant,
-                status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
-              }
+              ...participant,
+              status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+            }
             : participant,
         ),
       })),
