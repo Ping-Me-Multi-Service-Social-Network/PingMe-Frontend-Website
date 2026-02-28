@@ -8,6 +8,7 @@ import {
   Menu,
   X,
   Stars,
+  HelpCircle,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -18,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import UserMenu from "@/pages/commons/UserMenu.tsx";
+import { useGlobalTour } from "@/hooks/tours";
 
 const socialNavigationItems = [
   {
@@ -68,6 +70,7 @@ const mediaNavigationItems = [
 export default function AppNavigation() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { startTour, isTourCompleted } = useGlobalTour();
 
   const isItemActive = (href: string) => {
     return (
@@ -93,8 +96,8 @@ export default function AppNavigation() {
             to={item.href}
             onClick={() => setIsOpen(false)}
             className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive
-                ? "bg-white text-purple-600 shadow-lg scale-110"
-                : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
+              ? "bg-white text-purple-600 shadow-lg scale-110"
+              : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
               }`}
           >
             <item.icon className="w-6 h-6" />
@@ -167,6 +170,32 @@ export default function AppNavigation() {
 
         <div className="mt-auto flex flex-col space-y-3 pt-3">
           <div className="w-10 h-px bg-purple-400/30 mb-2" />
+
+          {isTourCompleted() && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => startTour(true)}
+                  className="w-10 h-10 mx-auto rounded-lg text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all duration-200"
+                  aria-label="Xem lại hướng dẫn"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="bg-purple-600 text-white border-none shadow-xl"
+              >
+                <div>
+                  <div className="font-semibold">Hướng dẫn</div>
+                  <div className="text-xs text-purple-100 mt-0.5">
+                    Xem lại tour giới thiệu
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
               <div id="nav-user-menu" className="flex justify-center">
