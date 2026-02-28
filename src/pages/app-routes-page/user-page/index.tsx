@@ -32,7 +32,7 @@ const navigationItems = [
 export default function UserPage() {
   const location = useLocation();
   const currentPath = location.pathname.split("/").pop();
-  const { startTour, resetTour, isTourCompleted } = useProfileTour();
+  const { startTour, isTourCompleted } = useProfileTour();
   const tourStarted = useRef(false);
 
   // Auto-start tour khi vào trang Profile lần đầu
@@ -49,8 +49,7 @@ export default function UserPage() {
   }, [startTour]);
 
   const handleRestartTour = () => {
-    resetTour();
-    startTour();
+    startTour(true);
   };
 
   return (
