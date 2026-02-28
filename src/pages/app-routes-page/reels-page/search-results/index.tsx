@@ -1,6 +1,7 @@
 "use client"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useSearchParams, useNavigate } from "react-router-dom"
+import { useReelNavigation } from "@/hooks/useReelNavigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import ReelDetailView from "../components/ReelDetailView.tsx"
@@ -18,11 +19,6 @@ export default function SearchResultsPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const touchStartRef = useRef<number | null>(null)
-  const touchDeltaRef = useRef<number>(0)
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -82,88 +78,10 @@ export default function SearchResultsPage() {
     navigate("/app/reels")
   }
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp" && currentIndex > 0) {
-        setCurrentIndex((prev) => prev - 1)
-      } else if (e.key === "ArrowDown" && currentIndex < reels.length - 1) {
-        setCurrentIndex((prev) => prev + 1)
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentIndex, reels.length])
-
-  // Wheel + Touch navigation
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
-
-      scrollTimeoutRef.current = setTimeout(() => {
-        if (e.deltaY > 0) {
-          // Scroll down - next video
-          setCurrentIndex((prev) => Math.min(prev + 1, reels.length - 1))
-        } else {
-          // Scroll up - previous video
-          setCurrentIndex((prev) => Math.max(prev - 1, 0))
-        }
-      }, 100)
-    },
-    [reels.length],
-  )
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (container) {
-      const handleTouchStart = (e: TouchEvent) => {
-        touchStartRef.current = e.touches[0].clientY
-        touchDeltaRef.current = 0
-      }
-
-      const handleTouchMove = (e: TouchEvent) => {
-        if (touchStartRef.current === null) return
-        const delta = touchStartRef.current - e.touches[0].clientY
-        touchDeltaRef.current = delta
-      }
-
-      const handleTouchEnd = () => {
-        const delta = touchDeltaRef.current
-        const threshold = 50 // px
-        if (delta > threshold) {
-          setCurrentIndex((prev) => Math.min(prev + 1, reels.length - 1))
-        } else if (delta < -threshold) {
-          setCurrentIndex((prev) => Math.max(prev - 1, 0))
-        }
-        touchStartRef.current = null
-        touchDeltaRef.current = 0
-      }
-
-      container.addEventListener("wheel", handleWheel, { passive: true })
-      container.addEventListener("touchstart", handleTouchStart, {
-        passive: true,
-      })
-      container.addEventListener("touchmove", handleTouchMove, {
-        passive: true,
-      })
-      container.addEventListener("touchend", handleTouchEnd, {
-        passive: true,
-      })
-
-      return () => {
-        container.removeEventListener("wheel", handleWheel)
-        container.removeEventListener("touchstart", handleTouchStart)
-        container.removeEventListener("touchmove", handleTouchMove)
-        container.removeEventListener("touchend", handleTouchEnd)
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current)
-        }
-      }
-    }
-  }, [handleWheel, reels.length])
+  const { containerRef } = useReelNavigation({
+    setCurrentIndex,
+    totalItems: reels.length,
+  })
 
   const BackHeader = ({ children }: { children?: React.ReactNode }) => (
     <div className="p-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
