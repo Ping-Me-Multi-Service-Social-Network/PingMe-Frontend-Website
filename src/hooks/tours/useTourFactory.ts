@@ -23,6 +23,24 @@ export interface TourOptions {
     prerequisiteKey?: string;
 }
 
+export function createTourStep(
+    title: string,
+    description: string,
+    element?: string,
+    side: "left" | "right" | "top" | "bottom" | "over" = "right",
+    align: "start" | "center" | "end" = "center",
+    route?: string
+): TourStepConfig {
+    const config: TourStepConfig = {
+        step: {
+            popover: { title, description, side, align },
+        },
+    };
+    if (element) config.step.element = element;
+    if (route) config.route = route;
+    return config;
+}
+
 // ─── Utility ───
 function waitForElement(
     selector: string,
