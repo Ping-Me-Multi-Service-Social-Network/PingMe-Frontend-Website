@@ -26,9 +26,9 @@ export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, on
           <h2 className="text-lg font-semibold text-white whitespace-nowrap">Reels</h2>
 
           <div className="flex-1 max-w-md">
-            <SearchBar 
-              onSearchResults={onSearchResults || (() => {})} 
-              onSearchChange={onSearchChange || (() => {})} 
+            <SearchBar
+              onSearchResults={onSearchResults || (() => { })}
+              onSearchChange={onSearchChange || (() => { })}
               onReelClick={onReelClick}
               triggerSearch={triggerSearch}
             />
@@ -55,9 +55,9 @@ export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, on
         </div>
       </div>
 
-      <ReelsLibrary 
-        isOpen={isLibraryOpen} 
-        onClose={() => setIsLibraryOpen(false)} 
+      <ReelsLibrary
+        isOpen={isLibraryOpen}
+        onClose={() => setIsLibraryOpen(false)}
         onReelClick={onReelClick}
       />
     </>

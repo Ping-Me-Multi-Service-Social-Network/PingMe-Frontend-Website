@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import { Phone, PhoneOff } from "lucide-react";
 import type { RoomParticipantResponse } from "@/types/chat/room";

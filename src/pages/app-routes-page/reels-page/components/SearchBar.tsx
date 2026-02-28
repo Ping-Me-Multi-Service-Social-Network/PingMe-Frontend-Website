@@ -201,6 +201,15 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
       setIsOpen(false)
     }
   }
+  const handleInteractiveItemKeyDown = (
+    e: React.KeyboardEvent<HTMLDivElement>,
+    action: () => void,
+  ) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      action()
+    }
+  }
 
   return (
     <div ref={searchBoxRef} className="relative w-full">
@@ -253,6 +262,13 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                     key={item.id}
                     className="px-4 py-3 hover:bg-gray-700 cursor-pointer transition-colors flex items-center gap-3 group"
                     onClick={() => handleHistoryClick(item.query)}
+                    onKeyDown={(e) =>
+                      handleInteractiveItemKeyDown(e, () =>
+                        handleHistoryClick(item.query),
+                      )
+                    }
+                    role="button"
+                    tabIndex={0}
                   >
                     <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -296,6 +312,14 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                         onReelClick?.(reel)
                         setIsOpen(false)
                       }}
+                      onKeyDown={(e) =>
+                        handleInteractiveItemKeyDown(e, () => {
+                          onReelClick?.(reel)
+                          setIsOpen(false)
+                        })
+                      }
+                      role="button"
+                      tabIndex={0}
                     >
                       {/* Thumbnail */}
                       <div className="w-12 h-12 rounded bg-gray-700 overflow-hidden flex-shrink-0">

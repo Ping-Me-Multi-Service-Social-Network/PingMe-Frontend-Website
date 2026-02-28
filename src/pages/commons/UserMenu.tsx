@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { logout } from "@/features/auth/authThunk";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
@@ -23,8 +23,9 @@ interface UserMenuProps {
 const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const [avatarVersion, setAvatarVersion] = useState(Date.now());
+  const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
 
   const handleLogout = () => {
     dispatch(setLogoutReason("MANUAL"));
@@ -93,20 +94,22 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
         <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem>
-          <Link
-            to={"/app/profile/user-info"}
-            target={openInNewTab ? "_blank" : undefined}
-            rel={openInNewTab ? "noopener noreferrer" : undefined}
-            className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
-              <User className="h-4 w-4 text-purple-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium">Thông tin cá nhân</p>
-            </div>
-          </Link>
+        <DropdownMenuItem
+          onClick={() => {
+            if (openInNewTab) {
+              window.open("/app/profile/user-info", "_blank", "noopener,noreferrer");
+            } else {
+              navigate("/app/profile/user-info");
+            }
+          }}
+          className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
+            <User className="h-4 w-4 text-purple-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="font-medium">Thông tin cá nhân</p>
+          </div>
         </DropdownMenuItem>
 
         <DropdownMenuItem

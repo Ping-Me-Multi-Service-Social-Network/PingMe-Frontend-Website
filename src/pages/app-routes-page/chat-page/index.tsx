@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -56,7 +54,7 @@ export default function MessagesPage() {
         setRoomsPagination((prev) => ({ ...prev, isLoadingMore: false }));
       }
     },
-    []
+    [],
   );
 
   const refetchRooms = () => {
@@ -109,12 +107,12 @@ export default function MessagesPage() {
         participants: room.participants.map((participant) =>
           participant.userId === Number(statusPayload.userId)
             ? {
-                ...participant,
-                status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
-              }
-            : participant
+              ...participant,
+              status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+            }
+            : participant,
         ),
-      }))
+      })),
     );
   }, [userStatusEvent.id, userStatusEvent.payload]);
 
