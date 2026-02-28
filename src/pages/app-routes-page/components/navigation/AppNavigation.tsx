@@ -21,6 +21,7 @@ import UserMenu from "@/pages/commons/UserMenu.tsx";
 
 const socialNavigationItems = [
   {
+    id: "nav-chat",
     title: "Tin Nhắn",
     icon: MessageCircle,
     href: "/app/chat",
@@ -28,6 +29,7 @@ const socialNavigationItems = [
     external: false,
   },
   {
+    id: "nav-contacts",
     title: "Danh Bạ",
     icon: Users,
     href: "/app/contacts",
@@ -38,6 +40,7 @@ const socialNavigationItems = [
 
 const mediaNavigationItems = [
   {
+    id: "nav-music",
     title: "Nghe Nhạc",
     icon: Music4Icon,
     href: "/app/music",
@@ -45,6 +48,7 @@ const mediaNavigationItems = [
     external: false,
   },
   {
+    id: "nav-reels",
     title: "Thước Phim",
     icon: Film,
     href: "/app/reels",
@@ -52,6 +56,7 @@ const mediaNavigationItems = [
     external: false,
   },
   {
+    id: "nav-ping-ai",
     title: "Ping AI",
     icon: Stars,
     href: "/app/ping-ai",
@@ -84,13 +89,13 @@ export default function AppNavigation() {
       <Tooltip key={item.title}>
         <TooltipTrigger asChild>
           <NavLink
+            id={item.id}
             to={item.href}
             onClick={() => setIsOpen(false)}
-            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-              isActive
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive
                 ? "bg-white text-purple-600 shadow-lg scale-110"
                 : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
-            }`}
+              }`}
           >
             <item.icon className="w-6 h-6" />
           </NavLink>
@@ -164,7 +169,7 @@ export default function AppNavigation() {
           <div className="w-10 h-px bg-purple-400/30 mb-2" />
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex justify-center">
+              <div id="nav-user-menu" className="flex justify-center">
                 <UserMenu openInNewTab={false} />
               </div>
             </TooltipTrigger>

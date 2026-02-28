@@ -1,5 +1,4 @@
 import type React from "react";
-
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import {
   Avatar,
@@ -137,7 +136,7 @@ const UserAvatarPanel = () => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white pt-8">
-          <div className="relative mb-6 group">
+          <div id="profile-avatar-panel" className="relative mb-6 group">
             <div
               className="relative cursor-pointer"
               onClick={handleAvatarClick}
@@ -179,10 +178,10 @@ const UserAvatarPanel = () => {
           </div>
 
           {/* User Info */}
-          <h1 className="text-2xl font-bold drop-shadow-lg mb-2">
+          <h1 id="profile-user-name" className="text-2xl font-bold drop-shadow-lg mb-2">
             {userSession?.name || "Người dùng"}
           </h1>
-          <p className="text-purple-100 text-sm font-medium">
+          <p id="profile-user-email" className="text-purple-100 text-sm font-medium">
             {userSession?.email || "user@example.com"}
           </p>
         </div>

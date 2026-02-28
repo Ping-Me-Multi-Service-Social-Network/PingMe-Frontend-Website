@@ -10,6 +10,7 @@ const ROOMS_PAGE_SIZE = 5;
 
 export default function AIChatBoxPage() {
   const [rooms, setRooms] = useState<AIChatRoomInformation[]>([]);
+
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
   const [roomsPage, setRoomsPage] = useState(0);
   const [hasMoreRooms, setHasMoreRooms] = useState(false);

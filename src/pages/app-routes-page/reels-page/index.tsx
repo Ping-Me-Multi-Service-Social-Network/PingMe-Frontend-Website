@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom"
 
 export default function ReelsPage() {
   const navigate = useNavigate()
+
   const [reels, setReels] = useState<Reel[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFetching, setIsFetching] = useState(false)
@@ -191,7 +192,7 @@ export default function ReelsPage() {
         return
       }
     }
-    
+
     // Nếu không tìm thấy trong search results, tìm trong danh sách chính
     const index = reels.findIndex((r) => r.id === reel.id)
     if (index !== -1) {
