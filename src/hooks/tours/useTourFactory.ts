@@ -94,10 +94,10 @@ export function useTourFactory(options: TourOptions) {
         localStorage.removeItem(storageKey);
     }, [storageKey]);
 
-    const startTour = useCallback(() => {
-        if (isTourCompleted()) return;
+    const startTour = useCallback((force = false) => {
+        if (!force && isTourCompleted()) return;
         // Chờ tour prerequisite hoàn tất trước
-        if (prerequisiteKey && localStorage.getItem(prerequisiteKey) !== "true") return;
+        if (!force && prerequisiteKey && localStorage.getItem(prerequisiteKey) !== "true") return;
 
         stepsRef.current = tourSteps;
         const driverSteps: DriveStep[] = tourSteps.map((t) => t.step);
@@ -210,7 +210,7 @@ export function useTourFactory(options: TourOptions) {
             const detail = (e as CustomEvent).detail;
             if (detail?.key === prerequisiteKey) {
                 // Đợi 1 chút để UI ổn định sau khi global tour kết thúc
-                setTimeout(() => startTour(), 600);
+                setTimeout(() => startTour(false), 600);
             }
         };
 
