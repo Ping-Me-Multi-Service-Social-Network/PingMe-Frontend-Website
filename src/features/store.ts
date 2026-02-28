@@ -9,7 +9,7 @@ import {
   REGISTER,
   REHYDRATE,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import storage from "redux-persist/es/storage";
 import authReducer from "./auth/authSlice";
 import musicReducer from "./music/musicSlice";
 import chatReducer from "@/features/websocket/slices/chatSlice";
