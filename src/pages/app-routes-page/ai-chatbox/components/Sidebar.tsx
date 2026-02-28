@@ -83,16 +83,14 @@ export default function Sidebar({
           <button
             key={room.id}
             onClick={() => onSelectRoom(room.id)}
-            className={`room-item w-full text-left px-3 py-2.5 rounded-xl mb-1 group ${
-              activeRoomId === room.id
-                ? "bg-violet-50 border border-violet-200"
-                : "hover:bg-gray-50 border border-transparent"
-            }`}
+            className={`room-item w-full text-left px-3 py-2.5 rounded-xl mb-1 group ${activeRoomId === room.id
+              ? "bg-violet-50 border border-violet-200"
+              : "hover:bg-gray-50 border border-transparent"
+              }`}
           >
             <p
-              className={`text-sm font-medium truncate ${
-                activeRoomId === room.id ? "text-violet-700" : "text-gray-700"
-              }`}
+              className={`text-sm font-medium truncate ${activeRoomId === room.id ? "text-violet-700" : "text-gray-700"
+                }`}
             >
               {room.title || "Cuộc trò chuyện mới..."}
             </p>

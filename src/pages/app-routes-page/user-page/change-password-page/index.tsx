@@ -83,10 +83,10 @@ const ChangePasswordPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="profile-password-form" onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Current Password */}
-          <div className="space-y-2">
+          <div id="profile-current-password" className="space-y-2">
             <Label
               htmlFor="currentPassword"
               className="text-sm font-medium text-gray-700"
@@ -121,7 +121,7 @@ const ChangePasswordPage = () => {
           </div>
 
           {/* New Password */}
-          <div className="space-y-2">
+          <div id="profile-new-password" className="space-y-2">
             <Label
               htmlFor="newPassword"
               className="text-sm font-medium text-gray-700"
@@ -157,7 +157,7 @@ const ChangePasswordPage = () => {
           </div>
 
           {/* Confirm Password */}
-          <div className="space-y-2 md:col-span-2">
+          <div id="profile-confirm-password" className="space-y-2 md:col-span-2">
             <Label
               htmlFor="confirmPassword"
               className="text-sm font-medium text-gray-700"
@@ -210,7 +210,7 @@ const ChangePasswordPage = () => {
         <PasswordStrengthMeter password={formData.newPassword} />
 
         {/* Submit Button */}
-        <div className="pt-4">
+        <div id="profile-password-submit" className="pt-4">
           <Button
             type="submit"
             disabled={

@@ -125,7 +125,7 @@ const DeviceManagementPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div id="profile-device-section" className="flex items-center justify-center h-96">
         <div className="flex items-center space-x-2 text-purple-600">
           <LoadingSpinner />
           <span className="text-lg font-medium">
@@ -137,7 +137,7 @@ const DeviceManagementPage = () => {
   }
 
   return (
-    <div className="p-8">
+    <div id="profile-device-section" className="p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Quản lý phiên đăng nhập
@@ -188,22 +188,20 @@ const DeviceManagementPage = () => {
           sessions.map((session) => (
             <Card
               key={session.sessionId}
-              className={`transition-all duration-200 ${
-                session.current
+              className={`transition-all duration-200 ${session.current
                   ? "border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg"
                   : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-              }`}
+                }`}
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4">
                     {/* Device Icon */}
                     <div
-                      className={`p-3 rounded-lg ${
-                        session.current
+                      className={`p-3 rounded-lg ${session.current
                           ? "bg-green-100 text-green-600"
                           : "bg-gray-100 text-gray-600"
-                      }`}
+                        }`}
                     >
                       {getDeviceIcon(session.deviceType)}
                     </div>

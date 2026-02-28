@@ -1,5 +1,4 @@
 import type React from "react";
-
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import {
   Avatar,
@@ -31,7 +30,7 @@ const UserAvatarPanel = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [avatarVersion, setAvatarVersion] = useState(Date.now());
+  const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
 
@@ -62,6 +61,12 @@ const UserAvatarPanel = () => {
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
+  };
+  const handleAvatarKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleAvatarClick();
+    }
   };
 
   const handleModalClose = () => {
@@ -131,10 +136,13 @@ const UserAvatarPanel = () => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white pt-8">
-          <div className="relative mb-6 group">
+          <div id="profile-avatar-panel" className="relative mb-6 group">
             <div
               className="relative cursor-pointer"
               onClick={handleAvatarClick}
+              onKeyDown={handleAvatarKeyDown}
+              role="button"
+              tabIndex={0}
             >
               <Avatar className="h-24 w-24 ring-4 ring-white/30 shadow-xl transition-all duration-200 group-hover:ring-white/50">
                 <AvatarImage
@@ -170,10 +178,10 @@ const UserAvatarPanel = () => {
           </div>
 
           {/* User Info */}
-          <h1 className="text-2xl font-bold drop-shadow-lg mb-2">
+          <h1 id="profile-user-name" className="text-2xl font-bold drop-shadow-lg mb-2">
             {userSession?.name || "Người dùng"}
           </h1>
-          <p className="text-purple-100 text-sm font-medium">
+          <p id="profile-user-email" className="text-purple-100 text-sm font-medium">
             {userSession?.email || "user@example.com"}
           </p>
         </div>

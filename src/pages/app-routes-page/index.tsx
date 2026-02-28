@@ -11,6 +11,7 @@ const CallProvider = lazy(() =>
 );
 import { useSocket } from "@/features/websocket/useSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
+import { useGlobalTour } from "@/hooks/tours";
 
 
 
@@ -34,6 +35,21 @@ export default function AppPageLayout() {
 
   // Handle socket connection and global notifications
   useSocket();
+
+  // Global tour - chạy 1 lần khi đăng nhập lần đầu
+  const { startTour: startGlobalTour } = useGlobalTour();
+  const globalTourStarted = useRef(false);
+
+  useEffect(() => {
+    if (globalTourStarted.current) return;
+    globalTourStarted.current = true;
+
+    const timer = setTimeout(() => {
+      startGlobalTour();
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [startGlobalTour]);
 
   return (
     <AudioPlayerProvider>

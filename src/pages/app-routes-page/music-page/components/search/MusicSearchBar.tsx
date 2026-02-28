@@ -28,7 +28,7 @@ export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarPr
         setSearchQuery("");
         setShowSearchDropdown(false);
         navigate(
-            `/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
+            `/app/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
                 album.title
             )}&imageUrl=${encodeURIComponent(album.coverImgUrl || "")}`
         );
@@ -38,7 +38,7 @@ export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarPr
         setSearchQuery("");
         setShowSearchDropdown(false);
         navigate(
-            `/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
+            `/app/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
                 artist.name
             )}&imageUrl=${encodeURIComponent(artist.imgUrl || "")}`
         );
@@ -46,17 +46,17 @@ export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarPr
 
     const handleViewAllSongs = () => {
         setShowSearchDropdown(false);
-        navigate(`/music/search?q=${encodeURIComponent(searchQuery)}&type=songs`);
+        navigate(`/app/music/search?q=${encodeURIComponent(searchQuery)}&type=songs`);
     };
 
     const handleViewAllAlbums = () => {
         setShowSearchDropdown(false);
-        navigate(`/music/search?q=${encodeURIComponent(searchQuery)}&type=albums`);
+        navigate(`/app/music/search?q=${encodeURIComponent(searchQuery)}&type=albums`);
     };
 
     const handleViewAllArtists = () => {
         setShowSearchDropdown(false);
-        navigate(`/music/search?q=${encodeURIComponent(searchQuery)}&type=artists`);
+        navigate(`/app/music/search?q=${encodeURIComponent(searchQuery)}&type=artists`);
     };
 
     return (

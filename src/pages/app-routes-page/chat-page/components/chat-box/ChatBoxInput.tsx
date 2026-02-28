@@ -54,12 +54,17 @@ export function ChatBoxInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const latestMessageRef = useRef(newMessage);
+
+  useEffect(() => {
+    latestMessageRef.current = newMessage;
+  }, [newMessage]);
 
   const handleEmojiSelect = useCallback(
     (emojiData: EmojiClickData) => {
-      setNewMessage(newMessage + emojiData.emoji);
+      setNewMessage(`${latestMessageRef.current}${emojiData.emoji}`);
     },
-    [newMessage, setNewMessage],
+    [setNewMessage],
   );
 
   const toggleEmojiPicker = () => {
@@ -262,6 +267,11 @@ export function ChatBoxInput({
     }
   };
 
+  const getFilePreviewKey = (filePreview: FilePreview) => {
+    const { file, previewUrl, type } = filePreview;
+    return `${type}-${file.name}-${file.size}-${file.lastModified}-${previewUrl ?? "no-preview"}`;
+  };
+
   return (
     <div className="border-t bg-white">
       <div
@@ -318,7 +328,7 @@ export function ChatBoxInput({
         <div className="p-3 border-b bg-gray-50">
           <div className="flex flex-wrap gap-2">
             {selectedFiles.map((filePreview, index) => (
-              <div key={index} className="relative group">
+              <div key={getFilePreviewKey(filePreview)} className="relative group">
                 {filePreview.type === "IMAGE" && filePreview.previewUrl ? (
                   <div
                     className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${theme.input.attachmentBorder}`}

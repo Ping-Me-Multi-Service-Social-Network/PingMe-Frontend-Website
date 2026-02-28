@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState } from "react";
 import { Heart, MessageCircle, Share2, User, MoreVertical } from "lucide-react";

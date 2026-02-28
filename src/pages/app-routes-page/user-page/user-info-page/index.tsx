@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils.ts";
 import { toast } from "sonner";
 import type { ChangeProfileRequest } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import {} from "@/services/authentication";
+import { } from "@/services/authentication";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import { getCurrentUserSession } from "@/features/auth/authThunk.ts";
 import {
@@ -188,9 +188,9 @@ const UserInfoPage = () => {
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="profile-info-fields" className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Email (Read-only) */}
-          <div className="space-y-2">
+          <div id="profile-email-field" className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">Email</Label>
             <Input
               value={userSession.email ?? ""}
@@ -200,7 +200,7 @@ const UserInfoPage = () => {
           </div>
 
           {/* Name */}
-          <div className="space-y-2">
+          <div id="profile-name-field" className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-gray-700">
               Họ và tên <span className="text-red-500">*</span>
             </Label>
@@ -218,7 +218,7 @@ const UserInfoPage = () => {
           </div>
 
           {/* Gender */}
-          <div className="space-y-2">
+          <div id="profile-gender-field" className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">
               Giới tính <span className="text-red-500">*</span>
             </Label>
@@ -238,7 +238,7 @@ const UserInfoPage = () => {
           </div>
 
           {/* Date of Birth */}
-          <div className="space-y-2">
+          <div id="profile-dob-field" className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">
               Ngày sinh
             </Label>
@@ -273,7 +273,7 @@ const UserInfoPage = () => {
           </div>
 
           {/* Address */}
-          <div className="space-y-2 md:col-span-2">
+          <div id="profile-address-field" className="space-y-2 md:col-span-2">
             <Label
               htmlFor="address"
               className="text-sm font-medium text-gray-700"
@@ -294,7 +294,7 @@ const UserInfoPage = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-4">
+        <div id="profile-info-submit" className="pt-4">
           <Button
             type="submit"
             disabled={isUpdating}

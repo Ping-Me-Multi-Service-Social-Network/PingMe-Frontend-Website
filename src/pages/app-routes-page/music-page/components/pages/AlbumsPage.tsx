@@ -64,7 +64,7 @@ export default function AlbumsPage() {
 
     const handleAlbumClick = (album: AlbumResponse) => {
         navigate(
-            `/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
+            `/app/music/songs?type=album&id=${album.id}&name=${encodeURIComponent(
                 album.title
             )}&imageUrl=${encodeURIComponent(album.coverImgUrl || "")}`
         );
