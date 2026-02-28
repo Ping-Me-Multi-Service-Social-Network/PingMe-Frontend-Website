@@ -18,7 +18,7 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks(id: string) {
           const chunks: Record<string, string[]> = {
             "react-vendor": ["react", "react-dom", "react-router-dom"],
             "redux-vendor": [
