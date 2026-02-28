@@ -63,7 +63,7 @@ export default function ArtistsPage() {
 
     const handleArtistClick = (artist: ArtistResponse) => {
         navigate(
-            `/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
+            `/app/music/songs?type=artist&id=${artist.id}&name=${encodeURIComponent(
                 artist.name
             )}&imageUrl=${encodeURIComponent(artist.imgUrl || "")}`
         );
