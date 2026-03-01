@@ -11,7 +11,7 @@ interface ReelManagerCardProps {
     onDelete: (reelId: number) => void;
 }
 
-export function ReelManagerCard({ reel, onEdit, onDelete }: ReelManagerCardProps) {
+export function ReelManagerCard({ reel, onEdit, onDelete }: Readonly<ReelManagerCardProps>) {
     const { t, i18n } = useTranslation("reels");
     const dateLocale = i18n.language === "vi" ? vi : enUS;
 
@@ -31,7 +31,9 @@ export function ReelManagerCard({ reel, onEdit, onDelete }: ReelManagerCardProps
                         video.pause();
                         video.currentTime = 0;
                     }}
-                />
+                >
+                    <track kind="captions" />
+                </video>
             </div>
 
             {/* Video Info */}
