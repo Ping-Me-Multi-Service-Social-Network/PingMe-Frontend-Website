@@ -41,8 +41,10 @@ import type { AccountStatusType } from "@/types/common/userSummary";
 
 import { useNavigate } from "react-router-dom";
 import { sendOtpToEmailApi } from "@/services/mail/mailManageMentApi";
+import { useTranslation } from "react-i18next";
 
 const UserInfoPage = () => {
+  const { t } = useTranslation("profile");
   const { userSession, isLoading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -78,7 +80,7 @@ const UserInfoPage = () => {
       setDob(data.dob ? new Date(data.dob) : undefined);
       setAccountStatus(data.accountStatus || null);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Không thể lấy thông tin người dùng"));
+      toast.error(getErrorMessage(err, t("userInfo.fetchError")));
     } finally {
       setIsFetchLoading(false);
     }
@@ -102,12 +104,12 @@ const UserInfoPage = () => {
         dob: dob?.toLocaleDateString("en-CA"),
       });
 
-      toast.success("Cập nhật thông tin thành công!");
+      toast.success(t("common.updateSuccess"));
 
       fetchUserDetails();
       dispatch(getCurrentUserSession());
     } catch (error) {
-      toast.error(getErrorMessage(error, "Cập nhật thất bại"));
+      toast.error(getErrorMessage(error, t("common.updateFail")));
     } finally {
       setIsUpdating(false);
     }
@@ -118,7 +120,7 @@ const UserInfoPage = () => {
       <div className="flex items-center justify-center h-96">
         <div className="flex items-center space-x-2 text-purple-600">
           <Loader2 className="w-6 h-6 animate-spin" />
-          <span className="text-lg font-medium">Đang tải thông tin...</span>
+          <span className="text-lg font-medium">{t("common.loading")}</span>
         </div>
       </div>
     );
@@ -133,7 +135,7 @@ const UserInfoPage = () => {
         otpType: "ACCOUNT_ACTIVATION", // [Lưu ý] Đảm bảo field tên là otpType giống interface
       });
 
-      toast.success("Mã kích hoạt đã được gửi đến email của bạn!");
+      toast.success(t("userInfo.activateSuccess"));
 
       // Chuyển hướng, truyền đúng type để bên kia bắt
       navigate("/auth/verify-otp", {
@@ -143,7 +145,7 @@ const UserInfoPage = () => {
         },
       });
     } catch (error) {
-      toast.error(getErrorMessage(error, "Gửi mã kích hoạt thất bại"));
+      toast.error(getErrorMessage(error, t("userInfo.activateFail")));
     } finally {
       setIsSendingOtp(false);
     }
@@ -154,10 +156,10 @@ const UserInfoPage = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 flex items-center">
           <User className="w-5 h-5 mr-2 text-purple-600" />
-          Thông tin cá nhân
+          {t("userInfo.title")}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
-          Cập nhật thông tin cá nhân của bạn
+          {t("userInfo.subtitle")}
         </p>
       </div>
       {/* NÚT KÍCH HOẠT (Chỉ hiện khi NON_ACTIVATED) */}
@@ -166,7 +168,7 @@ const UserInfoPage = () => {
           <div className="flex items-center gap-2 text-yellow-700">
             <AlertTriangle className="w-5 h-5" />
             <span className="text-sm font-medium">
-              Tài khoản chưa kích hoạt
+              {t("userInfo.activateRequired")}
             </span>
           </div>
           <Button
@@ -179,10 +181,10 @@ const UserInfoPage = () => {
             {isSendingOtp ? (
               <>
                 <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                Đang gửi...
+                {t("userInfo.activateSending")}
               </>
             ) : (
-              "Kích hoạt ngay"
+              t("userInfo.activateBtn")
             )}
           </Button>
         </div>
@@ -191,7 +193,7 @@ const UserInfoPage = () => {
         <div id="profile-info-fields" className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Email (Read-only) */}
           <div id="profile-email-field" className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">Email</Label>
+            <Label className="text-sm font-medium text-gray-700">{t("userInfo.fields.email")}</Label>
             <Input
               value={userSession.email ?? ""}
               disabled
@@ -202,7 +204,7 @@ const UserInfoPage = () => {
           {/* Name */}
           <div id="profile-name-field" className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-              Họ và tên <span className="text-red-500">*</span>
+              {t("userInfo.fields.fullName")} <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -210,7 +212,7 @@ const UserInfoPage = () => {
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                placeholder="Nhập họ và tên"
+                placeholder={t("userInfo.fields.fullNamePlaceholder")}
                 className="pl-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                 required
               />
@@ -220,19 +222,19 @@ const UserInfoPage = () => {
           {/* Gender */}
           <div id="profile-gender-field" className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">
-              Giới tính <span className="text-red-500">*</span>
+              {t("userInfo.fields.gender")} <span className="text-red-500">*</span>
             </Label>
             <Select
               value={formData.gender}
               onValueChange={(value) => handleInputChange("gender", value)}
             >
               <SelectTrigger className="border-gray-200 focus:border-purple-300 focus:ring-purple-200">
-                <SelectValue placeholder="Chọn giới tính" />
+                <SelectValue placeholder={t("userInfo.fields.genderPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MALE">Nam</SelectItem>
-                <SelectItem value="FEMALE">Nữ</SelectItem>
-                <SelectItem value="OTHER">Khác</SelectItem>
+                <SelectItem value="MALE">{t("userInfo.fields.genderMale")}</SelectItem>
+                <SelectItem value="FEMALE">{t("userInfo.fields.genderFemale")}</SelectItem>
+                <SelectItem value="OTHER">{t("userInfo.fields.genderOther")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -240,7 +242,7 @@ const UserInfoPage = () => {
           {/* Date of Birth */}
           <div id="profile-dob-field" className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">
-              Ngày sinh
+              {t("userInfo.fields.dob")}
             </Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -254,7 +256,7 @@ const UserInfoPage = () => {
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dob
                     ? format(dob, "dd/MM/yyyy", { locale: vi })
-                    : "Chọn ngày sinh"}
+                    : t("userInfo.fields.dobPlaceholder")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -278,7 +280,7 @@ const UserInfoPage = () => {
               htmlFor="address"
               className="text-sm font-medium text-gray-700"
             >
-              Địa chỉ
+              {t("userInfo.fields.address")}
             </Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -286,7 +288,7 @@ const UserInfoPage = () => {
                 id="address"
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
-                placeholder="Nhập địa chỉ"
+                placeholder={t("userInfo.fields.addressPlaceholder")}
                 className="pl-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
               />
             </div>
@@ -303,10 +305,10 @@ const UserInfoPage = () => {
             {isUpdating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Đang cập nhật...
+                {t("common.updating")}
               </>
             ) : (
-              "Cập nhật thông tin"
+              t("userInfo.updateBtn")
             )}
           </Button>
         </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Edit2,
@@ -35,6 +36,7 @@ export function ReelActions({
   onEdit,
   onSaveChange,
 }: ReelActionsProps) {
+  const { t } = useTranslation("reels");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaved, setIsSaved] = useState(isSavedByMe);
   const [isTogglingSave, setIsTogglingSave] = useState(false);
@@ -43,16 +45,16 @@ export function ReelActions({
   const isOwnReel = userId === currentUserId;
 
   const handleDelete = async () => {
-    if (!confirm("Bạn chắc chắn muốn xóa reel này?")) return;
+    if (!confirm(t("manage.deleteConfirm"))) return;
 
     setIsDeleting(true);
     try {
       await reelsApi.deleteReel(reelId);
-      toast.success("Xóa reel thành công");
+      toast.success(t("edit.success_delete"));
       onDelete?.();
     } catch (error) {
       console.log("[PingMe] Delete reel error:", error);
-      toast.error("Không thể xóa reel");
+      toast.error(t("edit.error_delete"));
     } finally {
       setIsDeleting(false);
     }
@@ -64,10 +66,10 @@ export function ReelActions({
       const result = await reelsApi.toggleSave(reelId);
       setIsSaved(result.isSavedByMe);
       onSaveChange?.(result.isSavedByMe);
-      toast.success(result.isSavedByMe ? "Đã lưu reel" : "Đã bỏ lưu reel");
+      toast.success(result.isSavedByMe ? t("edit.success_save") : t("edit.success_unsave"));
     } catch (error) {
       console.log("[PingMe] Toggle save error:", error);
-      toast.error("Không thể lưu reel");
+      toast.error(t("edit.error_save"));
     } finally {
       setIsTogglingSave(false);
     }
@@ -107,7 +109,7 @@ export function ReelActions({
               className="flex items-center gap-2"
             >
               <Edit2 className="w-4 h-4" />
-              Chỉnh sửa
+              {t("comments.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleDelete}
@@ -115,7 +117,7 @@ export function ReelActions({
               className="flex items-center gap-2 text-red-600"
             >
               <Trash2 className="w-4 h-4" />
-              Xóa
+              {t("comments.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

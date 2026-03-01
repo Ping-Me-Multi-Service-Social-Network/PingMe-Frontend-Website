@@ -1,0 +1,40 @@
+{
+    "sidebar": {
+        "pingAI": "PingAI",
+        "newChat": "Cuộc trò chuyện mới",
+        "noChat": "Chưa có cuộc trò chuyện",
+        "newChatPlaceholder": "Cuộc trò chuyện mới...",
+        "loadMore": "Tải thêm",
+        "loading": "Đang tải...",
+        "time": {
+            "locale": "vi",
+            "justNow": "Vừa xong",
+            "minutesAgo": "{{count}} phút trước",
+            "hoursAgo": "{{count}} giờ trước",
+            "daysAgo": "{{count}} ngày trước"
+        }
+    },
+    "chatArea": {
+        "creatingTitle": "Đang tạo tiêu đề...",
+        "welcomeTitle": "Xin chào! Tôi là PingAI",
+        "welcomeDesc": "Tôi có thể giúp bạn trả lời câu hỏi, phân tích hình ảnh, và hỗ trợ nhiều tác vụ khác. Hãy bắt đầu cuộc trò chuyện!",
+        "thinking": "PingAI đang suy nghĩ...",
+        "loading": "Đang tải tin nhắn...",
+        "suggestions": {
+            "concept": "Giải thích khái niệm AI đơn giản",
+            "analyze": "Phân tích hình ảnh cho tôi",
+            "email": "Giúp tôi viết email",
+            "summarize": "Tóm tắt nội dung"
+        }
+    },
+    "chatInput": {
+        "placeholder": "Nhập tin nhắn...",
+        "invalidImage": "\"{{name}}\" không phải file ảnh hợp lệ.",
+        "fileTooLarge": "\"{{name}}\" vượt quá 5MB.",
+        "attachTip": "Đính kèm ảnh (≤5MB)"
+    },
+    "message": {
+        "copy": "Sao chép",
+        "copied": "Đã sao chép"
+    }
+}

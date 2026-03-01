@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
+import { useTranslation } from "react-i18next";
 
 interface GroupMemberModalProps {
   mode: "create" | "add";
@@ -54,6 +55,7 @@ export function GroupMemberModal({
   const [hasMore, setHasMore] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation("common");
 
   const currentMemberIds = new Set(currentMembers.map((m) => m.userId));
 
@@ -75,7 +77,7 @@ export function GroupMemberModal({
         );
         setHasMore(responseHasMore);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Không thể tải danh sách bạn bè"));
+        toast.error(getErrorMessage(error, t("groupModal.search.fetchError")));
       } finally {
         setIsLoading(false);
       }
@@ -102,7 +104,7 @@ export function GroupMemberModal({
           setFriends(userSummaryResponses);
           setHasMore(responseHasMore);
         } catch (error) {
-          toast.error(getErrorMessage(error, "Không thể tải danh sách bạn bè"));
+          toast.error(getErrorMessage(error, t("groupModal.search.fetchError")));
         } finally {
           setIsLoading(false);
         }
@@ -137,12 +139,12 @@ export function GroupMemberModal({
   const handleSubmit = async () => {
     if (mode === "create") {
       if (!groupName.trim()) {
-        toast.error("Vui lòng nhập tên nhóm");
+        toast.error(t("groupModal.create.emptyNameError"));
         return;
       }
 
       if (selectedMembers.length < 2) {
-        toast.error("Nhóm chat cần ít nhất 2 thành viên");
+        toast.error(t("groupModal.create.minMembersError"));
         return;
       }
 
@@ -153,25 +155,25 @@ export function GroupMemberModal({
           memberIds: selectedMembers.map((m) => m.id),
         });
 
-        toast.success("Tạo nhóm chat thành công");
+        toast.success(t("groupModal.create.success"));
         onGroupCreated?.(response.data.data);
         setOpen(false);
         setGroupName("");
         setSelectedMembers([]);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Không thể tạo nhóm chat"));
+        toast.error(getErrorMessage(error, t("groupModal.create.error")));
       } finally {
         setIsCreating(false);
       }
     } else {
       // mode === "add"
       if (selectedMembers.length === 0) {
-        toast.error("Vui lòng chọn ít nhất 1 thành viên");
+        toast.error(t("groupModal.add.emptySelectionError"));
         return;
       }
 
       if (!roomId) {
-        toast.error("Không tìm thấy thông tin phòng chat");
+        toast.error(t("groupModal.add.noRoomError"));
         return;
       }
 
@@ -182,12 +184,12 @@ export function GroupMemberModal({
           memberIds: selectedMembers.map((m) => m.id),
         });
 
-        toast.success("Thêm thành viên thành công");
+        toast.success(t("groupModal.add.success"));
         onMembersAdded?.();
         setOpen(false);
         setSelectedMembers([]);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Không thể thêm thành viên"));
+        toast.error(getErrorMessage(error, t("groupModal.add.error")));
       } finally {
         setIsCreating(false);
       }
@@ -243,7 +245,7 @@ export function GroupMemberModal({
         <DialogContent className="h-11/12! w-full! max-w-none! lg:w-2/3! flex flex-col">
           <DialogHeader>
             <DialogTitle>
-              {mode === "create" ? "Tạo nhóm chat" : "Thêm thành viên"}
+              {mode === "create" ? t("groupModal.create.title") : t("groupModal.add.title")}
             </DialogTitle>
           </DialogHeader>
 
@@ -251,11 +253,11 @@ export function GroupMemberModal({
             {mode === "create" && (
               <div className="space-y-2">
                 <Label htmlFor="group-name">
-                  Tên nhóm <span className="text-red-500">*</span>
+                  {t("groupModal.create.nameLabel")} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="group-name"
-                  placeholder="Nhập tên nhóm..."
+                  placeholder={t("groupModal.create.namePlaceholder")}
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
                   className="w-full focus-visible:ring-purple-500"
@@ -269,7 +271,7 @@ export function GroupMemberModal({
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400" />
                     <Input
-                      placeholder="Tìm kiếm bạn bè..."
+                      placeholder={t("groupModal.search.placeholder")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9 focus-visible:ring-purple-500"
@@ -285,7 +287,7 @@ export function GroupMemberModal({
                   {mode === "add" && existingMemberFriends.length > 0 && (
                     <>
                       <div className="px-2 py-1 text-xs font-medium text-gray-500">
-                        Đã trong nhóm
+                        {t("groupModal.search.inGroup")}
                       </div>
                       {existingMemberFriends.map((friend) => (
                         <div
@@ -304,7 +306,7 @@ export function GroupMemberModal({
                         </div>
                       ))}
                       <div className="px-2 py-1 mt-3 text-xs font-medium text-gray-500">
-                        Có thể thêm
+                        {t("groupModal.search.available")}
                       </div>
                     </>
                   )}
@@ -336,13 +338,13 @@ export function GroupMemberModal({
                   {!isLoading && availableFriends.length === 0 && (
                     <EmptyState
                       icon={UserX}
-                      title="Không tìm thấy bạn bè"
+                      title={t("groupModal.search.notFound")}
                       description={
                         searchQuery
-                          ? "Thử tìm kiếm với từ khóa khác"
+                          ? t("groupModal.search.tryOtherQuery")
                           : mode === "add" && currentMemberIds.size > 0
-                            ? "Tất cả bạn bè đã có trong nhóm"
-                            : "Bạn chưa có bạn bè nào"
+                            ? t("groupModal.search.allInGroup")
+                            : t("groupModal.search.noFriends")
                       }
                     />
                   )}
@@ -352,7 +354,7 @@ export function GroupMemberModal({
               <div className="border border-purple-200 rounded-lg flex flex-col overflow-hidden">
                 <div className="p-3 border-b border-purple-100 bg-purple-50/30 flex-shrink-0">
                   <h3 className="text-sm font-medium text-purple-900">
-                    {mode === "create" ? "Thành viên đã chọn" : "Thêm vào nhóm"}{" "}
+                    {mode === "create" ? t("groupModal.create.selectedTitle") : t("groupModal.add.selectedTitle")}{" "}
                     ({selectedMembers.length})
                   </h3>
                 </div>
@@ -388,13 +390,13 @@ export function GroupMemberModal({
                       icon={Users}
                       title={
                         mode === "create"
-                          ? "Chưa có thành viên"
-                          : "Chưa chọn thành viên"
+                          ? t("groupModal.create.emptySelected")
+                          : t("groupModal.add.emptySelected")
                       }
                       description={
                         mode === "create"
-                          ? "Chọn bạn bè từ danh sách bên trái để thêm vào nhóm"
-                          : "Chọn bạn bè để thêm vào nhóm chat"
+                          ? t("groupModal.create.emptySelectedDesc")
+                          : t("groupModal.add.emptySelectedDesc")
                       }
                     />
                   )}
@@ -405,7 +407,7 @@ export function GroupMemberModal({
 
           <DialogFooter className="shrink-0">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Hủy
+              {t("groupModal.cancel")}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -419,11 +421,11 @@ export function GroupMemberModal({
             >
               {isCreating
                 ? mode === "create"
-                  ? "Đang tạo..."
-                  : "Đang thêm..."
+                  ? t("groupModal.create.creatingText")
+                  : t("groupModal.add.addingText")
                 : mode === "create"
-                  ? "Tạo nhóm"
-                  : "Thêm thành viên"}
+                  ? t("groupModal.create.btnText")
+                  : t("groupModal.add.btnText")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ArtistResponse } from "@/types/music";
 import { User2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ArtistCardProps {
   artist: ArtistResponse;
@@ -8,6 +9,7 @@ interface ArtistCardProps {
 
 export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
   const navigate = useNavigate();
+  const { t } = useTranslation("music");
 
   const handleClick = () => {
     // Navigate to artist's songs page
@@ -43,7 +45,7 @@ export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
             {artist.name}
           </h3>
           <p className="text-xs text-zinc-300 mt-1">
-            Nghệ sĩ
+            {t("cards.artist")}
           </p>
         </div>
       </div>

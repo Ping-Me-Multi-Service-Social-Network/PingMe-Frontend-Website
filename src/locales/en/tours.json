@@ -1,0 +1,69 @@
+{
+    "common": {
+        "next": "Next →",
+        "prev": "← Back",
+        "skip": "Skip",
+        "done": "Done ✓"
+    },
+    "global": {
+        "welcome": {
+            "title": "👋 Welcome to PingMe!",
+            "desc": "PingMe is a multi-service social network with many exciting features.<br><br>Let's take a quick look at the main functions!"
+        },
+        "chat": {
+            "title": "💬 Messages",
+            "desc": "Chat <b>1-1</b> or in <b>groups</b> with friends.<br><br>Send messages, photos, files, and make video calls."
+        },
+        "contacts": {
+            "title": "👥 Contacts",
+            "desc": "Manage your <b>friend list</b>.<br><br>Search for, add new friends, and manage friend requests."
+        },
+        "music": {
+            "title": "🎵 Music",
+            "desc": "Listen to music online, create your own <b>playlists</b>.<br><br>Explore artists, albums, and charts."
+        },
+        "reels": {
+            "title": "🎬 Reels",
+            "desc": "Watch and share exciting <b>short videos</b>.<br><br>Search for videos and manage your own."
+        },
+        "ai": {
+            "title": "🤖 Ping AI",
+            "desc": "Your <b>smart AI assistant</b> is here to help.<br><br>Ask questions, get advice, or just chat with AI."
+        },
+        "account": {
+            "title": "⚙️ Account",
+            "desc": "Manage your <b>profile</b>, change password, and log out.<br><br>Click the avatar to open the account menu."
+        },
+        "done": "Start exploring! 🚀"
+    },
+    "profile": {
+        "welcome": {
+            "title": "👋 Welcome to Profile!",
+            "desc": "This is where you manage your account.<br><br>📸 Click the <b>avatar</b> to change your profile picture (JPG/PNG, up to 5MB)."
+        },
+        "infoNav": {
+            "title": "📋 Personal Info",
+            "desc": "View and edit your <b>personal information</b>. Let's see the details!"
+        },
+        "infoEdit": {
+            "title": "✏️ Edit Information",
+            "desc": "Here you can update:<br><br>• <b>Name, Gender, Birthday, Address</b><br>• Email <b>cannot be changed</b> after registration<br><br>Click <b>\"Update Information\"</b> below to save."
+        },
+        "passwordNav": {
+            "title": "🔐 Change Password",
+            "desc": "Change your password periodically for <b>account security</b>. Let's see the details!"
+        },
+        "passwordForm": {
+            "title": "🔐 Change Password",
+            "desc": "Enter your <b>current password</b>, <b>new password</b> (at least 6 characters), and <b>confirm</b>.<br><br>💡 The system automatically checks <b>password strength</b>."
+        },
+        "deviceNav": {
+            "title": "📱 Device Management",
+            "desc": "View and manage the <b>devices</b> currently logged into your account. Let's see the details!"
+        },
+        "deviceManage": {
+            "title": "📱 Device Management",
+            "desc": "See <b>all logged-in devices</b>, check OS and browser.<br><br>🗑️ Click <b>\"Remove Session\"</b> to log out remotely if you suspect unusual access.<br><br>🟢 The current session is marked <b>green</b> and cannot be removed."
+        }
+    }
+}

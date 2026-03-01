@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { reelsApi } from "@/services/reels";
 import type { Reel } from "@/types/reels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
@@ -33,7 +34,7 @@ const ReelThumbnail = ({
         preload="metadata"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-      
+
       {/* Play icon on hover */}
       <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
         <Play className="w-12 h-12 text-white" fill="white" />
@@ -66,6 +67,7 @@ export function ReelsLibrary({
   onClose,
   onReelClick,
 }: ReelsLibraryProps) {
+  const { t } = useTranslation("reels");
   const [activeTab, setActiveTab] = useState<"likes" | "saves" | "views">(
     "likes"
   );
@@ -104,7 +106,7 @@ export function ReelsLibrary({
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-gray-900 rounded-lg w-[80vw] h-[80vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-white">Thư viện của tôi</h2>
+          <h2 className="text-lg font-semibold text-white">{t("library.title")}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             ✕
           </button>
@@ -128,21 +130,21 @@ export function ReelsLibrary({
                 className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
               >
                 <Heart className="w-4 h-4" />
-                Yêu thích ({likedReels.length})
+                {t("library.tabs.likes")} ({likedReels.length})
               </TabsTrigger>
               <TabsTrigger
                 value="saves"
                 className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
               >
                 <Bookmark className="w-4 h-4" />
-                Đã lưu ({savedReels.length})
+                {t("library.tabs.saves")} ({savedReels.length})
               </TabsTrigger>
               <TabsTrigger
                 value="views"
                 className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
               >
                 <Eye className="w-4 h-4" />
-                Đã xem ({viewedReels.length})
+                {t("library.tabs.views")} ({viewedReels.length})
               </TabsTrigger>
             </TabsList>
 
@@ -150,8 +152,8 @@ export function ReelsLibrary({
               {likedReels.length === 0 ? (
                 <div className="h-full flex items-center justify-center p-4">
                   <EmptyState
-                    title="Chưa có reel yêu thích"
-                    description="Những reel bạn thích sẽ hiển thị ở đây"
+                    title={t("library.emptyLikes")}
+                    description={t("library.emptyLikesDesc")}
                   />
                 </div>
               ) : (
@@ -177,8 +179,8 @@ export function ReelsLibrary({
               {savedReels.length === 0 ? (
                 <div className="h-full flex items-center justify-center p-4">
                   <EmptyState
-                    title="Chưa có reel được lưu"
-                    description="Những reel bạn lưu sẽ hiển thị ở đây"
+                    title={t("library.emptySaves")}
+                    description={t("library.emptySavesDesc")}
                   />
                 </div>
               ) : (
@@ -204,8 +206,8 @@ export function ReelsLibrary({
               {viewedReels.length === 0 ? (
                 <div className="h-full flex items-center justify-center p-4">
                   <EmptyState
-                    title="Chưa có reel được xem"
-                    description="Những reel bạn xem sẽ hiển thị ở đây"
+                    title={t("library.emptyViews")}
+                    description={t("library.emptyViewsDesc")}
                   />
                 </div>
               ) : (

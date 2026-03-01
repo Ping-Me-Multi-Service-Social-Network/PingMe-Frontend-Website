@@ -12,6 +12,7 @@ import type {
 import SongListItem from "../cards/SongListItem.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import Pagination from "@/components/custom/Pagination.tsx";
+import { useTranslation } from "react-i18next";
 import { useAudio } from "@/hooks/useAudio.tsx";
 import type { Song } from "@/types/music/song";
 import { ArrowLeft, Disc3, User2, Play, Music } from "lucide-react";
@@ -30,6 +31,7 @@ export default function SongListPage() {
   const navigate = useNavigate();
   const { playSong, setPlaylist } = useAudio();
   const { songsByGenre, songsByAlbum, songsByArtist, cacheExpiry } = useAppSelector(state => state.music);
+  const { t } = useTranslation("music");
 
   const type = searchParams.get("type"); // "album", "artist", or "genre"
   const id = searchParams.get("id");
@@ -120,7 +122,7 @@ export default function SongListPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!type || !id) {
-        setError("Invalid parameters");
+        setError(t("pages.songList.invalidParams"));
         setLoading(false);
         return;
       }
@@ -157,7 +159,7 @@ export default function SongListPage() {
         setError(null);
       } catch (err) {
         console.error("[PingMe SongListPage] Error fetching data:", err);
-        setError("Đã xảy ra lỗi khi tải dữ liệu");
+        setError(t("pages.songList.fetchError"));
       } finally {
         setLoading(false);
       }
@@ -259,11 +261,11 @@ export default function SongListPage() {
   };
 
   const renderInfoSection = () => {
-    let typeLabel = "Thể Loại";
+    let typeLabel = t("pages.songList.genreLabel");
     if (type === "album") {
-      typeLabel = "Album";
+      typeLabel = t("pages.songList.albumLabel");
     } else if (type === "artist") {
-      typeLabel = "Nghệ Sĩ";
+      typeLabel = t("pages.songList.artistLabel");
     }
 
     return (
@@ -272,7 +274,7 @@ export default function SongListPage() {
           {typeLabel}
         </p>
         <h1 className="text-5xl font-bold text-white mb-4 text-balance">
-          {displayName || "Không rõ"}
+          {displayName || t("pages.songList.unknown")}
         </h1>
 
         {type === "artist" && displayInfo && (
@@ -282,11 +284,11 @@ export default function SongListPage() {
         )}
 
         <div className="flex items-center gap-6 text-sm text-zinc-400 mb-6">
-          <span>{Array.isArray(songs) ? songs.length : 0} bài hát</span>
+          <span>{t("pages.songList.songsCount", { count: Array.isArray(songs) ? songs.length : 0 })}</span>
           {playCount !== null && playCount !== undefined && (
             <>
               <span>•</span>
-              <span>{playCount.toLocaleString()} lượt nghe</span>
+              <span>{t("pages.songList.playCount", { playCount: playCount.toLocaleString() })}</span>
             </>
           )}
         </div>
@@ -297,7 +299,7 @@ export default function SongListPage() {
             className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
           >
             <Play className="w-5 h-5 fill-current" />
-            Phát Tất Cả
+            {t("pages.songList.playAll")}
           </button>
         )}
       </div>
@@ -321,7 +323,7 @@ export default function SongListPage() {
             onClick={() => navigate("/app/music")}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition"
           >
-            Quay Lại
+            {t("common.back")}
           </button>
         </div>
       </div>
@@ -337,7 +339,7 @@ export default function SongListPage() {
             className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
-            Quay Lại
+            {t("common.back")}
           </button>
 
           <div className="flex items-start gap-6">
@@ -348,7 +350,7 @@ export default function SongListPage() {
 
         {/* Songs List */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Bài Hát</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">{t("pages.songList.title")}</h2>
           {Array.isArray(songs) && songs.length > 0 ? (
             <>
               <div className="space-y-2 mb-4">
@@ -378,7 +380,7 @@ export default function SongListPage() {
             </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-zinc-400">Không tìm thấy bài hát nào</p>
+              <p className="text-zinc-400">{t("pages.songList.notFound")}</p>
             </div>
           )}
         </div>

@@ -8,8 +8,9 @@ import { reelsApi } from "@/services/reels"
 import type { Reel, SearchHistoryItem } from "@/types/reels"
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts"
 import { formatDistanceToNow } from "date-fns"
-import { vi } from "date-fns/locale"
+import { vi, enUS } from "date-fns/locale"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 interface SearchBarProps {
   onSearchResults: (reels: Reel[]) => void
@@ -19,6 +20,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ onSearchResults, onSearchChange, onReelClick, triggerSearch }: SearchBarProps) {
+  const { t, i18n } = useTranslation("reels")
   const navigate = useNavigate()
   const [query, setQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
@@ -47,24 +49,24 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
 
       try {
         const data = await reelsApi.searchReels(searchQuery, 0, 20)
-        
+
         // Client-side filtering: check if caption or hashtags match search query
         const searchLower = searchQuery.toLowerCase().replace(/^#/, '') // Remove # if present
         const filteredResults = data.content.filter((reel) => {
           // Check caption
           const captionMatch = reel.caption?.toLowerCase().includes(searchLower)
-          
+
           // Check hashtags
-          const hashtagMatch = reel.hashtags?.some(tag => 
+          const hashtagMatch = reel.hashtags?.some(tag =>
             tag.toLowerCase().includes(searchLower)
           )
-          
+
           // Check username
           const userMatch = reel.userName?.toLowerCase().includes(searchLower)
-          
+
           return captionMatch || hashtagMatch || userMatch
         })
-        
+
         setResults(filteredResults)
         setIsOpen(true)
         onSearchResults(filteredResults)
@@ -176,10 +178,10 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
     try {
       await reelsApi.deleteSearchHistory(id)
       setSearchHistory((prev) => prev.filter((item) => item.id !== id))
-      toast.success("Đã xóa lịch sử tìm kiếm")
+      toast.success(t("search.deletedHistory"))
     } catch (err) {
       console.error("Error deleting search history:", err)
-      toast.error("Không thể xóa lịch sử tìm kiếm")
+      toast.error(t("search.deleteHistoryError"))
     }
   }
 
@@ -187,10 +189,10 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
     try {
       await reelsApi.deleteAllSearchHistory()
       setSearchHistory([])
-      toast.success("Đã xóa toàn bộ lịch sử tìm kiếm")
+      toast.success(t("search.deletedAllHistory"))
     } catch (err) {
       console.error("Error deleting all search history:", err)
-      toast.error("Không thể xóa toàn bộ lịch sử tìm kiếm")
+      toast.error(t("search.deleteAllHistoryError"))
     }
   }
 
@@ -217,7 +219,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
         <Search className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
         <Input
           type="text"
-          placeholder="Tìm kiếm video..."
+          placeholder={t("search.placeholder")}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
@@ -243,19 +245,19 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
               <div className="px-4 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase">
                   <History className="w-4 h-4" />
-                  Lịch sử tìm kiếm
+                  {t("search.history")}
                 </div>
                 {searchHistory.length > 0 && (
                   <button
                     onClick={handleDeleteAllHistory}
                     className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors"
                   >
-                    Xóa tất cả
+                    {t("search.deleteAll")}
                   </button>
                 )}
               </div>
               {isLoadingHistory ? (
-                <div className="p-4 text-center text-gray-400 text-sm">Đang tải...</div>
+                <div className="p-4 text-center text-gray-400 text-sm">{t("search.searching")}</div>
               ) : searchHistory.length > 0 ? (
                 searchHistory.map((item) => (
                   <div
@@ -276,30 +278,30 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                       <p className="text-xs text-gray-500">
                         {item.searchedAt
                           ? formatDistanceToNow(new Date(item.searchedAt), {
-                              addSuffix: true,
-                              locale: vi,
-                            })
-                          : "Gần đây"}
+                            addSuffix: true,
+                            locale: i18n.language === "vi" ? vi : enUS,
+                          })
+                          : t("search.recently")}
                       </p>
                     </div>
                     <button
                       onClick={(e) => handleDeleteHistory(e, item.id)}
                       className="opacity-0 group-hover:opacity-100 p-2 hover:bg-gray-600 rounded-full transition-all flex-shrink-0"
-                      title="Xóa lịch sử"
+                      title={t("search.deleteHistoryTip")}
                     >
                       <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
                     </button>
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-gray-400 text-sm">Chưa có lịch sử tìm kiếm</div>
+                <div className="p-4 text-center text-gray-400 text-sm">{t("search.noHistory")}</div>
               )}
             </div>
           ) : query ? (
             // Show search results
             <>
               {isLoading ? (
-                <div className="p-4 text-center text-gray-400">Đang tìm kiếm...</div>
+                <div className="p-4 text-center text-gray-400">{t("search.searching")}</div>
               ) : error ? (
                 <div className="p-4 text-center text-red-400">{error}</div>
               ) : results.length > 0 ? (
@@ -329,17 +331,17 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                       {/* Video info */}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white truncate">
-                          {reel.caption || "Video không tiêu đề"}
+                          {reel.caption || t("search.untitled")}
                         </p>
                         <p className="text-xs text-gray-400">
-                          {reel.userName} • {reel.viewCount} lượt xem
+                          {reel.userName} • {t("search.views", { count: reel.viewCount })}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-4 text-center text-gray-400">Không tìm thấy video nào</div>
+                <div className="p-4 text-center text-gray-400">{t("search.noResults")}</div>
               )}
             </>
           ) : null}

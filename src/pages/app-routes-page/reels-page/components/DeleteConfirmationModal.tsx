@@ -1,5 +1,6 @@
 import { AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
+import { useTranslation } from "react-i18next";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -15,9 +16,12 @@ export default function DeleteConfirmationModal({
   isLoading = false,
   onConfirm,
   onCancel,
-  title = "Xóa bình luận?",
-  message = "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác.",
+  title,
+  message,
 }: DeleteConfirmationModalProps) {
+  const { t } = useTranslation("reels");
+  const modalTitle = title || t("comments.deleteConfirm");
+  const modalMessage = message || t("comments.deleteDesc");
   if (!isOpen) return null;
 
   return (
@@ -29,7 +33,7 @@ export default function DeleteConfirmationModal({
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg">
               <AlertCircle className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+            <h3 className="text-xl font-bold text-gray-900">{modalTitle}</h3>
           </div>
           <Button
             variant="ghost"
@@ -44,7 +48,7 @@ export default function DeleteConfirmationModal({
 
         {/* Content */}
         <div className="px-6 py-6">
-          <p className="text-base text-gray-700 leading-relaxed">{message}</p>
+          <p className="text-base text-gray-700 leading-relaxed">{modalMessage}</p>
         </div>
 
         {/* Footer */}
@@ -55,14 +59,14 @@ export default function DeleteConfirmationModal({
             disabled={isLoading}
             className="px-6 h-11 rounded-full border-2 hover:bg-white font-semibold"
           >
-            Hủy
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={onConfirm}
             disabled={isLoading}
             className="px-6 h-11 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white rounded-full shadow-md hover:shadow-lg transition-all font-semibold"
           >
-            {isLoading ? "Đang xóa..." : "Xóa"}
+            {isLoading ? t("common.deleting") : t("common.delete")}
           </Button>
         </div>
       </div>

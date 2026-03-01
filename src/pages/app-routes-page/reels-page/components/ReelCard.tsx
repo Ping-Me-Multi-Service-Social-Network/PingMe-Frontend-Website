@@ -4,8 +4,9 @@ import { Heart, MessageCircle, Share2, User, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import type { Reel } from "@/types/reels";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import { reelsApi } from "@/services/reels";
+import { useTranslation } from "react-i18next";
 
 interface ReelCardProps {
   reel: Reel;
@@ -18,6 +19,7 @@ export default function ReelCard({
   // isSelected = false,
   onUpdate,
 }: ReelCardProps) {
+  const { t, i18n } = useTranslation("reels");
   const [isLiking, setIsLiking] = useState(false);
 
   const handleLike = async (e: React.MouseEvent) => {
@@ -68,7 +70,7 @@ export default function ReelCard({
               <p className="text-xs text-gray-500">
                 {formatDistanceToNow(new Date(reel.createdAt), {
                   addSuffix: true,
-                  locale: vi,
+                  locale: i18n.language === "vi" ? vi : enUS,
                 })}
               </p>
             </div>
@@ -102,8 +104,8 @@ export default function ReelCard({
           {/* Stats & Actions */}
           <div className="flex items-center justify-between mt-2 text-xs text-gray-500 px-1">
             <div className="flex gap-3">
-              <span>{reel.viewCount} lượt xem</span>
-              <span>{reel.commentCount} bình luận</span>
+              <span>{t("search.views", { count: reel.viewCount })}</span>
+              <span>{t("search.comments", { count: reel.commentCount })}</span>
             </div>
           </div>
 
@@ -116,9 +118,8 @@ export default function ReelCard({
               disabled={isLiking}
             >
               <Heart
-                className={`w-4 h-4 ${
-                  reel.isLikedByMe ? "fill-red-600 text-red-600" : ""
-                }`}
+                className={`w-4 h-4 ${reel.isLikedByMe ? "fill-red-600 text-red-600" : ""
+                  }`}
               />
               <span>{reel.likeCount}</span>
             </Button>

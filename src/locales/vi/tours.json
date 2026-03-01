@@ -1,0 +1,69 @@
+{
+    "common": {
+        "next": "Tiếp theo →",
+        "prev": "← Quay lại",
+        "skip": "Bỏ qua",
+        "done": "Hoàn tất ✓"
+    },
+    "global": {
+        "welcome": {
+            "title": "👋 Chào mừng đến PingMe!",
+            "desc": "PingMe là mạng xã hội đa dịch vụ với nhiều tính năng hấp dẫn.<br><br>Hãy cùng tìm hiểu nhanh các chức năng chính nhé!"
+        },
+        "chat": {
+            "title": "💬 Tin Nhắn",
+            "desc": "Trò chuyện <b>1-1</b> hoặc <b>nhóm</b> với bạn bè.<br><br>Gửi tin nhắn, ảnh, file và thực hiện cuộc gọi video."
+        },
+        "contacts": {
+            "title": "👥 Danh Bạ",
+            "desc": "Quản lý <b>danh sách bạn bè</b>.<br><br>Tìm kiếm, thêm bạn mới và quản lý lời mời kết bạn."
+        },
+        "music": {
+            "title": "🎵 Nghe Nhạc",
+            "desc": "Nghe nhạc trực tuyến, tạo <b>playlist</b> riêng.<br><br>Khám phá nghệ sĩ, album và bảng xếp hạng."
+        },
+        "reels": {
+            "title": "🎬 Thước Phim",
+            "desc": "Xem và chia sẻ <b>video ngắn</b> thú vị.<br><br>Tìm kiếm video và quản lý video của bạn."
+        },
+        "ai": {
+            "title": "🤖 Ping AI",
+            "desc": "Trợ lý <b>AI thông minh</b> hỗ trợ bạn.<br><br>Đặt câu hỏi, nhờ tư vấn hoặc trò chuyện cùng AI."
+        },
+        "account": {
+            "title": "⚙️ Tài khoản",
+            "desc": "Quản lý <b>hồ sơ cá nhân</b>, đổi mật khẩu và đăng xuất.<br><br>Nhấn vào avatar để mở menu tài khoản."
+        },
+        "done": "Bắt đầu khám phá! 🚀"
+    },
+    "profile": {
+        "welcome": {
+            "title": "👋 Chào mừng đến trang Hồ sơ!",
+            "desc": "Đây là nơi bạn quản lý tài khoản.<br><br>📸 Nhấn vào <b>ảnh đại diện</b> để thay đổi avatar (JPG/PNG, tối đa 5MB)."
+        },
+        "infoNav": {
+            "title": "📋 Thông tin cá nhân",
+            "desc": "Xem và chỉnh sửa <b>thông tin cá nhân</b> của bạn. Cùng xem chi tiết nhé!"
+        },
+        "infoEdit": {
+            "title": "✏️ Chỉnh sửa thông tin",
+            "desc": "Tại đây bạn có thể cập nhật:<br><br>• <b>Họ tên, Giới tính, Ngày sinh, Địa chỉ</b><br>• Email <b>không thể thay đổi</b> sau khi đăng ký<br><br>Nhấn <b>\"Cập nhật thông tin\"</b> bên dưới để lưu."
+        },
+        "passwordNav": {
+            "title": "🔐 Đổi mật khẩu",
+            "desc": "Đổi mật khẩu định kỳ để <b>bảo mật tài khoản</b>. Cùng xem chi tiết nhé!"
+        },
+        "passwordForm": {
+            "title": "🔐 Đổi mật khẩu",
+            "desc": "Nhập <b>mật khẩu hiện tại</b>, <b>mật khẩu mới</b> (ít nhất 6 ký tự) và <b>xác nhận</b>.<br><br>💡 Hệ thống kiểm tra <b>độ mạnh mật khẩu</b> tự động."
+        },
+        "deviceNav": {
+            "title": "📱 Quản lý thiết bị",
+            "desc": "Xem và quản lý <b>các thiết bị</b> đang đăng nhập vào tài khoản. Cùng xem chi tiết nhé!"
+        },
+        "deviceManage": {
+            "title": "📱 Quản lý thiết bị",
+            "desc": "Xem <b>tất cả thiết bị</b> đang đăng nhập, kiểm tra hệ điều hành và trình duyệt.<br><br>🗑️ Nhấn <b>\"Xóa phiên\"</b> để đăng xuất từ xa nếu nghi ngờ truy cập bất thường.<br><br>🟢 Phiên hiện tại đánh dấu <b>xanh</b> và không thể xóa."
+        }
+    }
+}

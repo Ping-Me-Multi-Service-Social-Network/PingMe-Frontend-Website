@@ -9,6 +9,7 @@ import {
 import { UserLookupModal } from "./UserLookupModal.tsx";
 import { GroupMemberModal } from "./GroupMemberModal.tsx";
 import type { RoomResponse } from "@/types/chat/room";
+import { useTranslation } from "react-i18next";
 
 interface SharedTopBarProps {
   onFriendAdded?: () => void;
@@ -19,6 +20,8 @@ export function ChatActionBar({
   onFriendAdded,
   setSelectedChat,
 }: SharedTopBarProps) {
+  const { t } = useTranslation("chat");
+
   return (
     <TooltipProvider>
       <div className="p-4">
@@ -30,7 +33,7 @@ export function ChatActionBar({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Tìm kiếm</p>
+              <p>{t("actionBar.search")}</p>
             </TooltipContent>
           </Tooltip>
 
@@ -44,7 +47,7 @@ export function ChatActionBar({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Thêm bạn</p>
+              <p>{t("actionBar.addFriend")}</p>
             </TooltipContent>
           </Tooltip>
 
@@ -58,7 +61,7 @@ export function ChatActionBar({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Tạo nhóm chat</p>
+              <p>{t("actionBar.createGroup")}</p>
             </TooltipContent>
           </Tooltip>
         </div>

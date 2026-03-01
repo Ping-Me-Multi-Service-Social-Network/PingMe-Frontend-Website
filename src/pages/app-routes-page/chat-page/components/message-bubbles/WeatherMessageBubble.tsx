@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
+import { useTranslation } from "react-i18next";
 
 interface WeatherMessageBubbleProps {
   weather: WeatherResponse;
@@ -32,32 +33,26 @@ export default function WeatherMessageBubble({
   theme,
 }: WeatherMessageBubbleProps) {
   const [showModal, setShowModal] = useState(false);
+  const { t } = useTranslation("chat");
 
   const getWeatherIcon = (iconCode: string) => {
     return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   };
 
   const formatTime = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return new Date(timestamp * 1000).toLocaleTimeString();
   };
 
   const WeatherSummary = () => (
     <div
       onClick={() => setShowModal(true)}
-      className={`${
-        isSent ? theme.messages.sentBubbleBg : theme.messages.receivedBubbleBg
-      } ${
-        isSent
+      className={`${isSent ? theme.messages.sentBubbleBg : theme.messages.receivedBubbleBg
+        } ${isSent
           ? theme.messages.sentBubbleText
           : theme.messages.receivedBubbleText
-      } rounded-2xl ${
-        isSent ? "rounded-br-md" : "rounded-bl-md"
-      } px-4 py-3 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 max-w-sm ${
-        !isSent && `border ${theme.messages.receivedBubbleBorder}`
-      }`}
+        } rounded-2xl ${isSent ? "rounded-br-md" : "rounded-bl-md"
+        } px-4 py-3 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 max-w-sm ${!isSent && `border ${theme.messages.receivedBubbleBorder}`
+        }`}
     >
       <div className="flex items-center gap-3">
         <img
@@ -75,7 +70,7 @@ export default function WeatherMessageBubble({
           </div>
         </div>
       </div>
-      <div className="mt-2 text-xs opacity-70">Nhấn để xem chi tiết</div>
+      <div className="mt-2 text-xs opacity-70">{t("bubbles.weather.tapToView")}</div>
     </div>
   );
 
@@ -84,7 +79,7 @@ export default function WeatherMessageBubble({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
-            Thông tin thời tiết
+            {t("bubbles.weather.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -114,7 +109,7 @@ export default function WeatherMessageBubble({
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <Gauge className="w-5 h-5" />
-                <span className="font-medium">Cảm giác như</span>
+                <span className="font-medium">{t("bubbles.weather.feelsLike")}</span>
               </div>
               <div className="text-2xl font-bold">
                 {Math.round(weather.main.feels_like)}°C
@@ -124,7 +119,7 @@ export default function WeatherMessageBubble({
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <Droplets className="w-5 h-5" />
-                <span className="font-medium">Độ ẩm</span>
+                <span className="font-medium">{t("bubbles.weather.humidity")}</span>
               </div>
               <div className="text-2xl font-bold">{weather.main.humidity}%</div>
             </div>
@@ -132,7 +127,7 @@ export default function WeatherMessageBubble({
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <Wind className="w-5 h-5" />
-                <span className="font-medium">Tốc độ gió</span>
+                <span className="font-medium">{t("bubbles.weather.windSpeed")}</span>
               </div>
               <div className="text-2xl font-bold">{weather.wind.speed} m/s</div>
             </div>
@@ -140,7 +135,7 @@ export default function WeatherMessageBubble({
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <Cloud className="w-5 h-5" />
-                <span className="font-medium">Mây che phủ</span>
+                <span className="font-medium">{t("bubbles.weather.cloudiness")}</span>
               </div>
               <div className="text-2xl font-bold">{weather.clouds.all}%</div>
             </div>
@@ -148,7 +143,7 @@ export default function WeatherMessageBubble({
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <Eye className="w-5 h-5" />
-                <span className="font-medium">Áp suất</span>
+                <span className="font-medium">{t("bubbles.weather.pressure")}</span>
               </div>
               <div className="text-2xl font-bold">
                 {weather.main.pressure} hPa
@@ -158,7 +153,7 @@ export default function WeatherMessageBubble({
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <Gauge className="w-5 h-5" />
-                <span className="font-medium">Nhiệt độ</span>
+                <span className="font-medium">{t("bubbles.weather.temperature")}</span>
               </div>
               <div className="text-sm">
                 <div>Min: {Math.round(weather.main.temp_min)}°C</div>
@@ -171,7 +166,7 @@ export default function WeatherMessageBubble({
             <div className="flex items-center gap-2">
               <Sunrise className="w-6 h-6 text-orange-500" />
               <div>
-                <div className="text-xs text-gray-600">Bình minh</div>
+                <div className="text-xs text-gray-600">{t("bubbles.weather.sunrise")}</div>
                 <div className="font-semibold">
                   {formatTime(weather.sys.sunrise)}
                 </div>
@@ -180,7 +175,7 @@ export default function WeatherMessageBubble({
             <div className="flex items-center gap-2">
               <Sunset className="w-6 h-6 text-orange-600" />
               <div>
-                <div className="text-xs text-gray-600">Hoàng hôn</div>
+                <div className="text-xs text-gray-600">{t("bubbles.weather.sunset")}</div>
                 <div className="font-semibold">
                   {formatTime(weather.sys.sunset)}
                 </div>
@@ -198,9 +193,8 @@ export default function WeatherMessageBubble({
         <WeatherSummary />
         <WeatherDetail />
         <div
-          className={`text-xs text-muted-foreground mt-1.5 ${
-            isSent ? "text-right" : ""
-          } opacity-70`}
+          className={`text-xs text-muted-foreground mt-1.5 ${isSent ? "text-right" : ""
+            } opacity-70`}
         >
           {formatMessageTime(createdAt)}
         </div>
