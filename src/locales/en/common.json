@@ -137,5 +137,10 @@
         "uppercase": "Uppercase letter",
         "lowercase": "Lowercase letter",
         "number": "Number"
+    },
+    "mobileUnsupported": {
+        "title": "Please use a larger screen",
+        "description": "This web app is optimized for desktop. Open on laptop/PC or use the mobile app.",
+        "previewAlt": "App preview illustration"
     }
 }

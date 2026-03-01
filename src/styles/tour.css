@@ -4,7 +4,7 @@
 
 /* Popover Container */
 .pingme-tour-popover {
-    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+    background: #ffffff !important;
     border: 2px solid #e9d5ff !important;
     border-radius: 16px !important;
     box-shadow:
@@ -91,7 +91,7 @@
 
 /* Next / Done Button */
 .pingme-tour-popover .driver-popover-next-btn {
-    background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
+    background: #7c3aed !important;
     color: white !important;
     border: none !important;
     padding: 8px 20px !important;
@@ -99,38 +99,44 @@
 }
 
 .pingme-tour-popover .driver-popover-next-btn:hover {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    background: #6d28d9 !important;
     box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5) !important;
     transform: translateY(-1px) !important;
 }
 
 /* Arrow */
-.pingme-tour-popover .driver-popover-arrow {
-    border-color: #e9d5ff !important;
-}
-
 .pingme-tour-popover .driver-popover-arrow-side-left {
+    border-top-color: transparent !important;
     border-right-color: #ffffff !important;
+    border-bottom-color: transparent !important;
+    border-left-color: transparent !important;
 }
 
 .pingme-tour-popover .driver-popover-arrow-side-right {
+    border-top-color: transparent !important;
+    border-right-color: transparent !important;
+    border-bottom-color: transparent !important;
     border-left-color: #ffffff !important;
 }
 
 .pingme-tour-popover .driver-popover-arrow-side-top {
+    border-top-color: transparent !important;
+    border-right-color: transparent !important;
     border-bottom-color: #ffffff !important;
+    border-left-color: transparent !important;
 }
 
 .pingme-tour-popover .driver-popover-arrow-side-bottom {
     border-top-color: #ffffff !important;
+    border-right-color: transparent !important;
+    border-bottom-color: transparent !important;
+    border-left-color: transparent !important;
 }
 
 /* Highlighted Element Stage */
 .driver-active-element {
-    outline: 3px solid #9333ea !important;
-    outline-offset: 4px !important;
-    border-radius: 12px !important;
-    animation: pingme-tour-pulse 2s ease-in-out infinite !important;
+    outline: none !important;
+    animation: none !important;
 }
 
 @keyframes pingme-tour-pulse {
