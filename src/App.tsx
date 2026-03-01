@@ -1,10 +1,11 @@
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import { ScrollArea } from "./components/ui/scroll-area";
 import AppLoader from "./components/custom/AppLoader";
+import MobileUnsupportedView from "./components/custom/MobileUnsupportedView";
 import { router } from "./router";
 import { persistor, store } from "./features/store";
 import { useAppDispatch, useAppSelector } from "./features/hooks";
@@ -18,6 +19,35 @@ import {
 const PersistLoader = () => (
   <AppLoader type="pulse" message="Restoring session..." />
 );
+
+const MOBILE_BLOCK_MEDIA_QUERY = "(max-width: 1023px)";
+
+function useIsUnsupportedViewport() {
+  const [isUnsupportedViewport, setIsUnsupportedViewport] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    const mediaQuery = globalThis.matchMedia(MOBILE_BLOCK_MEDIA_QUERY);
+
+    const updateViewportState = (matches: boolean) => {
+      setIsUnsupportedViewport(matches);
+    };
+
+    updateViewportState(mediaQuery.matches);
+
+    const onViewportChange = (event: MediaQueryListEvent) => {
+      updateViewportState(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", onViewportChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", onViewportChange);
+    };
+  }, []);
+
+  return isUnsupportedViewport;
+}
 
 function SessionBootstrap() {
   const { isLogin } = useAppSelector((state) => state.auth);
@@ -34,6 +64,8 @@ function SessionBootstrap() {
 }
 
 function AppInner() {
+  const isUnsupportedViewport = useIsUnsupportedViewport();
+
   useEffect(() => {
     setupAxiosInterceptors({
       onTokenRefreshed: (payload) => store.dispatch(updateUserSession(payload)),
@@ -43,6 +75,10 @@ function AppInner() {
       },
     });
   }, []);
+
+  if (isUnsupportedViewport) {
+    return <MobileUnsupportedView />;
+  }
 
   return (
     <PersistGate loading={<PersistLoader />} persistor={persistor}>
