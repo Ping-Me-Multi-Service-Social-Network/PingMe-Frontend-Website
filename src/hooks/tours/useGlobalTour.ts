@@ -20,7 +20,9 @@ export function useGlobalTour() {
         createTourStep(
             t("global.contacts.title"),
             t("global.contacts.desc"),
-            "#nav-contacts"
+            "#nav-contacts",
+            "right",
+            "start"
         ),
         createTourStep(
             t("global.music.title"),

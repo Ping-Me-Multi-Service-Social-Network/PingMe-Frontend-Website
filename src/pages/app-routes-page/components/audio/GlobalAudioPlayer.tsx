@@ -320,9 +320,7 @@ const GlobalAudioPlayer: React.FC = () => {
                     onMouseLeave={() => setIsHoveringProgress(false)}
                     className="w-full h-1 rounded-lg custom-range transition-all duration-200 ease-out hover:h-1.5 focus:outline-none bg-gray-600"
                     style={{
-                      background: `linear-gradient(to right, ${isHoveringProgress ? '#a855f7' : 'white'} 0%, ${isHoveringProgress ? '#a855f7' : 'white'} ${(currentTime / duration) * 100
-                        }%, #4b5563 ${(currentTime / duration) * 100
-                        }%, #4b5563 100%)`,
+                      background: isHoveringProgress ? "#a855f7" : "#4b5563",
                     }}
                     aria-label="Seek progress"
                     aria-valuemin={0}
