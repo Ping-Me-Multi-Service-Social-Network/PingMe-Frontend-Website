@@ -8,11 +8,6 @@ import {
 } from "react";
 import { Send, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
@@ -23,9 +18,9 @@ import {
 import type { UserSummaryResponse } from "@/types/common/userSummary.d.ts";
 import type { HistoryFriendshipResponse } from "@/types/friendship";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
-import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { InvitationUserCard } from "./InvitationUserCard";
 
 interface SentInvitationsComponentRef {
   handleInvitationUpdate: (user: UserSummaryResponse) => void;
@@ -204,52 +199,35 @@ export const SentInvitationsComponent = forwardRef<
         ) : (
           <div className="p-4 space-y-3">
             {sentInvitations.map((invitation) => (
-              <div
+              <InvitationUserCard
                 key={invitation.id}
-                className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center space-x-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage
-                      src={invitation.avatarUrl || "/placeholder.svg"}
-                      alt={invitation.name}
-                    />
-                    <AvatarFallback className="bg-purple-100 text-purple-600">
-                      {getUserInitials(invitation.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {invitation.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">{invitation.email}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <Badge
-                    variant="outline"
-                    className="text-orange-600 border-orange-200 bg-orange-50"
-                  >
-                    <Clock className="w-3 h-3 mr-1" />
-                    {t("sentInvitations.statusPending")}
-                  </Badge>
-
-                  {invitation.friendshipSummary && (
-                    <Button
+                invitation={invitation}
+                actions={
+                  <>
+                    <Badge
                       variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handleCancelInvitation(invitation.friendshipSummary!.id)
-                      }
-                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                      className="text-orange-600 border-orange-200 bg-orange-50"
                     >
-                      <X className="w-4 h-4 mr-2" />
-                      {t("sentInvitations.btnCancel")}
-                    </Button>
-                  )}
-                </div>
-              </div>
+                      <Clock className="w-3 h-3 mr-1" />
+                      {t("sentInvitations.statusPending")}
+                    </Badge>
+
+                    {invitation.friendshipSummary && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleCancelInvitation(invitation.friendshipSummary!.id)
+                        }
+                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        {t("sentInvitations.btnCancel")}
+                      </Button>
+                    )}
+                  </>
+                }
+              />
             ))}
             {isLoadingRef.current && hasMoreInvitations && (
               <div className="flex justify-center py-4">
