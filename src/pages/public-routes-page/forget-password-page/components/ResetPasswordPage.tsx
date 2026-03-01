@@ -38,7 +38,7 @@ const ResetPasswordPage: React.FC = () => {
       return;
     }
     if (newPassword.length < 6) {
-      toast.error(t("auth.fields.passwordMin"));
+      toast.error(t("auth.fields.pwdMinLength"));
       return;
     }
 

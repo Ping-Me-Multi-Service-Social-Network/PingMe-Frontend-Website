@@ -57,7 +57,7 @@ export const DeleteConfirmDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>{effectiveTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            {styledDescription ? styledDescription : effectiveDescription}
+            {styledDescription || effectiveDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

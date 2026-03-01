@@ -382,7 +382,7 @@ function RegisterFormContent() {
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder={t("auth.fields.passwordMin")}
+              placeholder={t("auth.fields.pwdMinLength")}
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
               className="pl-12 pr-12 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"

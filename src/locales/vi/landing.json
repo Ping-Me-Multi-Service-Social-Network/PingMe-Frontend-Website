@@ -33,7 +33,7 @@
             "password": "Mật khẩu",
             "passwordPlaceholder": "Nhập mật khẩu",
             "confirmPassword": "Xác nhận mật khẩu",
-            "passwordMin": "Tối thiểu 6 ký tự",
+            "pwdMinLength": "Tối thiểu 6 ký tự",
             "gender": "Giới tính",
             "genderPlaceholder": "Chọn",
             "genderMale": "Nam",
