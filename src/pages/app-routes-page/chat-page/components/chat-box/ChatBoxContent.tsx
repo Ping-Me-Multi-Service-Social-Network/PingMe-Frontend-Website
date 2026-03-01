@@ -10,6 +10,7 @@ import { getTheme } from "../../utils/chatThemes.ts";
 import { useSelector } from "react-redux";
 import { selectTypingUsers } from "@/features/websocket/slices/chatSlice";
 import { selectUser } from "@/features/auth/authSlice";
+import { useTranslation } from "react-i18next";
 
 interface ChatBoxContentProps {
   selectedChat: RoomResponse;
@@ -32,6 +33,7 @@ export const ChatBoxContent = ({
   isCurrentUserMessage,
   onMessageRecalled,
 }: ChatBoxContentProps) => {
+  const { t } = useTranslation("chat");
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -112,8 +114,8 @@ export const ChatBoxContent = ({
   if (messages.length === 0) {
     return (
       <EmptyState
-        title="Chưa có tin nhắn"
-        description="Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn đầu tiên!"
+        title={t("messages.emptyTitle")}
+        description={t("messages.emptyDesc")}
       />
     );
   }
@@ -189,9 +191,9 @@ export const ChatBoxContent = ({
                   ? `${otherUsersTyping[0].name}`
                   : otherUsersTyping.length === 2
                     ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`
-                    : `${otherUsersTyping[0].name} và ${
-                        otherUsersTyping.length - 1
-                      } người khác`}
+                    : `${otherUsersTyping[0].name} ${t("messages.andOthers", {
+                      count: otherUsersTyping.length - 1
+                    })}`}
               </span>
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]" />

@@ -26,6 +26,7 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
+import { useTranslation } from "react-i18next";
 
 interface ReceivedInvitationsComponentRef {
   handleNewInvitation: (user: UserSummaryResponse) => void;
@@ -43,6 +44,7 @@ export const ReceivedInvitationsComponent = forwardRef<
   ReceivedInvitationsComponentProps
 >((props, ref) => {
   const { onStatsUpdate } = props;
+  const { t } = useTranslation("contacts");
 
   // State quản lý danh sách lời mời nhận được và infinite scroll
   const [receivedInvitations, setReceivedInvitations] = useState<
@@ -87,7 +89,7 @@ export const ReceivedInvitationsComponent = forwardRef<
         setHasMoreInvitations(response.hasMore);
       } catch (error) {
         toast.error(
-          getErrorMessage(error, "Không thể tải danh sách lời mời nhận được"),
+          getErrorMessage(error, t("receivedInvitations.fetchError")),
         );
       } finally {
         setIsLoading(false);
@@ -135,10 +137,10 @@ export const ReceivedInvitationsComponent = forwardRef<
           totalReceivedInvites: prev.totalReceivedInvites - 1,
         }));
 
-        toast.success("Đã chấp nhận lời mời kết bạn");
+        toast.success(t("receivedInvitations.acceptSuccess"));
       } catch (error) {
         toast.error(
-          getErrorMessage(error, "Không thể chấp nhận lời mời kết bạn"),
+          getErrorMessage(error, t("receivedInvitations.acceptError")),
         );
       } finally {
         setProcessingInvitations((prev) => {
@@ -171,10 +173,10 @@ export const ReceivedInvitationsComponent = forwardRef<
           totalReceivedInvites: prev.totalReceivedInvites - 1,
         }));
 
-        toast.success("Đã từ chối lời mời kết bạn");
+        toast.success(t("receivedInvitations.rejectSuccess"));
       } catch (error) {
         toast.error(
-          getErrorMessage(error, "Không thể từ chối lời mời kết bạn"),
+          getErrorMessage(error, t("receivedInvitations.rejectError")),
         );
       } finally {
         setProcessingInvitations((prev) => {
@@ -233,10 +235,10 @@ export const ReceivedInvitationsComponent = forwardRef<
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Lời mời nhận được
+              {t("receivedInvitations.title")}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {receivedInvitations.length} lời mời
+              {receivedInvitations.length} {t("receivedInvitations.count")}
             </p>
           </div>
         </div>
@@ -249,7 +251,7 @@ export const ReceivedInvitationsComponent = forwardRef<
             <div className="flex items-center space-x-3 text-purple-600">
               <LoadingSpinner className="w-8 h-8" />
               <span className="text-lg font-medium">
-                Đang tải danh sách lời mời...
+                {t("receivedInvitations.loading")}
               </span>
             </div>
           </div>
@@ -257,8 +259,8 @@ export const ReceivedInvitationsComponent = forwardRef<
           <div className="h-64">
             <EmptyState
               icon={Inbox}
-              title="Chưa có lời mời nào"
-              description="Chưa có ai gửi lời mời kết bạn cho bạn."
+              title={t("receivedInvitations.emptyTitle")}
+              description={t("receivedInvitations.emptyDesc")}
             />
           </div>
         ) : (
@@ -307,7 +309,7 @@ export const ReceivedInvitationsComponent = forwardRef<
                         ) : (
                           <Check className="w-4 h-4 mr-2" />
                         )}
-                        Chấp nhận
+                        {t("receivedInvitations.btnAccept")}
                       </Button>
 
                       <Button
@@ -318,7 +320,7 @@ export const ReceivedInvitationsComponent = forwardRef<
                         className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                       >
                         <X className="w-4 h-4 mr-2" />
-                        Từ chối
+                        {t("receivedInvitations.btnReject")}
                       </Button>
                     </div>
                   )}
@@ -330,7 +332,7 @@ export const ReceivedInvitationsComponent = forwardRef<
               <div className="flex justify-center py-4">
                 <div className="flex items-center space-x-2 text-purple-600">
                   <LoadingSpinner className="w-5 h-5" />
-                  <span>Đang tải thêm...</span>
+                  <span>{t("common.loadingMore")}</span>
                 </div>
               </div>
             )}
@@ -338,7 +340,7 @@ export const ReceivedInvitationsComponent = forwardRef<
             {/* Thông báo hết dữ liệu */}
             {!hasMoreInvitations && receivedInvitations.length > 0 && (
               <div className="text-center py-4 text-gray-500">
-                <p>Đã hiển thị tất cả lời mời</p>
+                <p>{t("common.displayedAllInvitations")}</p>
               </div>
             )}
           </div>

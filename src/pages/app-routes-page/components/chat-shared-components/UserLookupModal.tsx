@@ -35,6 +35,7 @@ import type {
   RoomResponse,
 } from "@/types/chat/room";
 import { createOrGetDirectRoomApi } from "@/services/chat";
+import { useTranslation } from "react-i18next";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;
@@ -51,10 +52,11 @@ export function UserLookupModal({
   const [isSending, setIsSending] = useState(false);
   const [userData, setUserData] = useState<UserSummaryResponse | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const { t } = useTranslation("common");
 
   const handleLookup = async () => {
     if (!emailSearch.trim()) {
-      toast.error("Vui lòng nhập email để tìm kiếm");
+      toast.error(t("userLookup.emptyEmailError"));
       return;
     }
 
@@ -77,11 +79,11 @@ export function UserLookupModal({
     try {
       setIsSending(true);
       await sendInvitationApi(data);
-      toast.success("Đã gửi lời mời kết bạn thành công!");
+      toast.success(t("userLookup.requestSuccess"));
 
       onFriendAdded?.();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Không thể gửi lời mời kết bạn"));
+      toast.error(getErrorMessage(err, t("userLookup.requestError")));
     } finally {
       setIsSending(false);
     }
@@ -97,7 +99,7 @@ export function UserLookupModal({
       if (setSelectedChat) {
         setSelectedChat(roomResponse);
         setIsOpen(false);
-        toast.success("Đang chuyển đến cuộc trò chuyện...");
+        toast.success(t("userLookup.redirecting"));
       }
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -116,7 +118,7 @@ export function UserLookupModal({
     if (!userData?.friendshipSummary) {
       return {
         status: "none",
-        text: "Chưa kết bạn",
+        text: t("userLookup.friendStatus.none"),
         color: "text-gray-500",
         bgColor: "bg-gray-100",
         icon: UserPlus,
@@ -130,7 +132,7 @@ export function UserLookupModal({
       case "ACCEPTED":
         return {
           status: "accepted",
-          text: "Đã là bạn bè",
+          text: t("userLookup.friendStatus.accepted"),
           color: "text-green-600",
           bgColor: "bg-green-100",
           icon: UserCheck,
@@ -139,7 +141,7 @@ export function UserLookupModal({
       case "PENDING":
         return {
           status: "pending",
-          text: "Đang chờ phản hồi",
+          text: t("userLookup.friendStatus.pending"),
           color: "text-yellow-600",
           bgColor: "bg-yellow-100",
           icon: Clock,
@@ -148,7 +150,7 @@ export function UserLookupModal({
       default:
         return {
           status: "none",
-          text: "Chưa kết bạn",
+          text: t("userLookup.friendStatus.none"),
           color: "text-gray-500",
           bgColor: "bg-gray-100",
           icon: UserPlus,
@@ -180,7 +182,7 @@ export function UserLookupModal({
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Users className="w-5 h-5 text-purple-600" />
-            <span>Tìm kiếm người dùng</span>
+            <span>{t("userLookup.title")}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -191,13 +193,13 @@ export function UserLookupModal({
               htmlFor="email"
               className="text-sm font-medium text-gray-700"
             >
-              Email người dùng
+              {t("userLookup.emailLabel")}
             </label>
             <div className="flex space-x-2 mt-2">
               <Input
                 id="email"
                 type="email"
-                placeholder="Nhập email để tìm kiếm..."
+                placeholder={t("userLookup.emailPlaceholder")}
                 value={emailSearch}
                 onChange={(e) => setEmailSearch(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -222,7 +224,7 @@ export function UserLookupModal({
           {isLoading && (
             <div className="text-center py-8">
               <LoadingSpinner className="w-8 h-8 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Đang tìm kiếm...</p>
+              <p className="text-sm text-gray-500">{t("userLookup.searching")}</p>
             </div>
           )}
 
@@ -257,7 +259,7 @@ export function UserLookupModal({
                   className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  Nhắn tin
+                  {t("userLookup.btnMessage")}
                 </Button>
 
                 {friendshipStatus?.canSendRequest && (
@@ -272,12 +274,12 @@ export function UserLookupModal({
                     {isSending ? (
                       <>
                         <LoadingSpinner className="w-4 h-4 mr-2" />
-                        Đang gửi...
+                        {t("userLookup.btnSending")}
                       </>
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4 mr-2" />
-                        Kết bạn
+                        {t("userLookup.btnSendRequest")}
                       </>
                     )}
                   </Button>
@@ -286,15 +288,13 @@ export function UserLookupModal({
 
               {friendshipStatus?.status === "pending" && (
                 <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                  Lời mời kết bạn đã được gửi. Vui lòng chờ phản hồi từ người
-                  dùng.
+                  {t("userLookup.pendingMsg")}
                 </div>
               )}
 
               {friendshipStatus?.status === "accepted" && (
                 <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
-                  Bạn và {userData.name} đã là bạn bè. Có thể bắt đầu trò
-                  chuyện!
+                  {t("userLookup.acceptedMsg", { name: userData.name })}
                 </div>
               )}
             </div>
@@ -304,9 +304,9 @@ export function UserLookupModal({
           {!isLoading && hasSearched && !userData && (
             <div className="text-center py-8 text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">Không tìm thấy người dùng với email này</p>
+              <p className="text-sm">{t("userLookup.notFound")}</p>
               <p className="text-xs mt-1">
-                Vui lòng kiểm tra lại email và thử lại
+                {t("userLookup.tryAgain")}
               </p>
             </div>
           )}

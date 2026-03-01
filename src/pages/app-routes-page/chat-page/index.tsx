@@ -12,9 +12,11 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chat";
 import { useChatSocketHandler } from "@/features/websocket/hooks/useChatSocketHandler";
 import { selectUserStatusEvent } from "@/features/websocket/slices/socketSlice";
+import { useTranslation } from "react-i18next";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
+  const { t } = useTranslation("chat");
 
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
@@ -142,7 +144,7 @@ export default function MessagesPage() {
               ))}
               {roomsPagination.isLoadingMore && (
                 <div className="p-4 text-center">
-                  <div className="text-sm text-gray-500">Đang tải thêm...</div>
+                  <div className="text-sm text-gray-500">{t("layout.loadingMore")}</div>
                 </div>
               )}
             </>
@@ -155,8 +157,8 @@ export default function MessagesPage() {
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
-            title="Chọn một cuộc trò chuyện"
-            description="Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu nhắn tin"
+            title={t("layout.selectChatTitle")}
+            description={t("layout.selectChatDesc")}
           />
         </div>
       )}

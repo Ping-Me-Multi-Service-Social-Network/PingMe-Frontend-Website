@@ -1,5 +1,6 @@
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
+import i18n from "@/i18n";
 
 export const getRoomDisplayName = (
   room: RoomResponse,
@@ -39,7 +40,7 @@ export const getLastMessagePreview = (
   room: RoomResponse,
   userSession: CurrentUserSessionResponse | null
 ) => {
-  if (!room.lastMessage) return "Chưa có tin nhắn";
+  if (!room.lastMessage) return i18n.t("chat:preview.noMessages");
 
   const senderParticipant = room.participants.find(
     (p) => p.userId === room.lastMessage?.senderId
@@ -50,16 +51,16 @@ export const getLastMessagePreview = (
 
   switch (room.lastMessage.messageType) {
     case "IMAGE":
-      messageContent = "[Image]";
+      messageContent = i18n.t("chat:preview.image");
       break;
     case "VIDEO":
-      messageContent = "[Video]";
+      messageContent = i18n.t("chat:preview.video");
       break;
     case "FILE":
-      messageContent = "[File]";
+      messageContent = i18n.t("chat:preview.file");
       break;
     case "WEATHER":
-      messageContent = "[Thời Tiết]";
+      messageContent = i18n.t("chat:preview.weather");
       break;
     case "TEXT":
     default:
@@ -68,7 +69,7 @@ export const getLastMessagePreview = (
   }
 
   if (userSession && senderName === userSession.name) {
-    return `Bạn: ${messageContent}`;
+    return `${i18n.t("chat:preview.you")}: ${messageContent}`;
   } else {
     return `${senderName}: ${messageContent}`;
   }

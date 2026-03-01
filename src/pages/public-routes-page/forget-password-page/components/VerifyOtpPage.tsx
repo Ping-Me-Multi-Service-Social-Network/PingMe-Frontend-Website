@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { useTranslation } from "react-i18next";
 
 const VerifyOtpPage: React.FC = () => {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation("landing");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +31,7 @@ const VerifyOtpPage: React.FC = () => {
     if (!email) return;
 
     if (!otp || otp.length < 6) {
-      toast.error("Vui lòng nhập mã OTP hợp lệ");
+      toast.error(t("forgotPassword.otpStep.fail"));
       return;
     }
 
@@ -45,7 +47,7 @@ const VerifyOtpPage: React.FC = () => {
       const resData = response.data;
 
       if (resData.errorCode === 200 && resData.data.isValid === true) {
-        toast.success("Xác thực OTP thành công");
+        toast.success(t("forgotPassword.otpStep.success"));
 
         if (resData.data.resetPasswordToken) {
           localStorage.setItem(
@@ -60,10 +62,10 @@ const VerifyOtpPage: React.FC = () => {
           },
         });
       } else {
-        toast.error("Mã OTP không chính xác hoặc đã hết hạn.");
+        toast.error(t("forgotPassword.otpStep.fail"));
       }
     } catch (error) {
-      toast.error(getErrorMessage(error, "Xác thực OTP thất bại"));
+      toast.error(getErrorMessage(error, t("forgotPassword.otpStep.fail")));
     } finally {
       setIsLoading(false);
     }
@@ -77,18 +79,16 @@ const VerifyOtpPage: React.FC = () => {
             <ShieldCheck className="w-8 h-8 text-purple-600" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Xác thực OTP</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("forgotPassword.otpStep.title")}</h1>
         <p className="text-gray-500 text-sm">
-          Nhập mã 6 số chúng tôi đã gửi đến email
-          <br />
-          <span className="font-medium text-purple-600">{email}</span>
+          {t("forgotPassword.otpStep.subtitle", { email })}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
-            Mã OTP
+            {t("forgotPassword.otpStep.otpLabel")}
           </Label>
           <Input
             id="otp"
@@ -111,10 +111,10 @@ const VerifyOtpPage: React.FC = () => {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Đang xác thực...
+              {t("forgotPassword.otpStep.verifying")}
             </>
           ) : (
-            "Xác nhận"
+            t("forgotPassword.otpStep.btnVerify")
           )}
         </Button>
       </form>
@@ -125,7 +125,7 @@ const VerifyOtpPage: React.FC = () => {
           className="inline-flex items-center text-sm text-gray-600 hover:text-purple-600 font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Quay lại nhập email
+          {t("forgotPassword.emailStep.backToLogin")}
         </button>
       </div>
     </div>

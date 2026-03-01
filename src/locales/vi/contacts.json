@@ -1,0 +1,58 @@
+{
+    "sidebar": {
+        "friends": {
+            "title": "Bạn bè",
+            "desc": "Danh sách bạn bè đã kết nối"
+        },
+        "received": {
+            "title": "Lời mời nhận",
+            "desc": "Lời mời kết bạn từ người khác"
+        },
+        "sent": {
+            "title": "Lời mời gửi",
+            "desc": "Lời mời bạn đã gửi đi"
+        }
+    },
+    "common": {
+        "loadingMore": "Đang tải thêm...",
+        "displayedAllFriends": "Đã hiển thị tất cả bạn bè",
+        "displayedAllInvitations": "Đã hiển thị tất cả lời mời"
+    },
+    "friendsList": {
+        "title": "Danh sách bạn bè",
+        "count": "bạn bè",
+        "loading": "Đang tải danh sách bạn bè...",
+        "emptyTitle": "Chưa có bạn bè",
+        "emptyDesc": "Hãy gửi lời mời kết bạn để bắt đầu kết nối!",
+        "btnRemove": "Xóa bạn",
+        "fetchError": "Không thể tải danh sách bạn bè",
+        "removeSuccess": "Đã xóa bạn bè thành công",
+        "removeError": "Không thể xóa bạn bè"
+    },
+    "receivedInvitations": {
+        "title": "Lời mời nhận được",
+        "count": "lời mời",
+        "loading": "Đang tải danh sách lời mời...",
+        "emptyTitle": "Chưa có lời mời nào",
+        "emptyDesc": "Chưa có ai gửi lời mời kết bạn cho bạn.",
+        "btnAccept": "Chấp nhận",
+        "btnReject": "Từ chối",
+        "fetchError": "Không thể tải danh sách lời mời nhận được",
+        "acceptSuccess": "Đã chấp nhận lời mời kết bạn",
+        "acceptError": "Không thể chấp nhận lời mời kết bạn",
+        "rejectSuccess": "Đã từ chối lời mời kết bạn",
+        "rejectError": "Không thể từ chối lời mời kết bạn"
+    },
+    "sentInvitations": {
+        "title": "Lời mời đã gửi",
+        "count": "lời mời",
+        "loading": "Đang tải danh sách lời mời...",
+        "emptyTitle": "Chưa gửi lời mời nào",
+        "emptyDesc": "Hãy gửi lời mời kết bạn để bắt đầu kết nối!",
+        "statusPending": "Đang chờ",
+        "btnCancel": "Hủy",
+        "fetchError": "Không thể tải danh sách lời mời đã gửi",
+        "cancelSuccess": "Đã hủy lời mời kết bạn",
+        "cancelError": "Không thể hủy lời mời kết bạn"
+    }
+}

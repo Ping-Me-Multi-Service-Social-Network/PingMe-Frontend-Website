@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx"
 import { Upload, Trash2 } from "lucide-react";
 import { updateGroupImage } from "@/services/chat";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface UpdateGroupImageModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ const UpdateGroupImageModal = ({
   currentImageUrl,
   groupName,
 }: UpdateGroupImageModalProps) => {
+  const { t } = useTranslation("chat");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,11 +39,11 @@ const UpdateGroupImageModal = ({
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
-        toast.error("Vui lòng chọn file hình ảnh");
+        toast.error(t("modals.updateImage.invalidType"));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Kích thước ảnh không được vượt quá 5MB");
+        toast.error(t("modals.updateImage.sizeLimit"));
         return;
       }
       setSelectedFile(file);
@@ -58,10 +60,10 @@ const UpdateGroupImageModal = ({
     try {
       setIsLoading(true);
       await updateGroupImage(roomId, selectedFile);
-      toast.success(selectedFile ? "Đã cập nhật ảnh nhóm" : "Đã xóa ảnh nhóm");
+      toast.success(selectedFile ? t("modals.updateImage.updateSuccess") : t("modals.updateImage.removeSuccess"));
       onClose();
     } catch (error) {
-      toast.error("Không thể cập nhật ảnh nhóm");
+      toast.error(t("modals.updateImage.updateError"));
       console.error("Failed to update group image:", error);
     } finally {
       setIsLoading(false);
@@ -78,7 +80,7 @@ const UpdateGroupImageModal = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Cập nhật ảnh nhóm</DialogTitle>
+          <DialogTitle>{t("modals.updateImage.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-4">
@@ -102,7 +104,7 @@ const UpdateGroupImageModal = ({
             {previewUrl && (
               <Button variant="outline" onClick={handleRemoveImage}>
                 <Trash2 className="h-4 w-4 mr-2" />
-                Xóa ảnh
+                {t("modals.updateImage.removeImage")}
               </Button>
             )}
           </div>
@@ -118,10 +120,10 @@ const UpdateGroupImageModal = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Hủy
+            {t("modals.updateImage.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Đang xử lý..." : "Xác nhận"}
+            {isLoading ? t("modals.updateImage.processing") : t("modals.updateImage.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

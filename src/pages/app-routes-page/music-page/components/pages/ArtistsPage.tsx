@@ -11,6 +11,7 @@ import { fetchAllArtists } from "@/features/music/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_ARTISTS_LIMIT, TOP_ARTISTS_FOR_PREVIEW } from "@/constants/musicConstants";
 import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColumnLayout";
+import { useTranslation } from "react-i18next";
 
 export default function ArtistsPage() {
     const dispatch = useAppDispatch();
@@ -20,6 +21,7 @@ export default function ArtistsPage() {
     const [artistSongs, setArtistSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation("music");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,7 +52,7 @@ export default function ArtistsPage() {
                 setError(null);
             } catch (err) {
                 console.error("Error fetching artists:", err);
-                setError("Failed to load artists");
+                setError(t("pages.artists.errorLoad"));
             } finally {
                 setLoading(false);
             }
@@ -89,8 +91,8 @@ export default function ArtistsPage() {
                     >
                         <ArrowLeft className="w-6 h-6 text-white" />
                     </button>
-                    <h1 className="text-5xl font-bold text-white mb-2">Nghệ Sĩ Nổi Tiếng</h1>
-                    <p className="text-zinc-300">Cập nhật vào lúc {new Date().toLocaleDateString('vi-VN')}</p>
+                    <h1 className="text-5xl font-bold text-white mb-2">{t("pages.artists.title")}</h1>
+                    <p className="text-zinc-300">{t("pages.artists.updatedAt", { date: new Date().toLocaleDateString('vi-VN') })}</p>
                 </div>
             </div>
 
@@ -99,8 +101,8 @@ export default function ArtistsPage() {
                     items={artists}
                     itemSongsMap={artistSongs}
                     getItemId={(artist) => artist.id}
-                    rankTitle="🏆 Rank"
-                    songTitle="🔥 Trending song"
+                    rankTitle={t("pages.artists.rankTitle")}
+                    songTitle={t("pages.artists.songTitle")}
                     renderRankItem={(artist, index) => (
                         <button
                             key={artist.id}
@@ -117,7 +119,7 @@ export default function ArtistsPage() {
                             />
                             <div className="flex-1">
                                 <h3 className="text-white font-semibold">{artist.name}</h3>
-                                <p className="text-sm text-zinc-400">{artist.bio?.slice(0, 50) || 'followers'}</p>
+                                <p className="text-sm text-zinc-400">{artist.bio?.slice(0, 50) || t("pages.artists.followers")}</p>
                             </div>
                         </button>
                     )}
@@ -128,7 +130,7 @@ export default function ArtistsPage() {
                                     key={artist.id}
                                     imageUrl={artist.imgUrl || "/placeholder.svg"}
                                     imageAlt={artist.name}
-                                    emptyMessage="No trending song"
+                                    emptyMessage={t("pages.artists.noSong")}
                                     subtitle={artist.name}
                                 />
                             );

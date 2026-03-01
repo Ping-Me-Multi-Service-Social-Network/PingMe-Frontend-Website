@@ -1,0 +1,132 @@
+{
+    "topBar": {
+        "title": "Reels",
+        "library": "Library",
+        "manage": "Manage"
+    },
+    "search": {
+        "placeholder": "Search videos...",
+        "history": "Search History",
+        "deleteAll": "Clear All",
+        "noHistory": "No search history",
+        "searching": "Searching...",
+        "noResults": "No videos found",
+        "deletedHistory": "Search history deleted",
+        "deleteHistoryError": "Could not delete search history",
+        "deletedAllHistory": "All search history deleted",
+        "deleteAllHistoryError": "Could not delete all search history",
+        "deleteHistoryTip": "Clear history",
+        "untitled": "Untitled video",
+        "views": "{{count}} views",
+        "comments": "{{count}} comments",
+        "recently": "Recently",
+        "resultsFor": "Search results for: {{query}}",
+        "tryOther": "Try searching with other keywords",
+        "video_count": "({{count}} videos)",
+        "back": "Go back",
+        "searchError": "Could not search reels"
+    },
+    "feed": {
+        "empty": "No Reels yet",
+        "emptyDesc": "Create or follow Reels to see them here",
+        "videoContent": "Video content",
+        "noDescription": "No description",
+        "stop": "Stop"
+    },
+    "library": {
+        "title": "My Library",
+        "tabs": {
+            "likes": "Favorites",
+            "saves": "Saved",
+            "views": "History"
+        },
+        "emptyLikes": "No favorite reels",
+        "emptyLikesDesc": "The reels you like will appear here",
+        "emptySaves": "No saved reels",
+        "emptySavesDesc": "The reels you save will appear here",
+        "emptyViews": "No watched reels",
+        "emptyViewsDesc": "The reels you watch will appear here"
+    },
+    "comments": {
+        "title": "Comments",
+        "placeholder": "Write your comment...",
+        "replyPlaceholder": "Write a reply...",
+        "loading": "Loading comments...",
+        "empty": "No comments yet",
+        "emptyDesc": "Be the first to comment!",
+        "owner": "Owner",
+        "reply": "Reply",
+        "edit": "Edit",
+        "delete": "Delete",
+        "viewMore": "View {{count}} more comments",
+        "hide": "Hide comments",
+        "updated": "Comment updated",
+        "updateError": "Could not update comment",
+        "replied": "Reply sent",
+        "replyError": "Could not send reply",
+        "deleteConfirm": "Delete this content?",
+        "deleteDesc": "This action cannot be undone.",
+        "editModalTitle": "Edit comment",
+        "editPlaceholder": "Edit your comment...",
+        "charCount": "{{count}}/500 characters",
+        "save": "Save"
+    },
+    "create": {
+        "title": "Create New Reel",
+        "changeVideo": "Click to change video",
+        "uploadPlaceholder": "Drag and drop video or click to upload",
+        "uploadLimit": "MP4, WebM (up to 20MB)",
+        "captionLabel": "Caption",
+        "captionPlaceholder": "Write a caption for your reel...",
+        "hashtagLabel": "Hashtags",
+        "hashtagPlaceholder": "Enter hashtag (e.g. viral or #viral)",
+        "add": "Add",
+        "popularHashtags": "Popular Hashtags:",
+        "uploading": "Uploading...",
+        "createVideo": "Create New Video",
+        "submit": "Create Reel",
+        "success": "Reel created successfully",
+        "error": "Could not create reel",
+        "validation": {
+            "hashtagExists": "Hashtag already exists",
+            "hashtagInvalid": "Hashtag only contains letters, numbers and underscores",
+            "missingFields": "Please select a video and add a caption",
+            "missingHashtag": "Please add at least one hashtag"
+        }
+    },
+    "edit": {
+        "title": "Edit Reel",
+        "success": "Reel updated successfully",
+        "error": "Could not update reel",
+        "emptyCaption": "Caption cannot be empty",
+        "saving": "Saving...",
+        "save": "Save Changes",
+        "success_save": "Reel saved",
+        "success_unsave": "Reel unsaved",
+        "error_save": "Could not save reel",
+        "success_delete": "Reel deleted successfully",
+        "error_delete": "Could not delete reel"
+    },
+    "manage": {
+        "title": "Video Management",
+        "empty": "No videos found",
+        "back": "Go back",
+        "loadError": "Could not load video list",
+        "deleteSuccess": "Video deleted successfully",
+        "deleteError": "Could not delete video",
+        "deleteConfirm": "Are you sure you want to delete this video?",
+        "loadMore": "Load more",
+        "stats": {
+            "views": "Views:",
+            "likes": "Likes:",
+            "comments": "Comments:"
+        }
+    },
+    "common": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "follow": "Follow",
+        "backgroundMusic": "Background music"
+    }
+}

@@ -1,35 +1,36 @@
 import { User, Key, Monitor, HelpCircle } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
-
 import UserAvatarPanel from "./components/UserAvatarPanel.tsx";
 import { useProfileTour } from "@/hooks/tours";
+import { useTranslation } from "react-i18next";
 
 const navigationItems = [
   {
     id: "profile-nav-user-info",
-    title: "Thông tin cá nhân",
+    titleKey: "nav.userInfo",
     icon: User,
     href: "user-info",
-    description: "Quản lý thông tin cá nhân của bạn",
+    descriptionKey: "nav.userInfoDesc",
   },
   {
     id: "profile-nav-change-password",
-    title: "Thay đổi mật khẩu",
+    titleKey: "nav.changePassword",
     icon: Key,
     href: "change-password",
-    description: "Bảo mật tài khoản với mật khẩu mới",
+    descriptionKey: "nav.changePasswordDesc",
   },
   {
     id: "profile-nav-device-management",
-    title: "Quản lý thiết bị",
+    titleKey: "nav.deviceManagement",
     icon: Monitor,
     href: "device-management",
-    description: "Xem và quản lý các thiết bị đăng nhập",
+    descriptionKey: "nav.deviceManagementDesc",
   },
 ];
 
 export default function UserPage() {
+  const { t } = useTranslation("profile");
   const location = useLocation();
   const currentPath = location.pathname.split("/").pop();
   const { startTour, isTourCompleted } = useProfileTour();
@@ -69,13 +70,13 @@ export default function UserPage() {
                     id="profile-settings-title"
                     className="text-lg font-semibold text-gray-900 mb-4"
                   >
-                    Cài đặt tài khoản
+                    {t("common.accountSettings")}
                   </h2>
                   {isTourCompleted() && (
                     <button
                       onClick={handleRestartTour}
                       className="mb-4 p-1.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200"
-                      title="Xem lại hướng dẫn"
+                      title={t("common.restartTourTooltip")}
                     >
                       <HelpCircle className="w-4 h-4" />
                     </button>
@@ -88,7 +89,7 @@ export default function UserPage() {
                     const isActive = currentPath === item.href;
                     return (
                       <li
-                        key={item.title}
+                        key={item.titleKey}
                         id={item.id}
                         className="flex-shrink-0 lg:flex-shrink"
                       >
@@ -104,14 +105,14 @@ export default function UserPage() {
                               }`}
                           />
                           <div className="hidden sm:block lg:block">
-                            <div className="font-medium">{item.title}</div>
+                            <div className="font-medium">{t(item.titleKey)}</div>
                             <div className="text-xs text-gray-500 mt-0.5 hidden lg:block">
-                              {item.description}
+                              {t(item.descriptionKey)}
                             </div>
                           </div>
                           <div className="block sm:hidden lg:hidden">
                             <div className="font-medium text-xs">
-                              {item.title}
+                              {t(item.titleKey)}
                             </div>
                           </div>
                         </NavLink>

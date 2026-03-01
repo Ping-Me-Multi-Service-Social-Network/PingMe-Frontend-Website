@@ -1,6 +1,7 @@
 import type { AlbumResponse } from "@/services/music/albumApi.ts";
 import { useNavigate } from "react-router-dom";
 import { Disc3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface AlbumCardProps {
   album: AlbumResponse;
@@ -8,6 +9,7 @@ interface AlbumCardProps {
 
 export default function AlbumCard({ album }: Readonly<AlbumCardProps>) {
   const navigate = useNavigate();
+  const { t } = useTranslation("music");
 
   const handleClick = () => {
     navigate(
@@ -42,7 +44,7 @@ export default function AlbumCard({ album }: Readonly<AlbumCardProps>) {
             {album.title}
           </h3>
           <p className="text-xs text-zinc-300 mt-1">
-            {album.playCount?.toLocaleString()} plays
+            {t("cards.plays", { playCount: album.playCount?.toLocaleString() })}
           </p>
         </div>
       </div>

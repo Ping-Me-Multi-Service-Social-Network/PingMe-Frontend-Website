@@ -24,6 +24,7 @@ import RenameGroupModal from "./rename-group-modal.tsx";
 import ThemeSelectionModal from "./theme-selection-modal.tsx";
 import UpdateGroupImageModal from "./update-group-image-modal.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
+import { useTranslation } from "react-i18next";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -41,6 +42,7 @@ const ConversationSidebar = ({
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
+  const { t } = useTranslation("chat");
 
   const theme = getTheme(selectedChat.theme);
 
@@ -79,7 +81,7 @@ const ConversationSidebar = ({
         className={`p-4 border-b flex items-center justify-between ${theme.sidebar.headerBg} ${theme.sidebar.borderColor}`}
       >
         <h3 className={`font-semibold ${theme.sidebar.headerText}`}>
-          Thông tin hội thoại
+          {t("sidebar.title")}
         </h3>
         <Button
           variant="ghost"
@@ -165,12 +167,12 @@ const ConversationSidebar = ({
                   size="icon"
                   disabled
                   className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-                  title="Trang cá nhân"
+                  title={t("sidebar.profile")}
                 >
                   <User className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
                 </Button>
                 <span className={`text-xs ${theme.sidebar.textSecondary}`}>
-                  Trang cá nhân
+                  {t("sidebar.profile")}
                 </span>
               </div>
             )}
@@ -181,12 +183,12 @@ const ConversationSidebar = ({
                 size="icon"
                 disabled
                 className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-                title="Gọi thoại"
+                title={t("sidebar.voiceCall")}
               >
                 <Phone className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
               </Button>
               <span className={`text-xs ${theme.sidebar.textSecondary}`}>
-                Gọi thoại
+                {t("sidebar.voiceCall")}
               </span>
             </div>
 
@@ -196,12 +198,12 @@ const ConversationSidebar = ({
                 size="icon"
                 disabled
                 className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-                title="Gọi video"
+                title={t("sidebar.videoCall")}
               >
                 <Video className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
               </Button>
               <span className={`text-xs ${theme.sidebar.textSecondary}`}>
-                Gọi video
+                {t("sidebar.videoCall")}
               </span>
             </div>
           </div>
@@ -215,7 +217,7 @@ const ConversationSidebar = ({
           >
             <Users className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
             <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-              Thành viên phòng chat
+              {t("sidebar.members")}
             </span>
           </Button>
 
@@ -226,7 +228,7 @@ const ConversationSidebar = ({
           >
             <FileImage className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
             <span className={`font-medium ${theme.sidebar.textSecondary}`}>
-              File phương tiện & File
+              {t("sidebar.media")}
             </span>
           </Button>
 
@@ -237,7 +239,7 @@ const ConversationSidebar = ({
           >
             <Palette className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
             <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-              Chủ đề
+              {t("sidebar.theme")}
             </span>
           </Button>
 
@@ -248,7 +250,7 @@ const ConversationSidebar = ({
           >
             <UserCog className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
             <span className={`font-medium ${theme.sidebar.textSecondary}`}>
-              Biệt danh
+              {t("sidebar.nickname")}
             </span>
           </Button>
         </div>

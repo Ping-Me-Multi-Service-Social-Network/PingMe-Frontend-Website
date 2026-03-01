@@ -1,31 +1,32 @@
 import type { LucideIcon } from "lucide-react";
 import { Users, Send, Inbox } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Tab {
   id: string;
-  title: string;
+  titleKey: string;
   icon: LucideIcon;
-  description: string;
+  descriptionKey: string;
 }
 
 const tabs: Tab[] = [
   {
     id: "friends",
-    title: "Bạn bè",
+    titleKey: "sidebar.friends.title",
     icon: Users,
-    description: "Danh sách bạn bè đã kết nối",
+    descriptionKey: "sidebar.friends.desc",
   },
   {
     id: "received-invitations",
-    title: "Lời mời nhận",
+    titleKey: "sidebar.received.title",
     icon: Inbox,
-    description: "Lời mời kết bạn từ người khác",
+    descriptionKey: "sidebar.received.desc",
   },
   {
     id: "sent-invitations",
-    title: "Lời mời gửi",
+    titleKey: "sidebar.sent.title",
     icon: Send,
-    description: "Lời mời bạn đã gửi đi",
+    descriptionKey: "sidebar.sent.desc",
   },
 ];
 
@@ -44,6 +45,8 @@ export function ContactSidebar({
   setActiveTab,
   stats,
 }: ContactSidebarProps) {
+  const { t } = useTranslation("contacts");
+
   const getTabCount = (tabId: string) => {
     switch (tabId) {
       case "friends":
@@ -69,30 +72,28 @@ export function ContactSidebar({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                isActive
+              className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${isActive
                   ? "bg-purple-100 text-purple-700 border border-purple-200"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <Icon className="w-5 h-5" />
               <div className="flex-1">
                 <div className="font-medium flex items-center justify-between">
-                  {tab.title}
+                  {t(tab.titleKey)}
                   {count > 0 && (
                     <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        isActive
+                      className={`px-2 py-1 text-xs rounded-full ${isActive
                           ? "bg-purple-200 text-purple-800"
                           : "bg-gray-200 text-gray-600"
-                      }`}
+                        }`}
                     >
                       {count}
                     </span>
                   )}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {tab.description}
+                  {t(tab.descriptionKey)}
                 </div>
               </div>
             </button>

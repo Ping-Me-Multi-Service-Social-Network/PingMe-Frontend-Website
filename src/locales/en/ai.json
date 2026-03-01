@@ -1,0 +1,40 @@
+{
+    "sidebar": {
+        "pingAI": "PingAI",
+        "newChat": "New Chat",
+        "noChat": "No conversations yet",
+        "newChatPlaceholder": "New chat...",
+        "loadMore": "Load more",
+        "loading": "Loading...",
+        "time": {
+            "locale": "en",
+            "justNow": "Just now",
+            "minutesAgo": "{{count}}m ago",
+            "hoursAgo": "{{count}}h ago",
+            "daysAgo": "{{count}}d ago"
+        }
+    },
+    "chatArea": {
+        "creatingTitle": "Creating title...",
+        "welcomeTitle": "Hello! I'm PingAI",
+        "welcomeDesc": "I can help you answer questions, analyze images, and assist with various other tasks. Let's start a conversation!",
+        "thinking": "PingAI is thinking...",
+        "loading": "Loading messages...",
+        "suggestions": {
+            "concept": "Explain AI concepts simply",
+            "analyze": "Analyze this image for me",
+            "email": "Help me write an email",
+            "summarize": "Summarize content"
+        }
+    },
+    "chatInput": {
+        "placeholder": "Type a message...",
+        "invalidImage": "\"{{name}}\" is not a valid image file.",
+        "fileTooLarge": "\"{{name}}\" exceeds 5MB.",
+        "attachTip": "Attach image (≤5MB)"
+    },
+    "message": {
+        "copy": "Copy",
+        "copied": "Copied"
+    }
+}

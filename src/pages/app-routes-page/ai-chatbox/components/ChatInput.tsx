@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ChatInputProps {
   onSend: (prompt: string, files: File[]) => void;
@@ -17,6 +18,7 @@ const ACCEPTED_TYPES = [
 ];
 
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
+  const { t } = useTranslation("ai");
   const [text, setText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -48,11 +50,11 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
     for (const file of Array.from(newFiles)) {
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setError(`"${file.name}" không phải file ảnh hợp lệ.`);
+        setError(t("chatInput.invalidImage", { name: file.name }));
         continue;
       }
       if (file.size > MAX_FILE_SIZE) {
-        setError(`"${file.name}" vượt quá 5MB.`);
+        setError(t("chatInput.fileTooLarge", { name: file.name }));
         continue;
       }
       validFiles.push(file);
@@ -148,7 +150,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           type="button"
           onClick={handleFileSelect}
           className="p-2 text-gray-400 hover:text-violet-500 hover:bg-violet-50 rounded-xl transition-colors shrink-0"
-          title="Đính kèm ảnh (≤5MB)"
+          title={t("chatInput.attachTip")}
         >
           <svg
             width="20"
@@ -181,7 +183,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           value={text}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
-          placeholder="Nhập tin nhắn..."
+          placeholder={t("chatInput.placeholder")}
           rows={1}
           className="chat-textarea flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400 py-1.5 leading-relaxed"
           disabled={disabled}
@@ -192,11 +194,10 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           type="button"
           onClick={handleSend}
           disabled={!canSend}
-          className={`p-2 rounded-xl transition-all shrink-0 ${
-            canSend
+          className={`p-2 rounded-xl transition-all shrink-0 ${canSend
               ? "bg-linear-to-r from-violet-500 to-purple-600 text-white shadow-md hover:shadow-lg send-btn-active"
               : "bg-gray-100 text-gray-300 cursor-not-allowed"
-          }`}
+            }`}
         >
           <svg
             width="20"

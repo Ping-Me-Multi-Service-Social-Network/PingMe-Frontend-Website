@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
+import { useTranslation } from "react-i18next";
 
 export default function PlaylistsPage() {
     const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function PlaylistsPage() {
     const [creating, setCreating] = useState(false);
     const [updating, setUpdating] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const { t } = useTranslation("music");
 
     useEffect(() => {
         fetchPlaylists();
@@ -147,11 +149,11 @@ export default function PlaylistsPage() {
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Quay Lại
+                        {t("common.back")}
                     </button>
 
                     <div className="flex items-center justify-between">
-                        <h1 className="text-4xl font-bold text-white">Danh Sách Phát Của Bạn</h1>
+                        <h1 className="text-4xl font-bold text-white">{t("pages.playlists.title")}</h1>
                         <div className="flex items-center gap-3">
                             <Button
                                 onClick={() => navigate("/app/music/playlists/discover")}
@@ -159,14 +161,14 @@ export default function PlaylistsPage() {
                                 className="flex items-center gap-2 bg-green-900/20 border-green-700 text-green-400 hover:bg-green-900/40 hover:text-green-300"
                             >
                                 <Compass className="w-5 h-5" />
-                                Khám Phá Playlist Công Khai
+                                {t("pages.playlists.discoverPublic")}
                             </Button>
                             <Button
                                 onClick={() => setShowCreateDialog(true)}
                                 className="flex items-center gap-2"
                             >
                                 <Plus className="w-5 h-5" />
-                                Tạo Playlist
+                                {t("pages.playlists.createBtn")}
                             </Button>
                         </div>
                     </div>
@@ -176,11 +178,11 @@ export default function PlaylistsPage() {
                 {playlists.length === 0 ? (
                     <EmptyState
                         icon={Music}
-                        title="Chưa có playlist nào"
-                        description="Tạo playlist đầu tiên của bạn để bắt đầu"
+                        title={t("pages.playlists.emptyTitle")}
+                        description={t("pages.playlists.emptyDesc")}
                         action={
                             <Button onClick={() => setShowCreateDialog(true)}>
-                                Tạo Playlist
+                                {t("pages.playlists.createBtn")}
                             </Button>
                         }
                     />
@@ -205,12 +207,12 @@ export default function PlaylistsPage() {
                                         {playlist.isPublic ? (
                                             <>
                                                 <Globe className="w-3 h-3" />
-                                                <span>Công khai</span>
+                                                <span>{t("pages.playlists.public")}</span>
                                             </>
                                         ) : (
                                             <>
                                                 <Lock className="w-3 h-3" />
-                                                <span>Riêng tư</span>
+                                                <span>{t("pages.playlists.private")}</span>
                                             </>
                                         )}
                                     </div>
@@ -219,7 +221,7 @@ export default function PlaylistsPage() {
                                         <button
                                             onClick={(e) => handleEditPlaylist(playlist, e)}
                                             className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 transition-all"
-                                            title="Chỉnh sửa playlist"
+                                            title={t("pages.playlists.editTitle")}
                                         >
                                             <Edit2 className="w-4 h-4" />
                                         </button>
@@ -229,7 +231,7 @@ export default function PlaylistsPage() {
                                                 handleDeletePlaylist(playlist);
                                             }}
                                             className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
-                                            title="Xóa playlist"
+                                            title={t("pages.playlists.deleteTitle")}
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -261,7 +263,7 @@ export default function PlaylistsPage() {
                 >
                     <DialogHeader>
                         <DialogTitle className="text-xl font-semibold tracking-tight">
-                            Tạo Playlist Mới
+                            {t("pages.playlists.createTitle")}
                         </DialogTitle>
                     </DialogHeader>
 
@@ -272,12 +274,12 @@ export default function PlaylistsPage() {
                                 htmlFor="playlist-name"
                                 className="text-sm font-medium text-zinc-300"
                             >
-                                Tên Playlist
+                                {t("pages.playlists.nameLabel")}
                             </label>
 
                             <Input
                                 id="playlist-name"
-                                placeholder="Playlist Tuyệt Vời Của Tôi"
+                                placeholder={t("pages.playlists.namePlaceholder")}
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
@@ -305,7 +307,7 @@ export default function PlaylistsPage() {
                                 htmlFor="is-public"
                                 className="text-sm text-zinc-300 cursor-pointer select-none"
                             >
-                                Chia sẻ playlist này công khai
+                                {t("pages.playlists.sharePublic")}
                             </label>
                         </div>
                     </div>
@@ -317,7 +319,7 @@ export default function PlaylistsPage() {
                             disabled={creating}
                             className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
                         >
-                            Hủy
+                            {t("pages.playlists.cancel")}
                         </Button>
 
                         <Button
@@ -331,7 +333,7 @@ export default function PlaylistsPage() {
                                     font-medium
                                     disabled:opacity-50"
                         >
-                            {creating ? "Đang tạo..." : "Tạo"}
+                            {creating ? t("pages.playlists.creating") : t("pages.playlists.create")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -342,7 +344,7 @@ export default function PlaylistsPage() {
                 <DialogContent className="bg-zinc-900 border border-zinc-800 text-white shadow-2xl backdrop-blur-xl rounded-2xl max-w-md">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-semibold tracking-tight">
-                            Chỉnh sửa Playlist
+                            {t("pages.playlists.editTitle")}
                         </DialogTitle>
                     </DialogHeader>
 
@@ -353,11 +355,11 @@ export default function PlaylistsPage() {
                                 htmlFor="edit-playlist-name"
                                 className="text-sm font-medium text-zinc-300"
                             >
-                                Tên Playlist
+                                {t("pages.playlists.nameLabel")}
                             </label>
                             <Input
                                 id="edit-playlist-name"
-                                placeholder="Playlist Tuyệt Vời Của Tôi"
+                                placeholder={t("pages.playlists.namePlaceholder")}
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleUpdatePlaylist()}
@@ -378,7 +380,7 @@ export default function PlaylistsPage() {
                                 htmlFor="edit-is-public"
                                 className="text-sm text-zinc-300 cursor-pointer select-none"
                             >
-                                Chia sẻ playlist này công khai
+                                {t("pages.playlists.sharePublic")}
                             </label>
                         </div>
                     </div>
@@ -395,14 +397,14 @@ export default function PlaylistsPage() {
                             disabled={updating}
                             className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
                         >
-                            Hủy
+                            {t("pages.playlists.cancel")}
                         </Button>
                         <Button
                             onClick={handleUpdatePlaylist}
                             disabled={!newPlaylistName.trim() || updating}
                             className="bg-purple-600 hover:bg-purple-500 text-white rounded-full px-6 font-medium disabled:opacity-50"
                         >
-                            {updating ? "Đang cập nhật..." : "Cập nhật"}
+                            {updating ? t("pages.playlists.updating") : t("pages.playlists.update")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -413,11 +415,11 @@ export default function PlaylistsPage() {
                 <AlertDialogContent className="bg-zinc-900 border border-zinc-800 text-white">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-xl font-bold text-white">
-                            Xóa Playlist
+                            {t("pages.playlists.deleteConfirmTitle")}
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-zinc-400">
-                            Bạn có chắc chắn muốn xóa playlist <span className="font-semibold text-purple-400">"{deletingPlaylist?.name}"</span>?
-                            Hành động này không thể hoàn tác.
+                            {t("pages.playlists.deleteConfirmMsg")} <span className="font-semibold text-purple-400">"{deletingPlaylist?.name}"</span>?
+                            {t("pages.playlists.deleteWarning")}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -425,14 +427,14 @@ export default function PlaylistsPage() {
                             className="bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border-zinc-700 rounded-full px-6"
                             disabled={deleting}
                         >
-                            Hủy
+                            {t("pages.playlists.cancel")}
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={confirmDeletePlaylist}
                             disabled={deleting}
                             className="bg-red-600 hover:bg-red-500 text-white rounded-full px-6 font-medium disabled:opacity-50"
                         >
-                            {deleting ? "Đang xóa..." : "Xóa"}
+                            {deleting ? t("pages.playlists.deleting") : t("pages.playlists.delete")}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

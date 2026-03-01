@@ -4,6 +4,7 @@ import { MessageCircle, Contact, MessageSquare, Music } from "lucide-react";
 import { LazyMotion, domAnimation, m, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface Feature {
   id: string;
@@ -15,18 +16,19 @@ interface Feature {
 }
 
 export default function IntroSection() {
+  const { t } = useTranslation("landing");
   return (
     <div id="intro-section">
       {/* Features Section */}
-      <FeaturesSection />
+      <FeaturesSection t={t} />
 
       {/* CTA Section */}
-      <CTASection />
+      <CTASection t={t} />
     </div>
   );
 }
 
-function FeaturesSection() {
+function FeaturesSection({ t }: { t: any }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -35,36 +37,32 @@ function FeaturesSection() {
     {
       id: "chat",
       icon: MessageSquare,
-      title: "Chat",
-      description:
-        "Trò chuyện trực tiếp với bạn bè, chia sẻ tin nhắn, hình ảnh và cảm xúc. Kết nối nhanh chóng và tiện lợi mọi lúc mọi nơi.",
+      title: t("features.chat.title"),
+      description: t("features.chat.desc"),
       image: "/images/feature-chat.webp",
       gradient: "from-green-500 to-emerald-500",
     },
     {
       id: "contacts",
       icon: Contact,
-      title: "Danh bạ",
-      description:
-        "Quản lý danh sách bạn bè, tìm kiếm người dùng mới và kết nối với những người bạn quan tâm. Xây dựng mạng lưới của bạn.",
+      title: t("features.contacts.title"),
+      description: t("features.contacts.desc"),
       image: "/images/feature-contacts.webp",
       gradient: "from-indigo-500 to-purple-500",
     },
     {
       id: "reels",
       icon: MessageCircle,
-      title: "Thước phim",
-      description:
-        "Chia sẻ khoảnh khắc hàng ngày, cảm xúc và suy nghĩ của bạn với bạn bè. Giống như mạng xã hội, đăng tức thì không cần duyệt.",
+      title: t("features.reels.title"),
+      description: t("features.reels.desc"),
       image: "/images/feature-reels.webp",
       gradient: "from-blue-500 to-cyan-500",
     },
     {
       id: "music",
       icon: Music,
-      title: "Âm nhạc",
-      description:
-        "Chia sẻ khoảnh khắc hàng ngày, cảm xúc và suy nghĩ của bạn với bạn bè. Giống như mạng xã hội, đăng tức thì không cần duyệt.",
+      title: t("features.music.title"),
+      description: t("features.music.desc"),
       image: "/images/feature-music.webp",
       gradient: "from-green-500 to-emerald-500",
     },
@@ -82,11 +80,10 @@ function FeaturesSection() {
             className="text-center mb-16 space-y-4"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-              Khám phá tính năng
+              {t("features.title")}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              PingMe mang đến trải nghiệm giao tiếp toàn diện với đầy đủ các
-              tính năng hiện đại
+              {t("features.subtitle")}
             </p>
           </m.div>
         </LazyMotion>
@@ -143,16 +140,14 @@ function FeatureCard({
         >
           <CardContent className="p-0">
             <div
-              className={`grid md:grid-cols-2 gap-0 ${
-                !isEven ? "md:grid-flow-dense" : ""
-              }`}
+              className={`grid md:grid-cols-2 gap-0 ${!isEven ? "md:grid-flow-dense" : ""
+                }`}
             >
               <m.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
-                className={`relative h-64 md:h-auto overflow-hidden ${
-                  !isEven ? "md:col-start-2" : ""
-                }`}
+                className={`relative h-64 md:h-auto overflow-hidden ${!isEven ? "md:col-start-2" : ""
+                  }`}
               >
                 <div
                   className={`absolute inset-0 bg-linear-to-br ${feature.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}
@@ -192,7 +187,7 @@ function FeatureCard({
   );
 }
 
-function CTASection() {
+function CTASection({ t }: { t: any }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -218,7 +213,7 @@ function CTASection() {
             transition={{ delay: 0.3 }}
             className="text-4xl md:text-5xl font-bold text-white mb-6"
           >
-            Sẵn sàng bắt đầu hành trình?
+            {t("cta.title")}
           </m.h2>
 
           <m.p
@@ -228,8 +223,7 @@ function CTASection() {
             transition={{ delay: 0.4 }}
             className="text-xl text-purple-100 mb-8 leading-relaxed"
           >
-            Tham gia cùng hàng triệu người dùng đang sử dụng PingMe để kết nối,
-            chia sẻ và khám phá những điều tuyệt vời mỗi ngày.
+            {t("cta.desc")}
           </m.p>
 
           <m.div
@@ -244,7 +238,7 @@ function CTASection() {
               onClick={scrollToTop}
               className="bg-white text-purple-600 hover:bg-purple-50 px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all"
             >
-              Tạo tài khoản miễn phí
+              {t("cta.btnRegister")}
             </Button>
             <Button
               size="lg"
@@ -252,11 +246,11 @@ function CTASection() {
               onClick={scrollToTop}
               className="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-6 text-lg font-semibold bg-transparent"
             >
-              Đăng nhập ngay
+              {t("cta.btnLogin")}
             </Button>
           </m.div>
         </m.div>
-      </section>
-    </LazyMotion>
+      </section >
+    </LazyMotion >
   );
 }

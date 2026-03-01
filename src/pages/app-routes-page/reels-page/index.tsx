@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 import { ReelsTopBar } from "./components/ReelTopBar.tsx"
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx"
 import { EmptyState } from "@/components/custom/EmptyState.tsx"
@@ -12,6 +13,7 @@ import { useNavigate } from "react-router-dom"
 import { useReelNavigation } from "@/hooks/useReelNavigation"
 
 export default function ReelsPage() {
+  const { t } = useTranslation("reels")
   const navigate = useNavigate()
 
   const [reels, setReels] = useState<Reel[]>([])
@@ -156,7 +158,7 @@ export default function ReelsPage() {
           </div>
         ) : reels.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <EmptyState title="Chưa có Reels" description="Hãy tạo hoặc theo dõi các Reels để xem tại đây" />
+            <EmptyState title={t("feed.empty")} description={t("feed.emptyDesc")} />
           </div>
         ) : (
           <div className="h-full w-full overflow-hidden relative">

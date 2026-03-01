@@ -1,6 +1,7 @@
 import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface MessageFileProps {
   src: string;
@@ -14,6 +15,7 @@ export default function MessageFile({
   isSent = false,
 }: MessageFileProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { t } = useTranslation("chat");
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -53,7 +55,7 @@ export default function MessageFile({
         </p>
         <p className={`text-xs ${subtextColor} mt-0.5`}>
           {isDownloading && (
-            <span className="text-red-500">• Đang tải xuống</span>
+            <span className="text-red-500">• {t("bubbles.file.downloading")}</span>
           )}
         </p>
       </div>
@@ -64,11 +66,10 @@ export default function MessageFile({
           variant="ghost"
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`h-8 w-8 ${
-            isSent
+          className={`h-8 w-8 ${isSent
               ? "text-blue-700 hover:text-blue-900 hover:bg-blue-200"
               : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
-          } dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700`}
+            } dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700`}
         >
           <Download className="w-4 h-4" />
         </Button>

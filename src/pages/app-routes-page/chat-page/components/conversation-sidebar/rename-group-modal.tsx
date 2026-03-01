@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { renameGroup } from "@/services/chat";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface RenameGroupModalProps {
   isOpen: boolean;
@@ -25,12 +26,13 @@ const RenameGroupModal = ({
   roomId,
   currentName,
 }: RenameGroupModalProps) => {
+  const { t } = useTranslation("chat");
   const [newGroupName, setNewGroupName] = useState(currentName);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRename = async () => {
     if (!newGroupName.trim()) {
-      toast.error("Tên nhóm không được để trống");
+      toast.error(t("modals.renameGroup.emptyError"));
       return;
     }
 
@@ -42,10 +44,10 @@ const RenameGroupModal = ({
     setIsLoading(true);
     try {
       await renameGroup(roomId, newGroupName.trim());
-      toast.success("Đổi tên nhóm thành công");
+      toast.success(t("modals.renameGroup.success"));
       onClose();
     } catch (error) {
-      toast.error("Đổi tên nhóm thất bại");
+      toast.error(t("modals.renameGroup.error"));
       console.error("Error renaming group:", error);
     } finally {
       setIsLoading(false);
@@ -62,14 +64,14 @@ const RenameGroupModal = ({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Đổi tên nhóm</DialogTitle>
-          <DialogDescription>Nhập tên mới cho nhóm của bạn</DialogDescription>
+          <DialogTitle>{t("modals.renameGroup.title")}</DialogTitle>
+          <DialogDescription>{t("modals.renameGroup.desc")}</DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <Input
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
-            placeholder="Tên nhóm"
+            placeholder={t("modals.renameGroup.placeholder")}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !isLoading) handleRename();
             }}
@@ -78,14 +80,14 @@ const RenameGroupModal = ({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Hủy
+            {t("modals.renameGroup.cancel")}
           </Button>
           <Button
             onClick={handleRename}
             disabled={isLoading}
             className="bg-purple-600 hover:bg-purple-700"
           >
-            {isLoading ? "Đang lưu..." : "Lưu"}
+            {isLoading ? t("modals.renameGroup.saving") : t("modals.renameGroup.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

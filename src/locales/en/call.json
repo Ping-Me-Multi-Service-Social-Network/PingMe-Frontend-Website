@@ -1,0 +1,31 @@
+{
+    "button": {
+        "video": "Video Call",
+        "audio": "Voice Call",
+        "offline": "{{name}} is currently offline",
+        "active": "Call in progress",
+        "startVideoError": "Could not start video call",
+        "startAudioError": "Could not start voice call"
+    },
+    "notification": {
+        "videoTitle": "Incoming video call",
+        "audioTitle": "Incoming voice call",
+        "incoming": "is calling you...",
+        "reject": "Reject",
+        "answer": "Answer",
+        "callerUnknown": "User"
+    },
+    "status": {
+        "calling": "Calling...",
+        "ringing": "Incoming call...",
+        "connected": "In call",
+        "rejected": "Call rejected",
+        "rejectedByUser": "You rejected the call",
+        "ended": "Call ended",
+        "error": "Error: {{message}}"
+    },
+    "zego": {
+        "initError": "Failed to initialize call",
+        "initializing": "Initializing..."
+    }
+}
