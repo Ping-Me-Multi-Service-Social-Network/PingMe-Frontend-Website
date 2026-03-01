@@ -8,6 +8,7 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { FavoriteDto } from "@/types/music/favorite.ts";
 import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
+import { useTranslation } from "react-i18next";
 
 export default function FavoritesPage() {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function FavoritesPage() {
     const [favorites, setFavorites] = useState<FavoriteDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation("music");
 
     useEffect(() => {
         fetchFavorites();
@@ -34,7 +36,7 @@ export default function FavoritesPage() {
             setError(null);
         } catch (err) {
             console.error("Error fetching favorites:", err);
-            setError("Failed to load favorites");
+            setError(t("pages.favorites.errorLoad"));
         } finally {
             setLoading(false);
         }
@@ -118,7 +120,7 @@ export default function FavoritesPage() {
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Quay Lại
+                        {t("common.back")}
                     </button>
 
                     <div className="flex items-center gap-4 mb-4">
@@ -126,8 +128,8 @@ export default function FavoritesPage() {
                             <Heart className="w-8 h-8 text-white fill-white" />
                         </div>
                         <div>
-                            <h1 className="text-4xl font-bold text-white mb-2">Bài Hát Yêu Thích</h1>
-                            <p className="text-zinc-400">{favorites.length} bài hát</p>
+                            <h1 className="text-4xl font-bold text-white mb-2">{t("pages.favorites.title")}</h1>
+                            <p className="text-zinc-400">{t("pages.songList.songsCount", { count: favorites.length })}</p>
                         </div>
                     </div>
 
@@ -138,7 +140,7 @@ export default function FavoritesPage() {
                             className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-full text-white font-semibold transition-colors"
                         >
                             <Play className="w-5 h-5 fill-white" />
-                            Phát Tất Cả
+                            {t("pages.songList.playAll")}
                         </button>
                     )}
                 </div>
@@ -147,8 +149,8 @@ export default function FavoritesPage() {
                 {favorites.length === 0 ? (
                     <EmptyState
                         icon={Heart}
-                        title="Chưa có bài hát yêu thích"
-                        description="Các bài hát bản thích sẽ xuất hiện ở đây"
+                        title={t("pages.favorites.emptyTitle")}
+                        description={t("pages.favorites.emptyDesc")}
                     />
                 ) : (
                     <div className="space-y-2">
@@ -175,7 +177,7 @@ export default function FavoritesPage() {
                                 <button
                                     onClick={() => handleRemoveFavorite(favorite.songId)}
                                     className="p-2 rounded-lg  text-purple-500 hover:text-purple-300 transition-all cursor-pointer"
-                                    title="Xóa khỏi danh sách yêu thích"
+                                    title={t("pages.favorites.remove")}
                                 >
                                     <Heart className="w-5 h-5 fill-current" />
                                 </button>

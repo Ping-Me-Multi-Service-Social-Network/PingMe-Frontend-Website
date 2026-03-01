@@ -1,0 +1,58 @@
+{
+    "sidebar": {
+        "friends": {
+            "title": "Friends",
+            "desc": "List of connected friends"
+        },
+        "received": {
+            "title": "Received Invitations",
+            "desc": "Friend requests from others"
+        },
+        "sent": {
+            "title": "Sent Invitations",
+            "desc": "Friend requests you've sent"
+        }
+    },
+    "common": {
+        "loadingMore": "Loading more...",
+        "displayedAllFriends": "Displayed all friends",
+        "displayedAllInvitations": "Displayed all invitations"
+    },
+    "friendsList": {
+        "title": "Friends List",
+        "count": "friends",
+        "loading": "Loading friends list...",
+        "emptyTitle": "No friends yet",
+        "emptyDesc": "Send a friend request to start connecting!",
+        "btnRemove": "Unfriend",
+        "fetchError": "Could not load friends list",
+        "removeSuccess": "Successfully unfriended",
+        "removeError": "Could not unfriend"
+    },
+    "receivedInvitations": {
+        "title": "Received Invitations",
+        "count": "invitations",
+        "loading": "Loading invitations...",
+        "emptyTitle": "No invitations",
+        "emptyDesc": "Nobody has sent you a friend request yet.",
+        "btnAccept": "Accept",
+        "btnReject": "Reject",
+        "fetchError": "Could not load received invitations",
+        "acceptSuccess": "Accepted friend request",
+        "acceptError": "Could not accept friend request",
+        "rejectSuccess": "Rejected friend request",
+        "rejectError": "Could not reject friend request"
+    },
+    "sentInvitations": {
+        "title": "Sent Invitations",
+        "count": "invitations",
+        "loading": "Loading invitations...",
+        "emptyTitle": "No sent invitations",
+        "emptyDesc": "Send a friend request to start connecting!",
+        "statusPending": "Pending",
+        "btnCancel": "Cancel",
+        "fetchError": "Could not load sent invitations",
+        "cancelSuccess": "Canceled friend request",
+        "cancelError": "Could not cancel friend request"
+    }
+}

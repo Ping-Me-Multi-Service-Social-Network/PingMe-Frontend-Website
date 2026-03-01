@@ -6,6 +6,7 @@ import type { Reel } from "@/types/reels"
 import { Library } from "lucide-react"
 import { useState } from "react"
 import { ReelsLibrary } from "./ReelsLibrary.tsx"
+import { useTranslation } from "react-i18next"
 
 interface ReelsTopBarProps {
   onCreateClick?: () => void
@@ -17,13 +18,14 @@ interface ReelsTopBarProps {
 }
 
 export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, onReelClick, triggerSearch }: ReelsTopBarProps) {
+  const { t } = useTranslation("reels")
   const [isLibraryOpen, setIsLibraryOpen] = useState(false)
 
   return (
     <>
       <div className="p-4 border-b border-gray-700 bg-gray-900">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-white whitespace-nowrap">Reels</h2>
+          <h2 className="text-lg font-semibold text-white whitespace-nowrap">{t("topBar.title")}</h2>
 
           <div className="flex-1 max-w-md">
             <SearchBar
@@ -41,7 +43,7 @@ export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, on
             onClick={() => setIsLibraryOpen(true)}
           >
             <Library className="w-4 h-4" />
-            Thư viện
+            {t("topBar.library")}
           </Button>
 
           <Button
@@ -50,7 +52,7 @@ export function ReelsTopBar({ onManageClick, onSearchResults, onSearchChange, on
             className="flex items-center gap-2 text-gray-200 border-gray-600 hover:bg-gray-800 bg-transparent whitespace-nowrap"
             onClick={onManageClick}
           >
-            Quản lý
+            {t("topBar.manage")}
           </Button>
         </div>
       </div>

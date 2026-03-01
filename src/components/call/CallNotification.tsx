@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Phone, PhoneOff } from "lucide-react";
 import type { RoomParticipantResponse } from "@/types/chat/room";
 import type { CallType } from "@/types/call/call.ts";
+import { useTranslation } from "react-i18next";
 
 interface CallNotificationProps {
   caller?: RoomParticipantResponse;
@@ -16,6 +17,7 @@ export function CallNotification({
   onAccept,
   onReject,
 }: CallNotificationProps) {
+  const { t } = useTranslation("call");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -59,14 +61,14 @@ export function CallNotification({
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               {callType === "VIDEO"
-                ? "Cuộc gọi video đến"
-                : "Cuộc gọi thoại đến"}
+                ? t("notification.videoTitle")
+                : t("notification.audioTitle")}
             </h2>
             <p className="text-gray-600">
               <span className="font-semibold text-purple-600">
-                {caller?.name || "Người dùng"}
+                {caller?.name || t("notification.callerUnknown")}
               </span>{" "}
-              đang gọi bạn...
+              {t("notification.incoming")}
             </p>
           </div>
 
@@ -92,7 +94,7 @@ export function CallNotification({
               <div className="p-4 bg-red-100 text-red-600 rounded-full transition-all group-hover:bg-red-600 group-hover:text-white shadow-md">
                 <PhoneOff className="w-8 h-8" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Từ chối</span>
+              <span className="text-sm font-medium text-gray-600">{t("notification.reject")}</span>
             </button>
 
             <button
@@ -113,7 +115,7 @@ export function CallNotification({
                   <Phone className="w-8 h-8" />
                 )}
               </div>
-              <span className="text-sm font-medium text-gray-600">Trả lời</span>
+              <span className="text-sm font-medium text-gray-600">{t("notification.answer")}</span>
             </button>
           </div>
         </div>

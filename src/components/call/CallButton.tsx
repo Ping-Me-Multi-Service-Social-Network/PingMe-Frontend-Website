@@ -3,6 +3,7 @@ import { Phone, Video } from "lucide-react";
 import { useCall } from "@/features/websocket/hooks/useCall";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
+import { useTranslation } from "react-i18next";
 
 interface CallButtonProps {
   targetUserId: number;
@@ -19,6 +20,7 @@ export function CallButton({
 }: CallButtonProps) {
   const { callState, initiateCall } = useCall();
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation("call");
 
   const isCallActive = ["calling", "ringing", "connected"].includes(
     callState.status
@@ -33,7 +35,7 @@ export function CallButton({
       await initiateCall(targetUserId, roomId, "VIDEO");
     } catch (error) {
       console.error("[CallButton] Error starting video call:", error);
-      toast.error("Không thể bắt đầu cuộc gọi video");
+      toast.error(t("button.startVideoError"));
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +49,7 @@ export function CallButton({
       await initiateCall(targetUserId, roomId, "AUDIO");
     } catch (error) {
       console.error("[CallButton] Error starting audio call:", error);
-      toast.error("Không thể bắt đầu cuộc gọi thoại");
+      toast.error(t("button.startAudioError"));
     } finally {
       setIsLoading(false);
     }
@@ -61,16 +63,15 @@ export function CallButton({
         disabled={isDisabled}
         title={
           !isTargetOnline
-            ? `${targetName} hiện đang ngoại tuyến`
+            ? t("button.offline", { name: targetName })
             : isCallActive
-            ? "Cuộc gọi đang diễn ra"
-            : "Gọi video"
+              ? t("button.active")
+              : t("button.video")
         }
-        className={`p-2 rounded-full transition-all ${
-          isDisabled
+        className={`p-2 rounded-full transition-all ${isDisabled
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
             : "bg-purple-600 hover:bg-purple-700 text-white"
-        }`}
+          }`}
         aria-label="Start video call"
       >
         {isLoading ? (
@@ -86,16 +87,15 @@ export function CallButton({
         disabled={isDisabled}
         title={
           !isTargetOnline
-            ? `${targetName} hiện đang ngoại tuyến`
+            ? t("button.offline", { name: targetName })
             : isCallActive
-            ? "Cuộc gọi đang diễn ra"
-            : "Gọi thoại"
+              ? t("button.active")
+              : t("button.audio")
         }
-        className={`p-2 rounded-full transition-all ${
-          isDisabled
+        className={`p-2 rounded-full transition-all ${isDisabled
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
             : "bg-green-600 hover:bg-green-700 text-white"
-        }`}
+          }`}
         aria-label="Start audio call"
       >
         {isLoading ? (

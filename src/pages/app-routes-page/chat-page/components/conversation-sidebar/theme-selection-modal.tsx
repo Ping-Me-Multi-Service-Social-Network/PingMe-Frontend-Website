@@ -10,6 +10,7 @@ import { changeTheme } from "@/services/chat";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ThemeSelectionModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ const ThemeSelectionModal = ({
   roomId,
   currentTheme,
 }: ThemeSelectionModalProps) => {
+  const { t } = useTranslation("chat");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(currentTheme || "DEFAULT");
 
@@ -32,11 +34,11 @@ const ThemeSelectionModal = ({
     try {
       await changeTheme(roomId, themeKey);
       setSelectedTheme(themeKey);
-      toast.success("Đã thay đổi chủ đề thành công");
+      toast.success(t("modals.theme.success"));
       onClose();
     } catch (error) {
       console.error("Error changing theme:", error);
-      toast.error("Không thể thay đổi chủ đề");
+      toast.error(t("modals.theme.error"));
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +48,7 @@ const ThemeSelectionModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Chọn chủ đề</DialogTitle>
+          <DialogTitle>{t("modals.theme.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -83,7 +85,7 @@ const ThemeSelectionModal = ({
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Đóng
+            {t("modals.theme.close")}
           </Button>
         </div>
       </DialogContent>

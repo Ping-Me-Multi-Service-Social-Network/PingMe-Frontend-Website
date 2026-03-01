@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   Tooltip,
   TooltipContent,
@@ -24,18 +25,18 @@ import { useGlobalTour } from "@/hooks/tours";
 const socialNavigationItems = [
   {
     id: "nav-chat",
-    title: "Tin Nhắn",
+    titleKey: "nav.chat.title",
     icon: MessageCircle,
     href: "/app/chat",
-    description: "Trò chuyện với bạn bè",
+    descriptionKey: "nav.chat.desc",
     external: false,
   },
   {
     id: "nav-contacts",
-    title: "Danh Bạ",
+    titleKey: "nav.contacts.title",
     icon: Users,
     href: "/app/contacts",
-    description: "Quản lý danh bạ",
+    descriptionKey: "nav.contacts.desc",
     external: false,
   },
 ];
@@ -43,26 +44,26 @@ const socialNavigationItems = [
 const mediaNavigationItems = [
   {
     id: "nav-music",
-    title: "Nghe Nhạc",
+    titleKey: "nav.music.title",
     icon: Music4Icon,
     href: "/app/music",
-    description: "Đắm chìm trong âm nhạc",
+    descriptionKey: "nav.music.desc",
     external: false,
   },
   {
     id: "nav-reels",
-    title: "Thước Phim",
+    titleKey: "nav.reels.title",
     icon: Film,
     href: "/app/reels",
-    description: "Video giải trí",
+    descriptionKey: "nav.reels.desc",
     external: false,
   },
   {
     id: "nav-ping-ai",
-    title: "Ping AI",
+    titleKey: "nav.pingAi.title",
     icon: Stars,
     href: "/app/ping-ai",
-    description: "Trợ lý AI thông minh",
+    descriptionKey: "nav.pingAi.desc",
     external: false,
   },
 ];
@@ -71,6 +72,7 @@ export default function AppNavigation() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { startTour, isTourCompleted } = useGlobalTour();
+  const { t } = useLanguage("common");
 
   const isItemActive = (href: string) => {
     return (
@@ -89,7 +91,7 @@ export default function AppNavigation() {
     const isActive = isItemActive(item.href);
 
     return (
-      <Tooltip key={item.title}>
+      <Tooltip key={item.id}>
         <TooltipTrigger asChild>
           <NavLink
             id={item.id}
@@ -108,9 +110,9 @@ export default function AppNavigation() {
           className="bg-purple-600 text-white border-none shadow-xl"
         >
           <div>
-            <div className="font-semibold">{item.title}</div>
+            <div className="font-semibold">{t(item.titleKey)}</div>
             <div className="text-xs text-purple-100 mt-0.5">
-              {item.description}
+              {t(item.descriptionKey)}
             </div>
           </div>
         </TooltipContent>
@@ -133,7 +135,7 @@ export default function AppNavigation() {
         <div
           role="button"
           tabIndex={0}
-          aria-label="Đóng menu"
+          aria-label={t("nav.closeMenu")}
           className="lg:hidden fixed inset-0 bg-black/50 z-60 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
           onKeyDown={handleOverlayKeyDown}
@@ -177,7 +179,7 @@ export default function AppNavigation() {
                 <button
                   onClick={() => startTour(true)}
                   className="w-10 h-10 mx-auto rounded-lg text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all duration-200"
-                  aria-label="Xem lại hướng dẫn"
+                  aria-label={t("nav.guide.aria")}
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
@@ -187,9 +189,9 @@ export default function AppNavigation() {
                 className="bg-purple-600 text-white border-none shadow-xl"
               >
                 <div>
-                  <div className="font-semibold">Hướng dẫn</div>
+                  <div className="font-semibold">{t("nav.guide.title")}</div>
                   <div className="text-xs text-purple-100 mt-0.5">
-                    Xem lại tour giới thiệu
+                    {t("nav.guide.desc")}
                   </div>
                 </div>
               </TooltipContent>
@@ -207,9 +209,9 @@ export default function AppNavigation() {
               className="bg-purple-600 text-white border-none shadow-xl"
             >
               <div>
-                <div className="font-semibold">Tài khoản</div>
+                <div className="font-semibold">{t("nav.account.title")}</div>
                 <div className="text-xs text-purple-100 mt-0.5">
-                  Quản lý tài khoản
+                  {t("nav.account.desc")}
                 </div>
               </div>
             </TooltipContent>

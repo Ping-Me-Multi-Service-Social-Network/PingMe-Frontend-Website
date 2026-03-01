@@ -1,4 +1,5 @@
 import type { AIChatRoomInformation } from "@/types/ai/aiChatRoomInformation";
+import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
   rooms: AIChatRoomInformation[];
@@ -19,6 +20,7 @@ export default function Sidebar({
   hasMore,
   loading,
 }: SidebarProps) {
+  const { t } = useTranslation("ai");
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
@@ -28,11 +30,11 @@ export default function Sidebar({
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "Vừa xong";
-    if (diffMins < 60) return `${diffMins} phút trước`;
-    if (diffHours < 24) return `${diffHours} giờ trước`;
-    if (diffDays < 7) return `${diffDays} ngày trước`;
-    return d.toLocaleDateString("vi-VN");
+    if (diffMins < 1) return t("sidebar.time.justNow");
+    if (diffMins < 60) return t("sidebar.time.minutesAgo", { count: diffMins });
+    if (diffHours < 24) return t("sidebar.time.hoursAgo", { count: diffHours });
+    if (diffDays < 7) return t("sidebar.time.daysAgo", { count: diffDays });
+    return d.toLocaleDateString(t("sidebar.time.locale") === "en" ? "en-US" : "vi-VN");
   };
 
   return (
@@ -51,7 +53,7 @@ export default function Sidebar({
             </svg>
           </div>
           <h2 className="text-lg font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-            PingAI
+            {t("sidebar.pingAI")}
           </h2>
         </div>
 
@@ -64,7 +66,7 @@ export default function Sidebar({
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          Cuộc trò chuyện mới
+          {t("sidebar.newChat")}
         </button>
       </div>
 
@@ -75,7 +77,7 @@ export default function Sidebar({
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-3 opacity-40">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-            <p className="text-xs">Chưa có cuộc trò chuyện</p>
+            <p className="text-xs">{t("sidebar.noChat")}</p>
           </div>
         )}
 
@@ -92,7 +94,7 @@ export default function Sidebar({
               className={`text-sm font-medium truncate ${activeRoomId === room.id ? "text-violet-700" : "text-gray-700"
                 }`}
             >
-              {room.title || "Cuộc trò chuyện mới..."}
+              {room.title || t("sidebar.newChatPlaceholder")}
             </p>
             <p className="text-[11px] text-gray-400 mt-0.5">
               {formatTime(room.updatedAt)}
@@ -111,10 +113,10 @@ export default function Sidebar({
               {loading ? (
                 <>
                   <div className="ai-spinner" />
-                  Đang tải...
+                  {t("sidebar.loading")}
                 </>
               ) : (
-                "Tải thêm"
+                t("sidebar.loadMore")
               )}
             </button>
           </div>

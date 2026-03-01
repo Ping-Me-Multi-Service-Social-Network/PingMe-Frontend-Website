@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Heart, MessageCircle, Share, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import type { Reel } from "@/types/reels";
 import { cn } from "@/lib/utils.ts";
+import { useTranslation } from "react-i18next";
 
 interface ReelViewerProps {
   reel: Reel;
@@ -22,6 +23,7 @@ export function ReelViewer({
   currentIndex,
   totalReels,
 }: ReelViewerProps) {
+  const { t, i18n } = useTranslation("reels");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showControls, setShowControls] = useState(false);
 
@@ -78,13 +80,13 @@ export function ReelViewer({
               <p className="text-sm text-gray-300">
                 {formatDistanceToNow(new Date(reel.createdAt), {
                   addSuffix: true,
-                  locale: vi,
+                  locale: i18n.language === "vi" ? vi : enUS,
                 })}
               </p>
             </div>
           </div>
           <button className="px-6 py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition">
-            Follow
+            {t("common.follow")}
           </button>
         </div>
       </div>
@@ -95,7 +97,7 @@ export function ReelViewer({
           {reel.caption && (
             <p className="text-sm mb-3 line-clamp-3">{reel.caption}</p>
           )}
-          <p className="text-xs text-gray-300">Nhạc nền - {reel.userName}</p>
+          <p className="text-xs text-gray-300">{t("common.backgroundMusic")} - {reel.userName}</p>
         </div>
       </div>
 

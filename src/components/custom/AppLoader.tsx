@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface AppLoaderProps {
   type?: "spinner" | "dots" | "pulse";
@@ -8,9 +9,12 @@ interface AppLoaderProps {
 
 export default function AppLoader({
   type = "dots",
-  message = "Đang tải... chờ xíu cậu nha",
+  message,
   className,
 }: AppLoaderProps) {
+  const { t } = useTranslation("common");
+  const displayMessage = message || t("loading.wait");
+
   return (
     <div
       className={cn(
@@ -25,9 +29,9 @@ export default function AppLoader({
 
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-2xl font-bold text-foreground">Ping Me</h1>
-          {message && (
+          {displayMessage && (
             <p className="animate-pulse text-sm font-medium text-muted-foreground">
-              {message}
+              {displayMessage}
             </p>
           )}
         </div>

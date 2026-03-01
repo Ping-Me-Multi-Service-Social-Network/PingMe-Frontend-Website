@@ -7,6 +7,7 @@ import { favoriteApi } from "@/services/music/favoriteApi";
 import { toast } from "sonner";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
 import { dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
+import { useTranslation } from "react-i18next";
 
 interface SongListItemProps {
   song: Song | SongResponseWithAllAlbum;
@@ -22,6 +23,7 @@ export default function SongListItem({
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useTranslation("music");
 
   const checkIfFavorite = async () => {
     try {
@@ -64,7 +66,7 @@ export default function SongListItem({
     e.stopPropagation();
 
     const action = isFavorite ? favoriteApi.removeFavorite : favoriteApi.addFavorite;
-    const successMessage = isFavorite ? "Đã xóa khỏi bài hát yêu thích" : "Đã thêm vào bài hát yêu thích";
+    const successMessage = isFavorite ? t("cards.favoriteRemoved") : t("cards.favoriteAdded");
     const eventType = isFavorite ? 'favorite-removed' : 'favorite-added';
 
     try {
@@ -74,7 +76,7 @@ export default function SongListItem({
       dispatchFavoriteEvent(eventType, song.id);
     } catch (error) {
       console.error("Error toggling favorite:", error);
-      toast.error("Có lỗi xảy ra");
+      toast.error(t("cards.error"));
     }
   };
 
@@ -92,7 +94,7 @@ export default function SongListItem({
     <button
       type="button"
       onClick={handleRowClick}
-      aria-label={`Phát bài hát ${song.title} của ${song.mainArtist?.name || "Unknown Artist"}`}
+      aria-label={t("cards.playSong", { title: song.title, artist: song.mainArtist?.name || t("cards.unknownArtist") })}
       className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-linear-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full text-left"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -130,7 +132,7 @@ export default function SongListItem({
           {song.title}
         </h3>
         <p className="text-xs text-gray-400 truncate">
-          {song.mainArtist?.name || "Unknown Artist"}
+          {song.mainArtist?.name || t("cards.unknownArtist")}
         </p>
       </div>
 
@@ -141,7 +143,7 @@ export default function SongListItem({
           {(isHovered || isFavorite) && (
             <button
               type="button"
-              aria-label={isFavorite ? `Xóa ${song.title} khỏi yêu thích` : `Thêm ${song.title} vào yêu thích`}
+              aria-label={isFavorite ? t("cards.removeFavorite", { title: song.title }) : t("cards.addFavorite", { title: song.title })}
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggleFavorite(e);
@@ -174,7 +176,7 @@ export default function SongListItem({
               trigger={
                 <button
                   type="button"
-                  aria-label={`Thêm bài hát ${song.title} vào playlist`}
+                  aria-label={t("cards.addToPlaylist", { title: song.title })}
                   className="text-gray-400 hover:text-white transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();

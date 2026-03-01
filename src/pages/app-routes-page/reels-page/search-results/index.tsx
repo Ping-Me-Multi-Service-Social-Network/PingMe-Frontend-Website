@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { useReelNavigation } from "@/hooks/useReelNavigation"
 import { ArrowLeft } from "lucide-react"
@@ -11,6 +12,7 @@ import type { Reel } from "@/types/reels"
 import { reelsApi } from "@/services/reels"
 
 export default function SearchResultsPage() {
+  const { t } = useTranslation("reels")
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const query = searchParams.get("q") || ""
@@ -48,7 +50,7 @@ export default function SearchResultsPage() {
         setReels(filteredResults)
       } catch (err) {
         console.error("Error searching reels:", err)
-        setError("Không thể tìm kiếm reels")
+        setError(t("search.searchError"))
       } finally {
         setIsLoading(false)
       }
@@ -92,7 +94,7 @@ export default function SearchResultsPage() {
         className="text-white hover:bg-gray-800"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Quay về
+        {t("search.back")}
       </Button>
       {children}
     </div>
@@ -115,8 +117,8 @@ export default function SearchResultsPage() {
         <BackHeader />
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
-            title={error || `Không tìm thấy kết quả cho "${query}"`}
-            description="Thử tìm kiếm với từ khóa khác"
+            title={error || t("search.resultsFor", { query })}
+            description={t("search.tryOther")}
           />
         </div>
       </div>
@@ -128,8 +130,8 @@ export default function SearchResultsPage() {
       {/* Header */}
       <BackHeader>
         <div className="text-white text-sm">
-          Kết quả tìm kiếm: <span className="font-semibold">{query}</span>
-          <span className="ml-2 text-gray-400">({reels.length} video)</span>
+          {t("search.resultsFor", { query })}
+          <span className="ml-2 text-gray-400">{t("search.video_count", { count: reels.length })}</span>
         </div>
       </BackHeader>
 

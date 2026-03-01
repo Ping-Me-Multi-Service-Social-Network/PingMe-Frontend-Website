@@ -7,6 +7,7 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { TopSongPlayCounter } from "@/types/music";
 import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
 import RankingSongItem from "../shared/RankingSongItem";
+import { useTranslation } from "react-i18next";
 
 type RankingTab = "today" | "week" | "month";
 
@@ -21,6 +22,7 @@ export default function RankingsPage() {
     const [monthSongs, setMonthSongs] = useState<TopSongPlayCounter[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation("music");
 
     // Update active tab when URL param changes
     useEffect(() => {
@@ -74,22 +76,22 @@ export default function RankingsPage() {
         switch (activeTab) {
             case "today":
                 return {
-                    title: "Top 50 Hôm Nay",
-                    subtitle: "Bài hát được nghe nhiều nhất hôm nay",
+                    title: t("home.rankings.today"),
+                    subtitle: t("pages.rankings.todaySubtitle"),
                     bgColor: "from-pink-900/40 via-red-900/40 to-gray-900",
                     accentColor: "from-pink-600 to-red-700",
                 };
             case "week":
                 return {
-                    title: "Top 50 Tuần Này",
-                    subtitle: "Bảng xếp hạng tuần này",
+                    title: t("home.rankings.week"),
+                    subtitle: t("pages.rankings.weekSubtitle"),
                     bgColor: "from-purple-900/40 via-violet-900/40 to-gray-900",
                     accentColor: "from-purple-600 to-violet-700",
                 };
             case "month":
                 return {
-                    title: "Top 50 Tháng Này",
-                    subtitle: "Bảng xếp hạng tháng này",
+                    title: t("home.rankings.month"),
+                    subtitle: t("pages.rankings.monthSubtitle"),
                     bgColor: "from-purple-900/40 via-indigo-900/40 to-gray-900",
                     accentColor: "from-purple-600 to-indigo-700",
                 };
@@ -127,20 +129,20 @@ export default function RankingsPage() {
         return (
             <div className="flex flex-col items-center justify-center h-96 bg-gray-900 min-h-full gap-4">
                 <div className="text-center">
-                    <p className="text-red-400 text-lg mb-2">⚠️ Unable to load rankings</p>
+                    <p className="text-red-400 text-lg mb-2">{t("pages.rankings.errorLoad")}</p>
                     <p className="text-gray-400 text-sm">{error}</p>
                 </div>
                 <button
                     onClick={() => globalThis.location.reload()}
                     className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                 >
-                    Retry
+                    {t("pages.rankings.retry")}
                 </button>
                 <button
                     onClick={() => navigate("/app/music")}
                     className="text-gray-400 hover:text-white text-sm transition-colors"
                 >
-                    Back to Music
+                    {t("common.back")}
                 </button>
             </div>
         );
@@ -161,7 +163,7 @@ export default function RankingsPage() {
                             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors py-4"
                         >
                             <ArrowLeft className="w-5 h-5" />
-                            <span className="font-medium">Quay Lại</span>
+                            <span className="font-medium">{t("common.back")}</span>
                         </button>
 
                         {/* Tabs */}
@@ -173,7 +175,7 @@ export default function RankingsPage() {
                                     : "text-gray-400 hover:text-gray-300"
                                     }`}
                             >
-                                Top 50 Hôm Nay
+                                {t("home.rankings.today")}
                                 {activeTab === "today" && (
                                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-pink-600 to-red-700" />
                                 )}
@@ -185,7 +187,7 @@ export default function RankingsPage() {
                                     : "text-gray-400 hover:text-gray-300"
                                     }`}
                             >
-                                Top 50 Tuần Này
+                                {t("home.rankings.week")}
                                 {activeTab === "week" && (
                                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-purple-600 to-violet-700" />
                                 )}
@@ -197,7 +199,7 @@ export default function RankingsPage() {
                                     : "text-gray-400 hover:text-gray-300"
                                     }`}
                             >
-                                Top 50 Tháng Này
+                                {t("home.rankings.month")}
                                 {activeTab === "month" && (
                                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-purple-600 to-indigo-700" />
                                 )}
@@ -224,7 +226,7 @@ export default function RankingsPage() {
                             </button>
                         </div>
                         <button className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                            <span className="text-sm font-medium">Add</span>
+                            <span className="text-sm font-medium">{t("pages.rankings.add")}</span>
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
@@ -234,8 +236,8 @@ export default function RankingsPage() {
                 <div className="grid md:grid-cols-2 gap-8">
                     {currentSongs.length === 0 ? (
                         <div className="col-span-2 text-center py-12">
-                            <p className="text-gray-400 text-lg mb-2">Chưa có bài hát trong bảng xếp hạng</p>
-                            <p className="text-gray-500 text-sm">Quay lại sau để xem bảng xếp hạng cập nhật</p>
+                            <p className="text-gray-400 text-lg mb-2">{t("pages.rankings.empty")}</p>
+                            <p className="text-gray-500 text-sm">{t("pages.rankings.emptyDesc")}</p>
                         </div>
                     ) : (
                         <>
