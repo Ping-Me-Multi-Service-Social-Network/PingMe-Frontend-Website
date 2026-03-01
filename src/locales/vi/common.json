@@ -137,5 +137,10 @@
         "uppercase": "Chữ hoa",
         "lowercase": "Chữ thường",
         "number": "Số"
+    },
+    "mobileUnsupported": {
+        "title": "Vui lòng dùng màn hình lớn hơn",
+        "description": "Web hiện chỉ hỗ trợ tốt trên desktop. Hãy mở bằng laptop/PC hoặc dùng app điện thoại.",
+        "previewAlt": "Giao diện ứng dụng minh họa"
     }
 }
