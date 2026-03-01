@@ -33,7 +33,7 @@
             "password": "Password",
             "passwordPlaceholder": "Enter password",
             "confirmPassword": "Confirm password",
-            "passwordMin": "Minimum 6 characters",
+            "pwdMinLength": "Minimum 6 characters",
             "gender": "Gender",
             "genderPlaceholder": "Select",
             "genderMale": "Male",

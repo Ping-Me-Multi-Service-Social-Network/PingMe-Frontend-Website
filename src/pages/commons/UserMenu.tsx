@@ -127,12 +127,12 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
               {currentLanguage === "vi" ? (
                 <>
                   <img src="https://flagcdn.com/w40/vn.png" alt="VN" className="h-3 w-4.5 object-cover rounded-sm" />
-                  Tiếng Việt
+                  <span>Tiếng Việt</span>
                 </>
               ) : (
                 <>
                   <img src="https://flagcdn.com/w40/us.png" alt="US" className="h-3 w-4.5 object-cover rounded-sm" />
-                  English
+                  <span>English</span>
                 </>
               )}
             </span>

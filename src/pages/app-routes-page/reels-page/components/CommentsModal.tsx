@@ -1,12 +1,10 @@
-"use client"
-
 import type React from "react"
 import { X, Send, Heart, User, MoreVertical, ChevronDown, Shield, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import { Input } from "@/components/ui/input.tsx"
 import type { Reel, ReelComment } from "@/types/reels"
 import { formatDistanceToNow } from "date-fns"
-import { vi } from "date-fns/locale"
+import { vi, enUS } from "date-fns/locale"
 import { useState } from "react"
 import { reelsApi } from "@/services/reels"
 import { toast } from "sonner"
@@ -14,7 +12,6 @@ import DeleteConfirmationModal from "./DeleteConfirmationModal.tsx"
 import EditCommentModal from "./EditCommentModal.tsx"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu.tsx"
 import { useTranslation } from "react-i18next"
-import { enUS } from "date-fns/locale"
 
 interface CommentsModalProps {
   reel: Reel

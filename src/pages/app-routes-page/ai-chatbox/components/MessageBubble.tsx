@@ -51,8 +51,8 @@ export default function MessageBubble({
         {/* Bubble */}
         <div
           className={`rounded-2xl px-4 py-2.5 shadow-sm ${isSent
-              ? "bg-linear-to-r from-violet-500 to-purple-600 text-white rounded-br-sm"
-              : "bg-white text-gray-800 border border-gray-100 rounded-bl-sm"
+            ? "bg-linear-to-r from-violet-500 to-purple-600 text-white rounded-br-sm"
+            : "bg-white text-gray-800 border border-gray-100 rounded-bl-sm"
             }`}
         >
           {/* Attachments */}
@@ -126,17 +126,22 @@ export default function MessageBubble({
           )}
 
           {/* Timestamp */}
-          <p
-            className={`text-[10px] mt-1 ${isSent ? "text-violet-200" : "text-gray-400"
-              } text-right`}
-          >
-            {message.createdAt
-              ? new Date(message.createdAt).toLocaleTimeString(t("sidebar.time.locale") === "en" ? "en-US" : "vi-VN", {
+          {(() => {
+            const timeLocale = t("sidebar.time.locale") === "en" ? "en-US" : "vi-VN";
+            const timeStr = message.createdAt
+              ? new Date(message.createdAt).toLocaleTimeString(timeLocale, {
                 hour: "2-digit",
                 minute: "2-digit",
               })
-              : ""}
-          </p>
+              : "";
+            return (
+              <p
+                className={`text-[10px] mt-1 ${isSent ? "text-violet-200" : "text-gray-400"} text-right`}
+              >
+                {timeStr}
+              </p>
+            );
+          })()}
         </div>
       </div>
     </div>

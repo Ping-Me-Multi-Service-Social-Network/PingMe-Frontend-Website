@@ -28,7 +28,7 @@ export default function IntroSection() {
   );
 }
 
-function FeaturesSection({ t }: { t: any }) {
+function FeaturesSection({ t }: Readonly<{ t: any }>) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -91,14 +91,14 @@ function FeaturesSection({ t }: { t: any }) {
         <div className="space-y-12">
           {features.map((feature, index) => {
             const Icon = feature.icon;
-            const isEven = index % 2 === 0;
+            const isOdd = index % 2 !== 0;
 
             return (
               <FeatureCard
                 key={feature.id}
                 feature={feature}
                 index={index}
-                isEven={isEven}
+                isOdd={isOdd}
                 Icon={Icon}
                 onNavigate={scrollToTop}
               />
@@ -113,13 +113,13 @@ function FeaturesSection({ t }: { t: any }) {
 function FeatureCard({
   feature,
   index,
-  isEven,
+  isOdd,
   Icon,
   onNavigate,
 }: Readonly<{
   feature: Feature;
   index: number;
-  isEven: boolean;
+  isOdd: boolean;
   Icon: LucideIcon;
   onNavigate: () => void;
 }>) {
@@ -140,14 +140,12 @@ function FeatureCard({
         >
           <CardContent className="p-0">
             <div
-              className={`grid md:grid-cols-2 gap-0 ${!isEven ? "md:grid-flow-dense" : ""
-                }`}
+              className={`grid md:grid-cols-2 gap-0 ${isOdd ? "md:grid-flow-dense" : ""}`}
             >
               <m.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
-                className={`relative h-64 md:h-auto overflow-hidden ${!isEven ? "md:col-start-2" : ""
-                  }`}
+                className={`relative h-64 md:h-auto overflow-hidden ${isOdd ? "md:col-start-2" : ""}`}
               >
                 <div
                   className={`absolute inset-0 bg-linear-to-br ${feature.gradient} opacity-20 group-hover:opacity-30 transition-opacity`}
@@ -187,7 +185,7 @@ function FeatureCard({
   );
 }
 
-function CTASection({ t }: { t: any }) {
+function CTASection({ t }: Readonly<{ t: any }>) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
