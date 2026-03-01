@@ -9,10 +9,12 @@ import { EditReelModal } from "../components/EditReelModal.tsx";
 import { CreateReelModal } from "../components/CreateReelModal.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function VideoManagerPage() {
+  const { t, i18n } = useTranslation("reels");
   const navigate = useNavigate();
   const currentUserId = useSelector((state: any) => state.auth.userSession?.id);
   const [userReels, setUserReels] = useState<Reel[]>([]);
@@ -49,7 +51,7 @@ export default function VideoManagerPage() {
         setHasMore(res.hasMore);
       } catch (err) {
         console.error("[v0] Error fetching user reels:", err);
-        toast.error("Không thể tải danh sách video");
+        toast.error(t("manage.loadError"));
       } finally {
         setIsLoading(false);
         setIsLoadingMore(false);
@@ -68,10 +70,10 @@ export default function VideoManagerPage() {
       await reelsApi.deleteReel(reelId);
       setUserReels((prev) => prev.filter((r) => r.id !== reelId));
       setShowDeleteConfirm(null);
-      toast.success("Xóa video thành công");
+      toast.success(t("manage.deleteSuccess"));
     } catch (err) {
       console.error("[v0] Error deleting reel:", err);
-      toast.error("Không thể xóa video");
+      toast.error(t("manage.deleteError"));
     } finally {
       setIsDeleting(false);
     }
@@ -104,14 +106,14 @@ export default function VideoManagerPage() {
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-2xl font-semibold text-white">Quản lý Video</h1>
+          <h1 className="text-2xl font-semibold text-white">{t("manage.title")}</h1>
         </div>
         <Button
           onClick={() => setShowCreateModal(true)}
           className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
         >
           <Plus className="w-5 h-5" />
-          Tạo Video Mới
+          {t("create.createVideo")}
         </Button>
       </div>
 
@@ -123,9 +125,9 @@ export default function VideoManagerPage() {
           </div>
         ) : userReels.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3">
-            <p className="text-gray-400">Chưa có video nào</p>
+            <p className="text-gray-400">{t("manage.empty")}</p>
             <Button onClick={() => navigate("/app/reels")} className="mt-4">
-              Quay lại
+              {t("manage.back")}
             </Button>
           </div>
         ) : (
@@ -155,22 +157,22 @@ export default function VideoManagerPage() {
                 {/* Video Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-semibold truncate">
-                    {reel.caption || "Không có tiêu đề"}
+                    {reel.caption || t("manage.untitled") || t("search.untitled")}
                   </p>
                   <p className="text-sm text-gray-400 mt-1">
-                    Lượt xem:{" "}
+                    {t("manage.stats.views")}{" "}
                     <span className="font-semibold">{reel.viewCount}</span>
                   </p>
                   <p className="text-sm text-gray-400">
-                    Yêu thích:{" "}
+                    {t("manage.stats.likes")}{" "}
                     <span className="font-semibold">{reel.likeCount}</span> •
-                    Bình luận:{" "}
+                    {t("manage.stats.comments")}{" "}
                     <span className="font-semibold">{reel.commentCount}</span>
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     {formatDistanceToNow(new Date(reel.createdAt), {
                       addSuffix: true,
-                      locale: vi,
+                      locale: i18n.language === "vi" ? vi : enUS,
                     })}
                   </p>
                 </div>
@@ -184,7 +186,7 @@ export default function VideoManagerPage() {
                     onClick={() => setEditingReel(reel)}
                   >
                     <Edit2 className="w-4 h-4 mr-1" />
-                    Sửa
+                    {t("comments.edit")}
                   </Button>
                   <Button
                     size="sm"
@@ -193,7 +195,7 @@ export default function VideoManagerPage() {
                     onClick={() => setShowDeleteConfirm(reel.id)}
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
-                    Xóa
+                    {t("comments.delete")}
                   </Button>
                 </div>
               </div>
@@ -211,7 +213,7 @@ export default function VideoManagerPage() {
             onClick={handleLoadMore}
             className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
           >
-            {isLoadingMore ? "Đang tải..." : "Xem thêm"}
+            {isLoadingMore ? t("comments.loading") || t("search.searching") : t("manage.loadMore")}
           </Button>
         </div>
       )}
@@ -219,7 +221,7 @@ export default function VideoManagerPage() {
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
         <div className="border-t border-gray-700 p-6 bg-gray-800">
-          <p className="text-white mb-4">Bạn có chắc muốn xóa video này?</p>
+          <p className="text-white mb-4">{t("manage.deleteConfirm")}</p>
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -227,7 +229,7 @@ export default function VideoManagerPage() {
               disabled={isDeleting}
               className="flex-1"
             >
-              Hủy
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -235,7 +237,7 @@ export default function VideoManagerPage() {
               disabled={isDeleting}
               className="flex-1"
             >
-              {isDeleting ? "Đang xóa..." : "Xóa"}
+              {isDeleting ? t("common.deleting") : t("common.delete")}
             </Button>
           </div>
         </div>

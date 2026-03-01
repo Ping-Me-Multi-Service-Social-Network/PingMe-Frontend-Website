@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { EditReelModal } from "./EditReelModal.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface VideoManagerProps {
   onClose: () => void;
@@ -15,6 +16,7 @@ interface VideoManagerProps {
 }
 
 export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
+  const { t, i18n } = useTranslation("reels");
   const [userReels, setUserReels] = useState<Reel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingReel, setEditingReel] = useState<Reel | undefined>();
@@ -30,7 +32,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
       setUserReels(res.content);
     } catch (err) {
       console.error("[v0] Error fetching user reels:", err);
-      toast.error("Không thể tải danh sách video");
+      toast.error(t("manage.loadError"));
     } finally {
       setIsLoading(false);
     }
@@ -46,10 +48,10 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
       await reelsApi.deleteReel(reelId);
       setUserReels((prev) => prev.filter((r) => r.id !== reelId));
       setShowDeleteConfirm(null);
-      toast.success("Xóa video thành công");
+      toast.success(t("manage.deleteSuccess"));
     } catch (err) {
       console.error("[v0] Error deleting reel:", err);
-      toast.error("Không thể xóa video");
+      toast.error(t("manage.deleteError"));
     } finally {
       setIsDeleting(false);
     }
@@ -66,7 +68,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
       <div className="bg-gray-900 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <h2 className="text-2xl font-semibold text-white">Quản lý Video</h2>
+          <h2 className="text-2xl font-semibold text-white">{t("manage.title")}</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -85,9 +87,9 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
             </div>
           ) : userReels.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3">
-              <p className="text-gray-400">Chưa có video nào</p>
+              <p className="text-gray-400">{t("manage.empty")}</p>
               <Button onClick={onClose} className="mt-4">
-                Quay lại
+                {t("manage.back")}
               </Button>
             </div>
           ) : (
@@ -117,22 +119,22 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
                   {/* Video Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-semibold truncate">
-                      {reel.caption || "Không có tiêu đề"}
+                      {reel.caption || t("manage.untitled") || t("search.untitled")}
                     </p>
                     <p className="text-sm text-gray-400 mt-1">
-                      Lượt xem:{" "}
+                      {t("manage.stats.views")}{" "}
                       <span className="font-semibold">{reel.viewCount}</span>
                     </p>
                     <p className="text-sm text-gray-400">
-                      Yêu thích:{" "}
+                      {t("manage.stats.likes")}{" "}
                       <span className="font-semibold">{reel.likeCount}</span> •
-                      Bình luận:{" "}
+                      {t("manage.stats.comments")}{" "}
                       <span className="font-semibold">{reel.commentCount}</span>
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       {formatDistanceToNow(new Date(reel.createdAt), {
                         addSuffix: true,
-                        locale: vi,
+                        locale: i18n.language === "vi" ? vi : enUS,
                       })}
                     </p>
                   </div>
@@ -146,7 +148,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
                       onClick={() => setEditingReel(reel)}
                     >
                       <Edit2 className="w-4 h-4 mr-1" />
-                      Sửa
+                      {t("comments.edit")}
                     </Button>
                     <Button
                       size="sm"
@@ -155,7 +157,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
                       onClick={() => setShowDeleteConfirm(reel.id)}
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
-                      Xóa
+                      {t("comments.delete")}
                     </Button>
                   </div>
                 </div>
@@ -167,7 +169,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
         {/* Delete Confirmation */}
         {showDeleteConfirm && (
           <div className="border-t border-gray-700 p-6 bg-gray-800">
-            <p className="text-white mb-4">Bạn có chắc muốn xóa video này?</p>
+            <p className="text-white mb-4">{t("manage.deleteConfirm")}</p>
             <div className="flex gap-3">
               <Button
                 variant="outline"
@@ -175,7 +177,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
                 disabled={isDeleting}
                 className="flex-1"
               >
-                Hủy
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -183,7 +185,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
                 disabled={isDeleting}
                 className="flex-1"
               >
-                {isDeleting ? "Đang xóa..." : "Xóa"}
+                {isDeleting ? t("common.deleting") : t("common.delete")}
               </Button>
             </div>
           </div>

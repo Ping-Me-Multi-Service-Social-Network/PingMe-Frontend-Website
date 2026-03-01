@@ -26,6 +26,7 @@ import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { type UserStatusPayload } from "@/types/common/userStatus.ts";
+import { useTranslation } from "react-i18next";
 
 interface FriendListComponentRef {
   handleNewFriend: (user: UserSummaryResponse) => void;
@@ -45,6 +46,7 @@ export const FriendsListComponent = forwardRef<
   FriendsListComponentProps
 >((props, ref) => {
   const { onStatsUpdate, statusPayload } = props;
+  const { t } = useTranslation("contacts");
 
   // State quản lý danh sách bạn bè và infinite scroll
   const [friends, setFriends] = useState<UserSummaryResponse[]>([]);
@@ -85,7 +87,7 @@ export const FriendsListComponent = forwardRef<
 
         setHasMoreFriends(response.hasMore);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Không thể tải danh sách bạn bè"));
+        toast.error(getErrorMessage(error, t("friendsList.fetchError")));
       } finally {
         setIsLoading(false);
         isLoadingRef.current = false;
@@ -126,9 +128,9 @@ export const FriendsListComponent = forwardRef<
           totalFriends: prev.totalFriends - 1,
         }));
 
-        toast.success("Đã xóa bạn bè thành công");
+        toast.success(t("friendsList.removeSuccess"));
       } catch (error) {
-        toast.error(getErrorMessage(error, "Không thể xóa bạn bè"));
+        toast.error(getErrorMessage(error, t("friendsList.removeError")));
       }
     },
     [onStatsUpdate],
@@ -178,9 +180,9 @@ export const FriendsListComponent = forwardRef<
       prev.map((friend) =>
         friend.id === Number(statusPayload.userId)
           ? {
-              ...friend,
-              status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
-            }
+            ...friend,
+            status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+          }
           : friend,
       ),
     );
@@ -193,10 +195,10 @@ export const FriendsListComponent = forwardRef<
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Danh sách bạn bè
+              {t("friendsList.title")}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {friends.length} bạn bè
+              {friends.length} {t("friendsList.count")}
             </p>
           </div>
         </div>
@@ -209,7 +211,7 @@ export const FriendsListComponent = forwardRef<
             <div className="flex items-center space-x-3 text-purple-600">
               <LoadingSpinner className="w-8 h-8" />
               <span className="text-lg font-medium">
-                Đang tải danh sách bạn bè...
+                {t("friendsList.loading")}
               </span>
             </div>
           </div>
@@ -217,8 +219,8 @@ export const FriendsListComponent = forwardRef<
           <div className="h-64">
             <EmptyState
               icon={Users}
-              title="Chưa có bạn bè"
-              description="Hãy gửi lời mời kết bạn để bắt đầu kết nối!"
+              title={t("friendsList.emptyTitle")}
+              description={t("friendsList.emptyDesc")}
             />
           </div>
         ) : (
@@ -273,7 +275,7 @@ export const FriendsListComponent = forwardRef<
                     className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                   >
                     <UserMinus className="w-4 h-4 mr-2" />
-                    Xóa bạn
+                    {t("friendsList.btnRemove")}
                   </Button>
                 )}
               </div>
@@ -282,13 +284,13 @@ export const FriendsListComponent = forwardRef<
               <div className="flex justify-center py-4">
                 <div className="flex items-center space-x-2 text-purple-600">
                   <LoadingSpinner className="w-5 h-5" />
-                  <span>Đang tải thêm...</span>
+                  <span>{t("common.loadingMore")}</span>
                 </div>
               </div>
             )}
             {!hasMoreFriends && friends.length > 0 && (
               <div className="text-center py-4 text-gray-500">
-                <p>Đã hiển thị tất cả bạn bè</p>
+                <p>{t("common.displayedAllFriends")}</p>
               </div>
             )}
           </div>

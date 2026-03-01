@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DeleteConfirmDialogProps {
   onConfirm: () => void;
@@ -23,11 +24,18 @@ interface DeleteConfirmDialogProps {
 
 export const DeleteConfirmDialog = ({
   onConfirm,
-  description = "Hành động này không thể hoàn tác.",
+  description,
   styledDescription,
-  title = "Bạn có chắc chắn muốn xóa?",
+  title,
   children,
 }: DeleteConfirmDialogProps) => {
+  const { t } = useTranslation("common");
+
+  const effectiveTitle = title || t("actions.deleteConfirm");
+  const effectiveDescription = description || t("actions.irreversible");
+  const cancelLabel = t("actions.cancel");
+  const confirmLabel = t("actions.confirmDelete");
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -47,18 +55,18 @@ export const DeleteConfirmDialog = ({
         className="z-[9999]"
       >
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle>{effectiveTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            {styledDescription ? styledDescription : description}
+            {styledDescription ? styledDescription : effectiveDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-purple-600 hover:bg-purple-700"
           >
-            Xác nhận xóa
+            {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

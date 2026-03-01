@@ -25,6 +25,7 @@ import type { HistoryFriendshipResponse } from "@/types/friendship";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserInitials } from "@/utils/authFieldHandler.ts";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface SentInvitationsComponentRef {
   handleInvitationUpdate: (user: UserSummaryResponse) => void;
@@ -41,6 +42,7 @@ export const SentInvitationsComponent = forwardRef<
   SentInvitationsComponentProps
 >((props, ref) => {
   const { onStatsUpdate } = props;
+  const { t } = useTranslation("contacts");
 
   // State quản lý danh sách lời mời đã gửi và infinite scroll
   const [sentInvitations, setSentInvitations] = useState<UserSummaryResponse[]>(
@@ -79,7 +81,7 @@ export const SentInvitationsComponent = forwardRef<
 
         setHasMoreInvitations(response.hasMore);
       } catch {
-        toast.error("Không thể tải danh sách lời mời đã gửi");
+        toast.error(t("sentInvitations.fetchError"));
       } finally {
         setIsLoading(false);
         isLoadingRef.current = false;
@@ -122,9 +124,9 @@ export const SentInvitationsComponent = forwardRef<
           totalSentInvites: prev.totalSentInvites - 1,
         }));
 
-        toast.success("Đã hủy lời mời kết bạn");
+        toast.success(t("sentInvitations.cancelSuccess"));
       } catch {
-        toast.error("Không thể hủy lời mời kết bạn");
+        toast.error(t("sentInvitations.cancelError"));
       }
     },
     [onStatsUpdate],
@@ -172,10 +174,10 @@ export const SentInvitationsComponent = forwardRef<
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Lời mời đã gửi
+              {t("sentInvitations.title")}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {sentInvitations.length} lời mời
+              {sentInvitations.length} {t("sentInvitations.count")}
             </p>
           </div>
         </div>
@@ -187,7 +189,7 @@ export const SentInvitationsComponent = forwardRef<
             <div className="flex items-center space-x-3 text-purple-600">
               <LoadingSpinner className="w-8 h-8" />
               <span className="text-lg font-medium">
-                Đang tải danh sách lời mời...
+                {t("sentInvitations.loading")}
               </span>
             </div>
           </div>
@@ -195,8 +197,8 @@ export const SentInvitationsComponent = forwardRef<
           <div className="h-64">
             <EmptyState
               icon={Send}
-              title="Chưa gửi lời mời nào"
-              description="Hãy gửi lời mời kết bạn để bắt đầu kết nối!"
+              title={t("sentInvitations.emptyTitle")}
+              description={t("sentInvitations.emptyDesc")}
             />
           </div>
         ) : (
@@ -230,7 +232,7 @@ export const SentInvitationsComponent = forwardRef<
                     className="text-orange-600 border-orange-200 bg-orange-50"
                   >
                     <Clock className="w-3 h-3 mr-1" />
-                    Đang chờ
+                    {t("sentInvitations.statusPending")}
                   </Badge>
 
                   {invitation.friendshipSummary && (
@@ -243,7 +245,7 @@ export const SentInvitationsComponent = forwardRef<
                       className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                     >
                       <X className="w-4 h-4 mr-2" />
-                      Hủy
+                      {t("sentInvitations.btnCancel")}
                     </Button>
                   )}
                 </div>
@@ -253,13 +255,13 @@ export const SentInvitationsComponent = forwardRef<
               <div className="flex justify-center py-4">
                 <div className="flex items-center space-x-2 text-purple-600">
                   <LoadingSpinner className="w-5 h-5" />
-                  <span>Đang tải thêm...</span>
+                  <span>{t("common.loadingMore")}</span>
                 </div>
               </div>
             )}
             {!hasMoreInvitations && sentInvitations.length > 0 && (
               <div className="text-center py-4 text-gray-500">
-                <p>Đã hiển thị tất cả lời mời</p>
+                <p>{t("common.displayedAllInvitations")}</p>
               </div>
             )}
           </div>

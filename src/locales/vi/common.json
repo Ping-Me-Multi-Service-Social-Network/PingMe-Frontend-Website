@@ -1,0 +1,141 @@
+{
+    "nav": {
+        "chat": {
+            "title": "Tin Nhắn",
+            "desc": "Trò chuyện với bạn bè"
+        },
+        "contacts": {
+            "title": "Danh Bạ",
+            "desc": "Quản lý danh bạ"
+        },
+        "music": {
+            "title": "Nghe Nhạc",
+            "desc": "Đắm chìm trong âm nhạc"
+        },
+        "reels": {
+            "title": "Thước Phim",
+            "desc": "Video giải trí"
+        },
+        "pingAi": {
+            "title": "Ping AI",
+            "desc": "Trợ lý AI thông minh"
+        },
+        "guide": {
+            "title": "Hướng dẫn",
+            "desc": "Xem lại tour giới thiệu",
+            "aria": "Xem lại hướng dẫn"
+        },
+        "closeMenu": "Đóng menu",
+        "account": {
+            "title": "Tài khoản",
+            "desc": "Quản lý tài khoản"
+        }
+    },
+    "userMenu": {
+        "myAccount": "Tài khoản của tôi",
+        "personalInfo": "Thông tin cá nhân",
+        "language": "Ngôn ngữ",
+        "logout": "Đăng xuất"
+    },
+    "userLookup": {
+        "title": "Tìm kiếm người dùng",
+        "emailLabel": "Email người dùng",
+        "emailPlaceholder": "Nhập email để tìm kiếm...",
+        "emptyEmailError": "Vui lòng nhập email để tìm kiếm",
+        "searching": "Đang tìm kiếm...",
+        "btnMessage": "Nhắn tin",
+        "btnSendRequest": "Kết bạn",
+        "btnSending": "Đang gửi...",
+        "requestSuccess": "Đã gửi lời mời kết bạn thành công!",
+        "requestError": "Không thể gửi lời mời kết bạn",
+        "redirecting": "Đang chuyển đến cuộc trò chuyện...",
+        "friendStatus": {
+            "none": "Chưa kết bạn",
+            "accepted": "Đã là bạn bè",
+            "pending": "Đang chờ phản hồi"
+        },
+        "pendingMsg": "Lời mời kết bạn đã được gửi. Vui lòng chờ phản hồi từ người dùng.",
+        "acceptedMsg": "Bạn và {{name}} đã là bạn bè. Có thể bắt đầu trò chuyện!",
+        "notFound": "Không tìm thấy người dùng với email này",
+        "tryAgain": "Vui lòng kiểm tra lại email và thử lại"
+    },
+    "groupModal": {
+        "create": {
+            "title": "Tạo nhóm chat",
+            "nameLabel": "Tên nhóm",
+            "namePlaceholder": "Nhập tên nhóm...",
+            "emptyNameError": "Vui lòng nhập tên nhóm",
+            "minMembersError": "Nhóm chat cần ít nhất 2 thành viên",
+            "success": "Tạo nhóm chat thành công",
+            "error": "Không thể tạo nhóm chat",
+            "btnText": "Tạo nhóm",
+            "creatingText": "Đang tạo...",
+            "selectedTitle": "Thành viên đã chọn",
+            "emptySelected": "Chưa có thành viên",
+            "emptySelectedDesc": "Chọn bạn bè từ danh sách bên trái để thêm vào nhóm"
+        },
+        "add": {
+            "title": "Thêm thành viên",
+            "emptySelectionError": "Vui lòng chọn ít nhất 1 thành viên",
+            "noRoomError": "Không tìm thấy thông tin phòng chat",
+            "success": "Thêm thành viên thành công",
+            "error": "Không thể thêm thành viên",
+            "btnText": "Thêm thành viên",
+            "addingText": "Đang thêm...",
+            "selectedTitle": "Thêm vào nhóm",
+            "emptySelected": "Chưa chọn thành viên",
+            "emptySelectedDesc": "Chọn bạn bè để thêm vào nhóm chat"
+        },
+        "search": {
+            "placeholder": "Tìm kiếm bạn bè...",
+            "fetchError": "Không thể tải danh sách bạn bè",
+            "inGroup": "Đã trong nhóm",
+            "available": "Có thể thêm",
+            "notFound": "Không tìm thấy bạn bè",
+            "tryOtherQuery": "Thử tìm kiếm với từ khóa khác",
+            "allInGroup": "Tất cả bạn bè đã có trong nhóm",
+            "noFriends": "Bạn chưa có bạn bè nào"
+        },
+        "cancel": "Hủy"
+    },
+    "errors": {
+        "sessionFail": "Lấy thông tin tài khoản thất bại",
+        "sessionExpired": "Phiên đăng nhập đã hết hạn",
+        "actionFail": "Thao tác thất bại"
+    },
+    "actions": {
+        "confirm": "Xác nhận",
+        "cancel": "Hủy",
+        "processing": "Đang xử lý...",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa?",
+        "irreversible": "Hành động này không thể hoàn tác.",
+        "confirmDelete": "Xác nhận xóa",
+        "delete": "Xóa",
+        "save": "Lưu",
+        "edit": "Chỉnh sửa"
+    },
+    "pagination": {
+        "showing": "Hiển thị",
+        "to": "đến",
+        "of": "trong tổng số",
+        "results": "kết quả",
+        "pageSize": "Hiển thị:",
+        "prev": "Trước",
+        "next": "Sau"
+    },
+    "loading": {
+        "default": "Đang tải...",
+        "wait": "Đang tải... chờ xíu cậu nha"
+    },
+    "passwordStrength": {
+        "label": "Độ mạnh mật khẩu:",
+        "weak": "Yếu",
+        "medium": "Trung bình",
+        "strong": "Mạnh",
+        "veryStrong": "Rất mạnh",
+        "minChars": "Ít nhất 8 ký tự",
+        "uppercase": "Chữ hoa",
+        "lowercase": "Chữ thường",
+        "number": "Số"
+    }
+}

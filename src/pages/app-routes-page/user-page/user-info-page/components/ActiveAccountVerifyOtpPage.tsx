@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { useAppDispatch } from "@/features/hooks"; // [NEW]
 import { getCurrentUserSession } from "@/features/auth/authThunk"; // [NEW]
+import { useTranslation } from "react-i18next";
 
 const ActiveAccountVerifyOtpPage: React.FC = () => {
   const [otp, setOtp] = useState("");
@@ -18,6 +19,7 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const { t } = useTranslation("profile");
 
   const email = location.state?.email;
   const otpType = location.state?.type || "USER_FORGET_PASSWORD"; // Lấy type từ state
@@ -32,7 +34,7 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
     e.preventDefault();
     if (!email) return;
     if (!otp || otp.length < 6) {
-      toast.error("Vui lòng nhập mã OTP hợp lệ");
+      toast.error(t("userInfo.verifyOtp.inputInvalid"));
       return;
     }
 
@@ -55,7 +57,7 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
             // 2. Gọi API Activate
             await activateAccountApi();
 
-            toast.success("Kích hoạt tài khoản thành công!");
+            toast.success(t("userInfo.verifyOtp.activationSuccess"));
 
             // 3. Cập nhật lại thông tin user trong Redux để nút Active biến mất
             await dispatch(getCurrentUserSession());
@@ -66,14 +68,14 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
             toast.error(
               getErrorMessage(
                 error_,
-                "Lỗi khi kích hoạt tài khoản sau khi xác thực OTP",
+                t("userInfo.verifyOtp.activationFail"),
               ),
             );
           }
         }
         // --- LOGIC CŨ CHO QUÊN MẬT KHẨU ---
         else {
-          toast.success("Xác thực OTP thành công");
+          toast.success(t("userInfo.verifyOtp.success"));
           if (resData.data.resetPasswordToken) {
             localStorage.setItem(
               "resetPasswordToken",
@@ -85,10 +87,10 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
           });
         }
       } else {
-        toast.error("Mã OTP không chính xác hoặc đã hết hạn.");
+        toast.error(t("userInfo.verifyOtp.invalid"));
       }
     } catch (error_) {
-      toast.error(getErrorMessage(error_, "Xác thực OTP thất bại"));
+      toast.error(getErrorMessage(error_, t("userInfo.verifyOtp.fail")));
     } finally {
       setIsLoading(false);
     }
@@ -104,9 +106,9 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
               <ShieldCheck className="w-8 h-8 text-purple-600" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Xác thực OTP</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("userInfo.verifyOtp.title")}</h1>
           <p className="text-gray-500 text-sm">
-            Nhập mã 6 số chúng tôi đã gửi đến email
+            {t("userInfo.verifyOtp.subtitle")}
             <br />
             <span className="font-medium text-purple-600">{email}</span>
           </p>
@@ -115,7 +117,7 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           <div className="space-y-2">
             <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
-              Mã OTP
+              {t("userInfo.verifyOtp.otpLabel")}
             </Label>
             <Input
               id="otp"
@@ -138,10 +140,10 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Đang xử lý...
+                {t("userInfo.verifyOtp.processing")}
               </>
             ) : (
-              "Xác nhận"
+              t("userInfo.verifyOtp.btnVerify")
             )}
           </Button>
         </form>
@@ -152,7 +154,7 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
             className="inline-flex items-center text-sm text-gray-600 hover:text-purple-600 font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại
+            {t("userInfo.verifyOtp.backBtn")}
           </button>
         </div>
       </div>

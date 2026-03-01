@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { playlistApi } from "@/services/music/playlistApi";
 import type { PlaylistDto } from "@/types/music/playlist";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface PlaylistDropdownProps {
     songId: number;
@@ -55,18 +56,19 @@ function CreatePlaylistDialog({
     isLoading,
     idSuffix = "",
 }: Readonly<CreatePlaylistDialogProps>) {
+    const { t } = useTranslation("music");
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-gray-800 border-gray-700 text-white">
                 <DialogHeader>
-                    <DialogTitle>Tạo danh sách phát mới</DialogTitle>
+                    <DialogTitle>{t("playlistDropdown.createTitle")}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label htmlFor="playlistName">Tên danh sách phát</Label>
+                        <Label htmlFor="playlistName">{t("playlistDropdown.nameLabel")}</Label>
                         <Input
                             id="playlistName"
-                            placeholder="Nhập tên danh sách phát"
+                            placeholder={t("playlistDropdown.namePlaceholder")}
                             value={playlistName}
                             onChange={(e) => onPlaylistNameChange(e.target.value)}
                             className="bg-gray-700 border-gray-600 text-white"
@@ -89,7 +91,7 @@ function CreatePlaylistDialog({
                             htmlFor={`is-public${idSuffix}`}
                             className="text-sm text-gray-300 cursor-pointer select-none"
                         >
-                            Chia sẻ playlist này công khai
+                            {t("playlistDropdown.sharePublic")}
                         </label>
                     </div>
                 </div>
@@ -103,14 +105,14 @@ function CreatePlaylistDialog({
                         }}
                         className="text-gray-400 hover:text-white"
                     >
-                        Hủy
+                        {t("common.cancel")}
                     </Button>
                     <Button
                         onClick={onCreatePlaylist}
                         disabled={isLoading || !playlistName.trim()}
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
-                        {isLoading ? "Đang tạo..." : "Tạo"}
+                        {isLoading ? t("playlistDropdown.creating") : t("playlistDropdown.create")}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -131,6 +133,7 @@ export default function PlaylistDropdown({
     const [newPlaylistName, setNewPlaylistName] = useState("");
     const [isPublic, setIsPublic] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { t } = useTranslation("music");
 
     // Load playlists when dropdown opens
     useEffect(() => {
@@ -159,7 +162,7 @@ export default function PlaylistDropdown({
             setPlaylists(data);
         } catch (error) {
             console.error("Error loading playlists:", error);
-            toast.error("Không thể tải danh sách playlist");
+            toast.error(t("playlistDropdown.loadError"));
         }
     };
 
@@ -167,9 +170,9 @@ export default function PlaylistDropdown({
         try {
             const result = await playlistApi.addSongToPlaylist(playlistId, songId);
             if (result.alreadyExists) {
-                toast.info("Bài hát đã có trong playlist");
+                toast.info(t("playlistDropdown.exists"));
             } else {
-                toast.success("Đã thêm vào playlist");
+                toast.success(t("playlistDropdown.added"));
             }
 
             // Dispatch event to notify other components
@@ -182,13 +185,13 @@ export default function PlaylistDropdown({
             onOpenChange?.(false);
         } catch (error) {
             console.error("Error adding to playlist:", error);
-            toast.error("Không thể thêm vào playlist");
+            toast.error(t("playlistDropdown.addError"));
         }
     };
 
     const handleCreatePlaylist = async () => {
         if (!newPlaylistName.trim()) {
-            toast.error("Vui lòng nhập tên playlist");
+            toast.error(t("playlistDropdown.nameRequired"));
             return;
         }
 
@@ -203,7 +206,7 @@ export default function PlaylistDropdown({
             // Add to local state immediately
             setPlaylists((prev) => [...prev, newPlaylist]);
 
-            toast.success("Đã tạo playlist và thêm bài hát");
+            toast.success(t("playlistDropdown.createdAndAdded"));
             setShowCreateDialog(false);
             setNewPlaylistName("");
             setIsPublic(false);
@@ -218,7 +221,7 @@ export default function PlaylistDropdown({
             onOpenChange?.(false);
         } catch (error) {
             console.error("Error creating playlist:", error);
-            toast.error("Không thể tạo playlist");
+            toast.error(t("playlistDropdown.createError"));
         } finally {
             setIsLoading(false);
         }
@@ -240,7 +243,7 @@ export default function PlaylistDropdown({
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger className="text-white hover:bg-gray-700">
                                 <ListPlus className="mr-2 h-4 w-4" />
-                                <span>Thêm vào danh sách phát</span>
+                                <span>{t("playlistDropdown.addToPlaylist")}</span>
                             </DropdownMenuSubTrigger>
                             <DropdownMenuSubContent className="w-70 bg-gray-800 border-gray-700 max-h-100 overflow-y-auto">
                                 <DropdownMenuItem
@@ -252,7 +255,7 @@ export default function PlaylistDropdown({
                                     className="text-white hover:bg-gray-700 cursor-pointer"
                                 >
                                     <Plus className="mr-2 h-4 w-4" />
-                                    <span>Danh sách phát mới</span>
+                                    <span>{t("playlistDropdown.newPlaylist")}</span>
                                 </DropdownMenuItem>
 
                                 {playlists.length > 0 && (
@@ -304,7 +307,7 @@ export default function PlaylistDropdown({
                     <DropdownMenuSub>
                         <DropdownMenuSubTrigger className="text-white hover:bg-gray-700">
                             <ListPlus className="mr-2 h-4 w-4" />
-                            <span>Thêm vào danh sách phát</span>
+                            <span>{t("playlistDropdown.addToPlaylist")}</span>
                         </DropdownMenuSubTrigger>
                         <DropdownMenuSubContent className="w-70 bg-gray-800 border-gray-700 max-h-100 overflow-y-auto">
                             {/* Search Playlist */}
@@ -312,7 +315,7 @@ export default function PlaylistDropdown({
                                 <div className="relative">
                                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                                     <Input
-                                        placeholder="Tìm một danh sách phát"
+                                        placeholder={t("playlistDropdown.searchPlaceholder")}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="pl-8 bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
@@ -332,7 +335,7 @@ export default function PlaylistDropdown({
                                 }}
                             >
                                 <Plus className="mr-2 h-4 w-4" />
-                                <span>Danh sách phát mới</span>
+                                <span>{t("playlistDropdown.newPlaylist")}</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator className="bg-gray-700" />
@@ -354,8 +357,8 @@ export default function PlaylistDropdown({
                             ) : (
                                 <div className="p-4 text-center text-gray-400 text-sm">
                                     {searchQuery
-                                        ? "Không tìm thấy playlist"
-                                        : "Chưa có playlist nào"}
+                                        ? t("playlistDropdown.notFound")
+                                        : t("playlistDropdown.empty")}
                                 </div>
                             )}
                         </DropdownMenuSubContent>

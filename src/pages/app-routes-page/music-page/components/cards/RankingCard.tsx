@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { TopSongPlayCounter } from "@/types/music";
 import { Music2 } from "lucide-react";
 import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
+import { useTranslation } from "react-i18next";
 
 interface RankingCardProps {
     title: string;
@@ -29,6 +30,7 @@ export default function RankingCard({
     const [songs, setSongs] = useState<TopSongPlayCounter[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation("music");
 
     useEffect(() => {
         let isMounted = true;
@@ -118,7 +120,7 @@ export default function RankingCard({
                             </div>
                         </div>
                     ))}
-                    <p className="text-gray-500 text-xs text-center mt-2">No data available</p>
+                    <p className="text-gray-500 text-xs text-center mt-2">{t("cards.noData")}</p>
                 </div>
             );
         }
@@ -172,7 +174,7 @@ export default function RankingCard({
                             )}
                             <div className="flex-1 min-w-0">
                                 <p className="text-white text-sm font-medium truncate">{song.title}</p>
-                                <p className="text-gray-400 text-xs truncate">{song.playCount.toLocaleString()} plays</p>
+                                <p className="text-gray-400 text-xs truncate">{t("cards.plays", { playCount: song.playCount.toLocaleString() })}</p>
                             </div>
                         </div>
                     );

@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { fetchMusicData } from "@/features/music/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_TOP_SONGS_LIMIT } from "@/constants/musicConstants";
+import { useTranslation } from "react-i18next";
 
 /**
  * HomePage - Music module home/dashboard page
@@ -41,9 +42,10 @@ export default function HomePage() {
 
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const { t } = useTranslation("music");
 
   // Derive error from Redux state instead of syncing via useEffect
-  const error = reduxError ? "Không thể tải dữ liệu âm nhạc" : null;
+  const error = reduxError ? t("home.errorLoad") : null;
 
   // Check cache validity và fetch nếu cần
   useEffect(() => {
@@ -171,9 +173,9 @@ export default function HomePage() {
           >
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-white mb-2">
-                Bài Hát Yêu Thích
+                {t("home.quickLinks.favorites")}
               </h3>
-              <p className="text-sm text-gray-300">Những bài hát bạn thích</p>
+              <p className="text-sm text-gray-300">{t("home.quickLinks.favoritesDesc")}</p>
             </div>
             <div className="absolute inset-0 bg-linear-to-r from-red-600/20 to-pink-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -184,9 +186,9 @@ export default function HomePage() {
           >
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-white mb-2">
-                Danh Sách Phát
+                {t("home.quickLinks.playlists")}
               </h3>
-              <p className="text-sm text-white">Bộ sưu tập của bạn</p>
+              <p className="text-sm text-white">{t("home.quickLinks.playlistsDesc")}</p>
             </div>
             <div className="absolute inset-0 bg-linear-to-r from-purple-600/20 to-purple-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -197,9 +199,9 @@ export default function HomePage() {
           >
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-white mb-2">
-                Khám Phá Playlist
+                {t("home.quickLinks.discover")}
               </h3>
-              <p className="text-sm text-white">Cộng đồng chia sẻ</p>
+              <p className="text-sm text-white">{t("home.quickLinks.discoverDesc")}</p>
             </div>
             <div className="absolute inset-0 bg-linear-to-r from-green-600/20 to-teal-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
@@ -208,19 +210,19 @@ export default function HomePage() {
         {/* Rankings Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Bảng Xếp Hạng</h2>
+            <h2 className="text-2xl font-bold text-white">{t("home.rankings.title")}</h2>
             <button
               onClick={() => navigate("/app/music/rankings")}
               className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
             >
-              Xem Tất Cả
+              {t("home.rankings.viewAll")}
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Top 50 Today */}
             <RankingCard
-              title="Top 50 Hôm Nay"
-              description="Bài hát được nghe nhiều nhất hôm nay"
+              title={t("home.rankings.today")}
+              description={t("home.rankings.todayDesc")}
               gradientFrom="from-pink-900/40"
               gradientVia="via-red-900/40"
               hoverFrom="from-pink-600/20"
@@ -231,8 +233,8 @@ export default function HomePage() {
 
             {/* Top 50 Week */}
             <RankingCard
-              title="Top 50 Tuần Này"
-              description="Bảng xếp hạng tuần này"
+              title={t("home.rankings.week")}
+              description={t("home.rankings.weekDesc")}
               gradientFrom="from-purple-900/40"
               gradientVia="via-violet-900/40"
               hoverFrom="from-purple-600/20"
@@ -243,8 +245,8 @@ export default function HomePage() {
 
             {/* Top 50 Month */}
             <RankingCard
-              title="Top 50 Tháng Này"
-              description="Bảng xếp hạng tháng này"
+              title={t("home.rankings.month")}
+              description={t("home.rankings.monthDesc")}
               gradientFrom="from-purple-900/40"
               gradientVia="via-indigo-900/40"
               hoverFrom="from-purple-600/20"
@@ -257,7 +259,7 @@ export default function HomePage() {
 
         {/* Genres Section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Thể Loại</h2>
+          <h2 className="text-2xl font-bold text-white">{t("home.genres.title")}</h2>
           <div className="relative group">
             {/* Left Arrow */}
             {showLeftArrow && (
@@ -307,7 +309,7 @@ export default function HomePage() {
                   </div>
                 ))
               ) : (
-                <p className="text-zinc-500">Không có thể loại nào</p>
+                <p className="text-zinc-500">{t("home.genres.empty")}</p>
               )}
             </div>
           </div>
@@ -316,19 +318,19 @@ export default function HomePage() {
         {/* Albums Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Album Phổ Biến</h2>
+            <h2 className="text-2xl font-bold text-white">{t("home.albums.title")}</h2>
             <button
               onClick={() => navigate("/app/music/albums")}
               className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
             >
-              Thêm
+              {t("home.albums.more")}
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {albums.length > 0 ? (
               albums.map((album) => <AlbumCard key={album.id} album={album} />)
             ) : (
-              <p className="text-zinc-500 col-span-full">Không có album nào</p>
+              <p className="text-zinc-500 col-span-full">{t("home.albums.empty")}</p>
             )}
           </div>
         </section>
@@ -336,12 +338,12 @@ export default function HomePage() {
         {/* Artists Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Nghệ Sĩ Nổi Tiếng</h2>
+            <h2 className="text-2xl font-bold text-white">{t("home.artists.title")}</h2>
             <button
               onClick={() => navigate("/app/music/artists")}
               className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
             >
-              Thêm
+              {t("home.artists.more")}
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -351,7 +353,7 @@ export default function HomePage() {
               ))
             ) : (
               <p className="text-zinc-500 col-span-full">
-                Không có nghệ sĩ nào
+                {t("home.artists.empty")}
               </p>
             )}
           </div>
@@ -359,7 +361,7 @@ export default function HomePage() {
 
         {/* Top Songs Section */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Top 5 Bài Hát</h2>
+          <h2 className="text-2xl font-bold text-white">{t("home.topSongs.title")}</h2>
           <div className="space-y-2">
             {topSongs.length > 0 ? (
               topSongs.map((song, index) => (
@@ -371,7 +373,7 @@ export default function HomePage() {
                 />
               ))
             ) : (
-              <p className="text-zinc-500">Không có bài hát nào</p>
+              <p className="text-zinc-500">{t("home.topSongs.empty")}</p>
             )}
           </div>
         </section>

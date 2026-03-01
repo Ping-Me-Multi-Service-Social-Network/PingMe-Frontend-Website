@@ -11,6 +11,7 @@ import {
   useFavoriteEventListener,
   dispatchFavoriteEvent,
 } from "@/hooks/useFavoriteEvents";
+import { useTranslation } from "react-i18next";
 
 interface AudioPlayerComponentProps {
   currentSong?: Song | null;
@@ -30,6 +31,7 @@ export default function AudioPlayerComponent({
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
   const audioPlayerRef = useRef<AudioPlayer | null>(null);
   const { audioRef, setIsPlaying } = useAudio();
+  const { t } = useTranslation("music");
 
   // Check if current song is favorited
   useEffect(() => {
@@ -160,7 +162,7 @@ export default function AudioPlayerComponent({
       <div className="w-full bg-gradient from-zinc-900 via-zinc-800 to-zinc-900 backdrop-blur-xl bg-opacity-95">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <p className="text-center text-zinc-500 text-sm">
-            No songs available. Select a track to play.
+            {t("player.noSongs")}
           </p>
         </div>
       </div>
@@ -188,7 +190,7 @@ export default function AudioPlayerComponent({
                 {track.title}
               </h3>
               <p className="text-xs text-zinc-400 truncate">
-                {track.mainArtist?.name || "Unknown Artist"}
+                {track.mainArtist?.name || t("player.unknownArtist")}
               </p>
             </div>
           </div>
@@ -198,12 +200,11 @@ export default function AudioPlayerComponent({
             {/* Favorite Button */}
             <button
               onClick={handleToggleFavorite}
-              className={`transition-colors ${
-                isFavorite
+              className={`transition-colors ${isFavorite
                   ? "text-purple-500 hover:text-purple-400"
                   : "text-gray-400 hover:text-white"
-              }`}
-              title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                }`}
+              title={isFavorite ? t("player.removeFromFavorite") : t("player.addToFavorite")}
             >
               <Heart
                 className={`w-6 h-6 ${isFavorite ? "fill-current" : ""}`}
@@ -220,7 +221,7 @@ export default function AudioPlayerComponent({
                 trigger={
                   <button
                     className="text-gray-400 hover:text-white transition-colors"
-                    title="Thêm vào playlist"
+                    title={t("player.addToPlaylist")}
                   >
                     <MoreVertical className="w-6 h-6" />
                   </button>

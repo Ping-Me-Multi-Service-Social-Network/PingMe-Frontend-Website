@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { driver, type DriveStep, type Driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -72,6 +73,7 @@ function waitForElement(
 
 // ─── Factory Hook ───
 export function useTourFactory(options: TourOptions) {
+    const { t } = useTranslation("tours");
     const navigate = useNavigate();
     const driverRef = useRef<Driver | null>(null);
     const stepsRef = useRef<TourStepConfig[]>([]);
@@ -123,9 +125,9 @@ export function useTourFactory(options: TourOptions) {
             stagePadding: 10,
             stageRadius: 12,
             popoverClass: "pingme-tour-popover",
-            nextBtnText: "Tiếp theo →",
-            prevBtnText: "← Quay lại",
-            doneBtnText: doneText ?? "Hoàn tất ✓",
+            nextBtnText: t("common.next"),
+            prevBtnText: t("common.prev"),
+            doneBtnText: doneText ?? t("common.done"),
             steps: driverSteps,
 
             onPopoverRender: (popover) => {
@@ -137,7 +139,7 @@ export function useTourFactory(options: TourOptions) {
                 // Thêm nút "Bỏ qua" bên trái (ẩn ở bước cuối)
                 if (!isLast) {
                     const skipBtn = document.createElement("button");
-                    skipBtn.textContent = "Bỏ qua";
+                    skipBtn.textContent = t("common.skip");
                     skipBtn.className = "pingme-tour-skip-btn";
                     skipBtn.onclick = closeTour;
                     footer.insertBefore(skipBtn, footer.firstChild);

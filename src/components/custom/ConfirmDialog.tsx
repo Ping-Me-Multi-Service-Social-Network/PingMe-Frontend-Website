@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -27,11 +28,17 @@ export const ConfirmDialog = ({
   title,
   description,
   onConfirm,
-  confirmLabel = "Xác nhận",
-  cancelLabel = "Hủy",
+  confirmLabel,
+  cancelLabel,
   variant = "default",
   isLoading = false,
 }: ConfirmDialogProps) => {
+  const { t } = useTranslation("common");
+
+  const effectiveConfirmLabel = confirmLabel || t("actions.confirm");
+  const effectiveCancelLabel = cancelLabel || t("actions.cancel");
+  const processingLabel = t("actions.processing");
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -41,7 +48,7 @@ export const ConfirmDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>
-            {cancelLabel}
+            {effectiveCancelLabel}
           </AlertDialogCancel>
           {/* Nếu là destructive thì nút màu đỏ, không thì màu tím/đen mặc định */}
           <AlertDialogAction
@@ -54,7 +61,7 @@ export const ConfirmDialog = ({
             }
             disabled={isLoading}
           >
-            {isLoading ? "Đang xử lý..." : confirmLabel}
+            {isLoading ? processingLabel : effectiveConfirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
