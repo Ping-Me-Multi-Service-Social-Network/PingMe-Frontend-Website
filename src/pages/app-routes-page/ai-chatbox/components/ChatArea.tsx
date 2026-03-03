@@ -5,6 +5,7 @@ import type { AIChatRoomInformation } from "@/types/ai/aiChatRoomInformation";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTranslation } from "react-i18next";
 
 interface ChatAreaProps {
   activeRoomId: string | null;
@@ -19,6 +20,7 @@ export default function ChatArea({
   onRoomCreated,
   onRoomBumpToTop,
 }: ChatAreaProps) {
+  const { t } = useTranslation("ai");
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [messagePage, setMessagePage] = useState(0);
@@ -181,7 +183,7 @@ export default function ChatArea({
           const newRoom: AIChatRoomInformation = {
             id: data.chatRoomId,
             userId: 0,
-            title: "Đang tạo tiêu đề...",
+            title: t("chatArea.creatingTitle"),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
@@ -235,20 +237,19 @@ export default function ChatArea({
             </svg>
           </div>
           <h1 className="text-3xl font-bold bg-linear-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Xin chào! Tôi là PingAI
+            {t("chatArea.welcomeTitle")}
           </h1>
           <p className="text-gray-500 text-center max-w-md mb-8 leading-relaxed">
-            Tôi có thể giúp bạn trả lời câu hỏi, phân tích hình ảnh, và hỗ trợ
-            nhiều tác vụ khác. Hãy bắt đầu cuộc trò chuyện!
+            {t("chatArea.welcomeDesc")}
           </p>
 
           {/* Suggestion chips */}
           <div className="flex flex-wrap gap-2 justify-center mb-8 max-w-lg">
             {[
-              "Giải thích khái niệm AI đơn giản",
-              "Phân tích hình ảnh cho tôi",
-              "Giúp tôi viết email",
-              "Tóm tắt nội dung",
+              t("chatArea.suggestions.concept"),
+              t("chatArea.suggestions.analyze"),
+              t("chatArea.suggestions.email"),
+              t("chatArea.suggestions.summarize"),
             ].map((suggestion) => (
               <button
                 key={suggestion}
@@ -271,12 +272,12 @@ export default function ChatArea({
                 <div className="typing-dot" />
                 <div className="typing-dot" />
                 <div className="typing-dot" />
-                <span className="ml-1">PingAI đang suy nghĩ...</span>
+                <span className="ml-1">{t("chatArea.thinking")}</span>
               </div>
             </div>
           )}
         </div>
-      </div>
+      </div >
     );
   }
 
@@ -305,7 +306,7 @@ export default function ChatArea({
                 className="ai-spinner mb-3"
                 style={{ width: 32, height: 32 }}
               />
-              <p className="text-sm text-gray-400">Đang tải tin nhắn...</p>
+              <p className="text-sm text-gray-400">{t("chatArea.loading")}</p>
             </div>
           )}
           {/* Messages list */}

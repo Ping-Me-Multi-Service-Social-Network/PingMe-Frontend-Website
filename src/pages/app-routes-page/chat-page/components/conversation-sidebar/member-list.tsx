@@ -18,6 +18,7 @@ import {
 import { removeGroupMemberApi, changeMemberRole } from "@/services/chat";
 import { toast } from "sonner";
 import { useAppSelector } from "@/features/hooks.ts";
+import { useTranslation } from "react-i18next";
 
 const canAddMembers = (
   currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null
@@ -62,6 +63,7 @@ const MemberList = ({
 }: MemberListProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useTranslation("chat");
 
   const currentUserRole =
     participants.find((p) => p.userId === userSession?.id)?.role || null;
@@ -78,17 +80,17 @@ const MemberList = ({
   );
 
   const getRoleDescription = (role: "OWNER" | "ADMIN" | "MEMBER") => {
-    if (role === "OWNER") return "Trưởng nhóm";
-    if (role === "ADMIN") return "Phó nhóm";
+    if (role === "OWNER") return t("memberList.roles.owner");
+    if (role === "ADMIN") return t("memberList.roles.admin");
     return null;
   };
 
   const handleRemoveMember = async (userId: number, name: string) => {
     try {
       await removeGroupMemberApi(roomId, userId);
-      toast.success(`${name} đã bị xóa khỏi nhóm`);
+      toast.success(t("memberList.messages.removedSuccess", { name }));
     } catch {
-      toast.error("Không thể xóa thành viên khỏi nhóm");
+      toast.error(t("memberList.messages.removedError"));
     }
   };
 
@@ -100,11 +102,15 @@ const MemberList = ({
     const newRole = currentRole === "ADMIN" ? "MEMBER" : "ADMIN";
     try {
       await changeMemberRole(roomId, userId, newRole);
-      toast.success(
-        `${name} đã được ${newRole === "ADMIN" ? "thêm" : "gỡ"} quyền phó nhóm`
-      );
+      const isAddingAdmin = newRole === "ADMIN";
+
+      if (isAddingAdmin) {
+        toast.success(t("memberList.messages.addedAdminSuccess", { name }));
+      } else {
+        toast.success(t("memberList.messages.removedAdminSuccess", { name }));
+      }
     } catch {
-      toast.error("Không thể thay đổi quyền thành viên");
+      toast.error(t("memberList.messages.roleChangeError"));
     }
   };
 
@@ -114,7 +120,7 @@ const MemberList = ({
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h3 className="font-semibold text-gray-900">Thành viên</h3>
+        <h3 className="font-semibold text-gray-900">{t("memberList.title")}</h3>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -127,7 +133,7 @@ const MemberList = ({
               triggerButton={
                 <Button className="w-full justify-start gap-2 bg-purple-600 hover:bg-purple-700 text-white">
                   <UserPlus className="h-4 w-4" />
-                  Thêm thành viên
+                  {t("memberList.addMember")}
                 </Button>
               }
             />
@@ -136,7 +142,7 @@ const MemberList = ({
           {/* Title with member count */}
           <div>
             <h4 className="font-medium text-sm text-gray-900">
-              Danh sách thành viên ({participants.length})
+              {t("memberList.listTitle")} ({participants.length})
             </h4>
           </div>
 
@@ -145,7 +151,7 @@ const MemberList = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Tìm kiếm thành viên..."
+              placeholder={t("memberList.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -212,7 +218,7 @@ const MemberList = ({
                                   )
                                 }
                               >
-                                Gỡ quyền phó nhóm
+                                {t("memberList.actions.removeAdmin")}
                               </DropdownMenuItem>
                             )}
                             {participant.role === "MEMBER" && (
@@ -225,7 +231,7 @@ const MemberList = ({
                                   )
                                 }
                               >
-                                Thêm phó nhóm
+                                {t("memberList.actions.addAdmin")}
                               </DropdownMenuItem>
                             )}
                           </>
@@ -239,7 +245,7 @@ const MemberList = ({
                           }
                           className="text-red-600 focus:text-red-600"
                         >
-                          Xóa khỏi nhóm
+                          {t("memberList.actions.removeFromGroup")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button.tsx";
 import { X } from "lucide-react";
 import { reelsApi } from "@/services/reels";
@@ -18,6 +19,7 @@ export function EditReelModal({
   onClose,
   onSuccess,
 }: EditReelModalProps) {
+  const { t } = useTranslation("reels");
   const [caption, setCaption] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +31,7 @@ export function EditReelModal({
 
   const handleSubmit = async () => {
     if (!reel || !caption.trim()) {
-      toast.error("Caption không được trống");
+      toast.error(t("edit.emptyCaption"));
       return;
     }
 
@@ -38,12 +40,12 @@ export function EditReelModal({
       await reelsApi.updateReel(reel.id, {
         caption: caption.trim(),
       });
-      toast.success("Cập nhật reel thành công");
+      toast.success(t("edit.success"));
       onSuccess?.();
       onClose();
     } catch (error) {
       console.log("[PingMe] Update reel error:", error);
-      toast.error("Không thể cập nhật reel");
+      toast.error(t("edit.error"));
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +57,7 @@ export function EditReelModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Chỉnh Sửa Reel</h3>
+          <h3 className="text-xl font-semibold">{t("edit.title")}</h3>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-md"
@@ -80,13 +82,13 @@ export function EditReelModal({
               htmlFor="edit-reel-caption"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Caption
+              {t("create.captionLabel")}
             </label>
             <textarea
               id="edit-reel-caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Viết caption cho reel của bạn..."
+              placeholder={t("create.captionPlaceholder")}
               className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
               rows={4}
               maxLength={200}
@@ -102,14 +104,14 @@ export function EditReelModal({
               disabled={isLoading}
               className="flex-1 bg-transparent"
             >
-              Hủy
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isLoading}
               className="flex-1"
             >
-              {isLoading ? "Đang lưu..." : "Lưu Thay Đổi"}
+              {isLoading ? t("edit.saving") : t("edit.save")}
             </Button>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import { getCurrentUserSessionApi } from "@/services/user/currentUserProfileApi.ts";
+import i18n from "@/i18n";
 
 // =========================================================
 // THUNK LOGIN
@@ -20,10 +21,10 @@ export const login = createAsyncThunk<
   try {
     const res = await loginLocalApi(data);
     localStorage.setItem("access_token", res.data.data.accessToken);
-    toast.success("Đăng nhập thành công");
+    toast.success(i18n.t("auth.login.success", { ns: "landing" }));
     return res.data.data;
   } catch (err: unknown) {
-    const message = getErrorMessage(err, "Đăng nhập thất bại");
+    const message = getErrorMessage(err, i18n.t("auth.login.fail", { ns: "landing" }));
     toast.error(message);
     return thunkAPI.rejectWithValue(message);
   }
@@ -36,8 +37,9 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
     await logoutApi();
     localStorage.removeItem("access_token");
+    toast.success(i18n.t("auth.logout.success", { ns: "landing" }));
   } catch (err: unknown) {
-    const message = getErrorMessage(err, "Đăng xuất thất bại");
+    const message = getErrorMessage(err, i18n.t("auth.logout.fail", { ns: "landing" }));
     return thunkAPI.rejectWithValue(message);
   }
 });
@@ -54,7 +56,7 @@ export const getCurrentUserSession = createAsyncThunk<
     const res = await getCurrentUserSessionApi();
     return res.data.data;
   } catch (err: unknown) {
-    const message = getErrorMessage(err, "Lấy thông tin tài khoản thất bại");
+    const message = getErrorMessage(err, i18n.t("errors.sessionFail", { ns: "common" }));
     return thunkAPI.rejectWithValue(message);
   }
 });

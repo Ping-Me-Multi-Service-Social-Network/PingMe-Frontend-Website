@@ -30,8 +30,10 @@ import {
   deleteCurrentUserDeviceMetaApi,
   getCurrentUserAllDeviceMetasApi,
 } from "@/services/user/currentUserSessionApi.ts";
+import { useTranslation } from "react-i18next";
 
 const DeviceManagementPage = () => {
+  const { t } = useTranslation("profile");
   const [isLoading, setIsLoading] = useState(false);
   const [sessions, setSessions] = useState<CurrentUserSessionMetaResponse[]>(
     []
@@ -86,7 +88,7 @@ const DeviceManagementPage = () => {
       setSessions(sortedSessions);
     } catch (err) {
       toast.error(
-        getErrorMessage(err, "Không thể lấy thông tin phiên đăng nhập")
+        getErrorMessage(err, t("deviceManagement.fetchError"))
       );
     } finally {
       setIsLoading(false);
@@ -99,10 +101,10 @@ const DeviceManagementPage = () => {
       setDeletingSessionId(sessionId);
       await deleteCurrentUserDeviceMetaApi(sessionId);
 
-      toast.success("Đã xóa phiên đăng nhập thành công");
+      toast.success(t("deviceManagement.deleteSuccess"));
       await fetchSessions();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Không thể xóa phiên đăng nhập"));
+      toast.error(getErrorMessage(err, t("deviceManagement.deleteError")));
     } finally {
       setDeletingSessionId(null);
     }
@@ -115,7 +117,7 @@ const DeviceManagementPage = () => {
         locale: vi,
       });
     } catch {
-      return "Không xác định";
+      return t("deviceManagement.unknownTime");
     }
   };
 
@@ -125,11 +127,11 @@ const DeviceManagementPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div id="profile-device-section" className="flex items-center justify-center h-96">
         <div className="flex items-center space-x-2 text-purple-600">
           <LoadingSpinner />
           <span className="text-lg font-medium">
-            Đang tải danh sách phiên đăng nhập...
+            {t("deviceManagement.loading")}
           </span>
         </div>
       </div>
@@ -137,14 +139,13 @@ const DeviceManagementPage = () => {
   }
 
   return (
-    <div className="p-8">
+    <div id="profile-device-section" className="p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Quản lý phiên đăng nhập
+          {t("deviceManagement.title")}
         </h1>
         <p className="text-gray-600">
-          Xem và quản lý các phiên đăng nhập vào tài khoản của bạn trên các
-          thiết bị khác nhau
+          {t("deviceManagement.subtitle")}
         </p>
       </div>
 
@@ -155,19 +156,19 @@ const DeviceManagementPage = () => {
             <div className="text-2xl font-bold text-purple-600">
               {sessions.length}
             </div>
-            <div className="text-sm text-gray-600">Tổng số phiên</div>
+            <div className="text-sm text-gray-600">{t("deviceManagement.stats.total")}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="text-2xl font-bold text-green-600">
               {sessions.filter((s) => s.current).length}
             </div>
-            <div className="text-sm text-gray-600">Phiên hiện tại</div>
+            <div className="text-sm text-gray-600">{t("deviceManagement.stats.current")}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="text-2xl font-bold text-blue-600">
               {sessions.filter((s) => !s.current).length}
             </div>
-            <div className="text-sm text-gray-600">Phiên khác</div>
+            <div className="text-sm text-gray-600">{t("deviceManagement.stats.other")}</div>
           </div>
         </div>
       )}
@@ -178,32 +179,30 @@ const DeviceManagementPage = () => {
           <div className="text-center py-12 border border-gray-200 rounded-lg bg-white">
             <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Không có phiên đăng nhập nào
+              {t("deviceManagement.emptyTitle")}
             </h3>
             <p className="text-gray-600">
-              Hiện tại không có phiên đăng nhập nào được tìm thấy.
+              {t("deviceManagement.emptyDesc")}
             </p>
           </div>
         ) : (
           sessions.map((session) => (
             <Card
               key={session.sessionId}
-              className={`transition-all duration-200 ${
-                session.current
-                  ? "border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg"
-                  : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-              }`}
+              className={`transition-all duration-200 ${session.current
+                ? "border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg"
+                : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                }`}
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4">
                     {/* Device Icon */}
                     <div
-                      className={`p-3 rounded-lg ${
-                        session.current
-                          ? "bg-green-100 text-green-600"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
+                      className={`p-3 rounded-lg ${session.current
+                        ? "bg-green-100 text-green-600"
+                        : "bg-gray-100 text-gray-600"
+                        }`}
                     >
                       {getDeviceIcon(session.deviceType)}
                     </div>
@@ -217,7 +216,7 @@ const DeviceManagementPage = () => {
                         {session.current && (
                           <Badge className="bg-green-100 text-green-800 border-green-200 font-medium">
                             <Shield className="w-3 h-3 mr-1" />
-                            Phiên hiện tại
+                            {t("deviceManagement.currentSessionBadge")}
                           </Badge>
                         )}
                       </div>
@@ -232,7 +231,7 @@ const DeviceManagementPage = () => {
                         <div className="flex items-center space-x-2">
                           <Clock className="w-4 h-4" />
                           <span>
-                            Hoạt động lần cuối:{" "}
+                            {t("deviceManagement.lastActive")}
                             <span
                               className={
                                 session.current
@@ -241,14 +240,14 @@ const DeviceManagementPage = () => {
                               }
                             >
                               {session.current
-                                ? "Đang hoạt động"
+                                ? t("deviceManagement.activeNow")
                                 : formatLastActive(session.lastActiveAt)}
                             </span>
                           </span>
                         </div>
 
                         <div className="text-xs text-gray-500">
-                          ID phiên: {session.sessionId.slice(0, 8)}...
+                          {t("deviceManagement.sessionId")} {session.sessionId.slice(0, 8)}...
                           {session.sessionId.slice(-8)}
                         </div>
                       </div>
@@ -269,12 +268,12 @@ const DeviceManagementPage = () => {
                         {deletingSessionId === session.sessionId ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Đang xóa...
+                            {t("deviceManagement.deleting")}
                           </>
                         ) : (
                           <>
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Xóa phiên
+                            {t("deviceManagement.deleteBtn")}
                           </>
                         )}
                       </Button>
@@ -289,8 +288,7 @@ const DeviceManagementPage = () => {
                     <div className="flex items-center space-x-2 text-green-800">
                       <Shield className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        Đây là phiên đăng nhập hiện tại của bạn. Bạn không thể
-                        xóa phiên này.
+                        {t("deviceManagement.currentSessionWarning")}
                       </span>
                     </div>
                   </div>

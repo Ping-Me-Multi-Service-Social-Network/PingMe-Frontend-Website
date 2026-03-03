@@ -4,6 +4,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { AIMessage } from "@/types/ai/aiMessage";
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 interface MessageBubbleProps {
   message: AIMessage;
@@ -14,6 +15,7 @@ export default function MessageBubble({
   message,
   animate,
 }: MessageBubbleProps) {
+  const { t } = useTranslation("ai");
   const isSent = message.type === "SENT";
 
   return (
@@ -48,11 +50,10 @@ export default function MessageBubble({
 
         {/* Bubble */}
         <div
-          className={`rounded-2xl px-4 py-2.5 shadow-sm ${
-            isSent
-              ? "bg-linear-to-r from-violet-500 to-purple-600 text-white rounded-br-sm"
-              : "bg-white text-gray-800 border border-gray-100 rounded-bl-sm"
-          }`}
+          className={`rounded-2xl px-4 py-2.5 shadow-sm ${isSent
+            ? "bg-linear-to-r from-violet-500 to-purple-600 text-white rounded-br-sm"
+            : "bg-white text-gray-800 border border-gray-100 rounded-bl-sm"
+            }`}
         >
           {/* Attachments */}
           {message.attachments && message.attachments.length > 0 && (
@@ -125,18 +126,22 @@ export default function MessageBubble({
           )}
 
           {/* Timestamp */}
-          <p
-            className={`text-[10px] mt-1 ${
-              isSent ? "text-violet-200" : "text-gray-400"
-            } text-right`}
-          >
-            {message.createdAt
-              ? new Date(message.createdAt).toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : ""}
-          </p>
+          {(() => {
+            const timeLocale = t("sidebar.time.locale") === "en" ? "en-US" : "vi-VN";
+            const timeStr = message.createdAt
+              ? new Date(message.createdAt).toLocaleTimeString(timeLocale, {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+              : "";
+            return (
+              <p
+                className={`text-[10px] mt-1 ${isSent ? "text-violet-200" : "text-gray-400"} text-right`}
+              >
+                {timeStr}
+              </p>
+            );
+          })()}
         </div>
       </div>
     </div>
@@ -151,6 +156,7 @@ function CodeBlockHeader({
   language: string;
   code: string;
 }) {
+  const { t } = useTranslation("ai");
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -178,7 +184,7 @@ function CodeBlockHeader({
             >
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            Đã sao chép
+            {t("message.copied")}
           </>
         ) : (
           <>
@@ -195,7 +201,7 @@ function CodeBlockHeader({
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            Sao chép
+            {t("message.copy")}
           </>
         )}
       </button>

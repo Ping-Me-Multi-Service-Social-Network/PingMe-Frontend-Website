@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { LoadingState, ErrorState } from "../shared/LoadingErrorStates";
+import { useTranslation } from "react-i18next";
 
 export default function DiscoverPlaylistsPage() {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function DiscoverPlaylistsPage() {
     const [currentPage, setCurrentPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
     const pageSize = 20;
+    const { t } = useTranslation("music");
 
     useEffect(() => {
         fetchPublicPlaylists(0);
@@ -42,7 +44,7 @@ export default function DiscoverPlaylistsPage() {
             setError(null);
         } catch (err) {
             console.error("Error fetching public playlists:", err);
-            setError("Failed to load public playlists");
+            setError(t("pages.discover.errorLoad"));
         } finally {
             setLoading(false);
             setLoadingMore(false);
@@ -72,17 +74,17 @@ export default function DiscoverPlaylistsPage() {
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Quay Lại
+                        {t("common.back")}
                     </button>
 
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-4xl font-bold text-white flex items-center gap-3">
                                 <Globe className="w-10 h-10 text-green-500" />
-                                Khám Phá Playlist Công Khai
+                                {t("pages.discover.title")}
                             </h1>
                             <p className="text-zinc-400 mt-2">
-                                Duyệt qua các playlist công khai được chia sẻ bởi cộng đồng người dùng
+                                {t("pages.discover.desc")}
                             </p>
                         </div>
                     </div>
@@ -92,11 +94,11 @@ export default function DiscoverPlaylistsPage() {
                 {playlists.length === 0 ? (
                     <EmptyState
                         icon={Users}
-                        title="Chưa có playlist công khai"
-                        description="Hãy là người đầu tiên chia sẻ playlist của bạn với cộng đồng!"
+                        title={t("pages.discover.emptyTitle")}
+                        description={t("pages.discover.emptyDesc")}
                         action={
                             <Button onClick={() => navigate("/app/music/playlists")}>
-                                Đến Playlist Của Bạn
+                                {t("pages.discover.backToYourPlaylists")}
                             </Button>
                         }
                     />
@@ -123,7 +125,7 @@ export default function DiscoverPlaylistsPage() {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-1 text-xs text-zinc-400">
                                             <Users className="w-3 h-3" />
-                                            <span>Public</span>
+                                            <span>{t("pages.playlists.public")}</span>
                                         </div>
                                     </div>
 
@@ -131,10 +133,10 @@ export default function DiscoverPlaylistsPage() {
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                                         <div className="text-center p-4">
                                             <p className="text-white font-semibold mb-2">
-                                                View Playlist
+                                                {t("pages.discover.viewPlaylist")}
                                             </p>
                                             <p className="text-xs text-zinc-300">
-                                                Click to explore songs
+                                                {t("pages.discover.exploreSongs")}
                                             </p>
                                         </div>
                                     </div>
@@ -153,10 +155,10 @@ export default function DiscoverPlaylistsPage() {
                                     {loadingMore ? (
                                         <>
                                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Loading...
+                                            {t("pages.discover.loading")}
                                         </>
                                     ) : (
-                                        `Load More Playlists`
+                                        t("pages.discover.loadMore")
                                     )}
                                 </Button>
                             </div>

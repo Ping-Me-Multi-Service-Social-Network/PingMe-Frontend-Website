@@ -4,6 +4,7 @@ import { Search, X } from "lucide-react";
 import SearchDropdown from "./SearchDropdown.tsx";
 import type { SongResponseWithAllAlbum, ArtistResponse } from "@/types/music";
 import type { AlbumResponse } from "@/services/music/albumApi.ts";
+import { useTranslation } from "react-i18next";
 
 interface MusicSearchBarProps {
     onSongPlay?: (song: SongResponseWithAllAlbum) => void;
@@ -11,6 +12,7 @@ interface MusicSearchBarProps {
 
 export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarProps>) {
     const navigate = useNavigate();
+    const { t } = useTranslation("music");
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
@@ -68,7 +70,7 @@ export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarPr
                             <Search className="absolute left-3 w-5 h-5 text-zinc-400 pointer-events-none" />
                             <input
                                 type="text"
-                                placeholder="Tìm kiếm bài hát, album, nghệ sĩ..."
+                                placeholder={t("layout.header.searchPlaceholder")}
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                                 onFocus={() => setShowSearchDropdown(true)}

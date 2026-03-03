@@ -1,0 +1,120 @@
+{
+    "nav": {
+        "userInfo": "Thông tin cá nhân",
+        "userInfoDesc": "Quản lý thông tin cá nhân của bạn",
+        "changePassword": "Thay đổi mật khẩu",
+        "changePasswordDesc": "Bảo mật tài khoản với mật khẩu mới",
+        "deviceManagement": "Quản lý thiết bị",
+        "deviceManagementDesc": "Xem và quản lý các thiết bị đăng nhập"
+    },
+    "common": {
+        "loading": "Đang tải thông tin...",
+        "updating": "Đang cập nhật...",
+        "updateSuccess": "Cập nhật thông tin thành công!",
+        "updateFail": "Cập nhật thất bại",
+        "cancel": "Hủy",
+        "restartTourTooltip": "Xem lại hướng dẫn",
+        "accountSettings": "Cài đặt tài khoản"
+    },
+    "userInfo": {
+        "title": "Thông tin cá nhân",
+        "subtitle": "Cập nhật thông tin cá nhân của bạn",
+        "fetchError": "Không thể lấy thông tin người dùng",
+        "activateRequired": "Tài khoản chưa kích hoạt",
+        "activateBtn": "Kích hoạt ngay",
+        "activateSending": "Đang gửi...",
+        "activateSuccess": "Mã kích hoạt đã được gửi đến email của bạn!",
+        "activateFail": "Gửi mã kích hoạt thất bại",
+        "fields": {
+            "email": "Email",
+            "fullName": "Họ và tên",
+            "fullNamePlaceholder": "Nhập họ và tên",
+            "gender": "Giới tính",
+            "genderPlaceholder": "Chọn giới tính",
+            "genderMale": "Nam",
+            "genderFemale": "Nữ",
+            "genderOther": "Khác",
+            "dob": "Ngày sinh",
+            "dobPlaceholder": "Chọn ngày sinh",
+            "address": "Địa chỉ",
+            "addressPlaceholder": "Nhập địa chỉ"
+        },
+        "updateBtn": "Cập nhật thông tin",
+        "verifyOtp": {
+            "title": "Xác thực OTP",
+            "subtitle": "Nhập mã 6 số chúng tôi đã gửi đến email",
+            "otpLabel": "Mã OTP",
+            "btnVerify": "Xác nhận",
+            "processing": "Đang xử lý...",
+            "backBtn": "Quay lại",
+            "inputInvalid": "Vui lòng nhập mã OTP hợp lệ",
+            "activationSuccess": "Kích hoạt tài khoản thành công!",
+            "activationFail": "Lỗi khi kích hoạt tài khoản sau khi xác thực OTP",
+            "success": "Xác thực OTP thành công",
+            "invalid": "Mã OTP không chính xác hoặc đã hết hạn.",
+            "fail": "Xác thực OTP thất bại"
+        }
+    },
+    "changePassword": {
+        "title": "Đổi mật khẩu",
+        "subtitle": "Thay đổi mật khẩu để bảo mật tài khoản của bạn",
+        "success": "Đổi mật khẩu thành công!",
+        "fail": "Đổi mật khẩu thất bại",
+        "validation": {
+            "notMatch": "Mật khẩu xác nhận không khớp",
+            "minLength": "Mật khẩu mới phải có ít nhất 6 ký tự",
+            "sameAsOld": "Mật khẩu mới phải khác mật khẩu hiện tại"
+        },
+        "fields": {
+            "currentPassword": "Mật khẩu hiện tại",
+            "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+            "newPassword": "Mật khẩu mới",
+            "newPasswordPlaceholder": "Nhập mật khẩu mới",
+            "confirmPassword": "Xác nhận mật khẩu mới",
+            "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới"
+        },
+        "indicator": {
+            "notMatch": "Mật khẩu xác nhận không khớp",
+            "match": "Mật khẩu xác nhận khớp"
+        },
+        "updateBtn": "Đổi mật khẩu"
+    },
+    "deviceManagement": {
+        "title": "Quản lý phiên đăng nhập",
+        "subtitle": "Xem và quản lý các phiên đăng nhập vào tài khoản của bạn trên các thiết bị khác nhau",
+        "fetchError": "Không thể lấy thông tin phiên đăng nhập",
+        "deleteSuccess": "Đã xóa phiên đăng nhập thành công",
+        "deleteError": "Không thể xóa phiên đăng nhập",
+        "loading": "Đang tải danh sách phiên đăng nhập...",
+        "stats": {
+            "total": "Tổng số phiên",
+            "current": "Phiên hiện tại",
+            "other": "Phiên khác"
+        },
+        "emptyTitle": "Không có phiên đăng nhập nào",
+        "emptyDesc": "Hiện tại không có phiên đăng nhập nào được tìm thấy.",
+        "currentSessionBadge": "Phiên hiện tại",
+        "unknownTime": "Không xác định",
+        "lastActive": "Hoạt động lần cuối: ",
+        "activeNow": "Đang hoạt động",
+        "sessionId": "ID phiên: ",
+        "deleteBtn": "Xóa phiên",
+        "deleting": "Đang xóa...",
+        "currentSessionWarning": "Đây là phiên đăng nhập hiện tại của bạn. Bạn không thể xóa phiên này."
+    },
+    "avatar": {
+        "validation": {
+            "notImage": "Vui lòng chọn file hình ảnh",
+            "tooLarge": "File quá lớn (tối đa 5MB)",
+            "noFile": "Vui lòng chọn file ảnh"
+        },
+        "updateSuccess": "Cập nhật avatar thành công!",
+        "updateFail": "Cập nhật thất bại",
+        "defaultName": "Người dùng",
+        "defaultEmail": "user@example.com",
+        "modalTitle": "Cập nhật Avatar",
+        "modalDesc": "Xem trước ảnh đại diện mới của bạn",
+        "uploading": "Đang tải lên...",
+        "btnUpdate": "Cập nhật Avatar"
+    }
+}

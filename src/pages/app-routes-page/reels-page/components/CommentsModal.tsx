@@ -1,18 +1,17 @@
-"use client"
-
 import type React from "react"
 import { X, Send, Heart, User, MoreVertical, ChevronDown, Shield, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import { Input } from "@/components/ui/input.tsx"
 import type { Reel, ReelComment } from "@/types/reels"
 import { formatDistanceToNow } from "date-fns"
-import { vi } from "date-fns/locale"
+import { vi, enUS } from "date-fns/locale"
 import { useState } from "react"
 import { reelsApi } from "@/services/reels"
 import { toast } from "sonner"
 import DeleteConfirmationModal from "./DeleteConfirmationModal.tsx"
 import EditCommentModal from "./EditCommentModal.tsx"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu.tsx"
+import { useTranslation } from "react-i18next"
 
 interface CommentsModalProps {
   reel: Reel
@@ -39,6 +38,7 @@ export default function CommentsModal({
   onCommentsUpdate,
   currentUserId,
 }: CommentsModalProps) {
+  const { t, i18n } = useTranslation("reels")
   const [reactingCommentId, setReactingCommentId] = useState<number | null>(null)
   const [replyingToId, setReplyingToId] = useState<number | null>(null)
   const [replyText, setReplyText] = useState("")
@@ -94,10 +94,10 @@ export default function CommentsModal({
       }
       setEditingCommentId(null)
       setEditingCommentContent("")
-      toast.success("Đã cập nhật bình luận")
+      toast.success(t("comments.updated"))
     } catch (err) {
       console.error("[v0] Error updating comment:", err)
-      toast.error("Không thể cập nhật bình luận")
+      toast.error(t("comments.updateError"))
     } finally {
       setIsSubmittingEdit(false)
     }
@@ -158,10 +158,10 @@ export default function CommentsModal({
       }
       setReplyText("")
       setReplyingToId(null)
-      toast.success("Đã trả lời bình luận")
+      toast.success(t("comments.replied"))
     } catch (err) {
       console.error("Error submitting reply:", err)
-      toast.error("Không thể gửi trả lời")
+      toast.error(t("comments.replyError"))
     } finally {
       setIsSubmittingReply(false)
     }
@@ -193,15 +193,15 @@ export default function CommentsModal({
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
             <div className="flex items-center gap-3">
               <MessageCircle className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-900">Bình luận</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t("comments.title")}</h2>
               <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
                 {reel.commentCount}
               </span>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose} 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
               className="h-10 w-10 rounded-full hover:bg-white/80 transition-all hover:rotate-90"
             >
               <X className="w-5 h-5" />
@@ -216,15 +216,15 @@ export default function CommentsModal({
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-blue-500" />
                   <MessageCircle className="absolute inset-0 m-auto w-6 h-6 text-blue-400" />
                 </div>
-                <p className="mt-4 text-sm font-medium">Đang tải bình luận...</p>
+                <p className="mt-4 text-sm font-medium">{t("comments.loading")}</p>
               </div>
             ) : getParentComments().length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-500">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mb-4">
                   <MessageCircle className="w-10 h-10 text-blue-400" />
                 </div>
-                <p className="text-lg font-semibold text-gray-700">Chưa có bình luận nào</p>
-                <p className="text-sm mt-2 text-gray-500">Hãy là người đầu tiên bình luận!</p>
+                <p className="text-lg font-semibold text-gray-700">{t("comments.empty")}</p>
+                <p className="text-sm mt-2 text-gray-500">{t("comments.emptyDesc")}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -258,13 +258,13 @@ export default function CommentsModal({
                               {comment.isReelOwner && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold rounded-full shadow-sm">
                                   <Shield className="w-3 h-3" />
-                                  Chủ sở hữu
+                                  {t("comments.owner")}
                                 </span>
                               )}
                               <p className="text-xs text-gray-400 font-medium">
                                 {formatDistanceToNow(new Date(comment.createdAt), {
                                   addSuffix: true,
-                                  locale: vi,
+                                  locale: i18n.language === "vi" ? vi : enUS,
                                 })}
                               </p>
                             </div>
@@ -277,11 +277,10 @@ export default function CommentsModal({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className={`h-8 px-3 text-xs font-semibold rounded-full transition-all ${
-                                  comment.myReaction
-                                    ? "text-red-600 bg-red-50 hover:bg-red-100"
-                                    : "text-gray-600 hover:text-red-600 hover:bg-red-50"
-                                }`}
+                                className={`h-8 px-3 text-xs font-semibold rounded-full transition-all ${comment.myReaction
+                                  ? "text-red-600 bg-red-50 hover:bg-red-100"
+                                  : "text-gray-600 hover:text-red-600 hover:bg-red-50"
+                                  }`}
                                 onClick={() => handleCommentReaction(comment.id, comment.myReaction)}
                                 disabled={reactingCommentId === comment.id}
                               >
@@ -294,7 +293,7 @@ export default function CommentsModal({
                                 className="h-8 px-3 text-xs font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-full transition-all"
                                 onClick={() => setReplyingToId(replyingToId === comment.id ? null : comment.id)}
                               >
-                                Trả lời
+                                {t("comments.reply")}
                               </Button>
                             </div>
                           </div>
@@ -309,13 +308,13 @@ export default function CommentsModal({
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-44 rounded-xl shadow-lg">
                                 <DropdownMenuItem onClick={() => handleEditComment(comment)} className="rounded-lg">
-                                  Chỉnh sửa
+                                  {t("comments.edit")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => handleDeleteComment(comment.id)}
                                   className="text-red-600 rounded-lg"
                                 >
-                                  Xóa
+                                  {t("comments.delete")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -330,7 +329,7 @@ export default function CommentsModal({
                           <div className="flex-1 flex gap-3">
                             <Input
                               type="text"
-                              placeholder="Viết trả lời..."
+                              placeholder={t("comments.replyPlaceholder")}
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
                               className="text-base h-11"
@@ -381,13 +380,13 @@ export default function CommentsModal({
                                     {reply.isReelOwner && (
                                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full flex-shrink-0">
                                         <Shield className="w-2.5 h-2.5" />
-                                        <span>Chủ sở hữu</span>
+                                        <span>{t("comments.owner")}</span>
                                       </span>
                                     )}
                                     <p className="text-xs text-gray-500 leading-tight">
                                       {formatDistanceToNow(new Date(reply.createdAt), {
                                         addSuffix: true,
-                                        locale: vi,
+                                        locale: i18n.language === "vi" ? vi : enUS,
                                       })}
                                     </p>
                                   </div>
@@ -402,9 +401,8 @@ export default function CommentsModal({
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className={`h-5 px-1.5 text-xs gap-1 ${
-                                        reply.myReaction ? "text-red-600" : "text-gray-600 hover:text-red-600"
-                                      }`}
+                                      className={`h-5 px-1.5 text-xs gap-1 ${reply.myReaction ? "text-red-600" : "text-gray-600 hover:text-red-600"
+                                        }`}
                                       onClick={() => handleCommentReaction(reply.id, reply.myReaction)}
                                       disabled={reactingCommentId === reply.id}
                                     >
@@ -426,13 +424,13 @@ export default function CommentsModal({
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-40">
                                       <DropdownMenuItem onClick={() => handleEditComment(reply)}>
-                                        Chỉnh sửa
+                                        {t("comments.edit")}
                                       </DropdownMenuItem>
                                       <DropdownMenuItem
                                         onClick={() => handleDeleteComment(reply.id)}
                                         className="text-red-600"
                                       >
-                                        Xóa
+                                        {t("comments.delete")}
                                       </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
@@ -448,7 +446,7 @@ export default function CommentsModal({
                               className="pl-12 pr-4 py-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full flex items-center gap-1 transition font-medium"
                             >
                               <ChevronDown className="w-3 h-3" />
-                              Xem {replies.length - 2} bình luận khác
+                              {t("comments.viewMore", { count: replies.length - 2 })}
                             </button>
                           )}
 
@@ -459,7 +457,7 @@ export default function CommentsModal({
                               className="pl-12 pr-4 py-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full flex items-center gap-1 transition font-medium"
                             >
                               <ChevronDown className="w-3 h-3 rotate-180" />
-                              Ẩn bình luận
+                              {t("comments.hide")}
                             </button>
                           )}
                         </div>
@@ -476,7 +474,7 @@ export default function CommentsModal({
             <form onSubmit={onSubmitComment} className="flex gap-3">
               <Input
                 type="text"
-                placeholder="Viết bình luận của bạn..."
+                placeholder={t("comments.placeholder")}
                 value={commentText}
                 onChange={(e) => onCommentTextChange(e.target.value)}
                 disabled={isSubmittingComment}

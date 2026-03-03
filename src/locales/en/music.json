@@ -1,0 +1,228 @@
+{
+    "common": {
+        "back": "Back",
+        "cancel": "Cancel"
+    },
+    "home": {
+        "errorLoad": "Failed to load music data",
+        "quickLinks": {
+            "favorites": "Favorite Songs",
+            "favoritesDesc": "Songs you liked",
+            "playlists": "Playlists",
+            "playlistsDesc": "Your collections",
+            "discover": "Discover Playlists",
+            "discoverDesc": "Shared by community"
+        },
+        "rankings": {
+            "title": "Rankings",
+            "viewAll": "View All",
+            "today": "Top 50 Today",
+            "todayDesc": "Most listened songs today",
+            "week": "Top 50 This Week",
+            "weekDesc": "Ranking for this week",
+            "month": "Top 50 This Month",
+            "monthDesc": "Ranking for this month"
+        },
+        "genres": {
+            "title": "Genres",
+            "empty": "No genres available"
+        },
+        "albums": {
+            "title": "Popular Albums",
+            "more": "More",
+            "empty": "No albums available"
+        },
+        "artists": {
+            "title": "Popular Artists",
+            "more": "More",
+            "empty": "No artists available"
+        },
+        "topSongs": {
+            "title": "Top 5 Songs",
+            "empty": "No songs available"
+        }
+    },
+    "layout": {
+        "sidebar": {
+            "title": "PingMe Music",
+            "discover": "Discover",
+            "trending": "Top Trend",
+            "newReleases": "New Releases",
+            "categories": "Categories",
+            "yourLibrary": "Your Library",
+            "playlists": "Playlists",
+            "recent": "Recently Played",
+            "favorites": "Favorites",
+            "nowPlaying": "Now Playing"
+        },
+        "header": {
+            "searchPlaceholder": "Search for songs, artists, albums..."
+        }
+    },
+    "player": {
+        "play": "Play",
+        "pause": "Pause",
+        "next": "Next",
+        "prev": "Previous",
+        "shuffle": "Shuffle",
+        "repeat": "Repeat",
+        "volume": "Volume",
+        "lyrics": "Lyrics",
+        "queue": "Queue",
+        "addToPlaylist": "Add to playlist",
+        "playingFrom": "Playing from",
+        "noSongs": "No songs available. Select a track to play.",
+        "addToFavorite": "Add to favorites",
+        "removeFromFavorite": "Remove from favorites",
+        "unknownArtist": "Unknown Artist"
+    },
+    "pages": {
+        "songList": {
+            "invalidParams": "Invalid parameters",
+            "fetchError": "An error occurred while fetching data",
+            "genreLabel": "Genre",
+            "albumLabel": "Album",
+            "artistLabel": "Artist",
+            "unknown": "Unknown",
+            "songsCount": "{{count}} songs",
+            "playCount": "{{playCount}} plays",
+            "playAll": "Play All",
+            "title": "Songs",
+            "notFound": "No songs found"
+        },
+        "rankings": {
+            "todaySubtitle": "Most listened songs today",
+            "weekSubtitle": "Ranking for this week",
+            "monthSubtitle": "Ranking for this month",
+            "empty": "No songs in ranking yet",
+            "emptyDesc": "Come back later for updated rankings",
+            "errorLoad": "⚠️ Unable to load rankings",
+            "retry": "Retry",
+            "add": "Add"
+        },
+        "playlists": {
+            "title": "Your Playlists",
+            "discoverPublic": "Discover Public Playlists",
+            "emptyTitle": "No playlists yet",
+            "emptyDesc": "Create your first playlist to get started",
+            "createBtn": "Create Playlist",
+            "public": "Public",
+            "private": "Private",
+            "editTitle": "Edit Playlist",
+            "deleteTitle": "Delete Playlist",
+            "createTitle": "Create New Playlist",
+            "nameLabel": "Playlist Name",
+            "namePlaceholder": "My Awesome Playlist",
+            "sharePublic": "Share this playlist publicly",
+            "cancel": "Cancel",
+            "create": "Create",
+            "creating": "Creating...",
+            "createSuccess": "Playlist created successfully!",
+            "createError": "Failed to create playlist",
+            "update": "Update",
+            "updating": "Updating...",
+            "deleteConfirmTitle": "Delete Playlist",
+            "deleteConfirmMsg": "Are you sure you want to delete the playlist",
+            "deleteWarning": "This action cannot be undone.",
+            "delete": "Delete",
+            "deleting": "Deleting..."
+        },
+        "playlistDetail": {
+            "removeFrom": "Remove from playlist",
+            "removeSuccess": "Removed song from playlist",
+            "removeError": "Failed to remove song",
+            "updateOrderSuccess": "Updated song order",
+            "backToList": "Back To List",
+            "songsCount": "{{count}} songs",
+            "playAll": "Play All",
+            "emptyTitle": "No songs in playlist",
+            "emptyDesc": "Add songs to start building your playlist"
+        },
+        "favorites": {
+            "title": "Favorite Songs",
+            "emptyTitle": "No favorite songs yet",
+            "emptyDesc": "Songs you liked will appear here",
+            "remove": "Remove from favorites",
+            "errorLoad": "Failed to load favorites"
+        },
+        "discover": {
+            "title": "Discover Playlists",
+            "desc": "Browse public playlists shared by the community",
+            "emptyDesc": "Be the first to share your playlist with the community!",
+            "emptyTitle": "No community playlists yet",
+            "errorLoad": "Failed to load public playlists",
+            "backToYourPlaylists": "Go To Your Playlists",
+            "viewPlaylist": "View Playlist",
+            "exploreSongs": "Click to explore songs",
+            "loadMore": "Load More Playlists",
+            "loading": "Loading..."
+        },
+        "artists": {
+            "title": "Popular Artists",
+            "monthlyListeners": "{{count}} monthly listeners",
+            "errorLoad": "Failed to load artists",
+            "updatedAt": "Updated at {{date}}",
+            "followers": "followers",
+            "rankTitle": "🏆 Rank",
+            "songTitle": "🔥 Trending song",
+            "noSong": "No trending song"
+        },
+        "albums": {
+            "title": "Popular Albums",
+            "releaseDate": "Released: {{date}}",
+            "errorLoad": "Failed to load albums",
+            "updatedAt": "Updated at {{date}}",
+            "rankTitle": "🏆 Rank",
+            "songTitle": "🎵 Top song",
+            "playCount": "{{playCount}} plays",
+            "noSong": "No songs available"
+        },
+        "search": {
+            "title": "Search",
+            "placeholder": "Search for songs, artists, albums...",
+            "songs": "Songs",
+            "albums": "Albums",
+            "artists": "Artists",
+            "viewAllSongs": "View all {{count}} songs",
+            "viewAllAlbums": "View all {{count}} albums",
+            "viewAllArtists": "View all {{count}} artists",
+            "notFound": "No results found for \"{{query}}\"",
+            "error": "Search error",
+            "errorLoading": "Search failed. Please try again later."
+        },
+        "cards": {
+            "artist": "Artist",
+            "unknownArtist": "Unknown Artist",
+            "noBio": "No bio available",
+            "plays": "{{playCount}} plays",
+            "favoriteAdded": "Added to favorites",
+            "favoriteRemoved": "Removed from favorites",
+            "error": "An error occurred",
+            "noData": "No data available",
+            "playSong": "Play {{title}} by {{artist}}",
+            "addFavorite": "Add {{title}} to favorites",
+            "removeFavorite": "Remove {{title}} from favorites",
+            "addToPlaylist": "Add {{title}} to playlist"
+        },
+        "playlistDropdown": {
+            "createTitle": "Create new playlist",
+            "nameLabel": "Playlist Name",
+            "namePlaceholder": "Enter playlist name",
+            "sharePublic": "Share this playlist publicly",
+            "creating": "Creating...",
+            "create": "Create",
+            "loadError": "Failed to load playlists",
+            "exists": "Song already exists in playlist",
+            "added": "Added to playlist",
+            "addError": "Failed to add to playlist",
+            "nameRequired": "Please enter a playlist name",
+            "createdAndAdded": "Created playlist and added song",
+            "createError": "Failed to create playlist",
+            "addToPlaylist": "Add to playlist",
+            "newPlaylist": "New playlist",
+            "searchPlaceholder": "Search for a playlist",
+            "notFound": "Playlist not found",
+            "empty": "No playlists yet"
+        }
+    }
+}

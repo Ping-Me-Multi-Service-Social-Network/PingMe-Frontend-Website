@@ -1,8 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 interface MessageVideoProps {
   src: string;
 }
 
 export default function MessageVideo({ src }: MessageVideoProps) {
+  const { t } = useTranslation("chat");
+
   return (
     <div className="relative max-w-md">
       <video
@@ -11,7 +15,7 @@ export default function MessageVideo({ src }: MessageVideoProps) {
         className="w-full min-w-[300px] max-w-[500px] max-h-[500px] rounded-lg"
         preload="metadata"
       >
-        Trình duyệt của bạn không hỗ trợ video.
+        {t("bubbles.video.unsupported")}
       </video>
     </div>
   );

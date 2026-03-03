@@ -1,0 +1,112 @@
+{
+    "auth": {
+        "slogan": "Kết nối bạn bè, nhắn tin nhanh, chia sẻ khoảnh khắc và khám phá nội dung theo cách hiện đại — ưu tiên bảo mật và trải nghiệm mượt.",
+        "login": {
+            "title": "Đăng nhập",
+            "subtitle": "Nhập thông tin để truy cập tài khoản của bạn",
+            "btn": "Đăng nhập",
+            "loading": "Đang đăng nhập...",
+            "forgotPassword": "Quên mật khẩu?",
+            "noAccount": "Chưa có tài khoản?",
+            "registerNow": "Đăng ký ngay",
+            "success": "Đăng nhập thành công",
+            "fail": "Đăng nhập thất bại"
+        },
+        "logout": {
+            "success": "Đăng xuất thành công",
+            "fail": "Đăng xuất thất bại"
+        },
+        "register": {
+            "title": "Tạo tài khoản",
+            "subtitle": "Điền thông tin để bắt đầu sử dụng PingMe",
+            "btn": "Tạo tài khoản",
+            "loading": "Đang tạo tài khoản...",
+            "success": "Đăng ký thành công! Vui lòng đăng nhập.",
+            "fail": "Đăng ký thất bại",
+            "hasAccount": "Đã có tài khoản?",
+            "loginNow": "Đăng nhập ngay"
+        },
+        "fields": {
+            "name": "Họ và tên",
+            "namePlaceholder": "Nguyễn Văn A",
+            "email": "Email",
+            "password": "Mật khẩu",
+            "passwordPlaceholder": "Nhập mật khẩu",
+            "confirmPassword": "Xác nhận mật khẩu",
+            "pwdMinLength": "Tối thiểu 6 ký tự",
+            "gender": "Giới tính",
+            "genderPlaceholder": "Chọn",
+            "genderMale": "Nam",
+            "genderFemale": "Nữ",
+            "genderOther": "Khác",
+            "dob": "Ngày sinh",
+            "dobPlaceholder": "Chọn ngày",
+            "address": "Địa chỉ",
+            "addressPlaceholder": "Thành phố, Quốc gia"
+        },
+        "or": "hoặc"
+    },
+    "features": {
+        "title": "Khám phá tính năng",
+        "subtitle": "PingMe mang đến trải nghiệm giao tiếp toàn diện với đầy đủ các tính năng hiện đại",
+        "chat": {
+            "title": "Chat",
+            "desc": "Trò chuyện trực tiếp với bạn bè, chia sẻ tin nhắn, hình ảnh và cảm xúc. Kết nối nhanh chóng và tiện lợi mọi lúc mọi nơi."
+        },
+        "contacts": {
+            "title": "Danh bạ",
+            "desc": "Quản lý danh sách bạn bè, tìm kiếm người dùng mới và kết nối với những người bạn quan tâm. Xây dựng mạng lưới của bạn."
+        },
+        "reels": {
+            "title": "Thước phim",
+            "desc": "Chia sẻ khoảnh khắc hàng ngày, cảm xúc và suy nghĩ của bạn với bạn bè. Giống như mạng xã hội, đăng tức thì không cần duyệt."
+        },
+        "music": {
+            "title": "Âm nhạc",
+            "desc": "Khám phá thế giới âm nhạc đa dạng, từ những bản hit mới nhất đến các playlist cá nhân hóa."
+        }
+    },
+    "cta": {
+        "title": "Sẵn sàng bắt đầu hành trình?",
+        "desc": "Tham gia cùng hàng triệu người dùng đang sử dụng PingMe để kết nối, chia sẻ và khám phá những điều tuyệt vời mỗi ngày.",
+        "btnRegister": "Tạo tài khoản miễn phí",
+        "btnLogin": "Đăng nhập ngay"
+    },
+    "footer": {
+        "copyright": "© 2026 PingMe. Tất cả quyền được bảo lưu."
+    },
+    "forgotPassword": {
+        "emailStep": {
+            "title": "Quên mật khẩu?",
+            "subtitle": "Nhập email của bạn để nhận mã xác thực đặt lại mật khẩu",
+            "emailLabel": "Email",
+            "btnSend": "Gửi mã xác thực",
+            "sending": "Đang gửi...",
+            "backToLogin": "Quay lại đăng nhập",
+            "success": "Mã xác thực đã được gửi đến email của bạn",
+            "fail": "Gửi mã thất bại"
+        },
+        "otpStep": {
+            "title": "Xác thực OTP",
+            "subtitle": "Vui lòng nhập mã 6 số được gửi đến email {{email}}",
+            "otpLabel": "Mã OTP",
+            "btnVerify": "Xác nhận",
+            "verifying": "Đang xác thực...",
+            "resend": "Gửi lại mã",
+            "resendIn": "Gửi lại sau {{seconds}}s",
+            "resendSuccess": "Đã gửi lại mã mới",
+            "success": "Xác thực thành công",
+            "fail": "Mã OTP không chính xác"
+        },
+        "resetStep": {
+            "title": "Đặt lại mật khẩu",
+            "subtitle": "Tạo mật khẩu mới cho tài khoản của bạn",
+            "newPassword": "Mật khẩu mới",
+            "confirmPassword": "Xác nhận mật khẩu",
+            "btnReset": "Cập nhật mật khẩu",
+            "updating": "Đang cập nhật...",
+            "success": "Đặt lại mật khẩu thành công!",
+            "fail": "Đặt lại mật khẩu thất bại"
+        }
+    }
+}

@@ -1,6 +1,7 @@
-import type React from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import LanguageSwitcher from "@/pages/commons/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +28,7 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import type { LoginRequest, RegisterRequest } from "@/types/authentication";
@@ -47,6 +48,7 @@ export default function AuthSection({
   mode,
   heroImageSrc = "/images/hero-chat.webp",
 }: Readonly<AuthSectionProps>) {
+  const { t } = useTranslation("landing");
   const isLogin = mode === "login";
 
   return (
@@ -64,6 +66,10 @@ export default function AuthSection({
           />
         </div>
 
+        <div className="absolute top-6 right-6 z-50">
+          <LanguageSwitcher />
+        </div>
+
         <div className="relative max-w-7xl mx-auto px-4 h-full">
           <div className="grid md:grid-cols-2 gap-10 items-center h-full py-3">
             {/* LEFT: Image + content */}
@@ -78,9 +84,7 @@ export default function AuthSection({
               </h1>
 
               <p className="mt-4 text-lg text-purple-100 leading-relaxed max-w-xl">
-                Kết nối bạn bè, nhắn tin nhanh, chia sẻ khoảnh khắc và khám phá
-                nội dung theo cách hiện đại — ưu tiên bảo mật và trải nghiệm
-                mượt.
+                {t("auth.slogan")}
               </p>
 
               <div className="mt-8 relative">
@@ -114,6 +118,7 @@ export default function AuthSection({
 }
 
 function LoginFormContent() {
+  const { t } = useTranslation("landing");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -130,7 +135,7 @@ function LoginFormContent() {
     try {
       await dispatch(login(loginRequestDto));
     } catch (error) {
-      toast.error(getErrorMessage(error, "Đăng nhập thất bại"));
+      toast.error(getErrorMessage(error, t("auth.login.fail")));
     } finally {
       setIsLoading(false);
     }
@@ -159,16 +164,16 @@ function LoginFormContent() {
             PingMe
           </h1>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Đăng nhập</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t("auth.login.title")}</h2>
         <p className="text-gray-500 text-sm">
-          Nhập thông tin để truy cập tài khoản của bạn
+          {t("auth.login.subtitle")}
         </p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email
+            {t("auth.fields.email")}
           </Label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -189,14 +194,14 @@ function LoginFormContent() {
             htmlFor="password"
             className="text-sm font-medium text-gray-700"
           >
-            Mật khẩu
+            {t("auth.fields.password")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Nhập mật khẩu"
+              placeholder={t("auth.fields.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -222,7 +227,7 @@ function LoginFormContent() {
             onClick={handleForgotPassword}
             className="text-sm text-purple-600 hover:text-purple-700 font-medium hover:underline transition-colors"
           >
-            Quên mật khẩu?
+            {t("auth.login.forgotPassword")}
           </button>
         </div>
 
@@ -234,10 +239,10 @@ function LoginFormContent() {
           {isLoading ? (
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Đang đăng nhập...</span>
+              <span>{t("auth.login.loading")}</span>
             </div>
           ) : (
-            "Đăng nhập"
+            t("auth.login.btn")
           )}
         </Button>
       </form>
@@ -247,18 +252,18 @@ function LoginFormContent() {
           <div className="w-full border-t border-gray-200" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-gray-500">hoặc</span>
+          <span className="px-4 bg-white text-gray-500">{t("auth.or")}</span>
         </div>
       </div>
 
       <div className="text-center">
         <p className="text-gray-600">
-          Chưa có tài khoản?{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link
             to="/?mode=register"
             className="text-purple-600 hover:text-purple-700 font-semibold hover:underline transition-colors"
           >
-            Đăng ký ngay
+            {t("auth.login.registerNow")}
           </Link>
         </p>
       </div>
@@ -267,6 +272,7 @@ function LoginFormContent() {
 }
 
 function RegisterFormContent() {
+  const { t, i18n } = useTranslation("landing");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<RegisterRequest>({
     email: "",
@@ -294,10 +300,10 @@ function RegisterFormContent() {
       };
 
       await registerLocalApi(payload);
-      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+      toast.success(t("auth.register.success"));
       navigate("/?mode=login");
     } catch (err) {
-      toast.error(getErrorMessage(err, "Đăng ký thất bại"));
+      toast.error(getErrorMessage(err, t("auth.register.fail")));
     } finally {
       setIsLoading(false);
     }
@@ -321,23 +327,23 @@ function RegisterFormContent() {
             PingMe
           </h1>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Tạo tài khoản</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t("auth.register.title")}</h2>
         <p className="text-gray-500 text-sm">
-          Điền thông tin để bắt đầu sử dụng PingMe
+          {t("auth.register.subtitle")}
         </p>
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-            Họ và tên <span className="text-red-500">*</span>
+            {t("auth.fields.name")} <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
             <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               id="name"
               type="text"
-              placeholder="Nguyễn Văn A"
+              placeholder={t("auth.fields.namePlaceholder")}
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
               className="pl-12 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -348,7 +354,7 @@ function RegisterFormContent() {
 
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email <span className="text-red-500">*</span>
+            {t("auth.fields.email")} <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -369,14 +375,14 @@ function RegisterFormContent() {
             htmlFor="password"
             className="text-sm font-medium text-gray-700"
           >
-            Mật khẩu <span className="text-red-500">*</span>
+            {t("auth.fields.password")} <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Tối thiểu 6 ký tự"
+              placeholder={t("auth.fields.pwdMinLength")}
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
               className="pl-12 pr-12 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -403,7 +409,7 @@ function RegisterFormContent() {
               htmlFor="gender"
               className="text-sm font-medium text-gray-700"
             >
-              Giới tính <span className="text-red-500">*</span>
+              {t("auth.fields.gender")} <span className="text-red-500">*</span>
             </Label>
             <Select
               value={formData.gender}
@@ -411,19 +417,19 @@ function RegisterFormContent() {
               required
             >
               <SelectTrigger className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg">
-                <SelectValue placeholder="Chọn" />
+                <SelectValue placeholder={t("auth.fields.genderPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MALE">Nam</SelectItem>
-                <SelectItem value="FEMALE">Nữ</SelectItem>
-                <SelectItem value="OTHER">Khác</SelectItem>
+                <SelectItem value="MALE">{t("auth.fields.genderMale")}</SelectItem>
+                <SelectItem value="FEMALE">{t("auth.fields.genderFemale")}</SelectItem>
+                <SelectItem value="OTHER">{t("auth.fields.genderOther")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">
-              Ngày sinh
+              {t("auth.fields.dob")}
             </Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -436,8 +442,8 @@ function RegisterFormContent() {
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dob
-                    ? format(dob, "dd/MM/yyyy", { locale: vi })
-                    : "Chọn ngày"}
+                    ? format(dob, "dd/MM/yyyy", { locale: i18n.language === 'vi' ? vi : enUS })
+                    : t("auth.fields.dobPlaceholder")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -448,7 +454,7 @@ function RegisterFormContent() {
                   disabled={(date) =>
                     date > new Date() || date < new Date("1900-01-01")
                   }
-                  locale={vi}
+                  locale={i18n.language === 'vi' ? vi : enUS}
                   captionLayout="dropdown"
                 />
               </PopoverContent>
@@ -461,14 +467,14 @@ function RegisterFormContent() {
             htmlFor="address"
             className="text-sm font-medium text-gray-700"
           >
-            Địa chỉ
+            {t("auth.fields.address")}
           </Label>
           <div className="relative">
             <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               id="address"
               type="text"
-              placeholder="Thành phố, Quốc gia"
+              placeholder={t("auth.fields.addressPlaceholder")}
               value={formData.address}
               onChange={(e) => handleInputChange("address", e.target.value)}
               className="pl-12 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
@@ -484,22 +490,22 @@ function RegisterFormContent() {
           {isLoading ? (
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Đang tạo tài khoản...</span>
+              <span>{t("auth.register.loading")}</span>
             </div>
           ) : (
-            "Tạo tài khoản"
+            t("auth.register.btn")
           )}
         </Button>
       </form>
 
       <div className="text-center">
         <p className="text-gray-600">
-          Đã có tài khoản?{" "}
+          {t("auth.register.hasAccount")}{" "}
           <Link
             to="/?mode=login"
             className="text-purple-600 hover:text-purple-700 font-semibold hover:underline transition-colors"
           >
-            Đăng nhập ngay
+            {t("auth.register.loginNow")}
           </Link>
         </p>
       </div>

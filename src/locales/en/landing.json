@@ -1,0 +1,112 @@
+{
+    "auth": {
+        "slogan": "Connect with friends, message instantly, share moments, and explore content in a modern way — prioritizing security and a smooth experience.",
+        "login": {
+            "title": "Login",
+            "subtitle": "Enter your details to access your account",
+            "btn": "Login",
+            "loading": "Logging in...",
+            "forgotPassword": "Forgot password?",
+            "noAccount": "Don't have an account?",
+            "registerNow": "Register now",
+            "success": "Login successful",
+            "fail": "Login failed"
+        },
+        "logout": {
+            "success": "Logout successful",
+            "fail": "Logout failed"
+        },
+        "register": {
+            "title": "Create Account",
+            "subtitle": "Fill in the information to start using PingMe",
+            "btn": "Create Account",
+            "loading": "Creating account...",
+            "success": "Registration successful! Please login.",
+            "fail": "Registration failed",
+            "hasAccount": "Already have an account?",
+            "loginNow": "Login now"
+        },
+        "fields": {
+            "name": "Full Name",
+            "namePlaceholder": "John Doe",
+            "email": "Email",
+            "password": "Password",
+            "passwordPlaceholder": "Enter password",
+            "confirmPassword": "Confirm password",
+            "pwdMinLength": "Minimum 6 characters",
+            "gender": "Gender",
+            "genderPlaceholder": "Select",
+            "genderMale": "Male",
+            "genderFemale": "Female",
+            "genderOther": "Other",
+            "dob": "Date of Birth",
+            "dobPlaceholder": "Select date",
+            "address": "Address",
+            "addressPlaceholder": "City, Country"
+        },
+        "or": "or"
+    },
+    "features": {
+        "title": "Discover Features",
+        "subtitle": "PingMe brings a comprehensive communication experience with all modern features",
+        "chat": {
+            "title": "Chat",
+            "desc": "Chat directly with friends, share messages, pictures and emotions. Connect quickly and conveniently anytime, anywhere."
+        },
+        "contacts": {
+            "title": "Contacts",
+            "desc": "Manage your friend list, search for new users and connect with people you care about. Build your network."
+        },
+        "reels": {
+            "title": "Reels",
+            "desc": "Share your daily moments, feelings and thoughts with friends. Instant posting without moderation."
+        },
+        "music": {
+            "title": "Music",
+            "desc": "Explore the diverse world of music, from the latest hits to personalized playlists."
+        }
+    },
+    "cta": {
+        "title": "Ready to start the journey?",
+        "desc": "Join millions of users using PingMe to connect, share and discover great things every day.",
+        "btnRegister": "Create Free Account",
+        "btnLogin": "Login Now"
+    },
+    "footer": {
+        "copyright": "© 2026 PingMe. All rights reserved."
+    },
+    "forgotPassword": {
+        "emailStep": {
+            "title": "Forgot Password?",
+            "subtitle": "Enter your email to receive a password reset verification code",
+            "emailLabel": "Email",
+            "btnSend": "Send Verification Code",
+            "sending": "Sending...",
+            "backToLogin": "Back to login",
+            "success": "Verification code has been sent to your email",
+            "fail": "Failed to send code"
+        },
+        "otpStep": {
+            "title": "OTP Verification",
+            "subtitle": "Please enter the 6-digit code sent to {{email}}",
+            "otpLabel": "OTP Code",
+            "btnVerify": "Verify",
+            "verifying": "Verifying...",
+            "resend": "Resend code",
+            "resendIn": "Resend in {{seconds}}s",
+            "resendSuccess": "New code sent",
+            "success": "Verification successful",
+            "fail": "Incorrect OTP code"
+        },
+        "resetStep": {
+            "title": "Reset Password",
+            "subtitle": "Create a new password for your account",
+            "newPassword": "New Password",
+            "confirmPassword": "Confirm Password",
+            "btnReset": "Update Password",
+            "updating": "Updating...",
+            "success": "Password reset successful!",
+            "fail": "Failed to reset password"
+        }
+    }
+}

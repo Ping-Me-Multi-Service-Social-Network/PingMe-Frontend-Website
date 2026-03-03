@@ -19,6 +19,7 @@ import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { SocketManager } from "@/features/websocket/socketManager";
+import { useTranslation } from "react-i18next";
 
 interface FilePreview {
   file: File;
@@ -46,6 +47,7 @@ export function ChatBoxInput({
   disabled = false,
 }: ChatInputProps) {
   const theme = getTheme(selectedChat.theme);
+  const { t } = useTranslation("chat");
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FilePreview[]>([]);
@@ -239,17 +241,17 @@ export function ChatBoxInput({
 
   const handleWeatherClick = () => {
     if ("geolocation" in navigator) {
-      toast.info("Đang lấy vị trí của bạn...");
+      toast.info(t("input.gettingLocation"));
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
             setIsSending(true);
             await onSendWeather(latitude, longitude);
-            toast.success("Đã gửi thông tin thời tiết");
+            toast.success(t("input.weatherSentSuccess"));
           } catch (error) {
             toast.error(
-              getErrorMessage(error, "Không thể gửi thông tin thời tiết"),
+              getErrorMessage(error, t("input.weatherSentError")),
             );
           } finally {
             setIsSending(false);
@@ -257,13 +259,11 @@ export function ChatBoxInput({
         },
         (error) => {
           console.error("Geolocation error:", error);
-          toast.error(
-            "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí.",
-          );
+          toast.error(t("input.locationError"));
         },
       );
     } else {
-      toast.error("Trình duyệt không hỗ trợ định vị");
+      toast.error(t("input.locationNotSupported"));
     }
   };
 
@@ -318,7 +318,7 @@ export function ChatBoxInput({
           className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
           onClick={handleWeatherClick}
           disabled={disabled || isSending}
-          title="Gửi thông tin thời tiết"
+          title={t("input.sendWeatherTitle")}
         >
           <CloudSun className="w-5 h-5" />
         </Button>
@@ -411,7 +411,7 @@ export function ChatBoxInput({
             <Input
               value={newMessage}
               onChange={handleInputChange}
-              placeholder="Nhập tin nhắn..."
+              placeholder={t("input.placeholder")}
               className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
               onKeyPress={handleKeyPress}
               disabled={disabled || isSending}
@@ -419,11 +419,10 @@ export function ChatBoxInput({
 
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
               <span
-                className={`text-xs ${
-                  newMessage.length > 1000
-                    ? "text-red-500 font-semibold"
-                    : "text-gray-500"
-                }`}
+                className={`text-xs ${newMessage.length > 1000
+                  ? "text-red-500 font-semibold"
+                  : "text-gray-500"
+                  }`}
               >
                 {newMessage.length}/1000
               </span>

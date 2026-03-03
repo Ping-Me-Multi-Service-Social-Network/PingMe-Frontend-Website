@@ -1,0 +1,233 @@
+{
+    "common": {
+        "back": "Quay Lại",
+        "cancel": "Hủy"
+    },
+    "home": {
+        "errorLoad": "Không thể tải dữ liệu âm nhạc",
+        "quickLinks": {
+            "favorites": "Bài Hát Yêu Thích",
+            "favoritesDesc": "Những bài hát bạn thích",
+            "playlists": "Danh Sách Phát",
+            "playlistsDesc": "Bộ sưu tập của bạn",
+            "discover": "Khám Phá Playlist",
+            "discoverDesc": "Cộng đồng chia sẻ"
+        },
+        "rankings": {
+            "title": "Bảng Xếp Hạng",
+            "viewAll": "Xem Tất Cả",
+            "today": "Top 50 Hôm Nay",
+            "todayDesc": "Bài hát được nghe nhiều nhất hôm nay",
+            "week": "Top 50 Tuần Này",
+            "weekDesc": "Bảng xếp hạng tuần này",
+            "month": "Top 50 Tháng Này",
+            "monthDesc": "Bảng xếp hạng tháng này"
+        },
+        "genres": {
+            "title": "Thể Loại",
+            "empty": "Không có thể loại nào"
+        },
+        "albums": {
+            "title": "Album Phổ Biến",
+            "more": "Thêm",
+            "empty": "Không có album nào"
+        },
+        "artists": {
+            "title": "Nghệ Sĩ Nổi Tiếng",
+            "more": "Thêm",
+            "empty": "Không có nghệ sĩ nào"
+        },
+        "topSongs": {
+            "title": "Top 5 Bài Hát",
+            "empty": "Không có bài hát nào"
+        }
+    },
+    "layout": {
+        "sidebar": {
+            "title": "PingMe Music",
+            "discover": "Khám phá",
+            "trending": "Top Trend",
+            "newReleases": "Mới phát hành",
+            "categories": "Thể loại",
+            "yourLibrary": "Thư viện của bạn",
+            "playlists": "Danh sách phát",
+            "recent": "Nghe gần đây",
+            "favorites": "Yêu thích",
+            "nowPlaying": "Đang phát"
+        },
+        "header": {
+            "searchPlaceholder": "Tìm kiếm bài hát, nghệ sĩ, album..."
+        }
+    },
+    "player": {
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "next": "Tiếp theo",
+        "prev": "Trước đó",
+        "shuffle": "Trộn bài",
+        "repeat": "Lặp lại",
+        "volume": "Âm lượng",
+        "lyrics": "Lời bài hát",
+        "queue": "Danh sách phát",
+        "addToPlaylist": "Thêm vào playlist",
+        "playingFrom": "Đang phát từ",
+        "noSongs": "Không có bài hát nào. Hãy chọn một bài hát để phát.",
+        "addToFavorite": "Thêm vào yêu thích",
+        "removeFromFavorite": "Xóa khỏi yêu thích",
+        "unknownArtist": "Nghệ sĩ chưa xác định"
+    },
+    "pages": {
+        "songList": {
+            "invalidParams": "Thông số không hợp lệ",
+            "fetchError": "Đã xảy ra lỗi khi tải dữ liệu",
+            "genreLabel": "Thể Loại",
+            "albumLabel": "Album",
+            "artistLabel": "Nghệ Sĩ",
+            "unknown": "Không rõ",
+            "songsCount": "{{count}} bài hát",
+            "playCount": "{{playCount}} lượt nghe",
+            "playAll": "Phát Tất Cả",
+            "title": "Bài Hát",
+            "notFound": "Không tìm thấy bài hát nào"
+        },
+        "rankings": {
+            "todaySubtitle": "Bài hát được nghe nhiều nhất hôm nay",
+            "weekSubtitle": "Bảng xếp hạng tuần này",
+            "monthSubtitle": "Bảng xếp hạng tháng này",
+            "empty": "Chưa có bài hát trong bảng xếp hạng",
+            "emptyDesc": "Quay lại sau để xem bảng xếp hạng cập nhật",
+            "errorLoad": "⚠️ Không thể tải bảng xếp hạng",
+            "retry": "Thử lại",
+            "add": "Thêm"
+        },
+        "playlists": {
+            "title": "Danh Sách Phát Của Bạn",
+            "discoverPublic": "Khám Phá Playlist Công Khai",
+            "emptyTitle": "Chưa có playlist nào",
+            "emptyDesc": "Tạo playlist đầu tiên của bạn để bắt đầu",
+            "createBtn": "Tạo Playlist",
+            "public": "Công khai",
+            "private": "Riêng tư",
+            "editTitle": "Chỉnh sửa Playlist",
+            "deleteTitle": "Xóa Playlist",
+            "createTitle": "Tạo Playlist Mới",
+            "nameLabel": "Tên Playlist",
+            "namePlaceholder": "Playlist Tuyệt Vời Của Tôi",
+            "sharePublic": "Chia sẻ playlist này công khai",
+            "cancel": "Hủy",
+            "create": "Tạo",
+            "creating": "Đang tạo...",
+            "createSuccess": "Playlist đã được tạo thành công!",
+            "createError": "Không thể tạo playlist",
+            "update": "Cập nhật",
+            "updating": "Đang cập nhật...",
+            "deleteConfirmTitle": "Xóa Playlist",
+            "deleteConfirmMsg": "Bạn có chắc chắn muốn xóa playlist",
+            "deleteWarning": "Hành động này không thể hoàn tác.",
+            "delete": "Xóa",
+            "deleting": "Đang xóa..."
+        },
+        "playlistDetail": {
+            "removeFrom": "Xóa khỏi playlist",
+            "removeSuccess": "Đã xóa bài hát khỏi playlist",
+            "removeError": "Không thể xóa bài hát",
+            "updateOrderSuccess": "Đã cập nhật thứ tự bài hát",
+            "backToList": "Quay Lại Danh Sách",
+            "songsCount": "{{count}} bài hát",
+            "playAll": "Phát Tất Cả",
+            "emptyTitle": "Không có bài hát trong playlist",
+            "emptyDesc": "Thêm bài hát để bắt đầu xây dựng playlist của bạn",
+            "errorLoad": "Không thể tải playlist",
+            "notFound": "Không tìm thấy playlist",
+            "edit": "Chỉnh Sửa",
+            "save": "Lưu",
+            "saving": "Đang lưu..."
+        },
+        "favorites": {
+            "title": "Bài Hát Yêu Thích",
+            "emptyTitle": "Chưa có bài hát yêu thích",
+            "emptyDesc": "Các bài hát bạn thích sẽ xuất hiện ở đây",
+            "remove": "Xóa khỏi danh sách yêu thích",
+            "errorLoad": "Lỗi khi tải danh sách yêu thích"
+        },
+        "discover": {
+            "title": "Khám Phá Playlist",
+            "desc": "Duyệt qua các playlist công khai được chia sẻ bởi cộng đồng người dùng",
+            "emptyDesc": "Hãy là người đầu tiên chia sẻ playlist của bạn với cộng đồng!",
+            "emptyTitle": "Chưa có playlist cộng đồng nào",
+            "errorLoad": "Không thể tải playlist công khai",
+            "backToYourPlaylists": "Đến Playlist Của Bạn",
+            "viewPlaylist": "Xem Playlist",
+            "exploreSongs": "Bấm để khám phá",
+            "loadMore": "Tải thêm playlist",
+            "loading": "Đang tải..."
+        },
+        "artists": {
+            "title": "Nghệ Sĩ Nổi Tiếng",
+            "monthlyListeners": "{{count}} người nghe hàng tháng",
+            "errorLoad": "Không thể tải nghệ sĩ",
+            "updatedAt": "Cập nhật vào lúc {{date}}",
+            "followers": "người theo dõi",
+            "rankTitle": "🏆 Xếp hạng",
+            "songTitle": "🔥 Bài hát thịnh hành",
+            "noSong": "Chưa có bài hát thịnh hành"
+        },
+        "albums": {
+            "title": "Album Phổ Biến",
+            "releaseDate": "Phát hành: {{date}}",
+            "errorLoad": "Không thể tải danh sách album",
+            "updatedAt": "Cập nhật vào lúc {{date}}",
+            "rankTitle": "🏆 Xếp hạng",
+            "songTitle": "🎵 Bài hát nổi bật",
+            "playCount": "{{playCount}} lượt nghe",
+            "noSong": "Chưa có bài hát nào"
+        },
+        "search": {
+            "title": "Tìm kiếm",
+            "placeholder": "Tìm kiếm bài hát, nghệ sĩ, album...",
+            "songs": "Bài Hát",
+            "albums": "Album",
+            "artists": "Nghệ Sĩ",
+            "viewAllSongs": "Xem tất cả {{count}} bài hát",
+            "viewAllAlbums": "Xem tất cả {{count}} album",
+            "viewAllArtists": "Xem tất cả {{count}} nghệ sĩ",
+            "notFound": "Không tìm thấy kết quả cho \"{{query}}\"",
+            "error": "Lỗi tìm kiếm",
+            "errorLoading": "Không thể tìm kiếm. Vui lòng thử lại sau."
+        },
+        "cards": {
+            "artist": "Nghệ sĩ",
+            "unknownArtist": "Nghệ sĩ không xác định",
+            "noBio": "Không có tiểu sử",
+            "plays": "{{playCount}} lượt nghe",
+            "favoriteAdded": "Đã thêm vào bài hát yêu thích",
+            "favoriteRemoved": "Đã xóa khỏi bài hát yêu thích",
+            "error": "Có lỗi xảy ra",
+            "noData": "Không có dữ liệu",
+            "playSong": "Phát bài hát {{title}} của {{artist}}",
+            "addFavorite": "Thêm {{title}} vào yêu thích",
+            "removeFavorite": "Xóa {{title}} khỏi yêu thích",
+            "addToPlaylist": "Thêm bài hát {{title}} vào playlist"
+        },
+        "playlistDropdown": {
+            "createTitle": "Tạo danh sách phát mới",
+            "nameLabel": "Tên danh sách phát",
+            "namePlaceholder": "Nhập tên danh sách phát",
+            "sharePublic": "Chia sẻ playlist này công khai",
+            "creating": "Đang tạo...",
+            "create": "Tạo",
+            "loadError": "Không thể tải danh sách playlist",
+            "exists": "Bài hát đã có trong playlist",
+            "added": "Đã thêm vào playlist",
+            "addError": "Không thể thêm vào playlist",
+            "nameRequired": "Vui lòng nhập tên playlist",
+            "createdAndAdded": "Đã tạo playlist và thêm bài hát",
+            "createError": "Không thể tạo playlist",
+            "addToPlaylist": "Thêm vào danh sách phát",
+            "newPlaylist": "Danh sách phát mới",
+            "searchPlaceholder": "Tìm một danh sách phát",
+            "notFound": "Không tìm thấy playlist",
+            "empty": "Chưa có playlist nào"
+        }
+    }
+}

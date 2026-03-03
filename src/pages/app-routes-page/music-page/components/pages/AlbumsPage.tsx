@@ -12,6 +12,7 @@ import { fetchAllAlbums } from "@/features/music/musicSlice";
 import { isCacheValid } from "@/utils/musicCacheUtils";
 import { DEFAULT_ALBUMS_LIMIT, TOP_ARTISTS_FOR_PREVIEW } from "@/constants/musicConstants";
 import TwoColumnLayout, { SongItemCard, EmptySongItem } from "../shared/TwoColumnLayout";
+import { useTranslation } from "react-i18next";
 
 export default function AlbumsPage() {
     const dispatch = useAppDispatch();
@@ -21,6 +22,7 @@ export default function AlbumsPage() {
     const [albumSongs, setAlbumSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation("music");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -51,7 +53,7 @@ export default function AlbumsPage() {
                 setError(null);
             } catch (err) {
                 console.error("Error fetching albums:", err);
-                setError("Failed to load albums");
+                setError(t("pages.albums.errorLoad"));
             } finally {
                 setLoading(false);
             }
@@ -92,8 +94,8 @@ export default function AlbumsPage() {
                     >
                         <ArrowLeft className="w-6 h-6 text-white" />
                     </button>
-                    <h1 className="text-5xl font-bold text-white mb-2">Album Phổ Biến</h1>
-                    <p className="text-zinc-300">Cập nhật vào lúc {new Date().toLocaleDateString("vi-VN")}</p>
+                    <h1 className="text-5xl font-bold text-white mb-2">{t("pages.albums.title")}</h1>
+                    <p className="text-zinc-300">{t("pages.albums.updatedAt", { date: new Date().toLocaleDateString("vi-VN") })}</p>
                 </div>
             </div>
 
@@ -102,8 +104,8 @@ export default function AlbumsPage() {
                     items={albums}
                     itemSongsMap={albumSongs}
                     getItemId={(album) => album.id}
-                    rankTitle="🏆 Rank"
-                    songTitle="🎵 Top song"
+                    rankTitle={t("pages.albums.rankTitle")}
+                    songTitle={t("pages.albums.songTitle")}
                     renderRankItem={(album, index) => (
                         <button
                             key={album.id}
@@ -121,7 +123,7 @@ export default function AlbumsPage() {
                             <div className="flex-1 min-w-0">
                                 <h3 className="text-white font-semibold truncate">{album.title}</h3>
                                 <p className="text-sm text-zinc-400">
-                                    {album.playCount?.toLocaleString()} plays
+                                    {t("pages.albums.playCount", { playCount: album.playCount?.toLocaleString() })}
                                 </p>
                             </div>
                         </button>
@@ -133,7 +135,7 @@ export default function AlbumsPage() {
                                     key={album.id}
                                     imageUrl={album.coverImgUrl || "/placeholder.svg"}
                                     imageAlt={album.title}
-                                    emptyMessage="No songs available"
+                                    emptyMessage={t("pages.albums.noSong")}
                                     subtitle={album.title}
                                 />
                             );

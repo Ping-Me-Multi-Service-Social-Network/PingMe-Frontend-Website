@@ -1,0 +1,131 @@
+{
+    "layout": {
+        "loadingMore": "Loading more...",
+        "selectChatTitle": "Select a conversation",
+        "selectChatDesc": "Choose a conversation from the list to start messaging"
+    },
+    "actionBar": {
+        "search": "Search",
+        "addFriend": "Add Friend",
+        "createGroup": "Create Group Chat"
+    },
+    "messages": {
+        "emptyTitle": "No messages yet",
+        "emptyDesc": "Start the conversation by sending the first message!",
+        "andOthers": "and {{count}} others"
+    },
+    "box": {
+        "historyError": "Failed to load message history",
+        "sendFileError": "Failed to send file",
+        "sendWeatherError": "Failed to send weather information"
+    },
+    "input": {
+        "placeholder": "Type a message...",
+        "sendWeatherTitle": "Send Weather",
+        "gettingLocation": "Getting your location...",
+        "weatherSentSuccess": "Weather info sent",
+        "weatherSentError": "Failed to send weather info",
+        "locationError": "Unable to get your location. Please allow location access.",
+        "locationNotSupported": "Browser does not support geolocation"
+    },
+    "preview": {
+        "noMessages": "No messages yet",
+        "image": "[Image]",
+        "video": "[Video]",
+        "file": "[File]",
+        "weather": "[Weather]",
+        "you": "You"
+    },
+    "sidebar": {
+        "title": "Conversation Info",
+        "profile": "Profile",
+        "voiceCall": "Voice Call",
+        "videoCall": "Video Call",
+        "members": "Chat Members",
+        "media": "Media & Files",
+        "theme": "Theme",
+        "nickname": "Nickname"
+    },
+    "memberList": {
+        "title": "Members",
+        "addMember": "Add Member",
+        "listTitle": "Member List",
+        "searchPlaceholder": "Search members...",
+        "roles": {
+            "owner": "Group Owner",
+            "admin": "Group Admin"
+        },
+        "actions": {
+            "removeAdmin": "Remove Admin",
+            "addAdmin": "Add Admin",
+            "removeFromGroup": "Remove From Group"
+        },
+        "messages": {
+            "removedSuccess": "{{name}} has been removed from group",
+            "removedError": "Cannot remove member from group",
+            "addedAdminSuccess": "{{name}} is now an admin",
+            "removedAdminSuccess": "{{name}} is no longer an admin",
+            "roleChangeError": "Failed to change member role"
+        }
+    },
+    "modals": {
+        "renameGroup": {
+            "title": "Rename Group",
+            "desc": "Enter a new name for your group",
+            "placeholder": "Group Name",
+            "emptyError": "Group name cannot be empty",
+            "success": "Group renamed successfully",
+            "error": "Failed to rename group",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving..."
+        },
+        "theme": {
+            "title": "Select Theme",
+            "success": "Theme changed successfully",
+            "error": "Failed to change theme",
+            "close": "Close"
+        },
+        "updateImage": {
+            "title": "Update Group Image",
+            "selectImage": "Select Image",
+            "removeImage": "Remove Image",
+            "invalidType": "Please select an image file",
+            "sizeLimit": "Image size cannot exceed 5MB",
+            "updateSuccess": "Group image updated",
+            "removeSuccess": "Group image removed",
+            "updateError": "Failed to update group image",
+            "cancel": "Cancel",
+            "confirm": "Confirm",
+            "processing": "Processing..."
+        }
+    },
+    "bubbles": {
+        "file": {
+            "downloading": "Downloading"
+        },
+        "video": {
+            "unsupported": "Your browser does not support the video tag."
+        },
+        "messages": {
+            "recalled": "Message has been recalled",
+            "recallErrorTime": "Cannot recall messages older than 24 hours",
+            "recallSuccess": "Message recalled successfully",
+            "recallError": "Failed to recall message",
+            "recallBtn": "Recall message"
+        },
+        "weather": {
+            "error": "Cannot display weather information",
+            "tapToView": "Tap to view details",
+            "title": "Weather Information",
+            "feelsLike": "Feels like",
+            "humidity": "Humidity",
+            "windSpeed": "Wind speed",
+            "cloudiness": "Cloudiness",
+            "pressure": "Pressure",
+            "temperature": "Temperature",
+            "sunrise": "Sunrise",
+            "sunset": "Sunset"
+        }
+    }
+}

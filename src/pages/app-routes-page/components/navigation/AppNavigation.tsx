@@ -8,9 +8,11 @@ import {
   Menu,
   X,
   Stars,
+  HelpCircle,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   Tooltip,
   TooltipContent,
@@ -18,44 +20,50 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import UserMenu from "@/pages/commons/UserMenu.tsx";
+import { useGlobalTour } from "@/hooks/tours";
 
 const socialNavigationItems = [
   {
-    title: "Tin Nhắn",
+    id: "nav-chat",
+    titleKey: "nav.chat.title",
     icon: MessageCircle,
     href: "/app/chat",
-    description: "Trò chuyện với bạn bè",
+    descriptionKey: "nav.chat.desc",
     external: false,
   },
   {
-    title: "Danh Bạ",
+    id: "nav-contacts",
+    titleKey: "nav.contacts.title",
     icon: Users,
     href: "/app/contacts",
-    description: "Quản lý danh bạ",
+    descriptionKey: "nav.contacts.desc",
     external: false,
   },
 ];
 
 const mediaNavigationItems = [
   {
-    title: "Nghe Nhạc",
+    id: "nav-music",
+    titleKey: "nav.music.title",
     icon: Music4Icon,
     href: "/app/music",
-    description: "Đắm chìm trong âm nhạc",
+    descriptionKey: "nav.music.desc",
     external: false,
   },
   {
-    title: "Thước Phim",
+    id: "nav-reels",
+    titleKey: "nav.reels.title",
     icon: Film,
     href: "/app/reels",
-    description: "Video giải trí",
+    descriptionKey: "nav.reels.desc",
     external: false,
   },
   {
-    title: "Ping AI",
+    id: "nav-ping-ai",
+    titleKey: "nav.pingAi.title",
     icon: Stars,
     href: "/app/ping-ai",
-    description: "Trợ lý AI thông minh",
+    descriptionKey: "nav.pingAi.desc",
     external: false,
   },
 ];
@@ -63,6 +71,8 @@ const mediaNavigationItems = [
 export default function AppNavigation() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { startTour, isTourCompleted } = useGlobalTour();
+  const { t } = useLanguage("common");
 
   const isItemActive = (href: string) => {
     return (
@@ -81,16 +91,16 @@ export default function AppNavigation() {
     const isActive = isItemActive(item.href);
 
     return (
-      <Tooltip key={item.title}>
+      <Tooltip key={item.id}>
         <TooltipTrigger asChild>
           <NavLink
+            id={item.id}
             to={item.href}
             onClick={() => setIsOpen(false)}
-            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-              isActive
-                ? "bg-white text-purple-600 shadow-lg scale-110"
-                : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
-            }`}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${isActive
+              ? "bg-white text-purple-600 shadow-lg scale-110"
+              : "text-purple-200 hover:bg-purple-500 hover:text-white hover:scale-105"
+              }`}
           >
             <item.icon className="w-6 h-6" />
           </NavLink>
@@ -100,9 +110,9 @@ export default function AppNavigation() {
           className="bg-purple-600 text-white border-none shadow-xl"
         >
           <div>
-            <div className="font-semibold">{item.title}</div>
+            <div className="font-semibold">{t(item.titleKey)}</div>
             <div className="text-xs text-purple-100 mt-0.5">
-              {item.description}
+              {t(item.descriptionKey)}
             </div>
           </div>
         </TooltipContent>
@@ -125,7 +135,7 @@ export default function AppNavigation() {
         <div
           role="button"
           tabIndex={0}
-          aria-label="Đóng menu"
+          aria-label={t("nav.closeMenu")}
           className="lg:hidden fixed inset-0 bg-black/50 z-60 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
           onKeyDown={handleOverlayKeyDown}
@@ -162,9 +172,35 @@ export default function AppNavigation() {
 
         <div className="mt-auto flex flex-col space-y-3 pt-3">
           <div className="w-10 h-px bg-purple-400/30 mb-2" />
+
+          {isTourCompleted() && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => startTour(true)}
+                  className="w-10 h-10 mx-auto rounded-lg text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all duration-200"
+                  aria-label={t("nav.guide.aria")}
+                >
+                  <HelpCircle className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="bg-purple-600 text-white border-none shadow-xl"
+              >
+                <div>
+                  <div className="font-semibold">{t("nav.guide.title")}</div>
+                  <div className="text-xs text-purple-100 mt-0.5">
+                    {t("nav.guide.desc")}
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex justify-center">
+              <div id="nav-user-menu" className="flex justify-center">
                 <UserMenu openInNewTab={false} />
               </div>
             </TooltipTrigger>
@@ -173,9 +209,9 @@ export default function AppNavigation() {
               className="bg-purple-600 text-white border-none shadow-xl"
             >
               <div>
-                <div className="font-semibold">Tài khoản</div>
+                <div className="font-semibold">{t("nav.account.title")}</div>
                 <div className="text-xs text-purple-100 mt-0.5">
-                  Quản lý tài khoản
+                  {t("nav.account.desc")}
                 </div>
               </div>
             </TooltipContent>

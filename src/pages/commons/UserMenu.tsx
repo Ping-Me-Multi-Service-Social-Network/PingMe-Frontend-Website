@@ -1,4 +1,4 @@
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { logout } from "@/features/auth/authThunk";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 import { setLogoutReason } from "@/features/auth/authSlice";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface UserMenuProps {
   openInNewTab?: boolean;
@@ -23,6 +24,8 @@ interface UserMenuProps {
 const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { currentLanguage, toggleLanguage, t } = useLanguage("common");
 
   const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
 
@@ -90,23 +93,50 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
           </div>
         </div>
 
-        <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("userMenu.myAccount")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem>
-          <Link
-            to={"/app/profile/user-info"}
-            target={openInNewTab ? "_blank" : undefined}
-            rel={openInNewTab ? "noopener noreferrer" : undefined}
-            className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
-              <User className="h-4 w-4 text-purple-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium">Thông tin cá nhân</p>
-            </div>
-          </Link>
+        <DropdownMenuItem
+          onClick={() => {
+            if (openInNewTab) {
+              window.open("/app/profile/user-info", "_blank", "noopener,noreferrer");
+            } else {
+              navigate("/app/profile/user-info");
+            }
+          }}
+          className="flex cursor-pointer items-center gap-3 rounded-lg w-full"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100">
+            <User className="h-4 w-4 text-purple-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="font-medium">{t("userMenu.personalInfo")}</p>
+          </div>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={toggleLanguage}
+          className="flex cursor-pointer items-center gap-3 rounded-lg w-full mb-1"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100">
+            <Languages className="h-4 w-4 text-blue-600" />
+          </div>
+          <div className="min-w-0 flex-1 flex justify-between items-center">
+            <p className="font-medium">{t("userMenu.language")}</p>
+            <span className="text-xs font-semibold px-2 py-1 bg-gray-100 rounded-md flex items-center gap-2">
+              {currentLanguage === "vi" ? (
+                <>
+                  <img src="https://flagcdn.com/w40/vn.png" alt="VN" className="h-3 w-4.5 object-cover rounded-sm" />
+                  <span>Tiếng Việt</span>
+                </>
+              ) : (
+                <>
+                  <img src="https://flagcdn.com/w40/us.png" alt="US" className="h-3 w-4.5 object-cover rounded-sm" />
+                  <span>English</span>
+                </>
+              )}
+            </span>
+          </div>
         </DropdownMenuItem>
 
         <DropdownMenuItem
@@ -117,7 +147,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
             <LogOut className="h-4 w-4 text-red-600" />
           </div>
           <div className="min-w-0">
-            <p className="font-medium">Đăng xuất</p>
+            <p className="font-medium">{t("userMenu.logout")}</p>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
