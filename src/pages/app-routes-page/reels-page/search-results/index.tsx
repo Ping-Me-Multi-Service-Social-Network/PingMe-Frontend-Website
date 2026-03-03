@@ -1,6 +1,8 @@
 "use client"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { useSearchParams, useNavigate } from "react-router-dom"
+import { useReelNavigation } from "@/hooks/useReelNavigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import ReelDetailView from "../components/ReelDetailView.tsx"
@@ -10,19 +12,15 @@ import type { Reel } from "@/types/reels"
 import { reelsApi } from "@/services/reels"
 
 export default function SearchResultsPage() {
+  const { t } = useTranslation("reels")
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const query = searchParams.get("q") || ""
-  
+
   const [reels, setReels] = useState<Reel[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const touchStartRef = useRef<number | null>(null)
-  const touchDeltaRef = useRef<number>(0)
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -36,23 +34,23 @@ export default function SearchResultsPage() {
 
       try {
         const data = await reelsApi.searchReels(query, 0, 50)
-        
+
         // Client-side filtering
         const searchLower = query.toLowerCase().replace(/^#/, '')
         const filteredResults = data.content.filter((reel) => {
           const captionMatch = reel.caption?.toLowerCase().includes(searchLower)
-          const hashtagMatch = reel.hashtags?.some(tag => 
+          const hashtagMatch = reel.hashtags?.some(tag =>
             tag.toLowerCase().includes(searchLower)
           )
           const userMatch = reel.userName?.toLowerCase().includes(searchLower)
-          
+
           return captionMatch || hashtagMatch || userMatch
         })
-        
+
         setReels(filteredResults)
       } catch (err) {
         console.error("Error searching reels:", err)
-        setError("Không thể tìm kiếm reels")
+        setError(t("search.searchError"))
       } finally {
         setIsLoading(false)
       }
@@ -82,103 +80,30 @@ export default function SearchResultsPage() {
     navigate("/app/reels")
   }
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp" && currentIndex > 0) {
-        setCurrentIndex((prev) => prev - 1)
-      } else if (e.key === "ArrowDown" && currentIndex < reels.length - 1) {
-        setCurrentIndex((prev) => prev + 1)
-      }
-    }
+  const { containerRef } = useReelNavigation({
+    setCurrentIndex,
+    totalItems: reels.length,
+  })
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentIndex, reels.length])
-
-  // Wheel + Touch navigation
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
-
-      scrollTimeoutRef.current = setTimeout(() => {
-        if (e.deltaY > 0) {
-          // Scroll down - next video
-          setCurrentIndex((prev) => Math.min(prev + 1, reels.length - 1))
-        } else {
-          // Scroll up - previous video
-          setCurrentIndex((prev) => Math.max(prev - 1, 0))
-        }
-      }, 100)
-    },
-    [reels.length],
+  const BackHeader = ({ children }: { children?: React.ReactNode }) => (
+    <div className="p-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleBackToMain}
+        className="text-white hover:bg-gray-800"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        {t("search.back")}
+      </Button>
+      {children}
+    </div>
   )
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (container) {
-      const handleTouchStart = (e: TouchEvent) => {
-        touchStartRef.current = e.touches[0].clientY
-        touchDeltaRef.current = 0
-      }
-
-      const handleTouchMove = (e: TouchEvent) => {
-        if (touchStartRef.current === null) return
-        const delta = touchStartRef.current - e.touches[0].clientY
-        touchDeltaRef.current = delta
-      }
-
-      const handleTouchEnd = () => {
-        const delta = touchDeltaRef.current
-        const threshold = 50 // px
-        if (delta > threshold) {
-          setCurrentIndex((prev) => Math.min(prev + 1, reels.length - 1))
-        } else if (delta < -threshold) {
-          setCurrentIndex((prev) => Math.max(prev - 1, 0))
-        }
-        touchStartRef.current = null
-        touchDeltaRef.current = 0
-      }
-
-      container.addEventListener("wheel", handleWheel, { passive: true })
-      container.addEventListener("touchstart", handleTouchStart, {
-        passive: true,
-      })
-      container.addEventListener("touchmove", handleTouchMove, {
-        passive: true,
-      })
-      container.addEventListener("touchend", handleTouchEnd, {
-        passive: true,
-      })
-
-      return () => {
-        container.removeEventListener("wheel", handleWheel)
-        container.removeEventListener("touchstart", handleTouchStart)
-        container.removeEventListener("touchmove", handleTouchMove)
-        container.removeEventListener("touchend", handleTouchEnd)
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current)
-        }
-      }
-    }
-  }, [handleWheel, reels.length])
 
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gray-900 flex-col overflow-hidden">
-        <div className="p-4 border-b border-gray-700 bg-gray-900">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBackToMain}
-            className="text-white hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay về
-          </Button>
-        </div>
+        <BackHeader />
         <div className="flex-1 flex items-center justify-center">
           <LoadingSpinner />
         </div>
@@ -189,21 +114,11 @@ export default function SearchResultsPage() {
   if (error || reels.length === 0) {
     return (
       <div className="flex h-screen bg-gray-900 flex-col overflow-hidden">
-        <div className="p-4 border-b border-gray-700 bg-gray-900">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBackToMain}
-            className="text-white hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay về
-          </Button>
-        </div>
+        <BackHeader />
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
-            title={error || `Không tìm thấy kết quả cho "${query}"`}
-            description="Thử tìm kiếm với từ khóa khác"
+            title={error || t("search.resultsFor", { query })}
+            description={t("search.tryOther")}
           />
         </div>
       </div>
@@ -213,21 +128,12 @@ export default function SearchResultsPage() {
   return (
     <div ref={containerRef} className="flex h-screen bg-gray-900 flex-col overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleBackToMain}
-          className="text-white hover:bg-gray-800"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Quay về
-        </Button>
+      <BackHeader>
         <div className="text-white text-sm">
-          Kết quả tìm kiếm: <span className="font-semibold">{query}</span>
-          <span className="ml-2 text-gray-400">({reels.length} video)</span>
+          {t("search.resultsFor", { query })}
+          <span className="ml-2 text-gray-400">{t("search.video_count", { count: reels.length })}</span>
         </div>
-      </div>
+      </BackHeader>
 
       {/* Reels Feed */}
       <div className="flex-1 relative overflow-hidden">

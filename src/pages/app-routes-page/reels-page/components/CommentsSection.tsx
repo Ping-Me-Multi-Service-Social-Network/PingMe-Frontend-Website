@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import type { ReelComment } from "@/types/reels";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface CommentsSectionProps {
   comments: ReelComment[];
@@ -28,6 +29,7 @@ export default function CommentsSection({
   isLoadingComments,
   currentUserId,
 }: CommentsSectionProps) {
+  const { t, i18n } = useTranslation("reels");
   const [likedComments, setLikedComments] = useState<Set<number>>(new Set());
 
   const toggleLikeComment = (commentId: number) => {
@@ -47,7 +49,7 @@ export default function CommentsSection({
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-200">
         <h3 className="text-sm font-semibold text-gray-900">
-          Bình luận ({commentCount})
+          {t("comments.title")} ({commentCount})
         </h3>
       </div>
 
@@ -55,11 +57,11 @@ export default function CommentsSection({
       <div className="flex-1 overflow-y-auto">
         {isLoadingComments ? (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-            Đang tải bình luận...
+            {t("comments.loading")}
           </div>
         ) : comments.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-            Chưa có bình luận nào
+            {t("comments.empty")}
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
@@ -91,13 +93,13 @@ export default function CommentsSection({
                       {comment.isReelOwner && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
                           <Shield className="w-3 h-3" />
-                          Chủ sở hữu
+                          {t("comments.owner")}
                         </span>
                       )}
                       <p className="text-xs text-gray-500">
                         {formatDistanceToNow(new Date(comment.createdAt), {
                           addSuffix: true,
-                          locale: vi,
+                          locale: i18n.language === "vi" ? vi : enUS,
                         })}
                       </p>
                     </div>
@@ -110,17 +112,15 @@ export default function CommentsSection({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={`h-6 px-2 text-xs ${
-                          likedComments.has(comment.id)
+                        className={`h-6 px-2 text-xs ${likedComments.has(comment.id)
                             ? "text-red-600"
                             : "text-gray-600 hover:text-red-600"
-                        }`}
+                          }`}
                         onClick={() => toggleLikeComment(comment.id)}
                       >
                         <Heart
-                          className={`w-3 h-3 ${
-                            likedComments.has(comment.id) ? "fill-current" : ""
-                          }`}
+                          className={`w-3 h-3 ${likedComments.has(comment.id) ? "fill-current" : ""
+                            }`}
                         />
                       </Button>
                       <Button
@@ -128,7 +128,7 @@ export default function CommentsSection({
                         size="sm"
                         className="h-6 px-2 text-xs text-gray-600"
                       >
-                        Trả lời
+                        {t("comments.reply")}
                       </Button>
                     </div>
                   </div>
@@ -169,7 +169,7 @@ export default function CommentsSection({
       >
         <Input
           type="text"
-          placeholder="Viết bình luận..."
+          placeholder={t("comments.placeholder")}
           value={commentText}
           onChange={(e) => onCommentTextChange(e.target.value)}
           className="text-sm"

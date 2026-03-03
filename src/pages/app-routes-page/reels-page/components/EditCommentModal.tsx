@@ -4,6 +4,7 @@ import { X } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import { Input } from "@/components/ui/input.tsx"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 interface EditCommentModalProps {
   isOpen: boolean
@@ -20,6 +21,7 @@ export default function EditCommentModal({
   onCancel,
   initialContent = "",
 }: EditCommentModalProps) {
+  const { t } = useTranslation("reels")
   const [content, setContent] = useState(initialContent)
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function EditCommentModal({
       <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-900">Chỉnh sửa bình luận</h3>
+          <h3 className="text-lg font-bold text-gray-900">{t("comments.editModalTitle")}</h3>
           <Button
             variant="ghost"
             size="icon"
@@ -51,27 +53,27 @@ export default function EditCommentModal({
         <div className="px-6 py-4">
           <Input
             type="text"
-            placeholder="Chỉnh sửa bình luận của bạn..."
+            placeholder={t("comments.editPlaceholder")}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={isLoading}
             maxLength={500}
             className="text-base"
           />
-          <p className="text-sm text-gray-500 mt-2">{content.length}/500 ký tự</p>
+          <p className="text-sm text-gray-500 mt-2">{t("comments.charCount", { count: content.length })}</p>
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex gap-3 justify-end">
           <Button variant="outline" onClick={onCancel} disabled={isLoading} className="px-6 h-10 bg-transparent">
-            Hủy
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={() => onConfirm(content)}
             disabled={isLoading || !content.trim()}
             className="px-6 h-10 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isLoading ? "Đang lưu..." : "Lưu"}
+            {isLoading ? t("comments.saving") : t("comments.save")}
           </Button>
         </div>
       </div>

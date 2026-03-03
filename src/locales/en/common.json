@@ -1,0 +1,146 @@
+{
+    "nav": {
+        "chat": {
+            "title": "Messages",
+            "desc": "Chat with friends"
+        },
+        "contacts": {
+            "title": "Contacts",
+            "desc": "Manage your contacts"
+        },
+        "music": {
+            "title": "Music",
+            "desc": "Immerse in music"
+        },
+        "reels": {
+            "title": "Reels",
+            "desc": "Entertainment videos"
+        },
+        "pingAi": {
+            "title": "Ping AI",
+            "desc": "Smart AI Assistant"
+        },
+        "guide": {
+            "title": "Guide",
+            "desc": "Replay intro tour",
+            "aria": "Replay introduction guide"
+        },
+        "closeMenu": "Close menu",
+        "account": {
+            "title": "Account",
+            "desc": "Manage your account"
+        }
+    },
+    "userMenu": {
+        "myAccount": "My Account",
+        "personalInfo": "Personal Information",
+        "language": "Language",
+        "logout": "Logout"
+    },
+    "userLookup": {
+        "title": "Search User",
+        "emailLabel": "User Email",
+        "emailPlaceholder": "Enter email to search...",
+        "emptyEmailError": "Please enter an email to search",
+        "searching": "Searching...",
+        "btnMessage": "Message",
+        "btnSendRequest": "Add Friend",
+        "btnSending": "Sending...",
+        "requestSuccess": "Friend request sent successfully!",
+        "requestError": "Failed to send friend request",
+        "redirecting": "Redirecting to chat...",
+        "friendStatus": {
+            "none": "Not friends",
+            "accepted": "Friends",
+            "pending": "Pending response"
+        },
+        "pendingMsg": "Friend request sent. Please wait for the user to respond.",
+        "acceptedMsg": "You and {{name}} are already friends. You can start chatting!",
+        "notFound": "No user found with this email",
+        "tryAgain": "Please check the email and try again"
+    },
+    "groupModal": {
+        "create": {
+            "title": "Create Group Chat",
+            "nameLabel": "Group Name",
+            "namePlaceholder": "Enter group name...",
+            "emptyNameError": "Please enter a group name",
+            "minMembersError": "Group chat needs at least 2 members",
+            "success": "Group chat created successfully",
+            "error": "Failed to create group chat",
+            "btnText": "Create Group",
+            "creatingText": "Creating...",
+            "selectedTitle": "Selected Members",
+            "emptySelected": "No members added",
+            "emptySelectedDesc": "Select friends from the list to add to group"
+        },
+        "add": {
+            "title": "Add Members",
+            "emptySelectionError": "Please select at least 1 member",
+            "noRoomError": "Chat room information not found",
+            "success": "Members added successfully",
+            "error": "Failed to add members",
+            "btnText": "Add Members",
+            "addingText": "Adding...",
+            "selectedTitle": "Add to Group",
+            "emptySelected": "No members selected",
+            "emptySelectedDesc": "Select friends to add to group chat"
+        },
+        "search": {
+            "placeholder": "Search friends...",
+            "fetchError": "Failed to load friends list",
+            "inGroup": "Already in group",
+            "available": "Available to add",
+            "notFound": "No friends found",
+            "tryOtherQuery": "Try searching with a different keyword",
+            "allInGroup": "All friends are already in the group",
+            "noFriends": "You don't have any friends yet"
+        },
+        "cancel": "Cancel"
+    },
+    "errors": {
+        "sessionFail": "Failed to fetch account information",
+        "sessionExpired": "Session has expired",
+        "actionFail": "Action failed"
+    },
+    "actions": {
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "processing": "Processing...",
+        "deleteConfirm": "Are you sure you want to delete?",
+        "irreversible": "This action cannot be undone.",
+        "confirmDelete": "Confirm delete",
+        "delete": "Delete",
+        "save": "Save",
+        "edit": "Edit"
+    },
+    "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "results": "results",
+        "pageSize": "Page size:",
+        "prev": "Previous",
+        "next": "Next"
+    },
+    "loading": {
+        "default": "Loading...",
+        "wait": "Loading... please wait a moment"
+    },
+    "passwordStrength": {
+        "label": "Password strength:",
+        "weak": "Weak",
+        "medium": "Fair",
+        "strong": "Strong",
+        "veryStrong": "Very strong",
+        "minChars": "At least 8 characters",
+        "uppercase": "Uppercase letter",
+        "lowercase": "Lowercase letter",
+        "number": "Number"
+    },
+    "mobileUnsupported": {
+        "title": "Please use a larger screen",
+        "description": "This web app is optimized for desktop. Open on laptop/PC or use the mobile app.",
+        "previewAlt": "App preview illustration"
+    }
+}

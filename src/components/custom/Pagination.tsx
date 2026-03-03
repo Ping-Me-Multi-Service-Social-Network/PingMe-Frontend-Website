@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -28,16 +29,18 @@ const Pagination = ({
   totalElements,
   showItemsPerPageSelect = true,
 }: PaginationProps) => {
+  const { t } = useTranslation("common");
+
   const pagination = () => {
     if (totalPages <= 1) return [1];
 
     const center: (number | string)[] = [
-        currentPage - 2,
-        currentPage - 1,
-        currentPage,
-        currentPage + 1,
-        currentPage + 2,
-      ],
+      currentPage - 2,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      currentPage + 2,
+    ],
       filteredCenter = center.filter(
         (p) => (p as number) > 1 && (p as number) < totalPages,
       ),
@@ -69,25 +72,25 @@ const Pagination = ({
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-gray-900/40 backdrop-blur-sm border-t border-gray-700/50">
       <div className="flex items-center text-sm text-gray-300">
-        Hiển thị{" "}
+        {t("pagination.showing")}{" "}
         <span className="font-medium text-purple-400 mx-1">
           {(currentPage - 1) * itemsPerPage + 1}
         </span>{" "}
-        đến{" "}
+        {t("pagination.to")}{" "}
         <span className="font-medium text-purple-400 mx-1">
           {Math.min(currentPage * itemsPerPage, totalElements)}
         </span>{" "}
-        trong tổng số{" "}
+        {t("pagination.of")}{" "}
         <span className="font-medium text-purple-400 mx-1">
           {totalElements}
         </span>{" "}
-        kết quả
+        {t("pagination.results")}
       </div>
 
       <div className="flex items-center gap-4">
         {showItemsPerPageSelect && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">Hiển thị:</span>
+            <span className="text-sm text-gray-300">{t("pagination.pageSize")}</span>
             <Select
               value={itemsPerPage.toString()}
               onValueChange={(value) => {
@@ -117,7 +120,7 @@ const Pagination = ({
             className="h-8 px-3 bg-gray-800/60 border-gray-700 text-gray-300 hover:bg-purple-600/20 hover:border-purple-600 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800/60 disabled:hover:border-gray-700 transition-all duration-200"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
-            Trước
+            {t("pagination.prev")}
           </Button>
 
           {pages.map((page, index) =>
@@ -137,11 +140,10 @@ const Pagination = ({
                   if ((page as number) === currentPage) return;
                   setCurrentPage(page as number);
                 }}
-                className={`h-8 w-8 p-0 transition-all duration-200 ${
-                  page === currentPage
+                className={`h-8 w-8 p-0 transition-all duration-200 ${page === currentPage
                     ? "bg-purple-600 border-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-900/30"
                     : "bg-gray-800/60 border-gray-700 text-gray-300 hover:bg-purple-600/20 hover:border-purple-600 hover:text-purple-300"
-                }`}
+                  }`}
               >
                 {page}
               </Button>
@@ -155,7 +157,7 @@ const Pagination = ({
             disabled={currentPage === totalPages}
             className="h-8 px-3 bg-gray-800/60 border-gray-700 text-gray-300 hover:bg-purple-600/20 hover:border-purple-600 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800/60 disabled:hover:border-gray-700 transition-all duration-200"
           >
-            Sau
+            {t("pagination.next")}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>

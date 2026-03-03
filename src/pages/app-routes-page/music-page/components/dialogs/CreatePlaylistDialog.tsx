@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface CreatePlaylistDialogProps {
     open: boolean;
@@ -25,6 +26,7 @@ export default function CreatePlaylistDialog({
     const [newPlaylistName, setNewPlaylistName] = useState("");
     const [isPublic, setIsPublic] = useState(false);
     const [creating, setCreating] = useState(false);
+    const { t } = useTranslation("music");
 
     const handleCreatePlaylist = async () => {
         if (!newPlaylistName.trim()) return;
@@ -35,14 +37,14 @@ export default function CreatePlaylistDialog({
                 name: newPlaylistName,
                 isPublic: isPublic,
             });
-            toast.success("Playlist đã được tạo thành công!");
+            toast.success(t("pages.playlists.createSuccess"));
             onOpenChange(false);
             setNewPlaylistName("");
             setIsPublic(false);
             onSuccess?.();
         } catch (err) {
             console.error("Error creating playlist:", err);
-            toast.error("Không thể tạo playlist");
+            toast.error(t("pages.playlists.createError"));
         } finally {
             setCreating(false);
         }
@@ -68,7 +70,7 @@ export default function CreatePlaylistDialog({
             >
                 <DialogHeader>
                     <DialogTitle className="text-xl font-semibold tracking-tight">
-                        Tạo Playlist Mới
+                        {t("pages.playlists.createTitle")}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -79,12 +81,12 @@ export default function CreatePlaylistDialog({
                             htmlFor="playlist-name"
                             className="text-sm font-medium text-zinc-300"
                         >
-                            Tên Playlist
+                            {t("pages.playlists.nameLabel")}
                         </label>
 
                         <Input
                             id="playlist-name"
-                            placeholder="Playlist Tuyệt Vời Của Tôi"
+                            placeholder={t("pages.playlists.namePlaceholder")}
                             value={newPlaylistName}
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
@@ -112,7 +114,7 @@ export default function CreatePlaylistDialog({
                             htmlFor="is-public"
                             className="text-sm text-zinc-300 cursor-pointer select-none"
                         >
-                            Chia sẻ playlist này công khai
+                            {t("pages.playlists.sharePublic")}
                         </label>
                     </div>
                 </div>
@@ -124,7 +126,7 @@ export default function CreatePlaylistDialog({
                         disabled={creating}
                         className="text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-full px-6"
                     >
-                        Hủy
+                        {t("common.cancel")}
                     </Button>
 
                     <Button
@@ -138,7 +140,7 @@ export default function CreatePlaylistDialog({
                                     font-medium
                                     disabled:opacity-50"
                     >
-                        {creating ? "Đang tạo..." : "Tạo"}
+                        {creating ? t("pages.playlists.creating") : t("pages.playlists.create")}
                     </Button>
                 </DialogFooter>
             </DialogContent>

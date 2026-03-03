@@ -1,0 +1,132 @@
+{
+    "topBar": {
+        "title": "Reels",
+        "library": "Thư viện",
+        "manage": "Quản lý"
+    },
+    "search": {
+        "placeholder": "Tìm kiếm video...",
+        "history": "Lịch sử tìm kiếm",
+        "deleteAll": "Xóa tất cả",
+        "noHistory": "Chưa có lịch sử tìm kiếm",
+        "searching": "Đang tìm kiếm...",
+        "noResults": "Không tìm thấy video nào",
+        "deletedHistory": "Đã xóa lịch sử tìm kiếm",
+        "deleteHistoryError": "Không thể xóa lịch sử tìm kiếm",
+        "deletedAllHistory": "Đã xóa toàn bộ lịch sử tìm kiếm",
+        "deleteAllHistoryError": "Không thể xóa toàn bộ lịch sử tìm kiếm",
+        "deleteHistoryTip": "Xóa lịch sử",
+        "untitled": "Video không tiêu đề",
+        "views": "{{count}} lượt xem",
+        "comments": "{{count}} bình luận",
+        "recently": "Gần đây",
+        "resultsFor": "Kết quả tìm kiếm cho: {{query}}",
+        "tryOther": "Thử tìm kiếm với từ khóa khác",
+        "video_count": "({{count}} video)",
+        "back": "Quay về",
+        "searchError": "Không thể tìm kiếm reels"
+    },
+    "feed": {
+        "empty": "Chưa có Reels",
+        "emptyDesc": "Hãy tạo hoặc theo dõi các Reels để xem tại đây",
+        "videoContent": "Nội dung video",
+        "noDescription": "Không có mô tả",
+        "stop": "Dừng"
+    },
+    "library": {
+        "title": "Thư viện của tôi",
+        "tabs": {
+            "likes": "Yêu thích",
+            "saves": "Đã lưu",
+            "views": "Đã xem"
+        },
+        "emptyLikes": "Chưa có reel yêu thích",
+        "emptyLikesDesc": "Những reel bạn thích sẽ hiển thị ở đây",
+        "emptySaves": "Chưa có reel được lưu",
+        "emptySavesDesc": "Những reel bạn lưu sẽ hiển thị ở đây",
+        "emptyViews": "Chưa có reel được xem",
+        "emptyViewsDesc": "Những reel bạn xem sẽ hiển thị ở đây"
+    },
+    "comments": {
+        "title": "Bình luận",
+        "placeholder": "Viết bình luận của bạn...",
+        "replyPlaceholder": "Viết trả lời...",
+        "loading": "Đang tải bình luận...",
+        "empty": "Chưa có bình luận nào",
+        "emptyDesc": "Hãy là người đầu tiên bình luận!",
+        "owner": "Chủ sở hữu",
+        "reply": "Trả lời",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "viewMore": "Xem {{count}} bình luận khác",
+        "hide": "Ẩn bình luận",
+        "updated": "Đã cập nhật bình luận",
+        "updateError": "Không thể cập nhật bình luận",
+        "replied": "Đã trả lời bình luận",
+        "replyError": "Không thể gửi trả lời",
+        "deleteConfirm": "Xóa nội dung này?",
+        "deleteDesc": "Hành động này không thể hoàn tác.",
+        "editModalTitle": "Chỉnh sửa bình luận",
+        "editPlaceholder": "Chỉnh sửa bình luận của bạn...",
+        "charCount": "{{count}}/500 ký tự",
+        "save": "Lưu"
+    },
+    "create": {
+        "title": "Tạo Reel Mới",
+        "changeVideo": "Nhấp để thay đổi video",
+        "uploadPlaceholder": "Kéo thả video hoặc nhấp để chọn",
+        "uploadLimit": "MP4, WebM (tối đa 20MB)",
+        "captionLabel": "Caption",
+        "captionPlaceholder": "Viết caption cho reel của bạn...",
+        "hashtagLabel": "Hashtags",
+        "hashtagPlaceholder": "Nhập hashtag (vd: viral hoặc #viral)",
+        "add": "Thêm",
+        "popularHashtags": "Hashtags phổ biến:",
+        "uploading": "Đang tải lên...",
+        "createVideo": "Tạo Video Mới",
+        "submit": "Tạo Reel",
+        "success": "Tạo reel thành công",
+        "error": "Không thể tạo reel",
+        "validation": {
+            "hashtagExists": "Hashtag đã tồn tại",
+            "hashtagInvalid": "Hashtag chỉ được chứa chữ cái, số và dấu gạch dưới",
+            "missingFields": "Vui lòng chọn video và thêm caption",
+            "missingHashtag": "Vui lòng thêm ít nhất một hashtag"
+        }
+    },
+    "edit": {
+        "title": "Chỉnh Sửa Reel",
+        "success": "Cập nhật reel thành công",
+        "error": "Không thể cập nhật reel",
+        "emptyCaption": "Caption không được trống",
+        "saving": "Đang lưu...",
+        "save": "Lưu Thay Đổi",
+        "success_save": "Đã lưu reel",
+        "success_unsave": "Đã bỏ lưu reel",
+        "error_save": "Không thể lưu reel",
+        "success_delete": "Xóa reel thành công",
+        "error_delete": "Không thể xóa reel"
+    },
+    "manage": {
+        "title": "Quản lý Video",
+        "empty": "Chưa có video nào",
+        "back": "Quay lại",
+        "loadError": "Không thể tải danh sách video",
+        "deleteSuccess": "Xóa video thành công",
+        "deleteError": "Không thể xóa video",
+        "deleteConfirm": "Bạn có chắc muốn xóa video này?",
+        "loadMore": "Xem thêm",
+        "stats": {
+            "views": "Lượt xem:",
+            "likes": "Yêu thích:",
+            "comments": "Bình luận:"
+        }
+    },
+    "common": {
+        "delete": "Xóa",
+        "cancel": "Hủy",
+        "deleting": "Đang xóa...",
+        "follow": "Theo dõi",
+        "backgroundMusic": "Nhạc nền"
+    }
+}

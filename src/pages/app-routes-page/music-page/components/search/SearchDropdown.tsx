@@ -7,6 +7,7 @@ import type {
 } from "@/types/music";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { Music2, Disc3, User2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SearchDropdownProps {
   query: string;
@@ -25,6 +26,7 @@ interface SongItemProps {
 }
 
 function SongItem({ song, onSelect }: Readonly<SongItemProps>) {
+  const { t } = useTranslation("music");
   return (
     <button
       onClick={() => onSelect(song)}
@@ -48,7 +50,7 @@ function SongItem({ song, onSelect }: Readonly<SongItemProps>) {
           {song.title}
         </p>
         <p className="text-xs text-zinc-400 truncate">
-          {song.mainArtist?.name || "Unknown Artist"}
+          {song.mainArtist?.name || t("cards.unknownArtist")}
         </p>
       </div>
     </button>
@@ -61,6 +63,7 @@ interface AlbumItemProps {
 }
 
 function AlbumItem({ album, onSelect }: Readonly<AlbumItemProps>) {
+  const { t } = useTranslation("music");
   return (
     <button
       onClick={() => onSelect(album)}
@@ -84,7 +87,7 @@ function AlbumItem({ album, onSelect }: Readonly<AlbumItemProps>) {
           {album.title}
         </p>
         <p className="text-xs text-zinc-400">
-          {album.playCount?.toLocaleString()} plays
+          {t("cards.plays", { playCount: album.playCount?.toLocaleString() })}
         </p>
       </div>
     </button>
@@ -97,6 +100,7 @@ interface ArtistItemProps {
 }
 
 function ArtistItem({ artist, onSelect }: Readonly<ArtistItemProps>) {
+  const { t } = useTranslation("music");
   return (
     <button
       onClick={() => onSelect(artist)}
@@ -120,7 +124,7 @@ function ArtistItem({ artist, onSelect }: Readonly<ArtistItemProps>) {
           {artist.name}
         </p>
         <p className="text-xs text-zinc-400 truncate">
-          {artist.bio || "Không có tiểu sử"}
+          {artist.bio || t("cards.noBio")}
         </p>
       </div>
     </button>
@@ -142,6 +146,7 @@ export default function SearchDropdown({
   const [artists, setArtists] = useState<ArtistResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation("music");
 
   useEffect(() => {
     if (!query.trim() || !isOpen) {
@@ -170,7 +175,7 @@ export default function SearchDropdown({
         setSongs([]);
         setAlbums([]);
         setArtists([]);
-        setError("Không thể tìm kiếm. Vui lòng thử lại sau.");
+        setError(t("search.errorLoading"));
       } finally {
         setLoading(false);
       }
@@ -193,7 +198,7 @@ export default function SearchDropdown({
     return (
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-zinc-300 px-2">
-          Bài Hát
+          {t("search.songs")}
         </h3>
         <div className="space-y-2">
           {songs.slice(0, 3).map((song) => (
@@ -209,7 +214,7 @@ export default function SearchDropdown({
             onClick={onViewMoreSongs}
             className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
           >
-            Xem tất cả {songs.length} bài hát
+            {t("search.viewAllSongs", { count: songs.length })}
           </button>
         )}
       </div>
@@ -222,7 +227,7 @@ export default function SearchDropdown({
     return (
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-zinc-300 px-2">
-          Album
+          {t("search.albums")}
         </h3>
         <div className="space-y-2">
           {albums.slice(0, 3).map((album) => (
@@ -238,7 +243,7 @@ export default function SearchDropdown({
             onClick={onViewMoreAlbums}
             className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
           >
-            Xem tất cả {albums.length} album
+            {t("search.viewAllAlbums", { count: albums.length })}
           </button>
         )}
       </div>
@@ -251,7 +256,7 @@ export default function SearchDropdown({
     return (
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-zinc-300 px-2">
-          Nghệ Sĩ
+          {t("search.artists")}
         </h3>
         <div className="space-y-2">
           {artists.slice(0, 3).map((artist) => (
@@ -267,7 +272,7 @@ export default function SearchDropdown({
             onClick={onViewMoreArtists}
             className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 font-medium"
           >
-            Xem tất cả {artists.length} nghệ sĩ
+            {t("search.viewAllArtists", { count: artists.length })}
           </button>
         )}
       </div>
@@ -286,7 +291,7 @@ export default function SearchDropdown({
     if (error) {
       return (
         <div className="p-6 text-center">
-          <p className="text-red-400 mb-2">⚠️ Lỗi tìm kiếm</p>
+          <p className="text-red-400 mb-2">⚠️ {t("search.error")}</p>
           <p className="text-zinc-400 text-sm">{error}</p>
         </div>
       );
@@ -295,7 +300,7 @@ export default function SearchDropdown({
     if (!hasResults) {
       return (
         <div className="p-6 text-center text-zinc-400">
-          <p>Không tìm thấy kết quả cho "{query}"</p>
+          <p>{t("search.notFound", { query })}</p>
         </div>
       );
     }

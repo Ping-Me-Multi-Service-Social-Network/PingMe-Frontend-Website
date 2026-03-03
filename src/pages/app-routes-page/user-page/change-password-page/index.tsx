@@ -9,8 +9,10 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter.tsx";
 import { updateCurrentUserPasswordApi } from "@/services/user/currentUserProfileApi.ts";
+import { useTranslation } from "react-i18next";
 
 const ChangePasswordPage = () => {
+  const { t } = useTranslation("profile");
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -35,17 +37,17 @@ const ChangePasswordPage = () => {
     e.preventDefault();
 
     if (formData.newPassword !== formData.confirmPassword) {
-      toast.error("Mật khẩu xác nhận không khớp");
+      toast.error(t("changePassword.validation.notMatch"));
       return;
     }
 
     if (formData.newPassword.length < 6) {
-      toast.error("Mật khẩu mới phải có ít nhất 6 ký tự");
+      toast.error(t("changePassword.validation.minLength"));
       return;
     }
 
     if (formData.currentPassword === formData.newPassword) {
-      toast.error("Mật khẩu mới phải khác mật khẩu hiện tại");
+      toast.error(t("changePassword.validation.sameAsOld"));
       return;
     }
 
@@ -57,7 +59,7 @@ const ChangePasswordPage = () => {
         newPassword: formData.newPassword,
       });
 
-      toast.success("Đổi mật khẩu thành công!");
+      toast.success(t("changePassword.success"));
 
       setFormData({
         currentPassword: "",
@@ -65,7 +67,7 @@ const ChangePasswordPage = () => {
         confirmPassword: "",
       });
     } catch (error) {
-      toast.error(getErrorMessage(error, "Đổi mật khẩu thất bại"));
+      toast.error(getErrorMessage(error, t("changePassword.fail")));
     } finally {
       setIsLoading(false);
     }
@@ -76,22 +78,22 @@ const ChangePasswordPage = () => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center">
           <Lock className="w-6 h-6 mr-3 text-purple-600" />
-          Đổi mật khẩu
+          {t("changePassword.title")}
         </h2>
         <p className="text-gray-500 mt-2">
-          Thay đổi mật khẩu để bảo mật tài khoản của bạn
+          {t("changePassword.subtitle")}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="profile-password-form" onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Current Password */}
-          <div className="space-y-2">
+          <div id="profile-current-password" className="space-y-2">
             <Label
               htmlFor="currentPassword"
               className="text-sm font-medium text-gray-700"
             >
-              Mật khẩu hiện tại <span className="text-red-500">*</span>
+              {t("changePassword.fields.currentPassword")} <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -102,7 +104,7 @@ const ChangePasswordPage = () => {
                 onChange={(e) =>
                   handleInputChange("currentPassword", e.target.value)
                 }
-                placeholder="Nhập mật khẩu hiện tại"
+                placeholder={t("changePassword.fields.currentPasswordPlaceholder")}
                 className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                 required
               />
@@ -121,12 +123,12 @@ const ChangePasswordPage = () => {
           </div>
 
           {/* New Password */}
-          <div className="space-y-2">
+          <div id="profile-new-password" className="space-y-2">
             <Label
               htmlFor="newPassword"
               className="text-sm font-medium text-gray-700"
             >
-              Mật khẩu mới <span className="text-red-500">*</span>
+              {t("changePassword.fields.newPassword")} <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -137,7 +139,7 @@ const ChangePasswordPage = () => {
                 onChange={(e) =>
                   handleInputChange("newPassword", e.target.value)
                 }
-                placeholder="Nhập mật khẩu mới"
+                placeholder={t("changePassword.fields.newPasswordPlaceholder")}
                 className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                 required
                 minLength={6}
@@ -157,12 +159,12 @@ const ChangePasswordPage = () => {
           </div>
 
           {/* Confirm Password */}
-          <div className="space-y-2 md:col-span-2">
+          <div id="profile-confirm-password" className="space-y-2 md:col-span-2">
             <Label
               htmlFor="confirmPassword"
               className="text-sm font-medium text-gray-700"
             >
-              Xác nhận mật khẩu mới <span className="text-red-500">*</span>
+              {t("changePassword.fields.confirmPassword")} <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -173,7 +175,7 @@ const ChangePasswordPage = () => {
                 onChange={(e) =>
                   handleInputChange("confirmPassword", e.target.value)
                 }
-                placeholder="Nhập lại mật khẩu mới"
+                placeholder={t("changePassword.fields.confirmPasswordPlaceholder")}
                 className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                 required
               />
@@ -194,14 +196,14 @@ const ChangePasswordPage = () => {
               formData.newPassword !== formData.confirmPassword && (
                 <p className="text-xs text-red-500 flex items-center">
                   <X className="w-3 h-3 mr-1" />
-                  Mật khẩu xác nhận không khớp
+                  {t("changePassword.indicator.notMatch")}
                 </p>
               )}
             {formData.confirmPassword &&
               formData.newPassword === formData.confirmPassword && (
                 <p className="text-xs text-green-500 flex items-center">
                   <Shield className="w-3 h-3 mr-1" />
-                  Mật khẩu xác nhận khớp
+                  {t("changePassword.indicator.match")}
                 </p>
               )}
           </div>
@@ -210,7 +212,7 @@ const ChangePasswordPage = () => {
         <PasswordStrengthMeter password={formData.newPassword} />
 
         {/* Submit Button */}
-        <div className="pt-4">
+        <div id="profile-password-submit" className="pt-4">
           <Button
             type="submit"
             disabled={
@@ -221,10 +223,10 @@ const ChangePasswordPage = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                <span>Đang cập nhật...</span>
+                <span>{t("common.updating")}</span>
               </>
             ) : (
-              "Đổi mật khẩu"
+              t("changePassword.updateBtn")
             )}
           </Button>
         </div>

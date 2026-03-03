@@ -1,0 +1,120 @@
+{
+    "nav": {
+        "userInfo": "Personal Information",
+        "userInfoDesc": "Manage your personal information",
+        "changePassword": "Change Password",
+        "changePasswordDesc": "Secure your account with a new password",
+        "deviceManagement": "Device Management",
+        "deviceManagementDesc": "View and manage logged-in devices"
+    },
+    "common": {
+        "loading": "Loading information...",
+        "updating": "Updating...",
+        "updateSuccess": "Information updated successfully!",
+        "updateFail": "Update failed",
+        "cancel": "Cancel",
+        "restartTourTooltip": "Replay tutorial",
+        "accountSettings": "Account Settings"
+    },
+    "userInfo": {
+        "title": "Personal Information",
+        "subtitle": "Update your personal information",
+        "fetchError": "Could not fetch user information",
+        "activateRequired": "Account is not activated",
+        "activateBtn": "Activate now",
+        "activateSending": "Sending...",
+        "activateSuccess": "Activation code has been sent to your email!",
+        "activateFail": "Failed to send activation code",
+        "fields": {
+            "email": "Email",
+            "fullName": "Full Name",
+            "fullNamePlaceholder": "Enter full name",
+            "gender": "Gender",
+            "genderPlaceholder": "Select gender",
+            "genderMale": "Male",
+            "genderFemale": "Female",
+            "genderOther": "Other",
+            "dob": "Date of Birth",
+            "dobPlaceholder": "Select date of birth",
+            "address": "Address",
+            "addressPlaceholder": "Enter address"
+        },
+        "updateBtn": "Update Information",
+        "verifyOtp": {
+            "title": "OTP Verification",
+            "subtitle": "Enter the 6-digit code we sent to your email",
+            "otpLabel": "OTP Code",
+            "btnVerify": "Verify",
+            "processing": "Processing...",
+            "backBtn": "Back",
+            "inputInvalid": "Please enter a valid OTP",
+            "activationSuccess": "Account activated successfully!",
+            "activationFail": "Error activating account after OTP verification",
+            "success": "OTP verified successfully",
+            "invalid": "Incorrect or expired OTP code.",
+            "fail": "OTP verification failed"
+        }
+    },
+    "changePassword": {
+        "title": "Change Password",
+        "subtitle": "Change your password to secure your account",
+        "success": "Password changed successfully!",
+        "fail": "Failed to change password",
+        "validation": {
+            "notMatch": "Confirmation password does not match",
+            "minLength": "New password must be at least 6 characters",
+            "sameAsOld": "New password must be different from the current password"
+        },
+        "fields": {
+            "currentPassword": "Current Password",
+            "currentPasswordPlaceholder": "Enter current password",
+            "newPassword": "New Password",
+            "newPasswordPlaceholder": "Enter new password",
+            "confirmPassword": "Confirm New Password",
+            "confirmPasswordPlaceholder": "Re-enter new password"
+        },
+        "indicator": {
+            "notMatch": "Confirmation password does not match",
+            "match": "Confirmation password matches"
+        },
+        "updateBtn": "Change Password"
+    },
+    "deviceManagement": {
+        "title": "Device Management",
+        "subtitle": "View and manage login sessions on your devices",
+        "fetchError": "Could not fetch session information",
+        "deleteSuccess": "Session deleted successfully",
+        "deleteError": "Could not delete session",
+        "loading": "Loading login sessions...",
+        "stats": {
+            "total": "Total sessions",
+            "current": "Current session",
+            "other": "Other sessions"
+        },
+        "emptyTitle": "No login sessions found",
+        "emptyDesc": "There are currently no login sessions to display.",
+        "currentSessionBadge": "Current session",
+        "unknownTime": "Unknown time",
+        "lastActive": "Last active: ",
+        "activeNow": "Active now",
+        "sessionId": "Session ID: ",
+        "deleteBtn": "Delete session",
+        "deleting": "Deleting...",
+        "currentSessionWarning": "This is your current login session. You cannot delete it."
+    },
+    "avatar": {
+        "validation": {
+            "notImage": "Please select an image file",
+            "tooLarge": "File too large (max 5MB)",
+            "noFile": "Please select a file"
+        },
+        "updateSuccess": "Avatar updated successfully!",
+        "updateFail": "Failed to update avatar",
+        "defaultName": "User",
+        "defaultEmail": "user@example.com",
+        "modalTitle": "Update Avatar",
+        "modalDesc": "Preview your new avatar",
+        "uploading": "Uploading...",
+        "btnUpdate": "Update Avatar"
+    }
+}

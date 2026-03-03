@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 import { ReelsTopBar } from "./components/ReelTopBar.tsx"
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx"
 import { EmptyState } from "@/components/custom/EmptyState.tsx"
@@ -9,9 +10,12 @@ import type { Reel } from "@/types/reels"
 import { reelsApi } from "@/services/reels"
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts"
 import { useNavigate } from "react-router-dom"
+import { useReelNavigation } from "@/hooks/useReelNavigation"
 
 export default function ReelsPage() {
+  const { t } = useTranslation("reels")
   const navigate = useNavigate()
+
   const [reels, setReels] = useState<Reel[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFetching, setIsFetching] = useState(false)
@@ -27,11 +31,6 @@ export default function ReelsPage() {
   const [searchResults, setSearchResults] = useState<Reel[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchTrigger, setSearchTrigger] = useState<string>("")
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const touchStartRef = useRef<number | null>(null)
-  const touchDeltaRef = useRef<number>(0)
 
   const fetchReels = useCallback(async (page: number, size: number, append = false) => {
     try {
@@ -65,94 +64,16 @@ export default function ReelsPage() {
     fetchReels(0, 10)
   }, [fetchReels])
 
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
+  const { containerRef } = useReelNavigation({
+    setCurrentIndex,
+    totalItems: isSearching ? searchResults.length : reels.length,
+    onReachEnd: () => {
+      if (pagination.hasMore && !pagination.isLoadingMore) {
+        fetchReels(pagination.currentPage + 1, 10, true)
       }
-
-      scrollTimeoutRef.current = setTimeout(() => {
-        if (e.deltaY > 0) {
-          // Scroll down - next video
-          setCurrentIndex((prev) => {
-            const nextIndex = prev + 1
-            // Load more if near the end
-            if (
-              nextIndex >= (isSearching ? searchResults.length : reels.length) - 3 &&
-              pagination.hasMore &&
-              !pagination.isLoadingMore
-            ) {
-              fetchReels(pagination.currentPage + 1, 10, true)
-            }
-            return Math.min(nextIndex, (isSearching ? searchResults.length : reels.length) - 1)
-          })
-        } else {
-          // Scroll up - previous video
-          setCurrentIndex((prev) => Math.max(prev - 1, 0))
-        }
-      }, 100)
     },
-    [reels.length, pagination, fetchReels, isSearching, searchResults.length],
-  )
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (container) {
-      const handleTouchStart = (e: TouchEvent) => {
-        touchStartRef.current = e.touches[0].clientY
-        touchDeltaRef.current = 0
-      }
-
-      const handleTouchMove = (e: TouchEvent) => {
-        if (touchStartRef.current === null) return
-        const delta = touchStartRef.current - e.touches[0].clientY
-        touchDeltaRef.current = delta
-      }
-
-      const handleTouchEnd = () => {
-        const delta = touchDeltaRef.current
-        const threshold = 50 // px
-        if (delta > threshold) {
-          setCurrentIndex((prev) => {
-            const nextIndex = prev + 1
-            if (
-              nextIndex >= (isSearching ? searchResults.length : reels.length) - 3 &&
-              pagination.hasMore &&
-              !pagination.isLoadingMore
-            ) {
-              fetchReels(pagination.currentPage + 1, 10, true)
-            }
-            return Math.min(nextIndex, (isSearching ? searchResults.length : reels.length) - 1)
-          })
-        } else if (delta < -threshold) {
-          setCurrentIndex((prev) => Math.max(prev - 1, 0))
-        }
-        touchStartRef.current = null
-        touchDeltaRef.current = 0
-      }
-
-      container.addEventListener("wheel", handleWheel, { passive: true })
-      container.addEventListener("touchstart", handleTouchStart, {
-        passive: true,
-      })
-      container.addEventListener("touchmove", handleTouchMove, {
-        passive: true,
-      })
-      container.addEventListener("touchend", handleTouchEnd, {
-        passive: true,
-      })
-
-      return () => {
-        container.removeEventListener("wheel", handleWheel)
-        container.removeEventListener("touchstart", handleTouchStart)
-        container.removeEventListener("touchmove", handleTouchMove)
-        container.removeEventListener("touchend", handleTouchEnd)
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current)
-        }
-      }
-    }
-  }, [handleWheel, reels.length, pagination, fetchReels, isSearching, searchResults.length])
+    offset: 3,
+  })
 
   const handleReelUpdate = (updatedReel: Reel) => {
     setReels((prev) => prev.map((reel) => (reel.id === updatedReel.id ? updatedReel : reel)))
@@ -191,7 +112,7 @@ export default function ReelsPage() {
         return
       }
     }
-    
+
     // Nếu không tìm thấy trong search results, tìm trong danh sách chính
     const index = reels.findIndex((r) => r.id === reel.id)
     if (index !== -1) {
@@ -237,7 +158,7 @@ export default function ReelsPage() {
           </div>
         ) : reels.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <EmptyState title="Chưa có Reels" description="Hãy tạo hoặc theo dõi các Reels để xem tại đây" />
+            <EmptyState title={t("feed.empty")} description={t("feed.emptyDesc")} />
           </div>
         ) : (
           <div className="h-full w-full overflow-hidden relative">

@@ -1,4 +1,5 @@
 import type React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button.tsx";
@@ -17,6 +18,7 @@ export function CreateReelModal({
   onClose,
   onSuccess,
 }: CreateReelModalProps) {
+  const { t } = useTranslation("reels");
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [hashtagInput, setHashtagInput] = useState("");
@@ -62,13 +64,13 @@ export function CreateReelModal({
 
     // Check if hashtag already exists
     if (hashtags.includes(hashtag.toLowerCase())) {
-      toast.error("Hashtag đã tồn tại");
+      toast.error(t("create.validation.hashtagExists"));
       return;
     }
 
     // Validate hashtag format (only alphanumeric and underscore after #)
     if (!/^#[a-zA-Z0-9_]+$/.test(hashtag)) {
-      toast.error("Hashtag chỉ được chứa chữ cái, số và dấu gạch dưới");
+      toast.error(t("create.validation.hashtagInvalid"));
       return;
     }
 
@@ -99,12 +101,12 @@ export function CreateReelModal({
 
   const handleSubmit = async () => {
     if (!videoFile || !caption.trim()) {
-      toast.error("Vui lòng chọn video và thêm caption");
+      toast.error(t("create.validation.missingFields"));
       return;
     }
 
     if (hashtags.length === 0) {
-      toast.error("Vui lòng thêm ít nhất một hashtag");
+      toast.error(t("create.validation.missingHashtag"));
       return;
     }
 
@@ -122,7 +124,7 @@ export function CreateReelModal({
         caption: caption.trim(),
         hashtags: normalizedHashtags,
       });
-      toast.success("Tạo reel thành công");
+      toast.success(t("create.success"));
       setCaption("");
       setHashtags([]);
       setHashtagInput("");
@@ -132,7 +134,7 @@ export function CreateReelModal({
       onClose();
     } catch (error) {
       console.log("[PingMe] Create reel error:", error);
-      toast.error("Không thể tạo reel");
+      toast.error(t("create.error"));
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +146,7 @@ export function CreateReelModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Tạo Reel Mới</h3>
+          <h3 className="text-xl font-semibold">{t("create.title")}</h3>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-md"
@@ -167,13 +169,13 @@ export function CreateReelModal({
                   className="w-full h-40 object-cover rounded-md"
                   controls
                 />
-                <p className="text-sm text-gray-600">Nhấp để thay đổi video</p>
+                <p className="text-sm text-gray-600">{t("create.changeVideo")}</p>
               </div>
             ) : (
               <div className="space-y-2">
                 <Upload className="w-8 h-8 mx-auto text-gray-400" />
-                <p className="text-gray-600">Kéo thả video hoặc nhấp để chọn</p>
-                <p className="text-sm text-gray-500">MP4, WebM (tối đa 20MB)</p>
+                <p className="text-gray-600">{t("create.uploadPlaceholder")}</p>
+                <p className="text-sm text-gray-500">{t("create.uploadLimit")}</p>
               </div>
             )}
             <input
@@ -191,13 +193,13 @@ export function CreateReelModal({
               htmlFor="create-reel-caption"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Caption
+              {t("create.captionLabel")}
             </label>
             <textarea
               id="create-reel-caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Viết caption cho reel của bạn..."
+              placeholder={t("create.captionPlaceholder")}
               className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
               rows={4}
               maxLength={300}
@@ -212,7 +214,7 @@ export function CreateReelModal({
               className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
             >
               <Hash className="w-4 h-4" />
-              Hashtags
+              {t("create.hashtagLabel")}
               <span className="text-red-500">*</span>
             </label>
 
@@ -245,7 +247,7 @@ export function CreateReelModal({
                 value={hashtagInput}
                 onChange={(e) => setHashtagInput(e.target.value)}
                 onKeyDown={handleHashtagInputKeyDown}
-                placeholder="Nhập hashtag (vd: viral hoặc #viral)"
+                placeholder={t("create.hashtagPlaceholder")}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
               <Button
@@ -255,24 +257,23 @@ export function CreateReelModal({
                 size="sm"
                 className="px-4 bg-transparent"
               >
-                Thêm
+                {t("create.add")}
               </Button>
             </div>
 
             {/* Suggested Hashtags */}
             <div className="mt-3">
-              <p className="text-xs text-gray-600 mb-2">Hashtags phổ biến:</p>
+              <p className="text-xs text-gray-600 mb-2">{t("create.popularHashtags")}</p>
               <div className="flex flex-wrap gap-2">
                 {suggestedHashtags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => handleSuggestedHashtagClick(tag)}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      hashtags.includes(tag)
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm transition-colors ${hashtags.includes(tag)
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     {tag}
                   </button>
@@ -289,14 +290,14 @@ export function CreateReelModal({
               disabled={isLoading}
               className="flex-1 bg-transparent"
             >
-              Hủy
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={isLoading || !videoFile}
               className="flex-1"
             >
-              {isLoading ? "Đang tải lên..." : "Tạo Reel"}
+              {isLoading ? t("create.uploading") : t("create.submit")}
             </Button>
           </div>
         </div>

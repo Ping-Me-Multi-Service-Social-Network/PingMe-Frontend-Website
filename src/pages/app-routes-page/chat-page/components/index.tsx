@@ -27,6 +27,7 @@ import {
   setCurrentRoom,
   selectMessages,
 } from "@/features/websocket/slices/chatSlice";
+import { useTranslation } from "react-i18next";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -42,6 +43,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
     const { userSession } = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
     const reduxMessages = useAppSelector(selectMessages);
+    const { t } = useTranslation("chat");
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -95,7 +97,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
 
           setHasMoreMessages(hasMore);
         } catch (err) {
-          toast.error(getErrorMessage(err, "Không thể lấy lịch sử tin nhắn"));
+          toast.error(getErrorMessage(err, t("box.historyError")));
         } finally {
           setIsLoadingMessages(false);
           setIsLoadingMore(false);
@@ -207,7 +209,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           return [...prev, sentMessage];
         });
       } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể gửi file"));
+        toast.error(getErrorMessage(err, t("box.sendFileError")));
       }
     };
 
@@ -235,7 +237,7 @@ export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
           return [...prev, sentMessage];
         });
       } catch (err) {
-        toast.error(getErrorMessage(err, "Không thể gửi thông tin thời tiết"));
+        toast.error(getErrorMessage(err, t("box.sendWeatherError")));
       }
     };
 

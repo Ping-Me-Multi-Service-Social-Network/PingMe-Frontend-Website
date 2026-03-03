@@ -25,6 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 // Sortable Item Component
 interface SortableItemProps {
@@ -36,6 +37,7 @@ interface SortableItemProps {
 }
 
 function SortableItem({ item, index, isEditMode, onPlay, onRemove }: Readonly<SortableItemProps>) {
+    const { t } = useTranslation("music");
     const {
         attributes,
         listeners,
@@ -91,7 +93,7 @@ function SortableItem({ item, index, isEditMode, onPlay, onRemove }: Readonly<So
                 <button
                     onClick={() => onRemove(item.songId)}
                     className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
-                    title="Xóa khỏi playlist"
+                    title={t("pages.playlistDetail.removeFrom")}
                 >
                     <Trash2 className="w-5 h-5" />
                 </button>
@@ -110,6 +112,7 @@ export default function PlaylistDetailPage() {
     const [isEditMode, setIsEditMode] = useState(false);
     const [items, setItems] = useState<PlaylistSongDto[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const { t } = useTranslation("music");
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -149,7 +152,7 @@ export default function PlaylistDetailPage() {
             setError(null);
         } catch (err) {
             console.error("Error fetching playlist details:", err);
-            setError("Failed to load playlist");
+            setError(t("pages.playlistDetail.errorLoad"));
         } finally {
             setLoading(false);
         }
@@ -166,10 +169,10 @@ export default function PlaylistDetailPage() {
                 ...playlistDetail,
                 items: newItems
             });
-            toast.success("Đã xóa bài hát khỏi playlist");
+            toast.success(t("pages.playlistDetail.removeSuccess"));
         } catch (err) {
             console.error("Error removing song:", err);
-            toast.error("Không thể xóa bài hát");
+            toast.error(t("pages.playlistDetail.removeError"));
         }
     };
 
@@ -222,7 +225,7 @@ export default function PlaylistDetailPage() {
             await fetchPlaylistDetail(playlistDetail.id);
 
             setIsEditMode(false);
-            toast.success("Đã cập nhật thứ tự bài hát");
+            toast.success(t("pages.playlistDetail.updateOrderSuccess"));
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.error("Error saving order:", err);
@@ -291,7 +294,7 @@ export default function PlaylistDetailPage() {
     if (error || !playlistDetail) {
         return (
             <div className="flex items-center justify-center h-96 bg-gray-900">
-                <p className="text-red-400">{error || "Playlist not found"}</p>
+                <p className="text-red-400">{error || t("pages.playlistDetail.notFound")}</p>
             </div>
         );
     }
@@ -306,7 +309,7 @@ export default function PlaylistDetailPage() {
                         className="flex items-center gap-2 text-zinc-400 hover:text-white transition mb-6"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Quay Lại Danh Sách
+                        {t("pages.playlistDetail.backToList")}
                     </button>
 
                     <div className="flex items-start gap-6 mb-6">
@@ -322,17 +325,17 @@ export default function PlaylistDetailPage() {
                                     {playlistDetail.isPublic ? (
                                         <>
                                             <Globe className="w-4 h-4" />
-                                            <span>Công khai</span>
+                                            <span>{t("pages.playlists.public")}</span>
                                         </>
                                     ) : (
                                         <>
                                             <Lock className="w-4 h-4" />
-                                            <span>Riêng tư</span>
+                                            <span>{t("pages.playlists.private")}</span>
                                         </>
                                     )}
                                 </div>
                                 <span>•</span>
-                                <span>{playlistDetail.items.length} bài hát</span>
+                                <span>{t("pages.songList.songsCount", { count: playlistDetail.items.length })}</span>
                             </div>
                         </div>
                     </div>
@@ -349,7 +352,7 @@ export default function PlaylistDetailPage() {
                                     }`}
                             >
                                 <Play className="w-5 h-5 fill-white" />
-                                Phát Tất Cả
+                                {t("pages.songList.playAll")}
                             </button>
 
                             {isEditMode ? (
@@ -360,7 +363,7 @@ export default function PlaylistDetailPage() {
                                         className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-full text-white font-semibold transition-colors disabled:opacity-50"
                                     >
                                         <Save className="w-5 h-5" />
-                                        {isSaving ? "Đang lưu..." : "Lưu"}
+                                        {isSaving ? t("pages.playlistDetail.saving") : t("pages.playlistDetail.save")}
                                     </button>
                                     <button
                                         onClick={handleCancelEdit}
@@ -368,7 +371,7 @@ export default function PlaylistDetailPage() {
                                         className="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-full text-white font-semibold transition-colors disabled:opacity-50"
                                     >
                                         <X className="w-5 h-5" />
-                                        Hủy
+                                        {t("common.cancel")}
                                     </button>
                                 </div>
                             ) : (
@@ -377,7 +380,7 @@ export default function PlaylistDetailPage() {
                                     className="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-full text-white font-semibold transition-colors"
                                 >
                                     <Edit className="w-5 h-5" />
-                                    Chỉnh Sửa
+                                    {t("pages.playlistDetail.edit")}
                                 </button>
                             )}
                         </div>
@@ -388,8 +391,8 @@ export default function PlaylistDetailPage() {
                 {playlistDetail.items.length === 0 ? (
                     <EmptyState
                         icon={Music2}
-                        title="Không có bài hát trong playlist"
-                        description="Thêm bài hát để bắt đầu xây dựng playlist của bạn"
+                        title={t("pages.playlistDetail.emptyTitle")}
+                        description={t("pages.playlistDetail.emptyDesc")}
                     />
                 ) : (
                     <DndContext

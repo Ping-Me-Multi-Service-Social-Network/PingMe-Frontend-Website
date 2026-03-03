@@ -1,0 +1,31 @@
+{
+    "button": {
+        "video": "Gọi video",
+        "audio": "Gọi thoại",
+        "offline": "{{name}} hiện đang ngoại tuyến",
+        "active": "Cuộc gọi đang diễn ra",
+        "startVideoError": "Không thể bắt đầu cuộc gọi video",
+        "startAudioError": "Không thể bắt đầu cuộc gọi thoại"
+    },
+    "notification": {
+        "videoTitle": "Cuộc gọi video đến",
+        "audioTitle": "Cuộc gọi thoại đến",
+        "incoming": "đang gọi bạn...",
+        "reject": "Từ chối",
+        "answer": "Trả lời",
+        "callerUnknown": "Người dùng"
+    },
+    "status": {
+        "calling": "Đang gọi...",
+        "ringing": "Cuộc gọi đến...",
+        "connected": "Đang trong cuộc gọi",
+        "rejected": "Cuộc gọi bị từ chối",
+        "rejectedByUser": "Bạn đã từ chối cuộc gọi",
+        "ended": "Cuộc gọi kết thúc",
+        "error": "Lỗi: {{message}}"
+    },
+    "zego": {
+        "initError": "Không thể khởi tạo cuộc gọi",
+        "initializing": "Đang khởi tạo..."
+    }
+}

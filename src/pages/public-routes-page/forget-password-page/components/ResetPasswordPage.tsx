@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
+import { useTranslation } from "react-i18next";
 import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 
 const ResetPasswordPage: React.FC = () => {
@@ -15,13 +16,14 @@ const ResetPasswordPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation("landing");
 
   const navigate = useNavigate();
   const [token] = useState(() => localStorage.getItem("resetPasswordToken"));
 
   useEffect(() => {
     if (!token) {
-      toast.error("Phiên làm việc hết hạn hoặc không hợp lệ.");
+      toast.error(t("forgotPassword.resetStep.fail"));
       navigate("/forgot-password");
     }
   }, [token, navigate]);
@@ -32,11 +34,11 @@ const ResetPasswordPage: React.FC = () => {
     if (!token) return;
 
     if (newPassword !== confirmPassword) {
-      toast.error("Mật khẩu xác nhận không khớp!");
+      toast.error(t("auth.fields.confirmPassword"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
+      toast.error(t("auth.fields.pwdMinLength"));
       return;
     }
 
@@ -55,17 +57,17 @@ const ResetPasswordPage: React.FC = () => {
         resData.errorCode === 200 &&
         resData.data.isPasswordChanged === true
       ) {
-        toast.success("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+        toast.success(t("forgotPassword.resetStep.success"));
 
         localStorage.removeItem("resetPasswordToken");
 
         // Chuyển trang
         navigate("/auth?mode=login");
       } else {
-        toast.error(resData.errorMessage || "Đổi mật khẩu thất bại.");
+        toast.error(resData.errorMessage || t("forgotPassword.resetStep.fail"));
       }
     } catch (error) {
-      toast.error(getErrorMessage(error, "Có lỗi xảy ra khi đổi mật khẩu"));
+      toast.error(getErrorMessage(error, t("forgotPassword.resetStep.fail")));
     } finally {
       setIsLoading(false);
     }
@@ -79,9 +81,9 @@ const ResetPasswordPage: React.FC = () => {
             <Lock className="w-8 h-8 text-purple-600" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Đặt lại mật khẩu</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("forgotPassword.resetStep.title")}</h1>
         <p className="text-gray-500 text-sm">
-          Tạo mật khẩu mới cho tài khoản của bạn
+          {t("forgotPassword.resetStep.subtitle")}
         </p>
       </div>
 
@@ -92,7 +94,7 @@ const ResetPasswordPage: React.FC = () => {
             htmlFor="newPassword"
             className="text-sm font-medium text-gray-700"
           >
-            Mật khẩu mới
+            {t("forgotPassword.resetStep.newPassword")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -102,7 +104,7 @@ const ResetPasswordPage: React.FC = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="pl-12 pr-12 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
-              placeholder="Nhập mật khẩu mới"
+              placeholder={t("forgotPassword.resetStep.newPassword")}
               required
               disabled={isLoading}
             />
@@ -127,7 +129,7 @@ const ResetPasswordPage: React.FC = () => {
             htmlFor="confirmPassword"
             className="text-sm font-medium text-gray-700"
           >
-            Xác nhận mật khẩu
+            {t("forgotPassword.resetStep.confirmPassword")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -137,12 +139,12 @@ const ResetPasswordPage: React.FC = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className={`pl-12 pr-12 h-12 border rounded-lg focus:outline-none focus:ring-2 ${newPassword &&
-                  confirmPassword &&
-                  newPassword !== confirmPassword
-                  ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-purple-500 focus:border-purple-500"
+                confirmPassword &&
+                newPassword !== confirmPassword
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:ring-purple-500 focus:border-purple-500"
                 }`}
-              placeholder="Nhập lại mật khẩu mới"
+              placeholder={t("forgotPassword.resetStep.confirmPassword")}
               required
               disabled={isLoading}
             />
@@ -162,7 +164,7 @@ const ResetPasswordPage: React.FC = () => {
             confirmPassword &&
             newPassword !== confirmPassword && (
               <p className="text-xs text-red-500 mt-1">
-                Mật khẩu xác nhận không khớp
+                {t("auth.fields.confirmPassword")}
               </p>
             )}
         </div>
@@ -175,10 +177,10 @@ const ResetPasswordPage: React.FC = () => {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Đang cập nhật...
+              {t("forgotPassword.resetStep.updating")}
             </>
           ) : (
-            "Đặt lại mật khẩu"
+            t("forgotPassword.resetStep.btnReset")
           )}
         </Button>
       </form>

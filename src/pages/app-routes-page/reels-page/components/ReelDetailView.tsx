@@ -16,10 +16,11 @@ import { Button } from "@/components/ui/button.tsx";
 import type { Reel, ReelComment } from "@/types/reels";
 import { reelsApi } from "@/services/reels";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import { toast } from "sonner";
 import CommentsModal from "./CommentsModal.tsx";
 import { useAppSelector } from "@/features/hooks.ts";
+import { useTranslation } from "react-i18next";
 
 interface ReelDetailViewProps {
   reel: Reel;
@@ -37,6 +38,7 @@ export default function ReelDetailView({
   togglePlaySignal,
   onHashtagClick,
 }: ReelDetailViewProps & { isActive?: boolean; togglePlaySignal?: number }) {
+  const { t, i18n } = useTranslation("reels");
   const currentUserId = useAppSelector((state) => state.auth.userSession.id);
   const [isVideoHovered, setIsVideoHovered] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
@@ -140,11 +142,11 @@ export default function ReelDetailView({
     setIsDeleting(true);
     try {
       await reelsApi.deleteReel(reel.id);
-      toast.success("Xóa reel thành công");
+      toast.success(t("edit.success_delete") || t("manage.deleteSuccess"));
       onDelete?.(reel.id);
     } catch (err) {
       console.error("[v0] Error deleting reel:", err);
-      toast.error("Không thể xóa reel");
+      toast.error(t("edit.error_delete") || t("manage.deleteError"));
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -218,7 +220,7 @@ export default function ReelDetailView({
     if (!video) return;
 
     if (isActive) {
-      video.play().catch(() => {});
+      video.play().catch(() => { });
       reelsApi
         .incrementViewCount(reel.id)
         .catch((err) => console.error("[v0] Error incrementing views:", err));
@@ -241,7 +243,7 @@ export default function ReelDetailView({
     if (!video) return;
 
     if (video.paused) {
-      video.play().catch(() => {});
+      video.play().catch(() => { });
       setIsPlaying(true);
     } else {
       video.pause();
@@ -281,11 +283,10 @@ export default function ReelDetailView({
           />
 
           <div
-            className={`absolute bottom-2 left-2 right-2 transition-opacity z-10 ${
-              isVideoHovered
+            className={`absolute bottom-2 left-2 right-2 transition-opacity z-10 ${isVideoHovered
                 ? "opacity-100 pointer-events-auto"
                 : "opacity-0 pointer-events-none"
-            }`}
+              }`}
           >
             {/* Progress Bar */}
             <div className="flex items-center">
@@ -345,7 +346,7 @@ export default function ReelDetailView({
                 className="h-8 px-2 text-xs text-white hover:bg-white/20"
                 onClick={handleStop}
               >
-                Stop
+                {t("feed.stop")}
               </Button>
             </div>
           </div>
@@ -370,7 +371,7 @@ export default function ReelDetailView({
               <p className="text-xs text-gray-200">
                 {formatDistanceToNow(new Date(reel.createdAt), {
                   addSuffix: true,
-                  locale: vi,
+                  locale: i18n.language === "vi" ? vi : enUS,
                 })}
               </p>
             </div>
@@ -382,10 +383,10 @@ export default function ReelDetailView({
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Xóa Reel?
+                {t("manage.deleteConfirm")}
               </h3>
               <p className="text-gray-600 text-sm mb-6">
-                Bạn có chắc muốn xóa reel này? Hành động này không thể hoàn tác.
+                {t("comments.deleteDesc")}
               </p>
               <div className="flex gap-3">
                 <Button
@@ -394,7 +395,7 @@ export default function ReelDetailView({
                   disabled={isDeleting}
                   className="flex-1"
                 >
-                  Hủy
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   variant="destructive"
@@ -402,7 +403,7 @@ export default function ReelDetailView({
                   disabled={isDeleting}
                   className="flex-1"
                 >
-                  {isDeleting ? "Đang xóa..." : "Xóa"}
+                  {isDeleting ? t("common.deleting") : t("common.delete")}
                 </Button>
               </div>
             </div>
@@ -413,11 +414,11 @@ export default function ReelDetailView({
         <div className="absolute top-22 left-6 right-20 opacity-0 group-hover:opacity-100 transition-opacity max-w-sm z-10 pointer-events-none">
           <div className="pointer-events-auto">
             <div className="text-white text-xs mb-2 px-2 py-1 bg-blue-600 rounded-full w-fit">
-              Nội dung video
+              {t("feed.videoContent")}
             </div>
             <div className="space-y-2">
               <p className="text-white text-sm leading-relaxed line-clamp-3">
-                {reel.caption || "Không có mô tả"}
+                {reel.caption || t("feed.noDescription")}
               </p>
               {reel.hashtags && reel.hashtags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
@@ -451,9 +452,8 @@ export default function ReelDetailView({
               disabled={isLiking}
             >
               <Heart
-                className={`w-6 h-6 ${
-                  reel.isLikedByMe ? "fill-red-600 text-red-600" : ""
-                }`}
+                className={`w-6 h-6 ${reel.isLikedByMe ? "fill-red-600 text-red-600" : ""
+                  }`}
               />
             </Button>
             <span className="text-xs text-white font-semibold">
@@ -466,11 +466,10 @@ export default function ReelDetailView({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-12 w-12 rounded-full shadow-lg ${
-                showComments
+              className={`h-12 w-12 rounded-full shadow-lg ${showComments
                   ? "bg-blue-500 text-white"
                   : "bg-white/90 hover:bg-white text-gray-900"
-              }`}
+                }`}
               onClick={handleLoadComments}
             >
               <MessageCircle className="w-6 h-6" />

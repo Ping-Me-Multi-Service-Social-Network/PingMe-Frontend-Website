@@ -9,6 +9,7 @@ import { RotateCcw } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
+import { useTranslation } from "react-i18next";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -25,6 +26,7 @@ export default function ReceivedMessageBubble({
   roomType,
   theme,
 }: ReceivedMessageBubbleProps) {
+  const { t } = useTranslation("chat");
   const isMediaMessage =
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
@@ -36,7 +38,7 @@ export default function ReceivedMessageBubble({
       return (
         <div className="flex items-center gap-2 text-gray-700">
           <RotateCcw className="h-4 w-4 text-gray-500" />
-          <p className="text-sm italic">Tin nhắn đã được thu hồi</p>
+          <p className="text-sm italic">{t("bubbles.messages.recalled")}</p>
         </div>
       );
     }
@@ -71,7 +73,7 @@ export default function ReceivedMessageBubble({
           console.error("Failed to parse weather data:", error);
           return (
             <p className="text-sm text-red-500">
-              Không thể hiển thị thông tin thời tiết
+              {t("bubbles.weather.error")}
             </p>
           );
         }

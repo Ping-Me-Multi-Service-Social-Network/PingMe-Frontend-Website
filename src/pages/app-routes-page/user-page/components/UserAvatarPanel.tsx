@@ -1,5 +1,4 @@
 import type React from "react";
-
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
 import {
   Avatar,
@@ -23,8 +22,10 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { Camera, Upload, Loader2, X, ImageIcon } from "lucide-react";
 import { getCurrentUserSession } from "@/features/auth/authThunk.ts";
 import { updateCurrentUserAvatarApi } from "@/services/user/currentUserProfileApi.ts";
+import { useTranslation } from "react-i18next";
 
 const UserAvatarPanel = () => {
+  const { t } = useTranslation("profile");
   const { userSession } = useAppSelector((state) => state.auth);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,12 +38,12 @@ const UserAvatarPanel = () => {
 
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith("image/")) {
-      toast.error("Vui lòng chọn file hình ảnh");
+      toast.error(t("avatar.validation.notImage"));
       return false;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File quá lớn (tối đa 5MB)");
+      toast.error(t("avatar.validation.tooLarge"));
       return false;
     }
 
@@ -85,7 +86,7 @@ const UserAvatarPanel = () => {
 
   const handleAvatarUpload = async () => {
     if (!selectedFile) {
-      toast.error("Vui lòng chọn file ảnh");
+      toast.error(t("avatar.validation.noFile"));
       return;
     }
 
@@ -114,12 +115,12 @@ const UserAvatarPanel = () => {
       setAvatarVersion(Date.now());
 
       setTimeout(() => {
-        toast.success("Cập nhật avatar thành công!");
+        toast.success(t("avatar.updateSuccess"));
         dispatch(getCurrentUserSession());
         handleModalClose();
       }, 500);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Cập nhật thất bại"));
+      toast.error(getErrorMessage(err, t("avatar.updateFail")));
       setUploadProgress(0);
     } finally {
       setIsUpdating(false);
@@ -137,7 +138,7 @@ const UserAvatarPanel = () => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white pt-8">
-          <div className="relative mb-6 group">
+          <div id="profile-avatar-panel" className="relative mb-6 group">
             <div
               className="relative cursor-pointer"
               onClick={handleAvatarClick}
@@ -152,7 +153,7 @@ const UserAvatarPanel = () => {
                       ? `${userSession.avatarUrl}?v=${avatarVersion}`
                       : undefined
                   }
-                  alt={userSession?.name || "User"}
+                  alt={userSession?.name || t("avatar.defaultName")}
                   className="object-cover"
                 />
                 <UserAvatarFallback
@@ -179,11 +180,11 @@ const UserAvatarPanel = () => {
           </div>
 
           {/* User Info */}
-          <h1 className="text-2xl font-bold drop-shadow-lg mb-2">
-            {userSession?.name || "Người dùng"}
+          <h1 id="profile-user-name" className="text-2xl font-bold drop-shadow-lg mb-2">
+            {userSession?.name || t("avatar.defaultName")}
           </h1>
-          <p className="text-purple-100 text-sm font-medium">
-            {userSession?.email || "user@example.com"}
+          <p id="profile-user-email" className="text-purple-100 text-sm font-medium">
+            {userSession?.email || t("avatar.defaultEmail")}
           </p>
         </div>
 
@@ -202,10 +203,10 @@ const UserAvatarPanel = () => {
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
               <ImageIcon className="w-5 h-5 mr-2 text-purple-600" />
-              Cập nhật Avatar
+              {t("avatar.modalTitle")}
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              Xem trước ảnh đại diện mới của bạn
+              {t("avatar.modalDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -234,7 +235,7 @@ const UserAvatarPanel = () => {
             {isUpdating && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Đang tải lên...</span>
+                  <span className="text-gray-600">{t("avatar.uploading")}</span>
                   <span className="text-purple-600 font-medium">
                     {uploadProgress}%
                   </span>
@@ -253,7 +254,7 @@ const UserAvatarPanel = () => {
               className="border-gray-200 text-gray-600 hover:bg-gray-50 bg-transparent"
             >
               <X className="w-4 h-4 mr-2" />
-              Hủy
+              {t("common.cancel")}
             </Button>
             <Button
               type="button"
@@ -264,12 +265,12 @@ const UserAvatarPanel = () => {
               {isUpdating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Đang cập nhật...
+                  {t("common.updating")}
                 </>
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Cập nhật Avatar
+                  {t("avatar.btnUpdate")}
                 </>
               )}
             </Button>

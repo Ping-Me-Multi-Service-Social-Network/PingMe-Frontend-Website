@@ -1,0 +1,131 @@
+{
+    "layout": {
+        "loadingMore": "Đang tải thêm...",
+        "selectChatTitle": "Chọn một cuộc trò chuyện",
+        "selectChatDesc": "Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu nhắn tin"
+    },
+    "actionBar": {
+        "search": "Tìm kiếm",
+        "addFriend": "Thêm bạn",
+        "createGroup": "Tạo nhóm chat"
+    },
+    "messages": {
+        "emptyTitle": "Chưa có tin nhắn",
+        "emptyDesc": "Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn đầu tiên!",
+        "andOthers": "và {{count}} người khác"
+    },
+    "box": {
+        "historyError": "Không thể lấy lịch sử tin nhắn",
+        "sendFileError": "Không thể gửi file",
+        "sendWeatherError": "Không thể gửi thông tin thời tiết"
+    },
+    "input": {
+        "placeholder": "Nhập tin nhắn...",
+        "sendWeatherTitle": "Gửi thông tin thời tiết",
+        "gettingLocation": "Đang lấy vị trí của bạn...",
+        "weatherSentSuccess": "Đã gửi thông tin thời tiết",
+        "weatherSentError": "Không thể gửi thông tin thời tiết",
+        "locationError": "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí.",
+        "locationNotSupported": "Trình duyệt không hỗ trợ định vị"
+    },
+    "preview": {
+        "noMessages": "Chưa có tin nhắn",
+        "image": "[Image]",
+        "video": "[Video]",
+        "file": "[File]",
+        "weather": "[Thời Tiết]",
+        "you": "Bạn"
+    },
+    "sidebar": {
+        "title": "Thông tin hội thoại",
+        "profile": "Trang cá nhân",
+        "voiceCall": "Gọi thoại",
+        "videoCall": "Gọi video",
+        "members": "Thành viên phòng chat",
+        "media": "File phương tiện & File",
+        "theme": "Chủ đề",
+        "nickname": "Biệt danh"
+    },
+    "memberList": {
+        "title": "Thành viên",
+        "addMember": "Thêm thành viên",
+        "listTitle": "Danh sách thành viên",
+        "searchPlaceholder": "Tìm kiếm thành viên...",
+        "roles": {
+            "owner": "Trưởng nhóm",
+            "admin": "Phó nhóm"
+        },
+        "actions": {
+            "removeAdmin": "Gỡ quyền phó nhóm",
+            "addAdmin": "Thêm phó nhóm",
+            "removeFromGroup": "Xóa khỏi nhóm"
+        },
+        "messages": {
+            "removedSuccess": "{{name}} đã bị xóa khỏi nhóm",
+            "removedError": "Không thể xóa thành viên khỏi nhóm",
+            "addedAdminSuccess": "{{name}} đã được thêm quyền phó nhóm",
+            "removedAdminSuccess": "{{name}} đã được gỡ quyền phó nhóm",
+            "roleChangeError": "Không thể thay đổi quyền thành viên"
+        }
+    },
+    "modals": {
+        "renameGroup": {
+            "title": "Đổi tên nhóm",
+            "desc": "Nhập tên mới cho nhóm của bạn",
+            "placeholder": "Tên nhóm",
+            "emptyError": "Tên nhóm không được để trống",
+            "success": "Đổi tên nhóm thành công",
+            "error": "Đổi tên nhóm thất bại",
+            "cancel": "Hủy",
+            "save": "Lưu",
+            "saving": "Đang lưu..."
+        },
+        "theme": {
+            "title": "Chọn chủ đề",
+            "success": "Đã thay đổi chủ đề thành công",
+            "error": "Không thể thay đổi chủ đề",
+            "close": "Đóng"
+        },
+        "updateImage": {
+            "title": "Cập nhật ảnh nhóm",
+            "selectImage": "Chọn ảnh",
+            "removeImage": "Xóa ảnh",
+            "invalidType": "Vui lòng chọn file hình ảnh",
+            "sizeLimit": "Kích thước ảnh không được vượt quá 5MB",
+            "updateSuccess": "Đã cập nhật ảnh nhóm",
+            "removeSuccess": "Đã xóa ảnh nhóm",
+            "updateError": "Không thể cập nhật ảnh nhóm",
+            "cancel": "Hủy",
+            "confirm": "Xác nhận",
+            "processing": "Đang xử lý..."
+        }
+    },
+    "bubbles": {
+        "file": {
+            "downloading": "Đang tải xuống"
+        },
+        "video": {
+            "unsupported": "Trình duyệt của bạn không hỗ trợ video."
+        },
+        "messages": {
+            "recalled": "Tin nhắn đã được thu hồi",
+            "recallErrorTime": "Không thể thu hồi tin nhắn quá 24 giờ",
+            "recallSuccess": "Đã thu hồi tin nhắn",
+            "recallError": "Không thể thu hồi tin nhắn",
+            "recallBtn": "Thu hồi tin nhắn"
+        },
+        "weather": {
+            "error": "Không thể hiển thị thông tin thời tiết",
+            "tapToView": "Nhấn để xem chi tiết",
+            "title": "Thông tin thời tiết",
+            "feelsLike": "Cảm giác như",
+            "humidity": "Độ ẩm",
+            "windSpeed": "Tốc độ gió",
+            "cloudiness": "Mây che phủ",
+            "pressure": "Áp suất",
+            "temperature": "Nhiệt độ",
+            "sunrise": "Bình minh",
+            "sunset": "Hoàng hôn"
+        }
+    }
+}

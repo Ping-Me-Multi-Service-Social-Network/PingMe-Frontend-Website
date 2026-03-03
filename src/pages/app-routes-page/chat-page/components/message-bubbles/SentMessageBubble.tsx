@@ -17,6 +17,7 @@ import { recallMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
+import { useTranslation } from "react-i18next";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
@@ -29,6 +30,7 @@ export default function SentMessageBubble({
   onMessageRecalled,
   theme,
 }: SentMessageBubbleProps) {
+  const { t } = useTranslation("chat");
   const isMediaMessage =
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
@@ -40,16 +42,16 @@ export default function SentMessageBubble({
     const hoursDiff = differenceInHours(new Date(), messageDate);
 
     if (hoursDiff >= 24) {
-      toast.error("Không thể thu hồi tin nhắn quá 24 giờ");
+      toast.error(t("bubbles.messages.recallErrorTime"));
       return;
     }
 
     try {
       await recallMessageApi(message.id);
-      toast.success("Đã thu hồi tin nhắn");
+      toast.success(t("bubbles.messages.recallSuccess"));
       onMessageRecalled?.(message.id);
     } catch {
-      toast.error("Không thể thu hồi tin nhắn");
+      toast.error(t("bubbles.messages.recallError"));
     }
   };
 
@@ -57,7 +59,7 @@ export default function SentMessageBubble({
     if (!message.isActive) {
       return (
         <p className="text-md italic text-black select-none">
-          Tin nhắn đã được thu hồi
+          {t("bubbles.messages.recalled")}
         </p>
       );
     }
@@ -92,7 +94,7 @@ export default function SentMessageBubble({
           console.error("Failed to parse weather data:", error);
           return (
             <p className="text-sm text-red-500">
-              Không thể hiển thị thông tin thời tiết
+              {t("bubbles.weather.error")}
             </p>
           );
         }
@@ -131,7 +133,7 @@ export default function SentMessageBubble({
                 className="cursor-pointer"
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Thu hồi tin nhắn
+                {t("bubbles.messages.recallBtn")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
