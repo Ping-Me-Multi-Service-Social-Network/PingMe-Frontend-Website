@@ -35,6 +35,7 @@ const EmailInputPage: React.FC = () => {
       const response = await sendOtpToEmailApi({
         email: email,
         otpType: "USER_FORGET_PASSWORD",
+        turnstileToken: turnstileToken,
       });
 
       const resData = response.data;
