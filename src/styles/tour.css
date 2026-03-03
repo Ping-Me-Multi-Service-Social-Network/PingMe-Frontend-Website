@@ -50,6 +50,7 @@
     border-radius: 10px !important;
     font-size: 13px !important;
     font-weight: 600 !important;
+    text-shadow: none !important;
     transition: all 0.2s ease !important;
     cursor: pointer !important;
     white-space: nowrap !important;
@@ -90,15 +91,25 @@
 }
 
 /* Next / Done Button */
-.pingme-tour-popover .driver-popover-next-btn {
+.pingme-tour-popover .driver-popover-footer .driver-popover-next-btn {
     background: #7c3aed !important;
     color: white !important;
     border: none !important;
     padding: 8px 20px !important;
+    font-family: inherit !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
     box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4) !important;
 }
 
-.pingme-tour-popover .driver-popover-next-btn:hover {
+.pingme-tour-popover .driver-popover-footer .driver-popover-next-btn * {
+    font-family: inherit !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+.pingme-tour-popover .driver-popover-footer .driver-popover-next-btn:hover {
     background: #6d28d9 !important;
     box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5) !important;
     transform: translateY(-1px) !important;
