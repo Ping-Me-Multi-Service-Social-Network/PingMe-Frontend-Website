@@ -31,13 +31,17 @@ import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
-import type { LoginRequest, RegisterRequest } from "@/types/authentication";
+import type {
+  DefaultLoginRequest,
+  RegisterRequest,
+} from "@/types/authentication";
 import { useAppDispatch } from "@/features/hooks";
 import { login } from "@/features/auth/authThunk";
 import { registerLocalApi } from "@/services/authentication";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 interface AuthSectionProps {
   mode: string;
@@ -123,14 +127,20 @@ function LoginFormContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!turnstileToken) return;
     setIsLoading(true);
 
-    const loginRequestDto: LoginRequest = { email, password };
+    const loginRequestDto: DefaultLoginRequest = {
+      email,
+      password,
+      turnstileToken,
+    };
 
     try {
       await dispatch(login(loginRequestDto));
@@ -164,10 +174,10 @@ function LoginFormContent() {
             PingMe
           </h1>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">{t("auth.login.title")}</h2>
-        <p className="text-gray-500 text-sm">
-          {t("auth.login.subtitle")}
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t("auth.login.title")}
+        </h2>
+        <p className="text-gray-500 text-sm">{t("auth.login.subtitle")}</p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-5">
@@ -221,20 +231,20 @@ function LoginFormContent() {
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={handleForgotPassword}
-            className="text-sm text-purple-600 hover:text-purple-700 font-medium hover:underline transition-colors"
-          >
-            {t("auth.login.forgotPassword")}
-          </button>
+        <div className="flex justify-center my-2">
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken("")}
+            onExpire={() => setTurnstileToken("")}
+            options={{ theme: "light" }}
+          />
         </div>
 
         <Button
           type="submit"
           className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-          disabled={isLoading}
+          disabled={isLoading || !turnstileToken}
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
@@ -256,8 +266,18 @@ function LoginFormContent() {
         </div>
       </div>
 
-      <div className="text-center">
-        <p className="text-gray-600">
+      <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 pt-2">
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          className="text-sm text-purple-600 hover:text-purple-700 font-semibold hover:underline transition-colors outline-hidden"
+        >
+          {t("auth.login.forgotPassword")}
+        </button>
+
+        <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+
+        <p className="text-sm text-gray-600">
           {t("auth.login.noAccount")}{" "}
           <Link
             to="/?mode=register"
@@ -280,8 +300,10 @@ function RegisterFormContent() {
     name: "",
     gender: "OTHER",
     address: "",
+    turnstileToken: "",
   });
   const [dob, setDob] = useState<Date>();
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -291,11 +313,13 @@ function RegisterFormContent() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!turnstileToken) return;
 
     try {
       setIsLoading(true);
       const payload: RegisterRequest = {
         ...formData,
+        turnstileToken,
         dob: dob?.toLocaleDateString("en-CA"),
       };
 
@@ -327,10 +351,10 @@ function RegisterFormContent() {
             PingMe
           </h1>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">{t("auth.register.title")}</h2>
-        <p className="text-gray-500 text-sm">
-          {t("auth.register.subtitle")}
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t("auth.register.title")}
+        </h2>
+        <p className="text-gray-500 text-sm">{t("auth.register.subtitle")}</p>
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4">
@@ -420,9 +444,15 @@ function RegisterFormContent() {
                 <SelectValue placeholder={t("auth.fields.genderPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MALE">{t("auth.fields.genderMale")}</SelectItem>
-                <SelectItem value="FEMALE">{t("auth.fields.genderFemale")}</SelectItem>
-                <SelectItem value="OTHER">{t("auth.fields.genderOther")}</SelectItem>
+                <SelectItem value="MALE">
+                  {t("auth.fields.genderMale")}
+                </SelectItem>
+                <SelectItem value="FEMALE">
+                  {t("auth.fields.genderFemale")}
+                </SelectItem>
+                <SelectItem value="OTHER">
+                  {t("auth.fields.genderOther")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -442,7 +472,9 @@ function RegisterFormContent() {
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dob
-                    ? format(dob, "dd/MM/yyyy", { locale: i18n.language === 'vi' ? vi : enUS })
+                    ? format(dob, "dd/MM/yyyy", {
+                        locale: i18n.language === "vi" ? vi : enUS,
+                      })
                     : t("auth.fields.dobPlaceholder")}
                 </Button>
               </PopoverTrigger>
@@ -454,7 +486,7 @@ function RegisterFormContent() {
                   disabled={(date) =>
                     date > new Date() || date < new Date("1900-01-01")
                   }
-                  locale={i18n.language === 'vi' ? vi : enUS}
+                  locale={i18n.language === "vi" ? vi : enUS}
                   captionLayout="dropdown"
                 />
               </PopoverContent>
@@ -482,10 +514,20 @@ function RegisterFormContent() {
           </div>
         </div>
 
+        <div className="flex justify-center my-2">
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken("")}
+            onExpire={() => setTurnstileToken("")}
+            options={{ theme: "light" }}
+          />
+        </div>
+
         <Button
           type="submit"
           className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-          disabled={isLoading}
+          disabled={isLoading || !turnstileToken}
         >
           {isLoading ? (
             <div className="flex items-center gap-2">

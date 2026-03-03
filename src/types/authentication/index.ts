@@ -34,13 +34,15 @@ export interface RegisterRequest {
   name: string;
   gender: "MALE" | "FEMALE" | "OTHER";
   password: string;
+  turnstileToken: string;
   address?: string;
   dob?: string;
 }
 
-export interface LoginRequest {
+export interface DefaultLoginRequest {
   email: string;
   password: string;
+  turnstileToken: string;
   submitSessionMetaRequest?: SubmitSessionMetaRequest;
 }
 
