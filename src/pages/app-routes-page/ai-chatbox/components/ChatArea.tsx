@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 interface ChatAreaProps {
   activeRoomId: string | null;
+  activeRoomTitle?: string;
   onRoomCreated: (room: AIChatRoomInformation) => void;
   onRoomBumpToTop: (roomId: string) => void;
 }
@@ -17,6 +18,7 @@ const MESSAGE_PAGE_SIZE = 20;
 
 export default function ChatArea({
   activeRoomId,
+  activeRoomTitle,
   onRoomCreated,
   onRoomBumpToTop,
 }: ChatAreaProps) {
@@ -283,7 +285,7 @@ export default function ChatArea({
 
   // ---- Active Chat Room ----
   return (
-    <div className="flex-1 flex flex-col h-full bg-gray-50">
+    <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-gray-50 via-white to-violet-50/30">
       {/* Messages */}
       <ScrollArea
         ref={scrollContainerRef}
