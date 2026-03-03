@@ -7,6 +7,7 @@ import ChatInput from "./ChatInput";
 
 interface ChatAreaProps {
   activeRoomId: string | null;
+  activeRoomTitle?: string;
   onRoomCreated: (room: AIChatRoomInformation) => void;
   onRoomBumpToTop: (roomId: string) => void;
 }
@@ -15,6 +16,7 @@ const MESSAGE_PAGE_SIZE = 20;
 
 export default function ChatArea({
   activeRoomId,
+  activeRoomTitle,
   onRoomCreated,
   onRoomBumpToTop,
 }: ChatAreaProps) {
@@ -259,6 +261,15 @@ export default function ChatArea({
   // ---- Active Chat Room ----
   return (
     <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-gray-50 via-white to-violet-50/30">
+      {/* Room title header */}
+      {activeRoomTitle && (
+        <div className="px-6 py-3 border-b border-gray-100 bg-white/80 backdrop-blur-sm flex-shrink-0">
+          <h2 className="text-base font-semibold text-gray-800 truncate">
+            {activeRoomTitle}
+          </h2>
+        </div>
+      )}
+
       {/* Messages */}
       <div
         ref={scrollContainerRef}
