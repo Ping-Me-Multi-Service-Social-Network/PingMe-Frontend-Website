@@ -4,7 +4,7 @@ import type { AIMessage } from "@/types/ai/aiMessage";
 import type { AIChatRoomInformation } from "@/types/ai/aiChatRoomInformation";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { useTranslation } from "react-i18next";
 
 interface ChatAreaProps {
@@ -286,15 +286,32 @@ export default function ChatArea({
   // ---- Active Chat Room ----
   return (
     <div className="flex-1 flex flex-col h-full bg-gradient-to-br from-gray-50 via-white to-violet-50/30">
+      {/* Room title header */}
+      {activeRoomTitle && (
+        <div className="flex items-center gap-2.5 px-5 py-3 border-b border-gray-100 bg-white/80 backdrop-blur-sm shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
+              <path d="M9 14h6" />
+              <path d="M12 14v8" />
+              <path d="M8 22h8" />
+              <circle cx="9" cy="6" r="1" fill="white" />
+              <circle cx="15" cy="6" r="1" fill="white" />
+            </svg>
+          </div>
+          <h2 className="text-sm font-semibold text-gray-700 truncate">
+            {activeRoomTitle}
+          </h2>
+        </div>
+      )}
+
       {/* Messages */}
-      <ScrollArea
+      <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 px-4 py-2"
+        className="flex-1 overflow-y-auto ai-chat-scrollbar px-4 py-2"
       >
-        <div className="flex flex-col min-h-full">
-          <div className="flex-1 invisible" />{" "}
-          {/* Spacer to push content down */}
+        <div className="flex flex-col min-h-full justify-end">
           {/* Loading older messages */}
           {loadingOlder && (
             <div className="flex justify-center py-3 shrink-0">
@@ -360,7 +377,7 @@ export default function ChatArea({
           )}
           <div ref={messagesEndRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <div className="px-4 pb-4 pt-2 border-t border-gray-100 bg-white/80 backdrop-blur-sm">
