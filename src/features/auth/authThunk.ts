@@ -1,7 +1,7 @@
 import { loginLocalApi, logoutApi } from "@/services/authentication";
 import type {
   DefaultAuthResponse,
-  LoginRequest,
+  DefaultLoginRequest,
   CurrentUserSessionResponse,
 } from "@/types/authentication";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
@@ -15,7 +15,7 @@ import i18n from "@/i18n";
 // =========================================================
 export const login = createAsyncThunk<
   DefaultAuthResponse,
-  LoginRequest,
+  DefaultLoginRequest,
   { rejectValue: string }
 >("auth/login", async (data, thunkAPI) => {
   try {
@@ -24,7 +24,10 @@ export const login = createAsyncThunk<
     toast.success(i18n.t("auth.login.success", { ns: "landing" }));
     return res.data.data;
   } catch (err: unknown) {
-    const message = getErrorMessage(err, i18n.t("auth.login.fail", { ns: "landing" }));
+    const message = getErrorMessage(
+      err,
+      i18n.t("auth.login.fail", { ns: "landing" }),
+    );
     toast.error(message);
     return thunkAPI.rejectWithValue(message);
   }
@@ -39,7 +42,10 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
     localStorage.removeItem("access_token");
     toast.success(i18n.t("auth.logout.success", { ns: "landing" }));
   } catch (err: unknown) {
-    const message = getErrorMessage(err, i18n.t("auth.logout.fail", { ns: "landing" }));
+    const message = getErrorMessage(
+      err,
+      i18n.t("auth.logout.fail", { ns: "landing" }),
+    );
     return thunkAPI.rejectWithValue(message);
   }
 });
@@ -56,7 +62,10 @@ export const getCurrentUserSession = createAsyncThunk<
     const res = await getCurrentUserSessionApi();
     return res.data.data;
   } catch (err: unknown) {
-    const message = getErrorMessage(err, i18n.t("errors.sessionFail", { ns: "common" }));
+    const message = getErrorMessage(
+      err,
+      i18n.t("errors.sessionFail", { ns: "common" }),
+    );
     return thunkAPI.rejectWithValue(message);
   }
 });
