@@ -2,7 +2,7 @@ import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   DefaultAuthResponse,
-  LoginRequest,
+  DefaultLoginRequest,
   RegisterRequest,
 } from "@/types/authentication";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
@@ -16,7 +16,7 @@ export const registerLocalApi = (data: RegisterRequest) => {
 };
 
 // LOGIN
-export const loginLocalApi = (data: LoginRequest) => {
+export const loginLocalApi = (data: DefaultLoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 
   return axiosClient.post<ApiResponse<DefaultAuthResponse>>(

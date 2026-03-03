@@ -8,9 +8,11 @@ import { Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { useTranslation } from "react-i18next";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const EmailInputPage: React.FC = () => {
   const [email, setEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation("landing");
@@ -20,6 +22,10 @@ const EmailInputPage: React.FC = () => {
 
     if (!email) {
       toast.error(t("forgotPassword.emailStep.emailLabel"));
+      return;
+    }
+
+    if (!turnstileToken) {
       return;
     }
 
@@ -37,9 +43,7 @@ const EmailInputPage: React.FC = () => {
         toast.success(t("forgotPassword.emailStep.success"));
         navigate("/forgot-password/verify-otp", { state: { email: email } });
       } else {
-        toast.error(
-          resData.errorMessage || t("forgotPassword.emailStep.fail")
-        );
+        toast.error(resData.errorMessage || t("forgotPassword.emailStep.fail"));
       }
     } catch (error) {
       toast.error(getErrorMessage(error, t("forgotPassword.emailStep.fail")));
@@ -56,7 +60,9 @@ const EmailInputPage: React.FC = () => {
             <Mail className="w-8 h-8 text-purple-600" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">{t("forgotPassword.emailStep.title")}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {t("forgotPassword.emailStep.title")}
+        </h1>
         <p className="text-gray-500 text-sm">
           {t("forgotPassword.emailStep.subtitle")}
         </p>
@@ -82,10 +88,20 @@ const EmailInputPage: React.FC = () => {
           </div>
         </div>
 
+        <div className="flex justify-center my-2">
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken("")}
+            onExpire={() => setTurnstileToken("")}
+            options={{ theme: "light" }}
+          />
+        </div>
+
         <Button
           type="submit"
           className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-          disabled={isLoading}
+          disabled={isLoading || !turnstileToken}
         >
           {isLoading ? (
             <>
