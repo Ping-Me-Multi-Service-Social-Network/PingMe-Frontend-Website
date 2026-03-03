@@ -6,6 +6,11 @@
         "newChatPlaceholder": "Cuộc trò chuyện mới...",
         "loadMore": "Tải thêm",
         "loading": "Đang tải...",
+        "deleteChat": "Xóa cuộc trò chuyện",
+        "deleteConfirmTitle": "Xóa cuộc trò chuyện?",
+        "deleteConfirmDesc": "Cuộc trò chuyện này sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+        "cancel": "Hủy",
+        "delete": "Xóa",
         "time": {
             "locale": "vi",
             "justNow": "Vừa xong",
@@ -31,7 +36,15 @@
         "placeholder": "Nhập tin nhắn...",
         "invalidImage": "\"{{name}}\" không phải file ảnh hợp lệ.",
         "fileTooLarge": "\"{{name}}\" vượt quá 5MB.",
-        "attachTip": "Đính kèm ảnh (≤5MB)"
+        "attachTip": "Đính kèm ảnh (≤5MB)",
+        "micTip": "Ghi âm giọng nói",
+        "micError": "Không thể truy cập microphone. Vui lòng kiểm tra quyền truy cập.",
+        "recording": "Đang ghi âm",
+        "cancelRecord": "Hủy ghi âm",
+        "stopRecord": "Dừng ghi âm",
+        "recordError": "Không ghi được âm thanh. Vui lòng thử lại.",
+        "transcribing": "Đang chuyển giọng nói thành văn bản...",
+        "transcribeError": "Không thể chuyển giọng nói thành văn bản. Vui lòng thử lại."
     },
     "message": {
         "copy": "Sao chép",
