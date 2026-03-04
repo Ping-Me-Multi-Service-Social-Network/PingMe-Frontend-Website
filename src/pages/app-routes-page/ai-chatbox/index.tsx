@@ -108,6 +108,19 @@ export default function AIChatBoxPage() {
     };
   }, []);
 
+  // ---- Delete room ----
+  const handleDeleteRoom = useCallback(async (roomId: string) => {
+    try {
+      await aiChatBoxService.deleteChatRoom(roomId);
+      setRooms((prev) => prev.filter((r) => r.id !== roomId));
+      if (activeRoomId === roomId) {
+        setActiveRoomId(null);
+      }
+    } catch (err) {
+      console.error("[AIChatBoxPage] Error deleting room:", err);
+    }
+  }, [activeRoomId]);
+
   return (
     <div className="flex h-full w-full overflow-hidden">
       <Sidebar
@@ -116,11 +129,13 @@ export default function AIChatBoxPage() {
         onSelectRoom={handleSelectRoom}
         onNewChat={handleNewChat}
         onLoadMore={handleLoadMore}
+        onDeleteRoom={handleDeleteRoom}
         hasMore={hasMoreRooms}
         loading={loadingRooms}
       />
       <ChatArea
         activeRoomId={activeRoomId}
+        activeRoomTitle={rooms.find((r) => r.id === activeRoomId)?.title || undefined}
         onRoomCreated={handleRoomCreated}
         onRoomBumpToTop={handleRoomBumpToTop}
       />

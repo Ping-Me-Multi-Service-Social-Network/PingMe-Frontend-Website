@@ -6,6 +6,11 @@
         "newChatPlaceholder": "New chat...",
         "loadMore": "Load more",
         "loading": "Loading...",
+        "deleteChat": "Delete conversation",
+        "deleteConfirmTitle": "Delete conversation?",
+        "deleteConfirmDesc": "This conversation will be permanently deleted and cannot be recovered.",
+        "cancel": "Cancel",
+        "delete": "Delete",
         "time": {
             "locale": "en",
             "justNow": "Just now",
@@ -31,7 +36,15 @@
         "placeholder": "Type a message...",
         "invalidImage": "\"{{name}}\" is not a valid image file.",
         "fileTooLarge": "\"{{name}}\" exceeds 5MB.",
-        "attachTip": "Attach image (≤5MB)"
+        "attachTip": "Attach image (≤5MB)",
+        "micTip": "Voice recording",
+        "micError": "Cannot access microphone. Please check permissions.",
+        "recording": "Recording",
+        "cancelRecord": "Cancel recording",
+        "stopRecord": "Stop recording",
+        "recordError": "Could not record audio. Please try again.",
+        "transcribing": "Transcribing voice to text...",
+        "transcribeError": "Could not transcribe voice. Please try again."
     },
     "message": {
         "copy": "Copy",
