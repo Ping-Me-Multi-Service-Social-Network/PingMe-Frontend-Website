@@ -34,7 +34,6 @@ export default defineConfig({
               "@radix-ui/react-tooltip",
             ],
             "framer-motion": ["framer-motion"],
-            "chart-libs": ["recharts"],
             zego: ["@zegocloud/zego-uikit-prebuilt"],
             socket: ["@stomp/stompjs", "sockjs-client"],
           };
