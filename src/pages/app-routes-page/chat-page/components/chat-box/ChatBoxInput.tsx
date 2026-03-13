@@ -14,12 +14,15 @@ import {
   FileText,
   Video,
   CloudSun,
+  Mic,
+  Square,
 } from "lucide-react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { SocketManager } from "@/features/websocket/socketManager";
 import { useTranslation } from "react-i18next";
+import { audioTranscribeService } from "@/services/ai/audio-transcribe";
 
 interface FilePreview {
   file: File;
@@ -36,6 +39,8 @@ interface ChatInputProps {
   onSendWeather: (lat: number, lon: number) => Promise<void>;
   disabled?: boolean;
 }
+
+const MAX_RECORD_DURATION = 90; // 1 phút 30 giây
 
 export function ChatBoxInput({
   selectedChat,
@@ -57,6 +62,140 @@ export function ChatBoxInput({
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const latestMessageRef = useRef(newMessage);
+
+  // Voice recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recordTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cleanup recording on unmount
+  useEffect(() => {
+    return () => {
+      if (recordTimerRef.current) clearInterval(recordTimerRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      }
+    };
+  }, []);
+
+  // Auto-stop at MAX_RECORD_DURATION
+  useEffect(() => {
+    if (isRecording && recordingTime >= MAX_RECORD_DURATION) {
+      stopRecording();
+    }
+  }, [recordingTime, isRecording]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  // ---- Voice Recording Logic ----
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : "audio/webm",
+      });
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.start(100);
+      setIsRecording(true);
+      setRecordingTime(0);
+      setShowEmojiPicker(false);
+
+      recordTimerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+    } catch {
+      toast.error(t("input.micError"));
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!mediaRecorderRef.current || mediaRecorderRef.current.state === "inactive") return;
+
+    if (recordTimerRef.current) {
+      clearInterval(recordTimerRef.current);
+      recordTimerRef.current = null;
+    }
+
+    setIsRecording(false);
+
+    await new Promise<void>((resolve) => {
+      const recorder = mediaRecorderRef.current!;
+      recorder.onstop = () => resolve();
+      recorder.stop();
+    });
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+
+    const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+    chunksRef.current = [];
+
+    if (blob.size === 0) {
+      toast.error(t("input.recordError"));
+      return;
+    }
+
+    const file = new File([blob], `recording-${Date.now()}.webm`, { type: "audio/webm" });
+
+    setIsTranscribing(true);
+    try {
+      const res = await audioTranscribeService.transcribeAudio(file);
+      const transcribedText = res.data.data.content;
+      if (transcribedText && transcribedText.trim()) {
+        setNewMessage(
+          newMessage.trim()
+            ? newMessage + " " + transcribedText.trim()
+            : transcribedText.trim()
+        );
+      }
+    } catch {
+      toast.error(t("input.transcribeError"));
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const cancelRecording = () => {
+    if (recordTimerRef.current) {
+      clearInterval(recordTimerRef.current);
+      recordTimerRef.current = null;
+    }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+
+    chunksRef.current = [];
+    setIsRecording(false);
+    setRecordingTime(0);
+  };
 
   useEffect(() => {
     latestMessageRef.current = newMessage;
@@ -274,6 +413,7 @@ export function ChatBoxInput({
 
   return (
     <div className="border-t bg-white">
+      {/* Toolbar: Image, File, Weather, Mic */}
       <div
         className={`flex items-center space-x-1 p-3 border-b ${theme.input.background}`}
       >
@@ -282,7 +422,7 @@ export function ChatBoxInput({
           size="lg"
           className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
           onClick={handleImageClick}
-          disabled={disabled || isSending}
+          disabled={disabled || isSending || isRecording || isTranscribing}
         >
           <ImagePlus className="w-24 h-24" />
         </Button>
@@ -300,7 +440,7 @@ export function ChatBoxInput({
           size="sm"
           className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
           onClick={handleFileClick}
-          disabled={disabled || isSending}
+          disabled={disabled || isSending || isRecording || isTranscribing}
         >
           <Paperclip className="w-5 h-5" />
         </Button>
@@ -317,10 +457,22 @@ export function ChatBoxInput({
           size="sm"
           className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
           onClick={handleWeatherClick}
-          disabled={disabled || isSending}
+          disabled={disabled || isSending || isRecording || isTranscribing}
           title={t("input.sendWeatherTitle")}
         >
           <CloudSun className="w-5 h-5" />
+        </Button>
+
+        {/* Mic button in toolbar */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
+          onClick={startRecording}
+          disabled={disabled || isSending || isRecording || isTranscribing}
+          title={t("input.micTitle")}
+        >
+          <Mic className="w-5 h-5" />
         </Button>
       </div>
 
@@ -406,51 +558,141 @@ export function ChatBoxInput({
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Input
-              value={newMessage}
-              onChange={handleInputChange}
-              placeholder={t("input.placeholder")}
-              className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
-              onKeyPress={handleKeyPress}
-              disabled={disabled || isSending}
+        {/* ===== TRANSCRIBING STATE ===== */}
+        {isTranscribing && (
+          <div className="flex items-center gap-3 h-12 px-4 border border-purple-200 rounded-lg bg-purple-50">
+            <div
+              className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full flex-shrink-0"
+              style={{ animation: "spin 0.8s linear infinite" }}
             />
-
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-              <span
-                className={`text-xs ${newMessage.length > 1000
-                  ? "text-red-500 font-semibold"
-                  : "text-gray-500"
-                  }`}
-              >
-                {newMessage.length}/1000
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleEmojiPicker}
-                className={`text-gray-500 ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg p-2 h-8 w-8`}
-                disabled={isSending}
-              >
-                <Smile className="w-5 h-5" />
-              </Button>
-            </div>
+            <span
+              className="text-sm text-purple-600 font-medium"
+              style={{ animation: "pulse 1.8s ease-in-out infinite" }}
+            >
+              {t("input.transcribing")}
+            </span>
           </div>
+        )}
 
-          <Button
-            onClick={handleSend}
-            disabled={
-              (!newMessage.trim() && selectedFiles.length === 0) ||
-              disabled ||
-              isSending
-            }
-            className={`${theme.input.buttonBg} ${theme.input.buttonHover} ${theme.input.buttonText} h-12 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <Send className="w-5 h-5" />
-          </Button>
-        </div>
+        {/* ===== RECORDING STATE ===== */}
+        {isRecording && !isTranscribing && (
+          <div className="flex items-center gap-2 h-12">
+            {/* Cancel button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={cancelRecording}
+              className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg h-10 px-3"
+              title={t("input.cancelRecord")}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+
+            {/* Recording indicator bar */}
+            <div className="flex-1 flex items-center gap-3 h-12 px-4 border border-red-200 rounded-lg bg-red-50">
+              {/* Pulsing red dot */}
+              <div
+                className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"
+                style={{ animation: "pulse 1.2s ease-in-out infinite" }}
+              />
+              <span className="text-sm font-medium text-red-500">{t("input.recording")}</span>
+              <span
+                className="text-sm text-gray-500"
+                style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.5px" }}
+              >
+                {formatTime(recordingTime)}
+              </span>
+
+              {/* Waveform bars */}
+              <div className="flex items-center gap-0.5 ml-auto h-6">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-[3px] rounded-sm bg-red-400"
+                    style={{
+                      animation: `waveBar 0.9s ease-in-out ${i * 0.08}s infinite alternate`,
+                      height: "4px",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Stop button */}
+            <Button
+              onClick={stopRecording}
+              className="bg-gradient-to-r from-red-500 to-rose-600 text-white h-10 px-4 rounded-lg shadow-md hover:shadow-lg"
+              title={t("input.stopRecord")}
+            >
+              <Square className="w-4 h-4 fill-current" />
+            </Button>
+          </div>
+        )}
+
+        {/* ===== NORMAL INPUT STATE ===== */}
+        {!isRecording && !isTranscribing && (
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Input
+                value={newMessage}
+                onChange={handleInputChange}
+                placeholder={t("input.placeholder")}
+                className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
+                onKeyPress={handleKeyPress}
+                disabled={disabled || isSending}
+              />
+
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                <span
+                  className={`text-xs ${
+                    newMessage.length > 1000
+                      ? "text-red-500 font-semibold"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {newMessage.length}/1000
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleEmojiPicker}
+                  className={`text-gray-500 ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg p-2 h-8 w-8`}
+                  disabled={isSending}
+                >
+                  <Smile className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSend}
+              disabled={
+                (!newMessage.trim() && selectedFiles.length === 0) ||
+                disabled ||
+                isSending
+              }
+              className={`${theme.input.buttonBg} ${theme.input.buttonHover} ${theme.input.buttonText} h-12 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <Send className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Inline keyframes for recording animations */}
+      <style>{`
+        @keyframes waveBar {
+          0% { height: 4px; opacity: 0.4; }
+          100% { height: 18px; opacity: 1; }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -27,4 +27,7 @@ export const aiChatBoxService = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
+
+  deleteChatRoom: (chatRoomId: string) =>
+    axiosClient.delete<ApiResponse<void>>(`/ai-chatbox/room/${chatRoomId}`),
 };
