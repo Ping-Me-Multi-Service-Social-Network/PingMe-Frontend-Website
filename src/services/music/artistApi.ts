@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosMusicClient from "@/lib/axiosMusicClient";
 import type { ArtistResponse } from "@/types/music";
 import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 
@@ -7,16 +7,16 @@ export const artistApi = {
     ApiResponse<PageResponse<ArtistResponse>>
   > => {
     const response =
-      await axiosClient.get<ApiResponse<PageResponse<ArtistResponse>>>(
-        "/artists/all",
+      await axiosMusicClient.get<ApiResponse<PageResponse<ArtistResponse>>>(
+        "/music-service/artists/all",
       );
     return response.data;
   },
 
   getPopularArtists: async (limit?: number): Promise<ArtistResponse[]> => {
     const response =
-      await axiosClient.get<ApiResponse<PageResponse<ArtistResponse>>>(
-        "/artists/all",
+      await axiosMusicClient.get<ApiResponse<PageResponse<ArtistResponse>>>(
+        "/music-service/artists/all",
       );
     const artists = response.data?.data?.content || [];
     return limit ? artists.slice(0, limit) : artists;
