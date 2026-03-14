@@ -46,22 +46,9 @@ export const ChatBoxContent = ({
   const currentUser = useSelector(selectUser);
   const typingUsers = useSelector(selectTypingUsers(selectedChat.roomId));
 
-  console.log("[v0] Current user:", currentUser);
-  console.log("[v0] All typing users:", typingUsers);
-
   const otherUsersTyping = typingUsers.filter((u) => {
-    const isNotCurrentUser = u.userId !== currentUser?.id;
-    const isTyping = u.isTyping;
-    console.log("[v0] Typing user check:", {
-      userId: u.userId,
-      currentUserId: currentUser?.id,
-      isNotCurrentUser,
-      isTyping,
-    });
-    return isNotCurrentUser && isTyping;
+    return u.userId !== currentUser?.id && u.isTyping;
   });
-
-  console.log("[v0] Other users typing:", otherUsersTyping);
 
   useEffect(() => {
     if (messagesEndRef.current && shouldScrollToBottom && !isLoadingMore) {
