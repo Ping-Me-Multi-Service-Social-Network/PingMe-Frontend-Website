@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosMusicClient from "@/lib/axiosMusicClient";
 import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 
 export interface AlbumResponse {
@@ -11,16 +11,16 @@ export interface AlbumResponse {
 export const albumApi = {
   getAllAlbums: async (): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
     const response =
-      await axiosClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
-        "/albums/all",
+      await axiosMusicClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
+        "/music-service/albums/all",
       );
     return response.data;
   },
 
   getPopularAlbums: async (limit?: number): Promise<AlbumResponse[]> => {
     const response =
-      await axiosClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
-        "/albums/all",
+      await axiosMusicClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
+        "/music-service/albums/all",
       );
     const albums = response.data?.data?.content || [];
     const sortedAlbums = [...albums].sort((a, b) => b.playCount - a.playCount);
