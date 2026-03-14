@@ -92,7 +92,7 @@ const chatSlice = createSlice({
       const messageId = action.payload.messageRecalledResponse.id;
       const idx = state.messages.findIndex((m) => m.id === messageId);
       if (idx !== -1) {
-        state.messages.splice(idx, 1);
+        state.messages[idx].isActive = false;
       }
       // Emit as event for ChatPage
       state.latestChatEvent = {
