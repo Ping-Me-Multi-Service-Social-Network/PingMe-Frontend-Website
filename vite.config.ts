@@ -1,10 +1,31 @@
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
+function stripConsole(): Plugin {
+  return {
+    name: "strip-console",
+    apply: "build",
+    enforce: "pre",
+    transform(code, id) {
+      if (process.env.NODE_ENV !== "production") return;
+      if (id.includes("node_modules")) return;
+      if (!/\.(ts|tsx|js|jsx)$/.test(id)) return;
+
+      const result = code.replace(
+        /console\.(log|warn|info|debug)\s*\([\s\S]*?\);?/g,
+        ""
+      );
+      if (result !== code) {
+        return { code: result, map: null };
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), stripConsole()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -47,13 +68,4 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000,
   },
-  define:
-    process.env.NODE_ENV === "production"
-      ? {
-          "console.log": "(() => {})",
-          "console.warn": "(() => {})",
-          "console.info": "(() => {})",
-          "console.debug": "(() => {})",
-        }
-      : {},
 });
