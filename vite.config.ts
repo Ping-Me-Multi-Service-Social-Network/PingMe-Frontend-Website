@@ -50,10 +50,10 @@ export default defineConfig({
   define:
     process.env.NODE_ENV === "production"
       ? {
-          "globalThis.console.log": "(() => {})",
-          "globalThis.console.warn": "(() => {})",
-          "globalThis.console.info": "(() => {})",
-          "globalThis.console.debug": "(() => {})",
+          "console.log": "(() => {})",
+          "console.warn": "(() => {})",
+          "console.info": "(() => {})",
+          "console.debug": "(() => {})",
         }
       : {},
 });
