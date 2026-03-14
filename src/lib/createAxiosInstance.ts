@@ -120,18 +120,14 @@ export function createAxiosInstance(baseURL: string): {
                 refreshPromise = null;
             });
 
-            try {
-                // Chờ Promise refresh xong
-                const newToken = await refreshPromise;
+            // Chờ Promise refresh xong
+            const newToken = await refreshPromise;
 
-                // Gắn token mới và gọi lại request cũ
-                originalRequest.headers = originalRequest.headers ?? {};
-                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            // Gắn token mới và gọi lại request cũ
+            originalRequest.headers = originalRequest.headers ?? {};
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
-                return client(originalRequest);
-            } catch (e) {
-                throw e;
-            }
+            return client(originalRequest);
         },
     );
 
