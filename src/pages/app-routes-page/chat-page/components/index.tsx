@@ -1,4 +1,4 @@
-import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useState, useCallback } from "react";
 import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
@@ -15,188 +15,141 @@ import ChatBoxHeader from "./chat-box/ChatBoxHeader.tsx";
 import ConversationSidebar from "./conversation-sidebar";
 import { useTranslation } from "react-i18next";
 import { useMessages } from "../hooks/useMessages";
-import { addUniqueMessage } from "../utils/addUniqueMessage";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
 }
 
-export interface ChatBoxRef {
-  handleIncomingMessage: (message: MessageResponse) => void;
-  handleRecallMessage: (messageId: string) => void;
-}
+export function ChatBox({ selectedChat }: ChatBoxProps) {
+  const { userSession } = useAppSelector((state) => state.auth);
+  const { t } = useTranslation("chat");
 
-export const ChatBox = forwardRef<ChatBoxRef, ChatBoxProps>(
-  ({ selectedChat }, ref) => {
-    const { userSession } = useAppSelector((state) => state.auth);
-    const { t } = useTranslation("chat");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [newMessage, setNewMessage] = useState("");
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [newMessage, setNewMessage] = useState("");
+  const {
+    messages,
+    isLoadingMessages,
+    isLoadingMore,
+    hasMoreMessages,
+    handleLoadMore,
+    addMessage,
+  } = useMessages(selectedChat.roomId);
 
-    const {
-      messages,
-      isLoadingMessages,
-      isLoadingMore,
-      hasMoreMessages,
-      handleLoadMore,
-      addMessage,
-      recallMessage,
-      setMessages,
-    } = useMessages(selectedChat.roomId);
+  const isCurrentUserMessage = useCallback(
+    (senderId: number) => {
+      if (!userSession) return false;
+      const senderParticipant = selectedChat.participants.find(
+        (p) => p.userId === senderId
+      );
+      return senderParticipant?.name === userSession.name;
+    },
+    [selectedChat.participants, userSession]
+  );
 
-    const isCurrentUserMessage = useCallback(
-      (senderId: number) => {
-        if (!userSession) return false;
-        const senderParticipant = selectedChat.participants.find(
-          (p) => p.userId === senderId
-        );
-        return senderParticipant?.name === userSession.name;
-      },
-      [selectedChat.participants, userSession]
-    );
+  // ---- Send Handlers ----
 
-    // ---- Send Handlers ----
-
-    const handleSendMessage = async () => {
-      if (newMessage.trim()) {
-        try {
-          const messageData = {
-            content: newMessage.trim(),
-            clientMsgId: crypto.randomUUID(),
-            type: "TEXT" as const,
-            roomId: selectedChat.roomId,
-          };
-
-          const response = await sendMessageApi(messageData);
-          const sentMessage = response.data.data as MessageResponse;
-          addMessage(sentMessage);
-          setNewMessage("");
-        } catch (err) {
-          toast.error(getErrorMessage(err));
-        }
-      }
-    };
-
-    const handleSendFile = async (
-      file: File,
-      type: "IMAGE" | "VIDEO" | "FILE"
-    ) => {
+  const handleSendMessage = async () => {
+    if (newMessage.trim()) {
       try {
-        const formData = new FormData();
-        const messageRequest = {
-          content: type.toLowerCase(),
+        const messageData = {
+          content: newMessage.trim(),
           clientMsgId: crypto.randomUUID(),
-          type: type,
+          type: "TEXT" as const,
           roomId: selectedChat.roomId,
         };
 
-        formData.append(
-          "message",
-          new Blob([JSON.stringify(messageRequest)], {
-            type: "application/json",
-          })
-        );
-        formData.append("file", file);
-
-        const response = await sendFileMessageApi(formData);
+        const response = await sendMessageApi(messageData);
         const sentMessage = response.data.data as MessageResponse;
         addMessage(sentMessage);
+        setNewMessage("");
       } catch (err) {
-        toast.error(getErrorMessage(err, t("box.sendFileError")));
+        toast.error(getErrorMessage(err));
       }
-    };
+    }
+  };
 
-    const handleSendWeather = async (latitude: number, longitude: number) => {
-      try {
-        const weatherRequest = {
-          roomId: selectedChat.roomId,
-          lat: latitude,
-          lon: longitude,
-          clientMsgId: crypto.randomUUID(),
-        };
+  const handleSendFile = async (
+    file: File,
+    type: "IMAGE" | "VIDEO" | "FILE"
+  ) => {
+    try {
+      const formData = new FormData();
+      const messageRequest = {
+        content: type.toLowerCase(),
+        clientMsgId: crypto.randomUUID(),
+        type: type,
+        roomId: selectedChat.roomId,
+      };
 
-        const response = await sendWeatherMessage(weatherRequest);
-        const sentMessage = response.data.data as MessageResponse;
-        addMessage(sentMessage);
-      } catch (err) {
-        toast.error(getErrorMessage(err, t("box.sendWeatherError")));
-      }
-    };
+      formData.append(
+        "message",
+        new Blob([JSON.stringify(messageRequest)], {
+          type: "application/json",
+        })
+      );
+      formData.append("file", file);
 
-    // ---- Imperative Handle for parent (WebSocket) ----
+      const response = await sendFileMessageApi(formData);
+      const sentMessage = response.data.data as MessageResponse;
+      addMessage(sentMessage);
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("box.sendFileError")));
+    }
+  };
 
-    const handleIncomingMessage = useCallback(
-      (message: MessageResponse) => {
-        if (message.roomId !== selectedChat.roomId) return;
+  const handleSendWeather = async (latitude: number, longitude: number) => {
+    try {
+      const weatherRequest = {
+        roomId: selectedChat.roomId,
+        lat: latitude,
+        lon: longitude,
+        clientMsgId: crypto.randomUUID(),
+      };
 
-        if (message.type !== "SYSTEM") {
-          const senderExists = selectedChat.participants.some(
-            (p) => p.userId === message.senderId
-          );
-          if (!senderExists) return;
-          if (userSession && isCurrentUserMessage(message.senderId)) return;
-        }
+      const response = await sendWeatherMessage(weatherRequest);
+      const sentMessage = response.data.data as MessageResponse;
+      addMessage(sentMessage);
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("box.sendWeatherError")));
+    }
+  };
 
-        setMessages((prev) => addUniqueMessage(prev, message));
-      },
-      [
-        isCurrentUserMessage,
-        selectedChat.participants,
-        selectedChat.roomId,
-        userSession,
-        setMessages,
-      ]
-    );
+  return (
+    <div className="flex-1 flex bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="flex-1 flex flex-col">
+        <ChatBoxHeader
+          selectedChat={selectedChat}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        handleIncomingMessage,
-        handleRecallMessage: recallMessage,
-      }),
-      [handleIncomingMessage, recallMessage]
-    );
-
-    return (
-      <div className="flex-1 flex bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="flex-1 flex flex-col">
-          <ChatBoxHeader
+        <div className="flex-1 overflow-hidden relative">
+          <ChatBoxContent
             selectedChat={selectedChat}
-            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          />
-
-          <div className="flex-1 overflow-hidden relative">
-            <ChatBoxContent
-              selectedChat={selectedChat}
-              messages={messages}
-              isLoadingMessages={isLoadingMessages}
-              isLoadingMore={isLoadingMore}
-              hasMoreMessages={hasMoreMessages}
-              onLoadMore={handleLoadMore}
-              isCurrentUserMessage={isCurrentUserMessage}
-              onMessageRecalled={recallMessage}
-            />
-          </div>
-
-          <ChatBoxInput
-            selectedChat={selectedChat}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            onSendMessage={handleSendMessage}
-            onSendFile={handleSendFile}
-            onSendWeather={handleSendWeather}
-            disabled={isLoadingMessages}
+            messages={messages}
+            isLoadingMessages={isLoadingMessages}
+            isLoadingMore={isLoadingMore}
+            hasMoreMessages={hasMoreMessages}
+            onLoadMore={handleLoadMore}
+            isCurrentUserMessage={isCurrentUserMessage}
           />
         </div>
-        <ConversationSidebar
+
+        <ChatBoxInput
           selectedChat={selectedChat}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          onSendMessage={handleSendMessage}
+          onSendFile={handleSendFile}
+          onSendWeather={handleSendWeather}
+          disabled={isLoadingMessages}
         />
       </div>
-    );
-  }
-);
-
-ChatBox.displayName = "ChatBox";
+      <ConversationSidebar
+        selectedChat={selectedChat}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+    </div>
+  );
+}

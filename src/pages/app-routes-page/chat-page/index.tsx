@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatActionBar } from "../components/chat-shared-components/ChatActionBar.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
-import { ChatBox, type ChatBoxRef } from "./components";
+import { ChatBox } from "./components";
 import { ChatCard } from "./components/chat-card";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import type { RoomResponse } from "@/types/chat/room";
@@ -87,13 +87,11 @@ export default function MessagesPage() {
     setSelectedChat(room);
   };
 
-  const chatBoxRef = useRef<ChatBoxRef>(null);
   useChatSocketHandler({
     setRooms,
     setSelectedChat,
     selectedChat,
     selectedRoomIdRef,
-    chatBoxRef,
     userSession,
   });
 
@@ -153,7 +151,7 @@ export default function MessagesPage() {
       </div>
 
       {selectedChat ? (
-        <ChatBox ref={chatBoxRef} selectedChat={selectedChat} />
+        <ChatBox selectedChat={selectedChat} />
       ) : (
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
