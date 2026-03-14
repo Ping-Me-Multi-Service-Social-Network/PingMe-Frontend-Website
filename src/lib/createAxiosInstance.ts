@@ -11,6 +11,10 @@ export interface AxiosInterceptorOptions {
     onLogout?: () => void;
 }
 
+interface RetryableRequest extends InternalAxiosRequestConfig {
+    _retry?: boolean;
+}
+
 /**
  * Factory: tạo một axios instance với interceptors auth token dùng chung.
  * Mỗi instance có refresh promise riêng để tránh xung đột giữa các service.
@@ -82,7 +86,7 @@ export function createAxiosInstance(baseURL: string): {
             }
             return config;
         },
-        (error) => Promise.reject(error),
+        (error) => { throw error; },
     );
 
     // ============================================================
@@ -91,16 +95,14 @@ export function createAxiosInstance(baseURL: string): {
     client.interceptors.response.use(
         (res) => res,
         async (error: AxiosError) => {
-            const originalRequest = error.config as InternalAxiosRequestConfig & {
-                _retry?: boolean;
-            };
+            const originalRequest = error.config as RetryableRequest | undefined;
 
             // 1. Phân tích lỗi
             const status = error.response?.status;
             const isUnauthorized = status === 401;
 
             if (!isUnauthorized || !originalRequest || originalRequest._retry) {
-                return Promise.reject(error);
+                throw error;
             }
 
             // 2. Chặn Loop
@@ -108,17 +110,15 @@ export function createAxiosInstance(baseURL: string): {
                 originalRequest.url?.includes("/auth/login") ||
                 originalRequest.url?.includes("/auth/refresh")
             ) {
-                return Promise.reject(error);
+                throw error;
             }
 
             originalRequest._retry = true;
 
             // 3. Logic Shared Promise
-            if (!refreshPromise) {
-                refreshPromise = performRefreshToken().finally(() => {
-                    refreshPromise = null;
-                });
-            }
+            refreshPromise ??= performRefreshToken().finally(() => {
+                refreshPromise = null;
+            });
 
             try {
                 // Chờ Promise refresh xong
@@ -130,7 +130,7 @@ export function createAxiosInstance(baseURL: string): {
 
                 return client(originalRequest);
             } catch (e) {
-                return Promise.reject(e);
+                throw e;
             }
         },
     );
