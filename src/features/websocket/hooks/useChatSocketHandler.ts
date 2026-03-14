@@ -10,7 +10,11 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
 } from "@/features/websocket/module/chatSocket";
-import { selectChatEvent, clearChatEvent } from "@/features/websocket/slices/chatSlice";
+import {
+  selectChatEvent,
+  clearChatEvent,
+  messageCreated,
+} from "@/features/websocket/slices/chatSlice";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
 
@@ -19,7 +23,6 @@ interface UseChatSocketHandlerProps {
   setSelectedChat: React.Dispatch<React.SetStateAction<RoomResponse | null>>;
   selectedChat: RoomResponse | null;
   selectedRoomIdRef: React.MutableRefObject<number | null>;
-  chatBoxRef: React.RefObject<any>; // Using any for Ref to avoid circular dependency or complex type import for now
   userSession: CurrentUserSessionResponse | null;
 }
 
@@ -28,7 +31,6 @@ export const useChatSocketHandler = ({
   setSelectedChat,
   selectedChat,
   selectedRoomIdRef,
-  chatBoxRef,
   userSession,
 }: UseChatSocketHandlerProps) => {
   const dispatch = useAppDispatch();
@@ -75,11 +77,29 @@ export const useChatSocketHandler = ({
     [setRooms, setSelectedChat]
   );
 
+  /**
+   * Dispatch a system message into Redux so the ChatBox picks it up reactively.
+   */
+  const dispatchSystemMessage = useCallback(
+    (systemMessage: import("@/types/chat/message").MessageResponse | undefined, roomId: number) => {
+      if (systemMessage && selectedRoomIdRef.current === roomId) {
+        dispatch(
+          messageCreated({
+            chatEventType: "MESSAGE_CREATED",
+            messageResponse: systemMessage,
+          })
+        );
+      }
+    },
+    [dispatch, selectedRoomIdRef]
+  );
+
   // --- Handlers ---
   const handleNewMessage = useCallback(
     (event: MessageCreatedEventPayload) => {
       const message = event.messageResponse;
 
+      // Update room list (move room to top, update lastMessage)
       setRooms((prev) => {
         const targetRoom = prev.find((r) => r.roomId === message.roomId);
         if (!targetRoom) return prev;
@@ -98,37 +118,26 @@ export const useChatSocketHandler = ({
         return [updatedRoom, ...otherRooms];
       });
 
-      if (selectedRoomIdRef.current === message.roomId && chatBoxRef.current) {
-        chatBoxRef.current.handleIncomingMessage(message);
-      }
+      // Message is already added to Redux state.messages by chatSlice.messageCreated reducer
+      // ChatBox picks it up via selectMessages → useMessages hook
     },
-    [setRooms, selectedRoomIdRef, chatBoxRef]
+    [setRooms]
   );
 
   const handleRoomUpdated = useCallback(
     (event: RoomUpdatedEventPayload) => {
       upsertRoom(event.roomResponse);
-
-      if (
-        event.systemMessage &&
-        selectedRoomIdRef.current === event.roomResponse.roomId &&
-        chatBoxRef.current
-      ) {
-        chatBoxRef.current.handleIncomingMessage(event.systemMessage);
-      }
+      dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
     },
-    [upsertRoom, selectedRoomIdRef, chatBoxRef]
+    [upsertRoom, dispatchSystemMessage]
   );
 
   const handleRecallMessage = useCallback(
-    (event: MessageRecalledEventPayload) => {
-      if (chatBoxRef.current) {
-        chatBoxRef.current.handleRecallMessage(
-          event.messageRecalledResponse.id
-        );
-      }
+    (_event: MessageRecalledEventPayload) => {
+      // Recall is handled reactively by chatSlice.messageRecalled reducer
+      // (sets isActive: false) → ChatBox picks it up via selectMessages
     },
-    [chatBoxRef]
+    []
   );
 
   const handleRoomCreated = useCallback(
@@ -141,22 +150,13 @@ export const useChatSocketHandler = ({
   const handleMemberAdded = useCallback(
     (event: RoomMemberAddedEventPayload) => {
       upsertRoom(event.roomResponse);
-
-      if (
-        event.systemMessage &&
-        selectedRoomIdRef.current === event.roomResponse.roomId &&
-        chatBoxRef.current
-      ) {
-        chatBoxRef.current.handleIncomingMessage(event.systemMessage);
-      }
+      dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
     },
-    [upsertRoom, selectedRoomIdRef, chatBoxRef]
+    [upsertRoom, dispatchSystemMessage]
   );
 
   const handleMemberRemoved = useCallback(
     (event: RoomMemberRemovedEventPayload) => {
-      console.log("[PingMe] Member removed event:", event);
-
       const isCurrentUserRemoved = event.targetUserId === userSession?.id;
 
       if (isCurrentUserRemoved) {
@@ -168,32 +168,18 @@ export const useChatSocketHandler = ({
         );
       } else {
         upsertRoom(event.roomResponse);
-
-        if (
-          event.systemMessage &&
-          selectedRoomIdRef.current === event.roomResponse.roomId &&
-          chatBoxRef.current
-        ) {
-          chatBoxRef.current.handleIncomingMessage(event.systemMessage);
-        }
+        dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
       }
     },
-    [upsertRoom, userSession?.id, setRooms, setSelectedChat, selectedRoomIdRef, chatBoxRef]
+    [upsertRoom, userSession?.id, setRooms, setSelectedChat, dispatchSystemMessage]
   );
 
   const handleMemberRoleChanged = useCallback(
     (event: RoomMemberRoleChangedEventPayload) => {
       upsertRoom(event.roomResponse);
-
-      if (
-        event.systemMessage &&
-        selectedRoomIdRef.current === event.roomResponse.roomId &&
-        chatBoxRef.current
-      ) {
-        chatBoxRef.current.handleIncomingMessage(event.systemMessage);
-      }
+      dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
     },
-    [upsertRoom, selectedRoomIdRef, chatBoxRef]
+    [upsertRoom, dispatchSystemMessage]
   );
 
   // --- Event Listener ---
