@@ -12,10 +12,7 @@ import {
   selectMessages,
 } from "@/features/websocket/slices/chatSlice";
 import { useTranslation } from "react-i18next";
-import {
-  addUniqueMessage,
-  mergeUniqueMessages,
-} from "../utils/addUniqueMessage";
+import { addUniqueMessage } from "../utils/addUniqueMessage";
 
 interface UseMessagesReturn {
   messages: MessageResponse[];
@@ -24,8 +21,6 @@ interface UseMessagesReturn {
   hasMoreMessages: boolean;
   handleLoadMore: (beforeMessageId?: string) => void;
   addMessage: (message: MessageResponse) => void;
-  recallMessage: (messageId: string) => void;
-  setMessages: React.Dispatch<React.SetStateAction<MessageResponse[]>>;
 }
 
 export function useMessages(roomId: number): UseMessagesReturn {
@@ -33,7 +28,8 @@ export function useMessages(roomId: number): UseMessagesReturn {
   const reduxMessages = useAppSelector(selectMessages);
   const { t } = useTranslation("chat");
 
-  const [messages, setMessages] = useState<MessageResponse[]>([]);
+  // Local state for history messages (fetched via API)
+  const [historyMessages, setHistoryMessages] = useState<MessageResponse[]>([]);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -54,7 +50,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
         const newMessages = historyResponse.messageResponses;
 
         if (append) {
-          setMessages((prev) => {
+          setHistoryMessages((prev) => {
             const existingIds = new Set(prev.map((msg) => msg.id));
             const uniqueNewMessages = newMessages.filter(
               (msg) => !existingIds.has(msg.id)
@@ -62,7 +58,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
             return [...uniqueNewMessages, ...prev];
           });
         } else {
-          setMessages(newMessages);
+          setHistoryMessages(newMessages);
         }
 
         setHasMoreMessages(historyResponse.hasMore);
@@ -81,17 +77,10 @@ export function useMessages(roomId: number): UseMessagesReturn {
     dispatch(setCurrentRoom(roomId));
   }, [roomId, dispatch]);
 
-  // Sync messages from Redux (WebSocket)
-  useEffect(() => {
-    if (reduxMessages.length > 0) {
-      setMessages((prev) => mergeUniqueMessages(prev, reduxMessages));
-    }
-  }, [reduxMessages]);
-
   // Fetch initial messages when room changes
   useEffect(() => {
     if (roomId) {
-      setMessages([]);
+      setHistoryMessages([]);
       setHasMoreMessages(true);
       fetchMessages(undefined, 20);
     }
@@ -104,16 +93,38 @@ export function useMessages(roomId: number): UseMessagesReturn {
     [fetchMessages]
   );
 
-  const addMessage = useCallback((message: MessageResponse) => {
-    setMessages((prev) => addUniqueMessage(prev, message));
-  }, []);
+  // Merge history messages + Redux real-time messages
+  // History = loaded from API, Redux = from WebSocket
+  const messages = (() => {
+    if (reduxMessages.length === 0) return historyMessages;
 
-  const recallMessage = useCallback((messageId: string) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === messageId ? { ...msg, isActive: false } : msg
-      )
+    const historyIds = new Set(historyMessages.map((m) => m.id));
+    const historyClientIds = new Set(
+      historyMessages.map((m) => m.clientMsgId).filter(Boolean)
     );
+
+    // Get new messages from Redux that are not in history
+    const newFromRedux = reduxMessages.filter(
+      (m) => !historyIds.has(m.id) && !historyClientIds.has(m.clientMsgId)
+    );
+
+    // Apply recall status from Redux to history messages
+    const recalledIds = new Set(
+      reduxMessages.filter((m) => !m.isActive).map((m) => m.id)
+    );
+    const updatedHistory = historyMessages.map((m) =>
+      recalledIds.has(m.id) ? { ...m, isActive: false } : m
+    );
+
+    return [...updatedHistory, ...newFromRedux];
+  })();
+
+  /**
+   * Optimistic add for sent messages (API response).
+   * Messages also arrive via WebSocket → Redux, so dedup is applied.
+   */
+  const addMessage = useCallback((message: MessageResponse) => {
+    setHistoryMessages((prev) => addUniqueMessage(prev, message));
   }, []);
 
   return {
@@ -123,7 +134,5 @@ export function useMessages(roomId: number): UseMessagesReturn {
     hasMoreMessages,
     handleLoadMore,
     addMessage,
-    recallMessage,
-    setMessages,
   };
 }
