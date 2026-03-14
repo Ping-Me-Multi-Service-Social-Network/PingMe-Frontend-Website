@@ -7,19 +7,12 @@ function stripConsole(): Plugin {
   return {
     name: "strip-console",
     apply: "build",
-    enforce: "pre",
-    transform(code, id) {
-      if (process.env.NODE_ENV !== "production") return;
-      if (id.includes("node_modules")) return;
-      if (!/\.(ts|tsx|js|jsx)$/.test(id)) return;
-
-      const result = code.replace(
-        /console\.(log|warn|info|debug)\s*\([\s\S]*?\);?/g,
-        ""
-      );
-      if (result !== code) {
-        return { code: result, map: null };
-      }
+    transformIndexHtml(html) {
+      if (process.env.NODE_ENV !== "production") return html;
+      const script = `<script>
+(function(){var n=function(){};console.log=n;console.warn=n;console.info=n;console.debug=n;})();
+</script>`;
+      return html.replace("<head>", `<head>${script}`);
     },
   };
 }
@@ -69,3 +62,4 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
 });
+
