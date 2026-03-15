@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient.ts";
+import axiosAuthClient from "@/lib/axiosAuthClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   ChangePasswordRequest,
@@ -8,20 +8,22 @@ import type {
 } from "@/types/authentication";
 
 export const getCurrentUserSessionApi = () => {
-  return axiosClient.get<ApiResponse<CurrentUserSessionResponse>>("/users/me");
+  return axiosAuthClient.get<ApiResponse<CurrentUserSessionResponse>>(
+    "/auth-service/users/me",
+  );
 };
 
 export const getCurrentUserInfoApi = () => {
-  return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>(
-    "/users/me/info",
+  return axiosAuthClient.get<ApiResponse<CurrentUserProfileResponse>>(
+    "/auth-service/users/me/info",
   );
 };
 
 export const updateCurrentUserPasswordApi = (
   changePasswordRequest: ChangePasswordRequest,
 ) => {
-  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/users/me/password",
+  return axiosAuthClient.post<ApiResponse<CurrentUserSessionResponse>>(
+    "/auth-service/users/me/password",
     changePasswordRequest,
   );
 };
@@ -29,15 +31,15 @@ export const updateCurrentUserPasswordApi = (
 export const updateCurrentUserProfileApi = (
   changeProfileRequest: ChangeProfileRequest,
 ) => {
-  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/users/me/profile",
+  return axiosAuthClient.post<ApiResponse<CurrentUserSessionResponse>>(
+    "/auth-service/users/me/profile",
     changeProfileRequest,
   );
 };
 
 export const updateCurrentUserAvatarApi = (data: FormData) => {
-  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
-    "/users/me/avatar",
+  return axiosAuthClient.post<ApiResponse<CurrentUserSessionResponse>>(
+    "/auth-service/users/me/avatar",
     data,
     {
       headers: {
@@ -48,7 +50,7 @@ export const updateCurrentUserAvatarApi = (data: FormData) => {
 };
 
 export const activateAccountApi = () => {
-  return axiosClient.post<ApiResponse<{ isActivated: boolean }>>(
-    "/users/me/activate",
+  return axiosAuthClient.post<ApiResponse<{ isActivated: boolean }>>(
+    "/auth-service/users/me/activate",
   );
 };

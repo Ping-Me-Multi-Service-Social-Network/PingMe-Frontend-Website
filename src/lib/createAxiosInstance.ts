@@ -53,7 +53,7 @@ export function createAxiosInstance(baseURL: string): {
     const performRefreshToken = async (): Promise<string> => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/refresh`,
+                `${import.meta.env.VITE_AUTH_SERVICE_BASE_URL}/auth-service/auth/refresh`,
                 getSessionMetaRequest(),
                 { withCredentials: true },
             );
@@ -80,7 +80,7 @@ export function createAxiosInstance(baseURL: string): {
             const token = localStorage.getItem("access_token");
 
             // Nếu có token và không phải API Refresh thì gắn access token vào Header
-            if (token && !config.url?.includes("/auth/refresh")) {
+            if (token && !config.url?.includes("/auth-service/auth/refresh")) {
                 config.headers = config.headers ?? {};
                 config.headers.Authorization = `Bearer ${token}`;
             }
@@ -107,8 +107,8 @@ export function createAxiosInstance(baseURL: string): {
 
             // 2. Chặn Loop
             if (
-                originalRequest.url?.includes("/auth/login") ||
-                originalRequest.url?.includes("/auth/refresh")
+                originalRequest.url?.includes("/auth-service/auth/login") ||
+                originalRequest.url?.includes("/auth-service/auth/refresh")
             ) {
                 throw error;
             }
