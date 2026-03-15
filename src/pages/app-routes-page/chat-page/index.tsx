@@ -14,6 +14,7 @@ import { useChatSocketHandler } from "@/features/websocket/hooks/useChatSocketHa
 import { SocketManager } from "@/features/websocket/socketManager";
 import { useTranslation } from "react-i18next";
 import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -95,6 +96,9 @@ export default function MessagesPage() {
     selectedRoomIdRef,
     userSession,
   });
+
+  // Play "ting" notification when tab is out-of-focus and new message arrives
+  useNotificationSound({ currentUserId: userSession?.id });
 
   useEffect(() => {
     return SocketManager.on("USER_STATUS", (statusPayload) => {
