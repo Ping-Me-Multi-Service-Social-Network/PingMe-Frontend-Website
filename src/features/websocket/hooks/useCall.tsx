@@ -7,8 +7,7 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { useAppSelector } from "@/features/hooks";
-import { selectSignalingEvent } from "@/features/websocket/slices/socketSlice";
+
 import type { SignalingResponse, CallType, CallState } from "@/types/call/call";
 import { sendSignalingApi } from "@/services/call/callApi";
 import { lookupByIdApi } from "@/services/user/userLookupApi";
@@ -16,6 +15,8 @@ import { toast } from "sonner";
 import { CallNotification } from "@/components/call/CallNotification";
 import { ZegoCallUI } from "@/components/call/ZegoCallUI";
 import type { RoomParticipantResponse } from "@/types/chat/room";
+import { useAppSelector } from "@/features/hooks";
+import { SocketManager } from "@/features/websocket/socketManager";
 
 // --- Context Definition ---
 interface CallContextType {
@@ -51,7 +52,6 @@ interface CallProviderProps {
 
 export function CallProvider({ children }: CallProviderProps) {
   const { userSession } = useAppSelector((state) => state.auth);
-  const signalingEvent = useAppSelector(selectSignalingEvent);
 
   // --- STATE ---
   const [isIncomingCall, setIsIncomingCall] = useState(false);
@@ -85,9 +85,9 @@ export function CallProvider({ children }: CallProviderProps) {
 
   // --- WEBSOCKET ---
   useEffect(() => {
-    if (!userSession?.id || !signalingEvent.payload) return;
+    if (!userSession?.id) return;
 
-    const event = signalingEvent.payload as SignalingResponse;
+    const handleSignaling = (event: SignalingResponse) => {
 
     if (event.senderId === userSession.id) return;
 
@@ -153,9 +153,11 @@ export function CallProvider({ children }: CallProviderProps) {
       setCallState((prev) => ({ ...prev, status: "ended" }));
       resetCallState();
     }
+    };
+
+    const unsub = SocketManager.on("SIGNALING", handleSignaling as any);
+    return () => unsub();
   }, [
-    signalingEvent.id,
-    signalingEvent.payload,
     userSession?.id,
     isInCall,
     isIncomingCall,

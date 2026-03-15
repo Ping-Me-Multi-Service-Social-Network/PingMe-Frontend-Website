@@ -16,53 +16,38 @@ export const useSocket = () => {
     SocketManager.connect({
       baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
       dispatch: dispatch,
-
-      onFriendEvent: (ev) => {
-        if (ev.type === "INVITED") {
-          toast.info(
-            `Bạn nhận được lời mời kết bạn từ ${ev.userSummaryResponse.name}`
-          );
-        } else if (ev.type === "ACCEPTED") {
-          toast.success(
-            `${ev.userSummaryResponse.name} đã chấp nhận lời mời kết bạn`
-          );
-        }
-      },
-
-      chat: {
-        onRoomCreated: (ev) => {
-          if (ev.roomResponse.roomType === "GROUP") {
-            toast.success(
-              `Bạn đã được thêm vào nhóm "${ev.roomResponse.name}"`
-            );
-          }
-        },
-        onMemberAdded: (ev) => {
-          if (
-            ev.targetUserId === userSession.id &&
-            ev.roomResponse.roomType === "GROUP"
-          ) {
-            toast.success(
-              `Bạn đã được thêm vào nhóm "${ev.roomResponse.name}"`
-            );
-          }
-        },
-      },
-
       onDisconnect: (reason?: string) => {
         console.warn("[PingMe] SocketManager disconnected:", reason);
       },
-
-      onUpdateAiChatRoomTitle: (ev) => {
-        console.log("[PingMe] AI chat room title updated:", ev);
-        window.dispatchEvent(
-          new CustomEvent("socket:update-ai-chat-room-title", { detail: ev })
-        );
-      },
     });
+
+    const unsubs = [
+      SocketManager.on("FRIENDSHIP", (ev) => {
+        if (ev.type === "INVITED") {
+          toast.info(`Bạn nhận được lời mời kết bạn từ ${ev.userSummaryResponse.name}`);
+        } else if (ev.type === "ACCEPTED") {
+          toast.success(`${ev.userSummaryResponse.name} đã chấp nhận lời mời kết bạn`);
+        }
+      }),
+      SocketManager.on("ROOM_CREATED", (ev) => {
+        if (ev.roomResponse.roomType === "GROUP") {
+          toast.success(`Bạn đã được thêm vào nhóm "${ev.roomResponse.name}"`);
+        }
+      }),
+      SocketManager.on("ROOM_MEMBER_ADDED", (ev) => {
+        if (ev.targetUserId === userSession.id && ev.roomResponse.roomType === "GROUP") {
+          toast.success(`Bạn đã được thêm vào nhóm "${ev.roomResponse.name}"`);
+        }
+      }),
+      SocketManager.on("AI_CHAT_ROOM_TITLE", (ev) => {
+        console.log("[PingMe] AI chat room title updated:", ev);
+        window.dispatchEvent(new CustomEvent("socket:update-ai-chat-room-title", { detail: ev }));
+      })
+    ];
 
     return () => {
       console.log("[PingMe] Disconnecting SocketManager...");
+      unsubs.forEach((unsub) => unsub());
       SocketManager.disconnect();
     };
   }, [userSession, dispatch]);

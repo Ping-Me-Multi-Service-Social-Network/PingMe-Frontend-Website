@@ -10,20 +10,8 @@ import {
   messageRecalled,
   readStateChanged,
   userTyping,
-  roomCreated,
-  roomUpdated,
-  memberAdded,
-  memberRemoved,
-  memberRoleChanged,
 } from "@/features/websocket/slices/chatSlice";
-import {
-  friendshipEventReceived,
-  signalingEventReceived,
-  userStatusEventReceived,
-} from "@/features/websocket/slices/socketSlice";
-
 import type {
-  ChatEventHandlers,
   MessageCreatedEventPayload,
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
@@ -43,21 +31,34 @@ import type {
 import type { TitleUpdate } from "@/types/ai/titleUpdate";
 
 // =================================================================
+// Event Emitter Types
+// =================================================================
+export interface SocketEventMap {
+  // Global events
+  FRIENDSHIP: FriendshipEventPayload;
+  USER_STATUS: UserStatusPayload;
+  SIGNALING: SignalingPayload;
+  AI_CHAT_ROOM_TITLE: TitleUpdate;
+  
+  // Chat events
+  MESSAGE_CREATED: MessageCreatedEventPayload;
+  MESSAGE_RECALLED: MessageRecalledEventPayload;
+  READ_STATE_CHANGED: ReadStateChangedEvent;
+  USER_TYPING: TypingSignalPayload;
+  
+  ROOM_CREATED: RoomCreatedEventPayload;
+  ROOM_UPDATED: RoomUpdatedEventPayload;
+  ROOM_MEMBER_ADDED: RoomMemberAddedEventPayload;
+  ROOM_MEMBER_REMOVED: RoomMemberRemovedEventPayload;
+  ROOM_MEMBER_ROLE_CHANGED: RoomMemberRoleChangedEventPayload;
+}
+
+// =================================================================
 // Types
 // =================================================================
 export interface SocketManagerOptions {
   baseUrl: string;
   dispatch: (action: any) => void;
-
-  // Chat event handlers
-  chat?: ChatEventHandlers;
-
-  // Global event handlers
-  onFriendEvent?: (ev: FriendshipEventPayload) => void;
-  onUserStatus?: (ev: UserStatusPayload) => void;
-  onSignaling?: (ev: SignalingPayload) => void;
-  onUpdateAiChatRoomTitle?: (ev: TitleUpdate) => void;
-
   // Disconnect handler
   onDisconnect?: (reason?: string) => void;
 }
@@ -82,6 +83,37 @@ class SocketManagerClass {
   private aiChatRoomTitleSub: StompSubscription | null = null;
   private statusSub: StompSubscription | null = null;
   private signalingSub: StompSubscription | null = null;
+
+  // Event Listeners
+  private listeners: { [K in keyof SocketEventMap]?: Array<(payload: SocketEventMap[K]) => void> } = {};
+
+  // =================================================================
+  // EventEmitter Methods
+  // =================================================================
+
+  public on<K extends keyof SocketEventMap>(event: K, listener: (payload: SocketEventMap[K]) => void) {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [] as any;
+    }
+    this.listeners[event]!.push(listener as any);
+    return () => this.off(event, listener);
+  }
+
+  public off<K extends keyof SocketEventMap>(event: K, listener: (payload: SocketEventMap[K]) => void) {
+    if (!this.listeners[event]) return;
+    this.listeners[event] = this.listeners[event]!.filter(l => l !== listener as any) as any;
+  }
+
+  private emit<K extends keyof SocketEventMap>(event: K, payload: SocketEventMap[K]) {
+    if (!this.listeners[event]) return;
+    this.listeners[event]!.forEach(l => {
+      try {
+        l(payload);
+      } catch (err) {
+        console.error(`[PingMe] Error in event listener for ${event}:`, err);
+      }
+    });
+  }
 
   // =================================================================
   // Public Methods
@@ -290,44 +322,19 @@ class SocketManagerClass {
 
           switch (ev.chatEventType) {
             case "ROOM_CREATED":
-              this.options?.dispatch(
-                roomCreated(ev as RoomCreatedEventPayload),
-              );
-              this.options?.chat?.onRoomCreated?.(
-                ev as RoomCreatedEventPayload,
-              );
+              this.emit("ROOM_CREATED", ev);
               break;
             case "ROOM_UPDATED":
-              this.options?.dispatch(
-                roomUpdated(ev as RoomUpdatedEventPayload),
-              );
-              this.options?.chat?.onRoomUpdated?.(
-                ev as RoomUpdatedEventPayload,
-              );
+              this.emit("ROOM_UPDATED", ev);
               break;
             case "MEMBER_ADDED":
-              this.options?.dispatch(
-                memberAdded(ev as RoomMemberAddedEventPayload),
-              );
-              this.options?.chat?.onMemberAdded?.(
-                ev as RoomMemberAddedEventPayload,
-              );
+              this.emit("ROOM_MEMBER_ADDED", ev);
               break;
             case "MEMBER_REMOVED":
-              this.options?.dispatch(
-                memberRemoved(ev as RoomMemberRemovedEventPayload),
-              );
-              this.options?.chat?.onMemberRemoved?.(
-                ev as RoomMemberRemovedEventPayload,
-              );
+              this.emit("ROOM_MEMBER_REMOVED", ev);
               break;
             case "MEMBER_ROLE_CHANGED":
-              this.options?.dispatch(
-                memberRoleChanged(ev as RoomMemberRoleChangedEventPayload),
-              );
-              this.options?.chat?.onMemberRoleChanged?.(
-                ev as RoomMemberRoleChangedEventPayload,
-              );
+              this.emit("ROOM_MEMBER_ROLE_CHANGED", ev);
               break;
             default:
               console.warn("[PingMe] Unknown chat event:", ev);
@@ -351,8 +358,7 @@ class SocketManagerClass {
       "/user/queue/friendship",
       "friendship event",
       (ev) => {
-        this.options?.dispatch(friendshipEventReceived(ev));
-        this.options?.onFriendEvent?.(ev);
+        this.emit("FRIENDSHIP", ev);
       },
     );
 
@@ -361,36 +367,30 @@ class SocketManagerClass {
       "/user/queue/status",
       "status event",
       (ev) => {
-        this.options?.dispatch(userStatusEventReceived(ev));
-        this.options?.onUserStatus?.(ev);
+        this.emit("USER_STATUS", ev);
+      },
+    );
+
+    // Subscribe to AI chat room title update events
+    this.aiChatRoomTitleSub = this.client.subscribe(
+      "/user/queue/title-update",
+      (msg: IMessage) => {
+        try {
+          const ev = JSON.parse(msg.body) as TitleUpdate;
+          this.emit("AI_CHAT_ROOM_TITLE", ev);
+        } catch (err) {
+          console.error("[PingMe] Error parsing AI chat room title update event:", err);
+        }
       },
     );
 
     // Subscribe to signaling events
-    // Subscribe to AI chat room title update events
-    if (this.options?.onUpdateAiChatRoomTitle) {
-      this.aiChatRoomTitleSub = this.client.subscribe(
-        "/user/queue/title-update",
-        (msg: IMessage) => {
-          try {
-            const ev = JSON.parse(msg.body) as TitleUpdate;
-            this.options?.onUpdateAiChatRoomTitle?.(ev);
-          } catch (err) {
-            console.error(
-              "[PingMe] Error parsing AI chat room title update event:",
-              err,
-            );
-          }
-        },
-      );
-    }
     this.signalingSub = this.subscribeQueueEvent<SignalingPayload>(
       "/user/queue/signaling",
       "signaling event",
       (ev) => {
         console.log("[PingMe] Received signaling event:", ev);
-        this.options?.dispatch(signalingEventReceived(ev));
-        this.options?.onSignaling?.(ev);
+        this.emit("SIGNALING", ev);
       },
     );
   }
@@ -413,20 +413,12 @@ class SocketManagerClass {
 
         switch (ev.chatEventType) {
           case "MESSAGE_CREATED":
-            this.options?.dispatch(
-              messageCreated(ev as MessageCreatedEventPayload),
-            );
-            this.options?.chat?.onMessageCreated?.(
-              ev as MessageCreatedEventPayload,
-            );
+            this.options?.dispatch(messageCreated(ev as MessageCreatedEventPayload));
+            this.emit("MESSAGE_CREATED", ev as MessageCreatedEventPayload);
             break;
           case "MESSAGE_RECALLED":
-            this.options?.dispatch(
-              messageRecalled(ev as MessageRecalledEventPayload),
-            );
-            this.options?.chat?.onMessageRecalled?.(
-              ev as MessageRecalledEventPayload,
-            );
+            this.options?.dispatch(messageRecalled(ev as MessageRecalledEventPayload));
+            this.emit("MESSAGE_RECALLED", ev as MessageRecalledEventPayload);
             break;
         }
       } catch (err) {
@@ -452,7 +444,7 @@ class SocketManagerClass {
       if (!ev || ev.chatEventType !== "READ_STATE_CHANGED") return;
 
       this.options?.dispatch(readStateChanged(ev));
-      this.options?.chat?.onReadStateChanged?.(ev);
+      this.emit("READ_STATE_CHANGED", ev);
     });
   }
 
@@ -469,7 +461,7 @@ class SocketManagerClass {
       if (!ev) return;
 
       this.options?.dispatch(userTyping(ev));
-      this.options?.chat?.onTyping?.(ev);
+      this.emit("USER_TYPING", ev);
     });
   }
 
