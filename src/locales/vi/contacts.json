@@ -13,6 +13,13 @@
             "desc": "Lời mời bạn đã gửi đi"
         }
     },
+    "sidebarFooter": {
+        "suggestTitle": "Gợi ý bạn bè",
+        "suggestDesc": "Mở rộng vòng kết nối bằng cách gửi thêm lời mời đến những người có chung sở thích!",
+        "explore": "Khám phá",
+        "syncTitle": "Hệ thống đồng bộ",
+        "syncDesc": "Thời gian thực, bảo mật TLS 1.3"
+    },
     "common": {
         "loadingMore": "Đang tải thêm...",
         "displayedAllFriends": "Đã hiển thị tất cả bạn bè",
