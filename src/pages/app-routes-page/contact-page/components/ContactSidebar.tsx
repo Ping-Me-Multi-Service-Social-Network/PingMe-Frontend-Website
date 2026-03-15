@@ -106,8 +106,6 @@ export function ContactSidebar({
 
       {/* Footer Banner Illustrations */}
       <div className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 mt-auto -mx-4 -mb-4 cursor-pointer">
-        {/* Top edge glowing gradient line effect */}
-        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-purple-500 via-pink-400 to-blue-500 opacity-80 group-hover:opacity-100 animate-pulse transition-opacity"></div>
         <img 
           src="/images/friends-illustration.jpg" 
           alt="Friends" 
