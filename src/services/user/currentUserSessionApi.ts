@@ -1,15 +1,18 @@
-import axiosClient from "@/lib/axiosClient.ts";
-import type {ApiResponse} from "@/types/base/apiResponse";
-import type {CurrentUserSessionMetaResponse, CurrentUserSessionResponse} from "@/types/authentication";
+import type { ApiResponse } from "@/types/base/apiResponse";
+import type {
+  CurrentUserSessionMetaResponse,
+  CurrentUserSessionResponse,
+} from "@/types/authentication";
+import axiosAuthClient from "@/lib/axiosAuthClient";
 
 export const getCurrentUserAllDeviceMetasApi = () => {
-    return axiosClient.get<ApiResponse<CurrentUserSessionMetaResponse[]>>(
-        "/users/me/sessions"
-    );
+  return axiosAuthClient.get<ApiResponse<CurrentUserSessionMetaResponse[]>>(
+    "/auth-service/users/me/sessions",
+  );
 };
 
 export const deleteCurrentUserDeviceMetaApi = (sessionId: string) => {
-    return axiosClient.delete<ApiResponse<CurrentUserSessionResponse>>(
-        `/users/me/sessions/${sessionId}`
-    );
+  return axiosAuthClient.delete<ApiResponse<CurrentUserSessionResponse>>(
+    `/auth-service/users/me/sessions/${sessionId}`,
+  );
 };
