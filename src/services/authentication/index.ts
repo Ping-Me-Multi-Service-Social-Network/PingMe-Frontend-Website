@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosAuthClient from "@/lib/axiosAuthClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   DefaultAuthResponse,
@@ -7,25 +7,91 @@ import type {
 } from "@/types/authentication";
 import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 
-// 1. REGISTER
+// ============================================================================
+// 1. AUTHENTICATION
+// ============================================================================
+
 export const registerLocalApi = (data: RegisterRequest) => {
-  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
-    "/auth/register",
+  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth-service/auth/register",
     data,
   );
 };
 
-// LOGIN
 export const loginLocalApi = (data: DefaultLoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 
-  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
-    "/auth/login",
+  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth-service/auth/login",
     data,
   );
 };
 
-// LOGOUT
 export const logoutApi = () => {
-  return axiosClient.post("/auth/logout");
+  return axiosAuthClient.post("/auth-service/auth/logout");
+};
+
+export const refreshApi = () => {
+  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth-service/auth/refresh",
+    getSessionMetaRequest(),
+  );
+};
+
+export const forgetPasswordApi = (data: { email: string }) => {
+  return axiosAuthClient.post<ApiResponse<any>>(
+    "/auth-service/auth/forget-password",
+    data,
+  );
+};
+
+// ============================================================================
+// 2. ADMIN AUTHENTICATION
+// ============================================================================
+
+export const adminLoginApi = (data: DefaultLoginRequest) => {
+  data.submitSessionMetaRequest = getSessionMetaRequest();
+
+  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth-service/auth/admin/login",
+    data,
+  );
+};
+
+// ============================================================================
+// 3. MOBILE AUTHENTICATION
+// ============================================================================
+
+export const mobileLoginApi = (data: DefaultLoginRequest) => {
+  data.submitSessionMetaRequest = getSessionMetaRequest();
+
+  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth-service/auth/mobile/login",
+    data,
+  );
+};
+
+export const mobileRefreshApi = () => {
+  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+    "/auth-service/auth/mobile/refresh",
+    getSessionMetaRequest(),
+  );
+};
+
+// ============================================================================
+// 4. OTP
+// ============================================================================
+
+export const getOtpAdminStatusApi = () => {
+  return axiosAuthClient.get<ApiResponse<{ isEnabled: boolean }>>(
+    "/auth-service/otp/admin/status",
+  );
+};
+
+export const sendOtpApi = (data: { email: string; type?: string }) => {
+  return axiosAuthClient.post<ApiResponse<any>>("/auth-service/otp/send", data);
+};
+
+export const verifyOtpApi = (data: { email: string; otp: string; type?: string }) => {
+  return axiosAuthClient.post<ApiResponse<any>>("/auth-service/otp/verify", data);
 };

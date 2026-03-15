@@ -11,6 +11,8 @@ import { persistor, store } from "./features/store";
 import { useAppDispatch, useAppSelector } from "./features/hooks";
 import { getCurrentUserSession, logout } from "@/features/auth/authThunk";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
+import { setupAuthAxiosInterceptors } from "./lib/axiosAuthClient";
+import { setupMusicAxiosInterceptors } from "./lib/axiosMusicClient";
 import {
   setLogoutReason,
   updateUserSession,
@@ -67,13 +69,18 @@ function AppInner() {
   const isUnsupportedViewport = useIsUnsupportedViewport();
 
   useEffect(() => {
-    setupAxiosInterceptors({
-      onTokenRefreshed: (payload) => store.dispatch(updateUserSession(payload)),
+    const opts = {
+      onTokenRefreshed: (payload: any) =>
+        store.dispatch(updateUserSession(payload)),
       onLogout: () => {
         store.dispatch(setLogoutReason("EXPIRED"));
         store.dispatch(logout());
       },
-    });
+    };
+
+    setupAxiosInterceptors(opts);
+    setupAuthAxiosInterceptors(opts);
+    setupMusicAxiosInterceptors(opts);
   }, []);
 
   if (isUnsupportedViewport) {
