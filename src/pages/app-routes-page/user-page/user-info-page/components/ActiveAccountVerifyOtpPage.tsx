@@ -45,7 +45,7 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
       const response = await verifyOtpApi({
         otp: otp,
         mailRecipient: email,
-        otpType: otpType, // Truyền đúng type (ACCOUNT_ACTIVATION)
+        authOtpType: otpType, // Truyền đúng type (ACCOUNT_ACTIVATION)
       });
 
       const resData = response.data;
