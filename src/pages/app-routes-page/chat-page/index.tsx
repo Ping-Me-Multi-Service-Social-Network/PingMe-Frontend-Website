@@ -3,7 +3,7 @@ import type React from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatActionBar } from "../components/chat-shared-components/ChatActionBar.tsx";
-import { EmptyState } from "@/components/custom/EmptyState.tsx";
+
 import { ChatBox } from "./components";
 import { ChatCard } from "./components/chat-card";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";

@@ -150,6 +150,14 @@ export default function Sidebar({
               <div
                 className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={(e) => handleMenuToggle(e, room.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.stopPropagation();
+                    handleMenuToggle(e as any, room.id);
+                  }
+                }}
               >
                 <div className="p-1 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -217,10 +225,24 @@ export default function Sidebar({
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={handleCancelDelete}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleCancelDelete();
+            }
+          }}
         >
           <div
             className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4"
             onClick={(e) => e.stopPropagation()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+              }
+            }}
             style={{ animation: "msg-slide-in 0.2s ease-out" }}
           >
             {/* Icon */}
