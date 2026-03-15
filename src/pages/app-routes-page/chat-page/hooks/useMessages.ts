@@ -116,7 +116,12 @@ export function useMessages(roomId: number): UseMessagesReturn {
       recalledIds.has(m.id) ? { ...m, isActive: false } : m
     );
 
-    return [...updatedHistory, ...newFromRedux];
+    // Merge and sort by createdAt to maintain correct chronological order.
+    // Without sorting, optimistically-added messages (via addMessage → historyMessages)
+    // can appear before WebSocket-only messages (in Redux), causing bubbles to jump.
+    const merged = [...updatedHistory, ...newFromRedux];
+    merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    return merged;
   })();
 
   /**
