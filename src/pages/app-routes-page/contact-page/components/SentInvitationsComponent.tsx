@@ -3,8 +3,6 @@ import {
   useEffect,
   useRef,
   useCallback,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
 import { Send, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
@@ -22,9 +20,8 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { InvitationUserCard } from "./InvitationUserCard";
 
-interface SentInvitationsComponentRef {
-  handleInvitationUpdate: (user: UserSummaryResponse) => void;
-}
+import { SocketManager } from "@/features/websocket/socketManager";
+import { useAppSelector } from "@/features/hooks.ts";
 
 interface SentInvitationsComponentProps {
   onStatsUpdate: (
@@ -32,12 +29,10 @@ interface SentInvitationsComponentProps {
   ) => void;
 }
 
-export const SentInvitationsComponent = forwardRef<
-  SentInvitationsComponentRef,
-  SentInvitationsComponentProps
->((props, ref) => {
+export const SentInvitationsComponent = (props: SentInvitationsComponentProps) => {
   const { onStatsUpdate } = props;
   const { t } = useTranslation("contacts");
+  const { userSession } = useAppSelector((state) => state.auth);
 
   // State quản lý danh sách lời mời đã gửi và infinite scroll
   const [sentInvitations, setSentInvitations] = useState<UserSummaryResponse[]>(
@@ -127,26 +122,27 @@ export const SentInvitationsComponent = forwardRef<
     [onStatsUpdate],
   );
 
-  // Expose methods cho parent component qua ref
-  useImperativeHandle(
-    ref,
-    () => ({
-      handleInvitationUpdate: (user: UserSummaryResponse) => {
+  // Đăng ký trực tiếp với SocketManager
+  useEffect(() => {
+    const unsub = SocketManager.on("FRIENDSHIP", (event) => {
+      if (
+        event.type === "INVITED" &&
+        Number(userSession?.id) === event.userSummaryResponse.id
+      ) {
         setSentInvitations((prev) => {
-          return prev.filter((invitation) => invitation.id !== user.id);
-        });
-      },
-      newInvitation: (user: UserSummaryResponse) => {
-        setSentInvitations((prev) => {
-          const exists = prev.some((invitation) => invitation.id === user.id);
+          const exists = prev.some((invitation) => invitation.id === event.userSummaryResponse.id);
           if (exists) return prev;
-
-          return [user, ...prev];
+          return [event.userSummaryResponse, ...prev];
         });
-      },
-    }),
-    [],
-  );
+      } else if (event.type === "ACCEPTED" || event.type === "REJECTED") {
+        setSentInvitations((prev) =>
+          prev.filter((inv) => inv.id !== event.userSummaryResponse.id)
+        );
+      }
+    });
+
+    return () => unsub();
+  }, [userSession?.id]);
 
   useEffect(() => {
     setSentInvitations([]);
@@ -247,6 +243,6 @@ export const SentInvitationsComponent = forwardRef<
       </div>
     </div>
   );
-});
+};
 
 SentInvitationsComponent.displayName = "SentInvitationsComponent";

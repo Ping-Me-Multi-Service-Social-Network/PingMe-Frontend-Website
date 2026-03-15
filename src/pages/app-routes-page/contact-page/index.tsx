@@ -1,19 +1,16 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ChatActionBar } from "../components/chat-shared-components/ChatActionBar.tsx";
 import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
 import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
 import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
 import { ContactSidebar } from "./components/ContactSidebar";
-import { useFriendshipSocketHandler } from "@/features/websocket/hooks/useFriendshipSocketHandler";
-import type { UserSummaryResponse } from "@/types/common/userSummary";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
 import { SocketManager } from "@/features/websocket/socketManager";
-import type { UserStatusPayload } from "@/features/websocket/models/systemEvents";
-
+import type { UserStatusPayload, FriendshipEventPayload } from "@/features/websocket/models/systemEvents";
 
 
 export default function ContactsPage() {
@@ -28,33 +25,11 @@ export default function ContactsPage() {
 
 
   const [activeTab, setActiveTab] = useState("friends");
-
-  const friendsRef = useRef<{
-    handleNewFriend: (user: UserSummaryResponse) => void;
-    removeFriend: (user: UserSummaryResponse) => void;
-  }>(null);
-
-  const receivedRef = useRef<{
-    handleNewInvitation: (user: UserSummaryResponse) => void;
-    removeInvitation: (user: UserSummaryResponse) => void;
-  }>(null);
-
-  const sentRef = useRef<{
-    handleInvitationUpdate: (user: UserSummaryResponse) => void;
-    newInvitation: (user: UserSummaryResponse) => void;
-  }>(null);
-
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(null);
 
   useEffect(() => {
     return SocketManager.on("USER_STATUS", setStatusPayload);
   }, []);
-
-  const activeTabRef = useRef(activeTab);
-
-  useEffect(() => {
-    activeTabRef.current = activeTab;
-  }, [activeTab]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -69,23 +44,59 @@ export default function ContactsPage() {
     fetchStats();
   }, []);
 
-  useFriendshipSocketHandler({
-    userSessionId: userSession?.id,
-    activeTabRef,
-    sentRef,
-    receivedRef,
-    friendsRef,
-    setUserFriendshipStats,
-  });
+  // Thay vì dùng useFriendshipSocketHandler rườm rà, Mẹ chỉ việc tự bắt Data và lo cập nhật con số thống kê
+  useEffect(() => {
+    const unsub = SocketManager.on("FRIENDSHIP", (event: FriendshipEventPayload) => {
+      switch (event.type) {
+        case "INVITED":
+          if (Number(userSession?.id) === event.userSummaryResponse.id) {
+            setUserFriendshipStats((prev) => ({
+              ...prev,
+              totalSentInvites: prev.totalSentInvites + 1,
+            }));
+          } else {
+            setUserFriendshipStats((prev) => ({
+              ...prev,
+              totalReceivedInvites: prev.totalReceivedInvites + 1,
+            }));
+          }
+          break;
+        case "ACCEPTED":
+          setUserFriendshipStats((prev) => ({
+            ...prev,
+            totalFriends: prev.totalFriends + 1,
+            totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
+          }));
+          break;
+        case "REJECTED":
+          setUserFriendshipStats((prev) => ({
+            ...prev,
+            totalSentInvites: Math.max(0, prev.totalSentInvites - 1),
+          }));
+          break;
+        case "CANCELED":
+          setUserFriendshipStats((prev) => ({
+            ...prev,
+            totalReceivedInvites: Math.max(0, prev.totalReceivedInvites - 1),
+          }));
+          break;
+        case "DELETED":
+          setUserFriendshipStats((prev) => ({
+            ...prev,
+            totalFriends: Math.max(0, prev.totalFriends - 1),
+          }));
+          break;
+      }
+    });
 
-
+    return () => unsub();
+  }, [userSession?.id]);
 
   const renderActiveComponent = () => {
     switch (activeTab) {
       case "friends":
         return (
           <FriendsListComponent
-            ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
             statusPayload={statusPayload}
           />
@@ -93,21 +104,18 @@ export default function ContactsPage() {
       case "received-invitations":
         return (
           <ReceivedInvitationsComponent
-            ref={receivedRef}
             onStatsUpdate={setUserFriendshipStats}
           />
         );
       case "sent-invitations":
         return (
           <SentInvitationsComponent
-            ref={sentRef}
             onStatsUpdate={setUserFriendshipStats}
           />
         );
       default:
         return (
           <FriendsListComponent
-            ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
             statusPayload={statusPayload}
           />

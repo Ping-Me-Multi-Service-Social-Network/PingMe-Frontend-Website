@@ -3,8 +3,6 @@ import {
   useEffect,
   useRef,
   useCallback,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
 import { Inbox, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
@@ -23,10 +21,8 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { useTranslation } from "react-i18next";
 import { InvitationUserCard } from "./InvitationUserCard";
 
-interface ReceivedInvitationsComponentRef {
-  handleNewInvitation: (user: UserSummaryResponse) => void;
-  removeInvitation: (user: UserSummaryResponse) => void;
-}
+import { SocketManager } from "@/features/websocket/socketManager";
+import { useAppSelector } from "@/features/hooks.ts";
 
 interface ReceivedInvitationsComponentProps {
   onStatsUpdate: (
@@ -34,12 +30,12 @@ interface ReceivedInvitationsComponentProps {
   ) => void;
 }
 
-export const ReceivedInvitationsComponent = forwardRef<
-  ReceivedInvitationsComponentRef,
-  ReceivedInvitationsComponentProps
->((props, ref) => {
+export const ReceivedInvitationsComponent = (
+  props: ReceivedInvitationsComponentProps
+) => {
   const { onStatsUpdate } = props;
   const { t } = useTranslation("contacts");
+  const { userSession } = useAppSelector((state) => state.auth);
 
   // State quản lý danh sách lời mời nhận được và infinite scroll
   const [receivedInvitations, setReceivedInvitations] = useState<
@@ -184,30 +180,26 @@ export const ReceivedInvitationsComponent = forwardRef<
     [processingInvitations, onStatsUpdate],
   );
 
-  // Expose methods cho parent component qua ref
-  useImperativeHandle(
-    ref,
-    () => ({
-      handleNewInvitation: (user: UserSummaryResponse) => {
+  // Đăng ký trực tiếp với SocketManager
+  useEffect(() => {
+    const unsub = SocketManager.on("FRIENDSHIP", (event) => {
+      if (
+        event.type === "INVITED" &&
+        Number(userSession?.id) !== event.userSummaryResponse.id
+      ) {
         setReceivedInvitations((prev) => {
-          const invitationExists = prev.some(
-            (invitation) => invitation.id === user.id,
-          );
-          if (invitationExists) {
-            return prev;
-          }
-          // Thêm lời mời mới vào đầu danh sách
-          return [user, ...prev];
+          const invitationExists = prev.some((invitation) => invitation.id === event.userSummaryResponse.id);
+          if (invitationExists) return prev;
+          return [event.userSummaryResponse, ...prev];
         });
-      },
-      removeInvitation: (user: UserSummaryResponse) => {
+      } else if (event.type === "CANCELED") {
         setReceivedInvitations((prev) =>
-          prev.filter((invitation) => invitation.id !== user.id),
+          prev.filter((inv) => inv.id !== event.userSummaryResponse.id)
         );
-      },
-    }),
-    [],
-  );
+      }
+    });
+    return () => unsub();
+  }, [userSession?.id]);
 
   useEffect(() => {
     setReceivedInvitations([]);
@@ -326,6 +318,6 @@ export const ReceivedInvitationsComponent = forwardRef<
       </div>
     </div>
   );
-});
+};
 
 ReceivedInvitationsComponent.displayName = "ReceivedInvitationsComponent";

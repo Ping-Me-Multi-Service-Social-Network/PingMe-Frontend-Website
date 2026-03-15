@@ -3,8 +3,6 @@ import {
   useEffect,
   useRef,
   useCallback,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
 import { Users, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
@@ -28,10 +26,7 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { type UserStatusPayload } from "@/types/common/userStatus.ts";
 import { useTranslation } from "react-i18next";
 
-interface FriendListComponentRef {
-  handleNewFriend: (user: UserSummaryResponse) => void;
-  removeFriend: (user: UserSummaryResponse) => void;
-}
+import { SocketManager } from "@/features/websocket/socketManager";
 
 interface FriendsListComponentProps {
   onStatsUpdate: (
@@ -41,10 +36,7 @@ interface FriendsListComponentProps {
   statusPayload?: UserStatusPayload | null;
 }
 
-export const FriendsListComponent = forwardRef<
-  FriendListComponentRef,
-  FriendsListComponentProps
->((props, ref) => {
+export const FriendsListComponent = (props: FriendsListComponentProps) => {
   const { onStatsUpdate, statusPayload } = props;
   const { t } = useTranslation("contacts");
 
@@ -136,25 +128,21 @@ export const FriendsListComponent = forwardRef<
     [onStatsUpdate],
   );
 
-  // Expose methods cho parent component qua ref
-  useImperativeHandle(
-    ref,
-    () => ({
-      handleNewFriend: (user: UserSummaryResponse) => {
+  // Đăng ký trực tiếp với SocketManager
+  useEffect(() => {
+    const unsub = SocketManager.on("FRIENDSHIP", (event) => {
+      if (event.type === "ACCEPTED") {
         setFriends((prev) => {
-          const friendExists = prev.some((friend) => friend.id === user.id);
-          if (friendExists) {
-            return prev;
-          }
-          return [user, ...prev];
+          const friendExists = prev.some((friend) => friend.id === event.userSummaryResponse.id);
+          if (friendExists) return prev;
+          return [event.userSummaryResponse, ...prev];
         });
-      },
-      removeFriend: (user: UserSummaryResponse) => {
-        setFriends((prev) => prev.filter((friend) => friend.id !== user.id));
-      },
-    }),
-    [],
-  );
+      } else if (event.type === "DELETED") {
+        setFriends((prev) => prev.filter((friend) => friend.id !== event.userSummaryResponse.id));
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Load danh sách bạn bè khi component mount
   useEffect(() => {
@@ -298,6 +286,6 @@ export const FriendsListComponent = forwardRef<
       </div>
     </div>
   );
-});
+};
 
 FriendsListComponent.displayName = "FriendsListComponent";
