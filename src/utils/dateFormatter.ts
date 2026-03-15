@@ -79,29 +79,3 @@ export const formatRelativeTime = (date: Date | string | number[] | null | undef
         locale: vi,
     })
 }
-
-/**
- * Format ngày đầy đủ: DD/MM/YYYY
- */
-export const formatFullDate = (date: Date | string | number[] | null | undefined): string => {
-    const targetDate = convertToDate(date)
-
-    if (!targetDate) {
-        return "Không xác định"
-    }
-
-    return format(targetDate, "dd/MM/yyyy")
-}
-
-/**
- * Format ngày giờ đầy đủ: DD/MM/YYYY HH:mm
- */
-export const formatDateTime = (date: Date | string | number[] | null | undefined): string => {
-    const targetDate = convertToDate(date)
-
-    if (!targetDate) {
-        return "Không xác định"
-    }
-
-    return format(targetDate, "dd/MM/yyyy HH:mm")
-}

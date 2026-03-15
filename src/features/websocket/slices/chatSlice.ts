@@ -4,11 +4,6 @@ import type {
   MessageCreatedEventPayload,
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
-  RoomCreatedEventPayload,
-  RoomUpdatedEventPayload,
-  RoomMemberAddedEventPayload,
-  RoomMemberRemovedEventPayload,
-  RoomMemberRoleChangedEventPayload,
   TypingSignalPayload,
 } from "../module/chatSocket";
 import type { RootState } from "@/features/store";
@@ -24,32 +19,20 @@ export interface TypingUser {
   timestamp: number;
 }
 
-export type ChatEvent =
-  | { type: "MESSAGE_CREATED"; payload: MessageCreatedEventPayload }
-  | { type: "MESSAGE_RECALLED"; payload: MessageRecalledEventPayload }
-  | { type: "ROOM_CREATED"; payload: RoomCreatedEventPayload }
-  | { type: "ROOM_UPDATED"; payload: RoomUpdatedEventPayload }
-  | { type: "MEMBER_ADDED"; payload: RoomMemberAddedEventPayload }
-  | { type: "MEMBER_REMOVED"; payload: RoomMemberRemovedEventPayload }
-  | { type: "MEMBER_ROLE_CHANGED"; payload: RoomMemberRoleChangedEventPayload };
+
 
 export interface ChatState {
   // Current room messages
   currentRoomId: number | null;
   messages: MessageResponse[];
 
-  // Typing indicators (per room)
   typingUsers: Record<number, TypingUser[]>;
-
-  // Latest chat event (includes both message and room events)
-  latestChatEvent: ChatEvent | null;
 }
 
 const initialState: ChatState = {
   currentRoomId: null,
   messages: [],
   typingUsers: {},
-  latestChatEvent: null,
 };
 
 // =================================================================
@@ -81,11 +64,6 @@ const chatSlice = createSlice({
           state.messages.push(message);
         }
       }
-      // Also emit as event for ChatPage to handle room list updates
-      state.latestChatEvent = {
-        type: "MESSAGE_CREATED",
-        payload: action.payload,
-      };
     },
 
     messageRecalled(state, action: PayloadAction<MessageRecalledEventPayload>) {
@@ -94,11 +72,6 @@ const chatSlice = createSlice({
       if (idx !== -1) {
         state.messages[idx].isActive = false;
       }
-      // Emit as event for ChatPage
-      state.latestChatEvent = {
-        type: "MESSAGE_RECALLED",
-        payload: action.payload,
-      };
     },
 
     readStateChanged(state, action: PayloadAction<ReadStateChangedEvent>) {
@@ -147,39 +120,6 @@ const chatSlice = createSlice({
     clearRoomTyping(state, action: PayloadAction<number>) {
       delete state.typingUsers[action.payload];
     },
-
-    roomCreated(state, action: PayloadAction<RoomCreatedEventPayload>) {
-      state.latestChatEvent = { type: "ROOM_CREATED", payload: action.payload };
-    },
-
-    roomUpdated(state, action: PayloadAction<RoomUpdatedEventPayload>) {
-      state.latestChatEvent = { type: "ROOM_UPDATED", payload: action.payload };
-    },
-
-    memberAdded(state, action: PayloadAction<RoomMemberAddedEventPayload>) {
-      state.latestChatEvent = { type: "MEMBER_ADDED", payload: action.payload };
-    },
-
-    memberRemoved(state, action: PayloadAction<RoomMemberRemovedEventPayload>) {
-      state.latestChatEvent = {
-        type: "MEMBER_REMOVED",
-        payload: action.payload,
-      };
-    },
-
-    memberRoleChanged(
-      state,
-      action: PayloadAction<RoomMemberRoleChangedEventPayload>
-    ) {
-      state.latestChatEvent = {
-        type: "MEMBER_ROLE_CHANGED",
-        payload: action.payload,
-      };
-    },
-
-    clearChatEvent(state) {
-      state.latestChatEvent = null;
-    },
   },
 });
 
@@ -194,12 +134,6 @@ export const {
   readStateChanged,
   userTyping,
   clearRoomTyping,
-  roomCreated,
-  roomUpdated,
-  memberAdded,
-  memberRemoved,
-  memberRoleChanged,
-  clearChatEvent,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
@@ -212,4 +146,3 @@ export const selectCurrentRoomId = (state: RootState) =>
 export const selectMessages = (state: RootState) => state.chat.messages;
 export const selectTypingUsers = (roomId: number) => (state: RootState) =>
   state.chat.typingUsers[roomId] || [];
-export const selectChatEvent = (state: RootState) => state.chat.latestChatEvent;

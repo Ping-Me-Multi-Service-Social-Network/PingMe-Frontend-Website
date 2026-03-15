@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "@/features/hooks";
+import { useAppDispatch } from "@/features/hooks";
 import { SocketManager } from "@/features/websocket/socketManager";
 import type {
   MessageCreatedEventPayload,
@@ -10,11 +10,7 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
 } from "@/features/websocket/module/chatSocket";
-import {
-  selectChatEvent,
-  clearChatEvent,
-  messageCreated,
-} from "@/features/websocket/slices/chatSlice";
+import { messageCreated } from "@/features/websocket/slices/chatSlice";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
 
@@ -34,7 +30,6 @@ export const useChatSocketHandler = ({
   userSession,
 }: UseChatSocketHandlerProps) => {
   const dispatch = useAppDispatch();
-  const chatEvent = useAppSelector(selectChatEvent);
 
   // --- Room Entrance/Exit Logic ---
   useEffect(() => {
@@ -182,38 +177,22 @@ export const useChatSocketHandler = ({
     [upsertRoom, dispatchSystemMessage]
   );
 
-  // --- Event Listener ---
+  // --- Socket Listeners ---
   useEffect(() => {
-    if (!chatEvent) return;
+    const unsubs = [
+      SocketManager.on("MESSAGE_CREATED", handleNewMessage),
+      SocketManager.on("ROOM_UPDATED", handleRoomUpdated),
+      SocketManager.on("MESSAGE_RECALLED", handleRecallMessage),
+      SocketManager.on("ROOM_CREATED", handleRoomCreated),
+      SocketManager.on("ROOM_MEMBER_ADDED", handleMemberAdded),
+      SocketManager.on("ROOM_MEMBER_REMOVED", handleMemberRemoved),
+      SocketManager.on("ROOM_MEMBER_ROLE_CHANGED", handleMemberRoleChanged),
+    ];
 
-    switch (chatEvent.type) {
-      case "MESSAGE_CREATED":
-        handleNewMessage(chatEvent.payload);
-        break;
-      case "ROOM_UPDATED":
-        handleRoomUpdated(chatEvent.payload);
-        break;
-      case "MESSAGE_RECALLED":
-        handleRecallMessage(chatEvent.payload);
-        break;
-      case "ROOM_CREATED":
-        handleRoomCreated(chatEvent.payload);
-        break;
-      case "MEMBER_ADDED":
-        handleMemberAdded(chatEvent.payload);
-        break;
-      case "MEMBER_REMOVED":
-        handleMemberRemoved(chatEvent.payload);
-        break;
-      case "MEMBER_ROLE_CHANGED":
-        handleMemberRoleChanged(chatEvent.payload);
-        break;
-    }
-
-    dispatch(clearChatEvent());
+    return () => {
+      unsubs.forEach((unsub) => unsub());
+    };
   }, [
-    chatEvent,
-    dispatch,
     handleNewMessage,
     handleRecallMessage,
     handleRoomCreated,

@@ -11,10 +11,8 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
-import {
-  selectUserStatusEvent,
-  selectFriendshipEvent,
-} from "@/features/websocket/slices/socketSlice";
+import { SocketManager } from "@/features/websocket/socketManager";
+import type { UserStatusPayload } from "@/features/websocket/module/globalSocket";
 
 
 
@@ -46,8 +44,11 @@ export default function ContactsPage() {
     newInvitation: (user: UserSummaryResponse) => void;
   }>(null);
 
-  const friendshipEvent = useAppSelector(selectFriendshipEvent);
-  const userStatusEvent = useAppSelector(selectUserStatusEvent);
+  const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(null);
+
+  useEffect(() => {
+    return SocketManager.on("USER_STATUS", setStatusPayload);
+  }, []);
 
   const activeTabRef = useRef(activeTab);
 
@@ -69,7 +70,6 @@ export default function ContactsPage() {
   }, []);
 
   useFriendshipSocketHandler({
-    friendshipEvent,
     userSessionId: userSession?.id,
     activeTabRef,
     sentRef,
@@ -87,7 +87,7 @@ export default function ContactsPage() {
           <FriendsListComponent
             ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
-            statusPayload={userStatusEvent.payload}
+            statusPayload={statusPayload}
           />
         );
       case "received-invitations":
@@ -109,7 +109,7 @@ export default function ContactsPage() {
           <FriendsListComponent
             ref={friendsRef}
             onStatsUpdate={setUserFriendshipStats}
-            statusPayload={userStatusEvent.payload}
+            statusPayload={statusPayload}
           />
         );
     }

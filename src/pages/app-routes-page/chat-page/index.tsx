@@ -11,7 +11,7 @@ import type { RoomResponse } from "@/types/chat/room";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chat";
 import { useChatSocketHandler } from "@/features/websocket/hooks/useChatSocketHandler";
-import { selectUserStatusEvent } from "@/features/websocket/slices/socketSlice";
+import { SocketManager } from "@/features/websocket/socketManager";
 import { useTranslation } from "react-i18next";
 
 export default function MessagesPage() {
@@ -95,26 +95,23 @@ export default function MessagesPage() {
     userSession,
   });
 
-  const userStatusEvent = useAppSelector(selectUserStatusEvent);
-
   useEffect(() => {
-    const statusPayload = userStatusEvent.payload;
-    if (!statusPayload) return;
-
-    setRooms((prevRooms) =>
-      prevRooms.map((room) => ({
-        ...room,
-        participants: room.participants.map((participant) =>
-          participant.userId === Number(statusPayload.userId)
-            ? {
-              ...participant,
-              status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
-            }
-            : participant,
-        ),
-      })),
-    );
-  }, [userStatusEvent.id, userStatusEvent.payload]);
+    return SocketManager.on("USER_STATUS", (statusPayload) => {
+      setRooms((prevRooms) =>
+        prevRooms.map((room) => ({
+          ...room,
+          participants: room.participants.map((participant) =>
+            participant.userId === Number(statusPayload.userId)
+              ? {
+                ...participant,
+                status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+              }
+              : participant,
+          ),
+        })),
+      );
+    });
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-50">

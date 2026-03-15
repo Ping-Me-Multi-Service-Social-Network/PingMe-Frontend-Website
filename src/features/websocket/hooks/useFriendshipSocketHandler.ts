@@ -1,12 +1,12 @@
 import { useEffect, type MutableRefObject } from "react";
 import type { UserSummaryResponse } from "@/types/common/userSummary";
+import { SocketManager } from "@/features/websocket/socketManager";
 import type { FriendshipEventPayload } from "@/features/websocket/module/globalSocket";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 
 interface UseFriendshipSocketHandlerProps {
-  friendshipEvent: { id: number; payload: FriendshipEventPayload | null };
   userSessionId: string | number | undefined;
   activeTabRef: MutableRefObject<string>;
   sentRef: MutableRefObject<{
@@ -27,7 +27,6 @@ interface UseFriendshipSocketHandlerProps {
 }
 
 export const useFriendshipSocketHandler = ({
-  friendshipEvent,
   userSessionId,
   activeTabRef,
   sentRef,
@@ -36,8 +35,7 @@ export const useFriendshipSocketHandler = ({
   setUserFriendshipStats,
 }: UseFriendshipSocketHandlerProps) => {
   useEffect(() => {
-    const event = friendshipEvent.payload;
-    if (!event) return;
+    const handleEvent = (event: FriendshipEventPayload) => {
 
     try {
       switch (event.type) {
@@ -107,9 +105,11 @@ export const useFriendshipSocketHandler = ({
     } catch (error) {
       toast.error(getErrorMessage(error, "Không thể kết nối"));
     }
+  };
+    
+    const unsub = SocketManager.on("FRIENDSHIP", handleEvent);
+    return () => unsub();
   }, [
-    friendshipEvent.id,
-    friendshipEvent.payload,
     userSessionId,
     activeTabRef,
     friendsRef,
