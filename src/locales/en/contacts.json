@@ -13,13 +13,6 @@
             "desc": "Friend requests you've sent"
         }
     },
-    "sidebarFooter": {
-        "suggestTitle": "Suggested Friends",
-        "suggestDesc": "Expand your network by sending invites to those with shared interests!",
-        "explore": "Explore",
-        "syncTitle": "Syncing System",
-        "syncDesc": "Realtime, Secured with TLS 1.3"
-    },
     "common": {
         "loadingMore": "Loading more...",
         "displayedAllFriends": "Displayed all friends",

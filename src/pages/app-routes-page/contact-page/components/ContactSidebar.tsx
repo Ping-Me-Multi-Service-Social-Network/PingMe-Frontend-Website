@@ -40,7 +40,7 @@ interface ContactSidebarProps {
   };
 }
 
-import { Compass } from "lucide-react"; // Add some icons
+
 
 export function ContactSidebar({
   activeTab,
@@ -104,31 +104,15 @@ export function ContactSidebar({
         })}
       </div>
 
-      {/* Footer Banner Illustrations / Decorative ornaments */}
-      <div className="mt-8 space-y-4">
-        {/* Banner 1 */}
-        <div className="relative rounded-2xl overflow-hidden shadow-md group cursor-pointer hover:shadow-lg transition-all duration-300">
-          <img 
-            src="/images/friends-illustration.jpg" 
-            alt="Friends" 
-            className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-4">
-            <h4 className="font-bold text-sm text-white">{t("sidebarFooter.suggestTitle")}</h4>
-            <p className="text-[11px] text-gray-200 mt-1 leading-relaxed">{t("sidebarFooter.suggestDesc")}</p>
-          </div>
-        </div>
-
-        {/* Small stats / status note */}
-        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 animate-pulse">
-            <Compass className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-800 truncate">{t("sidebarFooter.syncTitle")}</p>
-            <p className="text-[10px] text-gray-500 mt-0.5">{t("sidebarFooter.syncDesc")}</p>
-          </div>
-        </div>
+      {/* Footer Banner Illustrations */}
+      <div className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 mt-auto -mx-4 -mb-4 cursor-pointer">
+        {/* Top edge glowing gradient line effect */}
+        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-purple-500 via-pink-400 to-blue-500 opacity-80 group-hover:opacity-100 animate-pulse transition-opacity"></div>
+        <img 
+          src="/images/friends-illustration.jpg" 
+          alt="Friends" 
+          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+        />
       </div>
     </div>
   );
