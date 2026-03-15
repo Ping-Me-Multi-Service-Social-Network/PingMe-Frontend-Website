@@ -33,7 +33,6 @@ const DeviceManagementPage = lazy(
 // ===========================================================
 // APP PAGES - Chat & Contacts
 // ===========================================================
-const MessagesPage = lazy(() => import("@/pages/app-routes-page/chat-page"));
 const ContactsPage = lazy(() => import("@/pages/app-routes-page/contact-page"));
 
 // ===========================================================
@@ -240,12 +239,10 @@ export const router = createBrowserRouter([
       // Chat & Contacts Routes
       // ---------------------------------------------------------
       {
+        // MessagesPage is always mounted in AppPageLayout to preserve state.
+        // This route only exists so /app/chat is a valid path.
         path: "chat",
-        element: (
-          <LazyElement>
-            <MessagesPage />
-          </LazyElement>
-        ),
+        element: null,
       },
       {
         path: "contacts",
