@@ -13,14 +13,14 @@ import storage from "redux-persist/es/storage";
 import authReducer from "./auth/authSlice";
 import musicReducer from "./music/musicSlice";
 import chatReducer from "@/features/websocket/slices/chatSlice";
-import socketReducer from "@/features/websocket/slices/socketSlice";
+
 import audioPlayerReducer from "./music/audioPlayerSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
   music: musicReducer,
   chat: chatReducer,
-  socket: socketReducer,
+
   audioPlayer: audioPlayerReducer,
 });
 

@@ -5,7 +5,7 @@ import type {
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
   TypingSignalPayload,
-} from "../module/chatSocket";
+} from "../models/chatEvents";
 import type { RootState } from "@/features/store";
 
 // =================================================================
@@ -18,8 +18,6 @@ export interface TypingUser {
   isTyping: boolean;
   timestamp: number;
 }
-
-
 
 export interface ChatState {
   // Current room messages
@@ -58,7 +56,7 @@ const chatSlice = createSlice({
         const isDuplicate = state.messages.some(
           (m) =>
             m.id === message.id ||
-            (message.clientMsgId && m.clientMsgId === message.clientMsgId)
+            (message.clientMsgId && m.clientMsgId === message.clientMsgId),
         );
         if (!isDuplicate) {
           state.messages.push(message);
@@ -92,7 +90,7 @@ const chatSlice = createSlice({
       }
 
       const existingIdx = state.typingUsers[roomId].findIndex(
-        (u) => u.userId === userId
+        (u) => u.userId === userId,
       );
 
       if (isTyping) {

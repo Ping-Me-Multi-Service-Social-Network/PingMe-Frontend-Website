@@ -21,13 +21,13 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
   TypingSignalPayload,
-} from "./module/chatSocket";
+} from "./models/chatEvents";
 
 import type {
   FriendshipEventPayload,
   UserStatusPayload,
   SignalingPayload,
-} from "./module/globalSocket";
+} from "./models/systemEvents";
 import type { TitleUpdate } from "@/types/ai/titleUpdate";
 
 // =================================================================
@@ -84,28 +84,48 @@ class SocketManagerClass {
   private statusSub: StompSubscription | null = null;
   private signalingSub: StompSubscription | null = null;
 
-  // Event Listeners
+  // =================================================================
+  // EventEmitter Methods (Cơ chế Phát Thanh - Lắng Nghe)
+  // =================================================================
+
+  // 'listeners' là cuốn sổ tay lưu danh sách các hàm (callbacks) đang đăng ký nghe sự kiện.
+  // Ví dụ: { "MESSAGE_CREATED": [hàm_cập_nhật_UI_của_ChatPage, hàm_phát_âm_thanh_TingTing] }
   private listeners: { [K in keyof SocketEventMap]?: Array<(payload: SocketEventMap[K]) => void> } = {};
 
-  // =================================================================
-  // EventEmitter Methods
-  // =================================================================
-
+  /**
+   * ĐĂNG KÝ (Khán giả):
+   * Các Component gọi hàm `on` để đăng ký lắng nghe 1 sự kiện.
+   * @returns Trả về 1 hàm chức năng dùng để hủy đăng ký (Gọi hàm này lúc Component tắt đi)
+   */
   public on<K extends keyof SocketEventMap>(event: K, listener: (payload: SocketEventMap[K]) => void) {
+    // Nếu chưa có ngăn chứa cho chuyên mục này, tạo mảng rỗng
     if (!this.listeners[event]) {
       this.listeners[event] = [] as any;
     }
+    // Ghi tên hàm của Component vào sổ theo dõi
     this.listeners[event]!.push(listener as any);
+    // Hàm rút tên khỏi sổ (unsubscribe)
     return () => this.off(event, listener);
   }
 
+  /**
+   * HỦY ĐĂNG KÝ:
+   * Xóa hàm của Component ra khỏi sổ tay để giải phóng bộ nhớ.
+   */
   public off<K extends keyof SocketEventMap>(event: K, listener: (payload: SocketEventMap[K]) => void) {
     if (!this.listeners[event]) return;
     this.listeners[event] = this.listeners[event]!.filter(l => l !== listener as any) as any;
   }
 
+  /**
+   * PHÁT THANH (Đài chủ):
+   * Khi Server có tin mới, SocketManager dùng `emit` để gọi tất cả các hàm trong sổ tay chạy.
+   */
   private emit<K extends keyof SocketEventMap>(event: K, payload: SocketEventMap[K]) {
+    // Không có ai ngóng tin này thì thôi
     if (!this.listeners[event]) return;
+    
+    // Nếu có người ngóng, lôi lần lượt từng hàm ra thực thi và đưa cục 'payload' vào hàm đó
     this.listeners[event]!.forEach(l => {
       try {
         l(payload);

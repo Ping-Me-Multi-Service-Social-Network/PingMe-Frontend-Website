@@ -9,7 +9,7 @@ import type {
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
-} from "@/features/websocket/module/chatSocket";
+} from "@/features/websocket/models/chatEvents";
 import { messageCreated } from "@/features/websocket/slices/chatSlice";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
