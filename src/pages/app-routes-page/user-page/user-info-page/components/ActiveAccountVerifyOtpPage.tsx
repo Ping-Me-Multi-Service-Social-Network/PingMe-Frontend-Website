@@ -1,4 +1,4 @@
-import { verifyOtpApi } from "@/services/mail/mailManageMentApi";
+import { verifyOtpApi } from "@/services/authentication/authOtpApi";
 import { activateAccountApi } from "@/services/user/currentUserProfileApi"; // [NEW] Import API active
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";

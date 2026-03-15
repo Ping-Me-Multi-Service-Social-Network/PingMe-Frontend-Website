@@ -40,7 +40,7 @@ import {
 import type { AccountStatusType } from "@/types/common/userSummary";
 
 import { useNavigate } from "react-router-dom";
-import { sendOtpToEmailApi } from "@/services/mail/mailManageMentApi";
+import { sendOtpToEmailApi } from "@/services/authentication/authOtpApi";
 import { useTranslation } from "react-i18next";
 
 const UserInfoPage = () => {

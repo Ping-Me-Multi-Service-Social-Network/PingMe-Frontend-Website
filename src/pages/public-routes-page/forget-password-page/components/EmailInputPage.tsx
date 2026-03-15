@@ -1,4 +1,4 @@
-import { sendOtpToEmailApi } from "@/services/mail/mailManageMentApi";
+import { sendOtpToEmailApi } from "@/services/authentication/authOtpApi";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
