@@ -12,7 +12,7 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
 import { SocketManager } from "@/features/websocket/socketManager";
-import type { UserStatusPayload } from "@/features/websocket/module/globalSocket";
+import type { UserStatusPayload } from "@/features/websocket/models/systemEvents";
 
 
 
