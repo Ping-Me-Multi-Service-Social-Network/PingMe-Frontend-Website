@@ -1,4 +1,4 @@
-import { verifyOtpApi } from "@/services/mail/mailManageMentApi";
+import { verifyOtpApi } from "@/services/authentication/authOtpApi";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
