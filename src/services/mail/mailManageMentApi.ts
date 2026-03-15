@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosAuthClient from "@/lib/axiosAuthClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   ResetPasswordRequest,
@@ -10,16 +10,22 @@ import type {
 } from "@/types/mail/mail";
 
 export const sendOtpToEmailApi = (data: SendOtpRequest) => {
-  return axiosClient.post<ApiResponse<SendOtpResponse>>("/otp/send", data);
+  return axiosAuthClient.post<ApiResponse<SendOtpResponse>>(
+    "/auth-service/otp/send",
+    data,
+  );
 };
 
 export const verifyOtpApi = (data: VerifyOtpRequest) => {
-  return axiosClient.post<ApiResponse<VerifyOtpResponse>>("/otp/verify", data);
+  return axiosAuthClient.post<ApiResponse<VerifyOtpResponse>>(
+    "/auth-service/otp/verify",
+    data,
+  );
 };
 
 export const resetPasswordApi = (data: ResetPasswordRequest) => {
-  return axiosClient.post<ApiResponse<ResetPasswordResponse>>(
-    "/auth/forget-password",
+  return axiosAuthClient.post<ApiResponse<ResetPasswordResponse>>(
+    "/auth-service/auth/forget-password",
     data,
   );
 };
