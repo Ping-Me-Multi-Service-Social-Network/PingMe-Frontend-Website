@@ -41,7 +41,7 @@ const VerifyOtpPage: React.FC = () => {
       const response = await verifyOtpApi({
         otp: otp,
         mailRecipient: email,
-        otpType: "USER_FORGET_PASSWORD",
+        authOtpType: "USER_FORGET_PASSWORD",
       });
 
       const resData = response.data;

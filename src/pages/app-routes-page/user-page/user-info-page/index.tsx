@@ -132,7 +132,7 @@ const UserInfoPage = () => {
     try {
       await sendOtpToEmailApi({
         email: userSession.email,
-        otpType: "ACCOUNT_ACTIVATION", // [Lưu ý] Đảm bảo field tên là otpType giống interface
+        authOtpType: "ACCOUNT_ACTIVATION",
       });
 
       toast.success(t("userInfo.activateSuccess"));
