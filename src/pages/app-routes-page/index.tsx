@@ -13,12 +13,13 @@ import { useSocket } from "@/features/websocket/useSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
 import { useGlobalTour } from "@/hooks/tours";
 
-
+const MessagesPage = lazy(() => import("@/pages/app-routes-page/chat-page"));
 
 export default function AppPageLayout() {
   const location = useLocation();
 
   const isMusicPage = location.pathname.startsWith("/app/music");
+  const isChatPage = location.pathname === "/app/chat";
   const [isTransitioning, setIsTransitioning] = useState(false);
   const previousIsMusicPage = useRef(isMusicPage);
 
@@ -67,7 +68,18 @@ export default function AppPageLayout() {
             </div>
 
             <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-              <Outlet />
+              {/* MessagesPage is always mounted to preserve chat state & socket subscriptions */}
+              <div
+                className="flex-1 flex flex-col overflow-hidden"
+                style={{ display: isChatPage ? "flex" : "none" }}
+              >
+                <Suspense fallback={<AppLoader />}>
+                  <MessagesPage />
+                </Suspense>
+              </div>
+
+              {/* Other pages via router Outlet (hidden when on chat page) */}
+              {!isChatPage && <Outlet />}
             </div>
 
             {isMusicPage && <GlobalAudioPlayer />}
