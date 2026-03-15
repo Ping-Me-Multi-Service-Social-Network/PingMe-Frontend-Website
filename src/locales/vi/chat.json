@@ -127,5 +127,22 @@
             "sunrise": "Bình minh",
             "sunset": "Hoàng hôn"
         }
+    },
+    "introCarousel": {
+        "slide1": {
+            "title": "Kết nối tức thì",
+            "description": "PingMe mang đến trải nghiệm nhắn tin thời gian thực đa chiều, mượt mà và không độ trễ. Giữ mọi cuộc hội thoại luôn sống động.",
+            "bubble1": "Cà phê chiều nay không cậu? ☕",
+            "bubble2": "Uki nha! 4h ở chỗ cũ nhé! 🙌"
+        },
+        "slide2": {
+            "title": "An toàn & Bảo mật",
+            "description": "Chúng tôi luôn đặt quyền riêng tư của bạn lên hàng đầu bằng việc tích hợp các giao thức bảo mật dữ liệu tiên tiến."
+        },
+        "slide3": {
+            "title": "Trợ lý AI Thông Minh",
+            "description": "Chat trực tiếp với AI để lấy thông tin thời tiết toàn cầu, dịch thuật hay tóm tắt công việc một cách tự động, tối ưu."
+        },
+        "sidebarNotice": "Chọn một cuộc hội thoại ở thanh bên"
     }
 }

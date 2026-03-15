@@ -13,6 +13,7 @@ import { getCurrentUserRoomsApi } from "@/services/chat";
 import { useChatSocketHandler } from "@/features/websocket/hooks/useChatSocketHandler";
 import { SocketManager } from "@/features/websocket/socketManager";
 import { useTranslation } from "react-i18next";
+import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -150,12 +151,7 @@ export default function MessagesPage() {
       {selectedChat ? (
         <ChatBox selectedChat={selectedChat} />
       ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState
-            title={t("layout.selectChatTitle")}
-            description={t("layout.selectChatDesc")}
-          />
-        </div>
+        <ChatIntroCarousel />
       )}
     </div>
   );

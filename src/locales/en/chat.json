@@ -127,5 +127,22 @@
             "sunrise": "Sunrise",
             "sunset": "Sunset"
         }
+    },
+    "introCarousel": {
+        "slide1": {
+            "title": "Instant Connection",
+            "description": "PingMe delivers seamless, lag-free real-time messaging. Keep every conversation lively and dynamic.",
+            "bubble1": "Coffee this afternoon? ☕",
+            "bubble2": "Sure! 4 PM at the usual spot! 🙌"
+        },
+        "slide2": {
+            "title": "Safe & Secure",
+            "description": "We put your privacy first by integrating state-of-the-art data security protocols."
+        },
+        "slide3": {
+            "title": "Smart AI Assistant",
+            "description": "Chat directly with AI to get global weather information, translations, or automated task summaries efficiently."
+        },
+        "sidebarNotice": "Select a conversation from the sidebar"
     }
 }
