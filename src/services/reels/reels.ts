@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosMusicClient from "@/lib/axiosMusicClient";
 import type {
   Reel,
   ReelFeedResponse,
@@ -27,7 +27,7 @@ export const createReel = async (data: CreateReelRequest) => {
   );
   formData.append("video", data.video);
 
-  const response = await axiosClient.post<ApiResponse<Reel>>(
+  const response = await axiosMusicClient.post<ApiResponse<Reel>>(
     "/reels",
     formData,
     {
@@ -50,7 +50,7 @@ export const updateReel = async (reelId: number, data: UpsertReelRequest) => {
     new Blob([JSON.stringify(jsonData)], { type: "application/json" })
   );
 
-  const response = await axiosClient.put<ApiResponse<Reel>>(
+  const response = await axiosMusicClient.put<ApiResponse<Reel>>(
     `/reels/${reelId}`,
     formData,
     {
@@ -61,7 +61,7 @@ export const updateReel = async (reelId: number, data: UpsertReelRequest) => {
 };
 
 export const deleteReel = async (reelId: number) => {
-  const response = await axiosClient.delete<ApiResponse<void>>(
+  const response = await axiosMusicClient.delete<ApiResponse<void>>(
     `/reels/${reelId}`
   );
   return response.data;
@@ -74,42 +74,42 @@ export const deleteReel = async (reelId: number) => {
  */
 
 export const toggleLike = async (reelId: number) => {
-  const response = await axiosClient.post<ApiResponse<Reel>>(
+  const response = await axiosMusicClient.post<ApiResponse<Reel>>(
     `/reels/${reelId}/likes/toggle`
   );
   return response.data.data;
 };
 
 export const toggleSave = async (reelId: number) => {
-  const response = await axiosClient.post<ApiResponse<SaveResponse>>(
+  const response = await axiosMusicClient.post<ApiResponse<SaveResponse>>(
     `/reels/${reelId}/saves/toggle`
   );
   return response.data.data;
 };
 
 export const incrementViewCount = async (reelId: number) => {
-  const response = await axiosClient.post<ApiResponse<Reel>>(
+  const response = await axiosMusicClient.post<ApiResponse<Reel>>(
     `/reels/${reelId}/views`
   );
   return response.data.data;
 };
 
 export const getSearchHistory = async (page = 0, size = 20) => {
-  const response = await axiosClient.get<ApiResponse<SearchHistoryResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<SearchHistoryResponse>>(
     `/reels/me/search-history?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const deleteSearchHistory = async (id: number) => {
-  const response = await axiosClient.delete<ApiResponse<void>>(
+  const response = await axiosMusicClient.delete<ApiResponse<void>>(
     `/reels/me/search-history/${id}`
   );
   return response.data;
 };
 
 export const deleteAllSearchHistory = async () => {
-  const response = await axiosClient.delete<ApiResponse<void>>(
+  const response = await axiosMusicClient.delete<ApiResponse<void>>(
     `/reels/me/search-history`
   );
   return response.data;
@@ -122,56 +122,56 @@ export const deleteAllSearchHistory = async () => {
  */
 
 export const getReelFeed = async (page = 0, size = 10) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/feed?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const getReelById = async (reelId: number) => {
-  const response = await axiosClient.get<ApiResponse<ReelDetailResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelDetailResponse>>(
     `/reels/${reelId}`
   );
   return response.data.data;
 };
 
 export const getUserReels = async (userId: number, page = 0, size = 10) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/user/${userId}?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const searchReels = async (query: string, page = 0, size = 10) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/search?query=${query}&page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const getMyCreatedReels = async (page = 0, size = 10) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/me/created?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const getUserLikedReels = async (page = 0, size = 20) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/me/likes?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const getUserSavedReels = async (page = 0, size = 20) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/me/saved?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const getUserViewedReels = async (page = 0, size = 20) => {
-  const response = await axiosClient.get<ApiResponse<ReelFeedResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelFeedResponse>>(
     `/reels/me/views?page=${page}&size=${size}`
   );
   return response.data.data;
