@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosMusicClient from "@/lib/axiosMusicClient";
 import type {
   ReelComment,
   ReelCommentResponse,
@@ -14,14 +14,14 @@ import type { ApiResponse } from "@/types/base/apiResponse";
  */
 
 export const getComments = async (reelId: number, page = 0, size = 20) => {
-  const response = await axiosClient.get<ApiResponse<ReelCommentResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelCommentResponse>>(
     `/reel-comments/reels/${reelId}?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const createComment = async (reelId: number, data: CreateCommentRequest) => {
-  const response = await axiosClient.post<ApiResponse<ReelComment>>(
+  const response = await axiosMusicClient.post<ApiResponse<ReelComment>>(
     `/reel-comments/reels/${reelId}`,
     data
   );
@@ -29,14 +29,14 @@ export const createComment = async (reelId: number, data: CreateCommentRequest) 
 };
 
 export const deleteComment = async (commentId: number) => {
-  const response = await axiosClient.delete<ApiResponse<void>>(
+  const response = await axiosMusicClient.delete<ApiResponse<void>>(
     `/reel-comments/${commentId}`
   );
   return response.data;
 };
 
 export const updateComment = async (commentId: number, content: string) => {
-  const response = await axiosClient.put<ApiResponse<ReelComment>>(
+  const response = await axiosMusicClient.put<ApiResponse<ReelComment>>(
     `/reel-comments/${commentId}`,
     { content }
   );
@@ -44,35 +44,35 @@ export const updateComment = async (commentId: number, content: string) => {
 };
 
 export const getCommentReplies = async (commentId: number, page = 0, size = 10) => {
-  const response = await axiosClient.get<ApiResponse<ReelCommentResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<ReelCommentResponse>>(
     `/reel-comments/${commentId}/replies?page=${page}&size=${size}`
   );
   return response.data.data;
 };
 
 export const addCommentReaction = async (commentId: number, reactionType: ReactionType) => {
-  const response = await axiosClient.post<ApiResponse<ReelComment>>(
+  const response = await axiosMusicClient.post<ApiResponse<ReelComment>>(
     `/reel-comments/${commentId}/reactions?type=${reactionType}`
   );
   return response.data.data;
 };
 
 export const removeCommentReaction = async (commentId: number) => {
-  const response = await axiosClient.delete<ApiResponse<ReelComment>>(
+  const response = await axiosMusicClient.delete<ApiResponse<ReelComment>>(
     `/reel-comments/${commentId}/reactions`
   );
   return response.data.data;
 };
 
 export const pinComment = async (commentId: number) => {
-  const response = await axiosClient.post<ApiResponse<ReelComment>>(
+  const response = await axiosMusicClient.post<ApiResponse<ReelComment>>(
     `/reel-comments/${commentId}/pin`
   );
   return response.data.data;
 };
 
 export const unpinComment = async (commentId: number) => {
-  const response = await axiosClient.post<ApiResponse<ReelComment>>(
+  const response = await axiosMusicClient.post<ApiResponse<ReelComment>>(
     `/reel-comments/${commentId}/unpin`
   );
   return response.data.data;

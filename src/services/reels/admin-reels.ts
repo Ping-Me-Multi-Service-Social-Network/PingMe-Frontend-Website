@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosMusicClient from "@/lib/axiosMusicClient";
 import type {
   AdminReelResponse,
   AdminReelDetail,
@@ -51,28 +51,28 @@ export const getAdminReels = async (
     params.append("to", to.trim());
   }
 
-  const response = await axiosClient.get<ApiResponse<AdminReelResponse>>(
+  const response = await axiosMusicClient.get<ApiResponse<AdminReelResponse>>(
     `/admin/reels?${params.toString()}`
   );
   return response.data.data;
 };
 
 export const getAdminReelDetail = async (reelId: number) => {
-  const response = await axiosClient.get<ApiResponse<AdminReelDetail>>(
+  const response = await axiosMusicClient.get<ApiResponse<AdminReelDetail>>(
     `/admin/reels/${reelId}`
   );
   return response.data.data;
 };
 
 export const hardDeleteAdminReel = async (reelId: number) => {
-  const response = await axiosClient.delete<ApiResponse<void>>(
+  const response = await axiosMusicClient.delete<ApiResponse<void>>(
     `/admin/reels/${reelId}/hard`
   );
   return response.data;
 };
 
 export const hideAdminReel = async (reelId: number, reason?: string) => {
-  const response = await axiosClient.patch<ApiResponse<HideReelResponse>>(
+  const response = await axiosMusicClient.patch<ApiResponse<HideReelResponse>>(
     `/admin/reels/${reelId}/hide`,
     { reason }
   );
@@ -80,7 +80,7 @@ export const hideAdminReel = async (reelId: number, reason?: string) => {
 };
 
 export const unhideAdminReel = async (reelId: number) => {
-  const response = await axiosClient.patch<ApiResponse<HideReelResponse>>(
+  const response = await axiosMusicClient.patch<ApiResponse<HideReelResponse>>(
     `/admin/reels/${reelId}/unhide`
   );
   return response.data.data;
