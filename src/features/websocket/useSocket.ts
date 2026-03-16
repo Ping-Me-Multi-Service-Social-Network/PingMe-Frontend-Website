@@ -6,10 +6,11 @@ import { toast } from "sonner";
 
 export const useSocket = () => {
   const dispatch = useAppDispatch();
-  const { userSession } = useAppSelector((state) => state.auth);
+  const { userSession, isLogin } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!userSession) return;
+    const token = localStorage.getItem("access_token");
+    if (!userSession || !isLogin || !token) return;
 
     console.log("[PingMe] Connecting SocketManager via useSocket...");
 

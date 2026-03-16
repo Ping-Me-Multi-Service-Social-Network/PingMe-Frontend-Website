@@ -5,6 +5,24 @@ import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
+import axios from "axios";
+import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
+import { logout } from "@/features/auth/authThunk";
+
+function isJwtExpired(token: string | null): boolean {
+  if (!token) return true;
+  try {
+    const payloadBase64 = token.split(".")[1];
+    if (!payloadBase64) return true;
+    const decodedJson = atob(payloadBase64);
+    const payload = JSON.parse(decodedJson);
+    if (!payload.exp) return false;
+    // Add 15 seconds margin
+    return payload.exp * 1000 < Date.now() + 15000;
+  } catch {
+    return true;
+  }
+}
 import {
   messageCreated,
   messageRecalled,
@@ -58,7 +76,7 @@ export interface SocketEventMap {
 // =================================================================
 export interface SocketManagerOptions {
   baseUrl: string;
-  dispatch: (action: any) => void;
+  dispatch: (action: unknown) => void;
   // Disconnect handler
   onDisconnect?: (reason?: string) => void;
 }
@@ -100,10 +118,10 @@ class SocketManagerClass {
   public on<K extends keyof SocketEventMap>(event: K, listener: (payload: SocketEventMap[K]) => void) {
     // Nếu chưa có ngăn chứa cho chuyên mục này, tạo mảng rỗng
     if (!this.listeners[event]) {
-      this.listeners[event] = [] as any;
+      (this.listeners as Record<string, unknown[]>)[event as string] = [];
     }
     // Ghi tên hàm của Component vào sổ theo dõi
-    this.listeners[event]!.push(listener as any);
+    ((this.listeners as Record<string, unknown[]>)[event as string]).push(listener);
     // Hàm rút tên khỏi sổ (unsubscribe)
     return () => this.off(event, listener);
   }
@@ -114,7 +132,7 @@ class SocketManagerClass {
    */
   public off<K extends keyof SocketEventMap>(event: K, listener: (payload: SocketEventMap[K]) => void) {
     if (!this.listeners[event]) return;
-    this.listeners[event] = this.listeners[event]!.filter(l => l !== listener as any) as any;
+    (this.listeners as Record<string, unknown[]>)[event as string] = ((this.listeners as Record<string, unknown[]>)[event as string]).filter(l => l !== listener);
   }
 
   /**
@@ -161,8 +179,39 @@ class SocketManagerClass {
         return new SockJS(url);
       },
 
-      connectHeaders: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      beforeConnect: () => {
+        return new Promise<void>((resolve, reject) => {
+          const connectAsync = async () => {
+            let token = localStorage.getItem("access_token");
+
+            if (isJwtExpired(token)) {
+              console.log("[PingMe] Token expired before WS connect, refreshing...");
+              try {
+                const response = await axios.post(
+                  `${import.meta.env.VITE_AUTH_SERVICE_BASE_URL}/auth-service/auth/refresh`,
+                  getSessionMetaRequest(),
+                  { withCredentials: true },
+                );
+                token = response.data.data.accessToken;
+                localStorage.setItem("access_token", token!);
+              } catch (err) {
+                console.error("[PingMe] Failed to refresh token before WS connect", err);
+                this.disconnect();
+                this.options?.dispatch(logout() as unknown);
+                reject();
+                return;
+              }
+            }
+
+            if (this.client) {
+              this.client.connectHeaders = {
+                Authorization: `Bearer ${token}`,
+              };
+            }
+            resolve();
+          };
+          connectAsync().catch(reject);
+        });
       },
 
       heartbeatIncoming: 15000,
@@ -182,6 +231,13 @@ class SocketManagerClass {
         frame.headers["message"],
         frame.body,
       );
+
+      const msg = frame.headers["message"]?.toLowerCase() || "";
+      if (msg.includes("expired") || msg.includes("401") || msg.includes("forbidden") || msg.includes("security")) {
+        console.error("[PingMe] Token expired or forbidden from STOMP error, triggering logout...");
+        this.disconnect();
+        this.options?.dispatch(logout() as unknown);
+      }
     };
 
     this.client.onWebSocketError = (ev) => {
