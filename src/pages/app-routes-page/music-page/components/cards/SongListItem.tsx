@@ -91,8 +91,15 @@ export default function SongListItem({
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleRowClick();
+        }
+      }}
       onClick={handleRowClick}
       aria-label={t("cards.playSong", { title: song.title, artist: song.mainArtist?.name || t("cards.unknownArtist") })}
       className="group flex items-center gap-4 px-4 py-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:bg-linear-to-r hover:from-purple-900 hover:via-gray-800/60 hover:to-gray-800/40 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-900/20 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 w-full text-left"
@@ -200,6 +207,6 @@ export default function SongListItem({
           <Play className="h-4 w-4" />
         </Button>
       )}
-    </button>
+    </div>
   );
 }

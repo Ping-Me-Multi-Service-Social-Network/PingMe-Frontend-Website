@@ -11,6 +11,7 @@ import {
 import type { Song } from "@/types/music/song";
 import type { RepeatMode } from "@/features/music/audioPlayerSlice";
 import { songService } from "@/services/music/musicService";
+import { albumApi } from "@/services/music/albumApi";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import {
   setCurrentSong,
@@ -62,6 +63,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playCountTrackedRef = useRef<Set<number>>(new Set());
+  const albumPlayCountTrackedRef = useRef<Set<number>>(new Set());
 
   // --- ACTIONS ---
 
@@ -75,6 +77,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
         return;
       }
       playCountTrackedRef.current.delete(song.id);
+      albumPlayCountTrackedRef.current.delete(song.id);
       dispatch(playSongAction(song));
     },
     [dispatch]
@@ -145,8 +148,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     if (isPlaying) {
       audio.play().catch((error) => {
         console.error("[PingMe] Audio playback failed:", error);
-        // If error, revert state but beware of infinite loops
-        // dispatch(setIsPlaying(false));
+        dispatch(setIsPlaying(false));
       });
     } else {
       audio.pause();
@@ -182,6 +184,21 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
             console.error("[PingMe] Failed to increase play count:", error);
           });
         }
+
+        // Track album play
+        if (
+          audio.currentTime >= 30 &&
+          !albumPlayCountTrackedRef.current.has(currentSong.id)
+        ) {
+          albumPlayCountTrackedRef.current.add(currentSong.id);
+          if (currentSong.album && currentSong.album.length > 0) {
+            currentSong.album.forEach((album) => {
+              albumApi.incrementPlayCount(album.id).catch((error) => {
+                console.error("[PingMe] Failed to increase album play count:", error);
+              });
+            });
+          }
+        }
       }
     };
 
@@ -208,6 +225,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
           }
 
           playCountTrackedRef.current.delete(nextSong.id);
+          albumPlayCountTrackedRef.current.delete(nextSong.id);
           dispatch(playSongAction(nextSong)); // This sets isPlaying=true
         }
       } else {
