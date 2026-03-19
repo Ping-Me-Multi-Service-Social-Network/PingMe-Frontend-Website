@@ -3,6 +3,11 @@ import type { Song } from "@/types/music/song";
 // We'll move this type here or import it from the new types file
 export type RepeatMode = "off" | "all" | "one";
 
+export interface PlaybackContext {
+  type: "album" | "artist" | "playlist" | "genre" | "all" | "favorite" | null;
+  id: number | string | null;
+}
+
 interface AudioPlayerState {
   currentSong: Song | null;
   isPlaying: boolean;
@@ -10,6 +15,7 @@ interface AudioPlayerState {
   volume: number;
   repeatMode: RepeatMode;
   isExpanded: boolean;
+  playbackContext: PlaybackContext;
 }
 
 const initialState: AudioPlayerState = {
@@ -19,6 +25,7 @@ const initialState: AudioPlayerState = {
   volume: 1,
   repeatMode: "off",
   isExpanded: true,
+  playbackContext: { type: null, id: null },
 };
 
 const audioPlayerSlice = createSlice({
@@ -48,13 +55,19 @@ const audioPlayerSlice = createSlice({
     togglePlayPause: (state) => {
       state.isPlaying = !state.isPlaying;
     },
-    playSong: (state, action: PayloadAction<Song>) => {
-      state.currentSong = action.payload;
+    playSong: (
+      state,
+      action: PayloadAction<{ song: Song; context?: PlaybackContext }>
+    ) => {
+      state.currentSong = action.payload.song;
+      state.playbackContext = action.payload.context ?? { type: null, id: null };
       state.isPlaying = true;
-      // Note: We don't modify playlist here, consumer should handle playlist updates if needed
     },
     setIsExpanded: (state, action: PayloadAction<boolean>) => {
       state.isExpanded = action.payload;
+    },
+    setPlaybackContext: (state, action: PayloadAction<PlaybackContext>) => {
+      state.playbackContext = action.payload;
     },
   },
 });
@@ -69,6 +82,7 @@ export const {
   togglePlayPause,
   playSong,
   setIsExpanded,
+  setPlaybackContext,
 } = audioPlayerSlice.actions;
 
 export default audioPlayerSlice.reducer;

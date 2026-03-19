@@ -15,7 +15,7 @@ import Pagination from "@/components/custom/Pagination.tsx";
 import { useTranslation } from "react-i18next";
 import { useAudio } from "@/hooks/useAudio.tsx";
 import type { Song } from "@/types/music/song";
-import { ArrowLeft, Disc3, User2, Play, Music } from "lucide-react";
+import { ArrowLeft, Disc3, User2, Play, Pause, Music } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import {
   fetchSongsByGenre,
@@ -24,6 +24,7 @@ import {
 } from "@/features/music/musicSlice";
 import { getCachedData } from "@/utils/musicCacheUtils";
 import { DEFAULT_ITEMS_PER_PAGE } from "@/constants/musicConstants";
+import { useCollectionPlayState } from "@/hooks/usePlayState";
 
 export default function SongListPage() {
   const dispatch = useAppDispatch();
@@ -197,15 +198,22 @@ export default function SongListPage() {
       genre: song.genres,
       album: song.albums,
     } : song;
-    playSong(songToPlay);
+    playSong(songToPlay, { type: type as any, id: id || "all" });
   };
 
-  const handlePlayAll = () => {
+
+  const startPlayAll = () => {
     if (Array.isArray(songs) && songs.length > 0) {
       const firstSong = convertToSong(songs[0]);
-      playSong(firstSong);
+      playSong(firstSong, { type: type as any, id: id || "all" });
     }
   };
+
+  const { isCollectionPlaying, handlePlayPauseCollection } = useCollectionPlayState(
+    startPlayAll,
+    type as any,
+    id || "all"
+  );
 
   const totalPages = Math.ceil((Array.isArray(songs) ? songs.length : 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -295,11 +303,15 @@ export default function SongListPage() {
 
         {Array.isArray(songs) && songs.length > 0 && (
           <button
-            onClick={handlePlayAll}
-            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-full hover:scale-105 transition-all"
+            onClick={(e) => handlePlayPauseCollection(e)}
+            className="flex items-center justify-center w-12 h-12 bg-purple-600 hover:bg-purple-500 text-white rounded-full hover:scale-105 transition-all shadow-lg shadow-purple-900/40"
+            aria-label={isCollectionPlaying ? t("pages.cards.pause") : t("pages.cards.play")}
           >
-            <Play className="w-5 h-5 fill-current" />
-            {t("pages.songList.playAll")}
+            {isCollectionPlaying ? (
+              <Pause className="w-5 h-5 fill-current" />
+            ) : (
+              <Play className="w-5 h-5 fill-current" />
+            )}
           </button>
         )}
       </div>

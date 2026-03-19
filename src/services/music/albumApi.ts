@@ -1,12 +1,8 @@
 import axiosMusicClient from "@/lib/axiosMusicClient";
 import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
+import type { AlbumResponse as SharedAlbumResponse } from "@/types/music";
 
-export interface AlbumResponse {
-  id: number;
-  title: string;
-  coverImgUrl: string;
-  playCount: number;
-}
+export type AlbumResponse = SharedAlbumResponse;
 
 export const albumApi = {
   getAllAlbums: async (): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
@@ -17,13 +13,16 @@ export const albumApi = {
     return response.data;
   },
 
-  getPopularAlbums: async (limit?: number): Promise<AlbumResponse[]> => {
+  getPopularAlbums: async (limit: number = 5): Promise<AlbumResponse[]> => {
     const response =
       await axiosMusicClient.get<ApiResponse<PageResponse<AlbumResponse>>>(
-        "/music-service/albums/all",
+        `/music-service/albums/popular?page=0&size=${limit}`,
       );
-    const albums = response.data?.data?.content || [];
-    const sortedAlbums = [...albums].sort((a, b) => b.playCount - a.playCount);
-    return limit ? sortedAlbums.slice(0, limit) : sortedAlbums;
+    // Lấy content đã phân trang & sort
+    return response.data?.data?.content || [];
   },
+
+  incrementPlayCount: async (albumId: number): Promise<void> => {
+    await axiosMusicClient.post(`/music-service/albums/${albumId}/play`);
+  }
 };
