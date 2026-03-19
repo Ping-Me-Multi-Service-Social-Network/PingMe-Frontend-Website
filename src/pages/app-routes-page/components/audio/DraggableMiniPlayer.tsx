@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAudio } from "@/hooks/useAudio.tsx";
 import {
   Music2,
@@ -31,7 +31,8 @@ const MiniPlayerContent: React.FC = () => {
     repeatMode,
     cycleRepeatMode,
     setCurrentSong,
-    setIsPlaying
+    setIsPlaying,
+    playbackContext
   } = useAudio();
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -53,7 +54,7 @@ const MiniPlayerContent: React.FC = () => {
       (song: Song) => song.id === currentSong.id
     );
     const nextIndex = (currentIndex + 1) % playlist.length;
-    playSong(playlist[nextIndex]);
+    playSong(playlist[nextIndex], playbackContext);
   };
 
   const handlePrevious = () => {
@@ -63,7 +64,7 @@ const MiniPlayerContent: React.FC = () => {
     );
     const prevIndex =
       currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
-    playSong(playlist[prevIndex]);
+    playSong(playlist[prevIndex], playbackContext);
   };
 
   const handleClose = () => {
@@ -83,19 +84,6 @@ const MiniPlayerContent: React.FC = () => {
     setVolume(volume > 0 ? 0 : 1);
   };
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleEnded = () => {
-      handleNext();
-    };
-
-    audio.addEventListener("ended", handleEnded);
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [currentSong, playlist, audioRef]);
 
   if (!currentSong) return null;
 

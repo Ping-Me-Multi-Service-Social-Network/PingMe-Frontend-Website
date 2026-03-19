@@ -79,24 +79,24 @@ export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={handleNavigate}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleNavigate();
-        }
-      }}
-      className={`group cursor-pointer p-3 rounded-xl transition-all duration-300 ${
+      className={`group relative p-3 rounded-xl transition-all duration-300 ${
         isArtistCurrent 
           ? "bg-zinc-800 ring-1 ring-purple-500/50 shadow-lg shadow-purple-900/20" 
           : "hover:bg-zinc-800/50"
       }`}
     >
-      {/* ── Top: circular image area ── */}
-      {/* Outer relative wrapper: positions overlay + button, NO overflow-hidden so button is not clipped */}
-      <div className="relative aspect-square mb-3">
+      {/* Invisible full-card click area */}
+      <button
+        type="button"
+        aria-label={artist.name}
+        onClick={handleNavigate}
+        className="absolute inset-0 w-full h-full rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-zinc-900 cursor-pointer z-0 border-none bg-transparent"
+      />
+
+      <div className="relative z-10 pointer-events-none">
+        {/* ── Top: circular image area ── */}
+        {/* Outer relative wrapper: positions overlay + button, NO overflow-hidden so button is not clipped */}
+        <div className="relative aspect-square mb-3">
         {/* Inner circle: overflow-hidden clips image to circle */}
         <div className="w-full h-full overflow-hidden rounded-full bg-zinc-800 shadow-md">
           {artist.imgUrl ? (
@@ -126,7 +126,7 @@ export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
               : t("cards.playArtist", { name: artist.name })
           }
           className={[
-            "absolute bottom-1 right-1 z-10",
+            "absolute bottom-1 right-1 z-10 pointer-events-auto",
             "flex items-center justify-center w-11 h-11 rounded-full",
             "bg-purple-500 hover:bg-purple-400 text-white",
             "shadow-xl hover:scale-110 active:scale-95",
@@ -149,6 +149,7 @@ export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
         <p className="text-xs text-zinc-400 mt-0.5">
           {t("cards.artist")}
         </p>
+      </div>
       </div>
     </div>
   );

@@ -271,7 +271,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
     };
-  }, [currentSong, playlist, repeatMode, dispatch]);
+  }, [currentSong, playlist, repeatMode, playbackContext, dispatch]);
 
   const contextValue = useMemo(
     () => ({
