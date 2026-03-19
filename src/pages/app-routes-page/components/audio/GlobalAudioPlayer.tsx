@@ -34,6 +34,7 @@ const GlobalAudioPlayer: React.FC = () => {
     setVolume,
     repeatMode,
     cycleRepeatMode,
+    playbackContext,
   } = useAudio();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -121,8 +122,8 @@ const GlobalAudioPlayer: React.FC = () => {
       (song: Song) => song.id === currentSong.id
     );
     const nextIndex = (currentIndex + 1) % playlist.length;
-    playSong(playlist[nextIndex]);
-  }, [currentSong, playlist, playSong]);
+    playSong(playlist[nextIndex], playbackContext);
+  }, [currentSong, playlist, playSong, playbackContext]);
 
   const handleClickPrevious = useCallback(() => {
     if (!currentSong || playlist.length === 0) return;
@@ -131,22 +132,9 @@ const GlobalAudioPlayer: React.FC = () => {
     );
     const prevIndex =
       currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
-    playSong(playlist[prevIndex]);
-  }, [currentSong, playlist, playSong]);
+    playSong(playlist[prevIndex], playbackContext);
+  }, [currentSong, playlist, playSong, playbackContext]);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleEnded = () => {
-      handleClickNext();
-    };
-
-    audio.addEventListener("ended", handleEnded);
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [currentSong, playlist, audioRef, handleClickNext]);
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
