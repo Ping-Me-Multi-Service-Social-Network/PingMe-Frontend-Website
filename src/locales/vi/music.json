@@ -205,6 +205,12 @@
             "error": "Có lỗi xảy ra",
             "noData": "Không có dữ liệu",
             "playSong": "Phát bài hát {{title}} của {{artist}}",
+            "pauseSong": "Tạm dừng {{title}}",
+            "play": "Phát",
+            "pause": "Tạm dừng",
+            "playAlbum": "Phát album {{title}}",
+            "viewAlbum": "Xem album {{title}}",
+            "playArtist": "Phát nhạc của {{name}}",
             "addFavorite": "Thêm {{title}} vào yêu thích",
             "removeFavorite": "Xóa {{title}} khỏi yêu thích",
             "addToPlaylist": "Thêm bài hát {{title}} vào playlist"

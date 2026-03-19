@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Play } from "lucide-react";
+import { ArrowLeft, Heart, Play, Pause } from "lucide-react";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import { songApi } from "@/services/music/songApi.ts";
 import { useAudio } from "@/hooks/useAudio.tsx";
@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import type { FavoriteDto } from "@/types/music/favorite.ts";
 import { useFavoriteEventListener, dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
 import { useTranslation } from "react-i18next";
+import { useCollectionPlayState } from "@/hooks/usePlayState";
 
 export default function FavoritesPage() {
     const navigate = useNavigate();
@@ -62,7 +63,7 @@ export default function FavoritesPage() {
                 return;
             }
 
-            playSong(songDetails);
+            playSong(songDetails, { type: "favorite", id: "all" });
 
             // Set playlist to all favorite songs
             const allSongs = await Promise.all(
@@ -88,11 +89,17 @@ export default function FavoritesPage() {
             }
 
             setPlaylist(allSongs);
-            playSong(allSongs[0]);
+            playSong(allSongs[0], { type: "favorite", id: "all" });
         } catch (err) {
             console.error("Error playing all favorites:", err);
         }
     };
+
+    const { isCollectionPlaying, handlePlayPauseCollection } = useCollectionPlayState(
+        handlePlayAll,
+        "favorite",
+        "all"
+    );
 
     if (loading) {
         return (
@@ -136,11 +143,15 @@ export default function FavoritesPage() {
                     {/* Play All Button */}
                     {favorites.length > 0 && (
                         <button
-                            onClick={handlePlayAll}
-                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-full text-white font-semibold transition-colors"
+                            onClick={(e) => handlePlayPauseCollection(e)}
+                            className="flex items-center justify-center w-12 h-12 bg-purple-600 hover:bg-purple-500 rounded-full text-white transition-colors shadow-lg shadow-purple-900/40 hover:scale-105"
+                            aria-label={isCollectionPlaying ? "Pause" : "Play All"}
                         >
-                            <Play className="w-5 h-5 fill-white" />
-                            {t("pages.songList.playAll")}
+                            {isCollectionPlaying ? (
+                                <Pause className="w-5 h-5 fill-white" />
+                            ) : (
+                                <Play className="w-5 h-5 fill-white" />
+                            )}
                         </button>
                     )}
                 </div>

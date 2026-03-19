@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Play, Trash2, GripVertical, Music2, Lock, Globe, Edit, Save, X } from "lucide-react";
+import { ArrowLeft, Play, Pause, Trash2, GripVertical, Music2, Lock, Globe, Edit, Save, X } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
 import { songApi } from "@/services/music/songApi.ts";
 import { useAudio } from "@/hooks/useAudio.tsx";
@@ -26,6 +26,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useCollectionPlayState } from "@/hooks/usePlayState";
 
 // Sortable Item Component
 interface SortableItemProps {
@@ -249,7 +250,7 @@ export default function PlaylistDetailPage() {
                 return;
             }
 
-            playSong(songDetails);
+            playSong(songDetails, { type: "playlist", id: playlistDetail?.id || 0 });
 
             // Set playlist to all songs in order
             if (playlistDetail) {
@@ -277,11 +278,17 @@ export default function PlaylistDetailPage() {
             }
 
             setAudioPlaylist(allSongs);
-            playSong(allSongs[0]);
+            playSong(allSongs[0], { type: "playlist", id: playlistDetail.id });
         } catch (err) {
             console.error("Error playing playlist:", err);
         }
     };
+
+    const { isCollectionPlaying, handlePlayPauseCollection } = useCollectionPlayState(
+        handlePlayAll,
+        "playlist",
+        playlistDetail?.id || 0
+    );
 
     if (loading) {
         return (
@@ -344,15 +351,20 @@ export default function PlaylistDetailPage() {
                     {playlistDetail.items.length > 0 && (
                         <div className="flex items-center gap-4">
                             <button
-                                onClick={handlePlayAll}
+                                onClick={(e) => handlePlayPauseCollection(e)}
                                 disabled={isEditMode}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-colors ${isEditMode
-                                    ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
-                                    : "bg-purple-600 hover:bg-purple-500 text-white"
-                                    }`}
+                                className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
+                                    isEditMode
+                                        ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+                                        : "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/40 hover:scale-105"
+                                }`}
+                                aria-label={isCollectionPlaying ? "Pause" : "Play All"}
                             >
-                                <Play className="w-5 h-5 fill-white" />
-                                {t("pages.songList.playAll")}
+                                {isCollectionPlaying ? (
+                                    <Pause className="w-5 h-5 fill-white" />
+                                ) : (
+                                    <Play className="w-5 h-5 fill-white" />
+                                )}
                             </button>
 
                             {isEditMode ? (

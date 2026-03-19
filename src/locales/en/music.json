@@ -200,6 +200,12 @@
             "error": "An error occurred",
             "noData": "No data available",
             "playSong": "Play {{title}} by {{artist}}",
+            "pauseSong": "Pause {{title}}",
+            "play": "Play",
+            "pause": "Pause",
+            "playAlbum": "Play album {{title}}",
+            "viewAlbum": "View album {{title}}",
+            "playArtist": "Play songs by {{name}}",
             "addFavorite": "Add {{title}} to favorites",
             "removeFavorite": "Remove {{title}} from favorites",
             "addToPlaylist": "Add {{title}} to playlist"

@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Song } from "@/types/music/song";
-import type { RepeatMode } from "@/features/music/audioPlayerSlice";
+import type { RepeatMode, PlaybackContext } from "@/features/music/audioPlayerSlice";
 import { songService } from "@/services/music/musicService";
 import { albumApi } from "@/services/music/albumApi";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
@@ -21,6 +21,7 @@ import {
   cycleRepeatMode,
   togglePlayPause as togglePlayPauseAction,
   playSong as playSongAction,
+  setPlaybackContext as setPlaybackContextAction,
 } from "@/features/music/audioPlayerSlice";
 
 // --- Types ---
@@ -33,13 +34,15 @@ export interface AudioPlayerContextType {
   playlist: Song[];
   volume: number;
   repeatMode: RepeatMode;
-  playSong: (song: Song) => void;
+  playbackContext: PlaybackContext;
+  playSong: (song: Song, context?: PlaybackContext) => void;
   togglePlayPause: () => void;
   seekTo: (time: number) => void;
   setVolume: (volume: number) => void;
   setCurrentSong: (song: Song | null) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setPlaylist: (playlist: Song[]) => void;
+  setPlaybackContext: (context: PlaybackContext) => void;
   cycleRepeatMode: () => void;
 }
 
@@ -48,6 +51,22 @@ const AudioPlayerContext = createContext<AudioPlayerContextType | undefined>(
   undefined
 );
 
+// --- Helper Functions ---
+const trackSongPlayCount = (songId: number) => {
+  songService.increasePlayCount(songId).catch((error) => {
+    console.error("[PingMe] Failed to increase play count:", error);
+  });
+};
+
+const trackAlbumPlayCount = (song: Song) => {
+  if (!song.album || song.album.length === 0) return;
+  for (const album of song.album) {
+    albumApi.incrementPlayCount(album.id).catch((error) => {
+      console.error("[PingMe] Failed to increase album play count:", error);
+    });
+  }
+};
+
 // --- Provider ---
 interface AudioPlayerProviderProps {
   children: ReactNode;
@@ -55,7 +74,7 @@ interface AudioPlayerProviderProps {
 
 export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderProps>) {
   const dispatch = useAppDispatch();
-  const { currentSong, isPlaying, playlist, volume, repeatMode } =
+  const { currentSong, isPlaying, playlist, volume, repeatMode, playbackContext = { type: null, id: null } } =
     useAppSelector((state) => state.audioPlayer);
 
   const [currentTime, setCurrentTime] = useState(0);
@@ -68,7 +87,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   // --- ACTIONS ---
 
   const playSong = useCallback(
-    (song: Song) => {
+    (song: Song, context?: PlaybackContext) => {
       if (!song.songUrl || song.songUrl.trim() === "") {
         console.error(
           "[PingMe] Cannot play song: Invalid or missing songUrl",
@@ -78,7 +97,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       }
       playCountTrackedRef.current.delete(song.id);
       albumPlayCountTrackedRef.current.delete(song.id);
-      dispatch(playSongAction(song));
+      dispatch(playSongAction({ song, context }));
     },
     [dispatch]
   );
@@ -122,6 +141,13 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   const updateIsPlaying = useCallback(
     (playing: boolean) => {
       dispatch(setIsPlaying(playing));
+    },
+    [dispatch]
+  );
+
+  const updatePlaybackContext = useCallback(
+    (context: PlaybackContext) => {
+      dispatch(setPlaybackContextAction(context));
     },
     [dispatch]
   );
@@ -180,9 +206,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
           !playCountTrackedRef.current.has(currentSong.id)
         ) {
           playCountTrackedRef.current.add(currentSong.id);
-          songService.increasePlayCount(currentSong.id).catch((error) => {
-            console.error("[PingMe] Failed to increase play count:", error);
-          });
+          trackSongPlayCount(currentSong.id);
         }
 
         // Track album play
@@ -191,13 +215,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
           !albumPlayCountTrackedRef.current.has(currentSong.id)
         ) {
           albumPlayCountTrackedRef.current.add(currentSong.id);
-          if (currentSong.album && currentSong.album.length > 0) {
-            currentSong.album.forEach((album) => {
-              albumApi.incrementPlayCount(album.id).catch((error) => {
-                console.error("[PingMe] Failed to increase album play count:", error);
-              });
-            });
-          }
+          trackAlbumPlayCount(currentSong);
         }
       }
     };
@@ -226,7 +244,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
           playCountTrackedRef.current.delete(nextSong.id);
           albumPlayCountTrackedRef.current.delete(nextSong.id);
-          dispatch(playSongAction(nextSong)); // This sets isPlaying=true
+          dispatch(playSongAction({ song: nextSong, context: playbackContext })); // This sets isPlaying=true
         }
       } else {
         dispatch(setIsPlaying(false));
@@ -265,6 +283,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       playlist,
       volume,
       repeatMode,
+      playbackContext,
       playSong,
       togglePlayPause,
       seekTo,
@@ -272,6 +291,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       setCurrentSong: updateCurrentSong,
       setIsPlaying: updateIsPlaying,
       setPlaylist: updatePlaylist,
+      setPlaybackContext: updatePlaybackContext,
       cycleRepeatMode: handleCycleRepeatMode,
     }),
     [
@@ -283,6 +303,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       playlist,
       volume,
       repeatMode,
+      playbackContext,
       playSong,
       togglePlayPause,
       seekTo,
@@ -290,6 +311,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       updateCurrentSong,
       updateIsPlaying,
       updatePlaylist,
+      updatePlaybackContext,
       handleCycleRepeatMode,
     ]
   );
