@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { ArtistResponse } from "@/types/music";
-import type { SongResponseWithAllAlbum } from "@/types/music";
+import type { SongResponseWithAllAlbum, ArtistResponse } from "@/types/music";
 import type { Song } from "@/types/music/song";
 import { User2, Play, Pause } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -69,10 +68,26 @@ export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
   // When paused, it will only show on hover.
   const btnAlwaysVisible = isArtistPlaying;
 
-  // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+  let playIcon;
+  if (isLoadingPlay) {
+    playIcon = <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />;
+  } else if (isArtistPlaying) {
+    playIcon = <Pause className="h-4 w-4 fill-white" />;
+  } else {
+    playIcon = <Play className="h-4 w-4 fill-white translate-x-px" />;
+  }
+
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={handleNavigate}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleNavigate();
+        }
+      }}
       className={`group cursor-pointer p-3 rounded-xl transition-all duration-300 ${
         isArtistCurrent 
           ? "bg-zinc-800 ring-1 ring-purple-500/50 shadow-lg shadow-purple-900/20" 
@@ -122,13 +137,7 @@ export default function ArtistCard({ artist }: Readonly<ArtistCardProps>) {
             isLoadingPlay ? "cursor-wait opacity-70" : "",
           ].join(" ")}
         >
-          {isLoadingPlay ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : isArtistPlaying ? (
-            <Pause className="h-4 w-4 fill-white" />
-          ) : (
-            <Play className="h-4 w-4 fill-white translate-x-px" />
-          )}
+          {playIcon}
         </button>
       </div>
 
