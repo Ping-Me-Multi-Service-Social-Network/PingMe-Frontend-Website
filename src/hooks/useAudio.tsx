@@ -229,23 +229,29 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
         // Loop is handled by audio.loop = true, but if needed we can force play
         return;
       }
-      if (repeatMode === "all") {
-        if (currentSong && playlist.length > 0) {
-          const currentIndex = playlist.findIndex(
-            (song) => song.id === currentSong.id
-          );
-          const nextIndex = (currentIndex + 1) % playlist.length;
-          const nextSong = playlist[nextIndex];
+      
+      if (currentSong && playlist.length > 0) {
+        const currentIndex = playlist.findIndex(
+          (song) => song.id === currentSong.id
+        );
 
-          if (!nextSong?.songUrl || nextSong.songUrl.trim() === "") {
-            dispatch(setIsPlaying(false));
-            return;
-          }
-
-          playCountTrackedRef.current.delete(nextSong.id);
-          albumPlayCountTrackedRef.current.delete(nextSong.id);
-          dispatch(playSongAction({ song: nextSong, context: playbackContext })); // This sets isPlaying=true
+        if (repeatMode === "off" && currentIndex === playlist.length - 1) {
+          // Stop playback at the end of the playlist when repeat is off
+          dispatch(setIsPlaying(false));
+          return;
         }
+
+        const nextIndex = (currentIndex + 1) % playlist.length;
+        const nextSong = playlist[nextIndex];
+
+        if (!nextSong?.songUrl || nextSong.songUrl.trim() === "") {
+          dispatch(setIsPlaying(false));
+          return;
+        }
+
+        playCountTrackedRef.current.delete(nextSong.id);
+        albumPlayCountTrackedRef.current.delete(nextSong.id);
+        dispatch(playSongAction({ song: nextSong, context: playbackContext })); // This sets isPlaying=true
       } else {
         dispatch(setIsPlaying(false));
       }

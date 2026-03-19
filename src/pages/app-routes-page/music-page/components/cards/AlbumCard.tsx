@@ -79,13 +79,7 @@ export default function AlbumCard({ album }: Readonly<AlbumCardProps>) {
   }
 
   return (
-    <div
-      className={`group relative p-3 rounded-xl transition-all duration-300 ${
-        isAlbumCurrent 
-          ? "bg-zinc-800 ring-1 ring-purple-500/50 shadow-lg shadow-purple-900/20" 
-          : "hover:bg-zinc-800/50"
-      }`}
-    >
+    <div className="group relative p-3 rounded-xl transition-all duration-300 hover:bg-zinc-800/50">
       {/* Invisible full-card click area */}
       <button
         type="button"
