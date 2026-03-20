@@ -7,7 +7,7 @@ export const audioTranscribeService = {
     const formData = new FormData();
     formData.append("file", file);
 
-    return axiosClient.post<ApiResponse<AudioTranscribeResponse>>("/transcribe/audio", formData, {
+    return axiosClient.post<ApiResponse<AudioTranscribeResponse>>("/core-service/transcribe/audio", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },

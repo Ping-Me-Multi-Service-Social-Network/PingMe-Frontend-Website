@@ -26,23 +26,23 @@ import type {
 export const createOrGetDirectRoomApi = (
   data: CreateOrGetDirectRoomRequest
 ) => {
-  return axiosClient.post<ApiResponse<RoomResponse>>("/rooms/direct", data);
+  return axiosClient.post<ApiResponse<RoomResponse>>("/core-service/rooms/direct", data);
 };
 
 export const createGroupRoomApi = (data: CreateGroupRoomRequest) => {
-  return axiosClient.post<ApiResponse<RoomResponse>>("/rooms/group", data);
+  return axiosClient.post<ApiResponse<RoomResponse>>("/core-service/rooms/group", data);
 };
 
 export const addGroupMembersApi = (data: AddGroupMembersRequest) => {
   return axiosClient.post<ApiResponse<RoomResponse>>(
-    "/rooms/group/add-members",
+    "/core-service/rooms/group/add-members",
     data
   );
 };
 
 export const removeGroupMemberApi = (roomId: number, targetUserId: number) => {
   return axiosClient.delete<ApiResponse<RoomResponse>>(
-    `/rooms/group/${roomId}/members/${targetUserId}`
+    `/core-service/rooms/group/${roomId}/members/${targetUserId}`
   );
 };
 
@@ -52,19 +52,19 @@ export const changeMemberRole = (
   role: "ADMIN" | "MEMBER"
 ) => {
   return axiosClient.put<ApiResponse<RoomResponse>>(
-    `/rooms/group/${roomId}/members/${targetUserId}/role?newRole=${role}`
+    `/core-service/rooms/group/${roomId}/members/${targetUserId}/role?newRole=${role}`
   );
 };
 
 export const renameGroup = (roomId: number, name: string) => {
   return axiosClient.put<ApiResponse<RoomResponse>>(
-    `/rooms/group/${roomId}/name?name=${name}`
+    `/core-service/rooms/group/${roomId}/name?name=${name}`
   );
 };
 
 export const changeTheme = (roomId: number, theme: string) => {
   return axiosClient.put<ApiResponse<RoomResponse>>(
-    `/rooms/${roomId}/theme?theme=${theme}`
+    `/core-service/rooms/${roomId}/theme?theme=${theme}`
   );
 };
 
@@ -73,7 +73,7 @@ export const updateGroupImage = (roomId: number, roomImage: File | null) => {
   if (roomImage) formDataToSend.append("file", roomImage);
 
   return axiosClient.put<ApiResponse<RoomResponse>>(
-    `/rooms/group/${roomId}/image`,
+    `/core-service/rooms/group/${roomId}/image`,
     formDataToSend
   );
 };
@@ -88,7 +88,7 @@ export const getCurrentUserRoomsApi = ({
   });
 
   return axiosClient.get<ApiResponse<PageResponse<RoomResponse>>>(
-    `/rooms?${params.toString()}`
+    `/core-service/rooms?${params.toString()}`
   );
 };
 
@@ -97,12 +97,12 @@ export const getCurrentUserRoomsApi = ({
 // ==================================================================================
 
 export const sendMessageApi = (data: SendMessageRequest) => {
-  return axiosClient.post<ApiResponse<MessageResponse>>("/messages", data);
+  return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages", data);
 };
 
 export const sendFileMessageApi = (data: FormData) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
-    "/messages/files",
+    "/core-service/messages/files",
     data,
     {
       headers: {
@@ -114,19 +114,19 @@ export const sendFileMessageApi = (data: FormData) => {
 
 export const sendWeatherMessage = (data: SendWeatherMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
-    "/messages/weather",
+    "/core-service/messages/weather",
     data
   );
 };
 
 export const recallMessageApi = (messageId: string) => {
   return axiosClient.delete<ApiResponse<MessageRecalledResponse>>(
-    `/messages/${messageId}/recall`
+    `/core-service/messages/${messageId}/recall`
   );
 };
 
 export const markAsReadApi = (data: MarkReadRequest) => {
-  return axiosClient.post<ApiResponse<MessageResponse>>("/messages/read", data);
+  return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/read", data);
 };
 
 export const getHistoryMessagesApi = (
@@ -142,6 +142,6 @@ export const getHistoryMessagesApi = (
   }
 
   return axiosClient.get<ApiResponse<HistoryMessageResponse>>(
-    `/messages/history?${params.toString()}`
+    `/core-service/messages/history?${params.toString()}`
   );
 };

@@ -4,7 +4,7 @@ import axiosClient from "@/lib/axiosClient";
 // Send signaling message (OFFER/ANSWER/CANDIDATE/HANGUP)
 export async function sendSignalingApi(payload: SignalingRequest) {
   try {
-    const response = await axiosClient.post("/chat/signaling", payload);
+    const response = await axiosClient.post("/core-service/chat/signaling", payload);
     return response;
   } catch (error) {
     console.error("[CallAPI] sendSignaling error:", error);

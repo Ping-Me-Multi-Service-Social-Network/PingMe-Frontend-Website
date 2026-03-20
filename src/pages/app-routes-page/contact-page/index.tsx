@@ -11,6 +11,7 @@ import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
 import { SocketManager } from "@/features/websocket/socketManager";
 import type { UserStatusPayload, FriendshipEventPayload } from "@/features/websocket/models/systemEvents";
+import { hasSentInvite } from "@/utils/inviteTracker";
 
 
 export default function ContactsPage() {
@@ -47,9 +48,14 @@ export default function ContactsPage() {
   // Thay vì dùng useFriendshipSocketHandler rườm rà, Mẹ chỉ việc tự bắt Data và lo cập nhật con số thống kê
   useEffect(() => {
     const unsub = SocketManager.on("FRIENDSHIP", (event: FriendshipEventPayload) => {
+      // BỎ QUA các event dội ngược echo từ backend rớt vào chính mình để tránh nhảy số ảo
+      if (event.userSummaryResponse.id === Number(userSession?.id)) {
+        return;
+      }
+
       switch (event.type) {
         case "INVITED":
-          if (Number(userSession?.id) === event.userSummaryResponse.id) {
+          if (hasSentInvite(event.userSummaryResponse.id)) {
             setUserFriendshipStats((prev) => ({
               ...prev,
               totalSentInvites: prev.totalSentInvites + 1,

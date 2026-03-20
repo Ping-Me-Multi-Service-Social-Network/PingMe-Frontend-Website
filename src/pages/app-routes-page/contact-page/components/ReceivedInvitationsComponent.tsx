@@ -23,6 +23,7 @@ import { InvitationUserCard } from "./InvitationUserCard";
 
 import { SocketManager } from "@/features/websocket/socketManager";
 import { useAppSelector } from "@/features/hooks.ts";
+import { hasSentInvite } from "@/utils/inviteTracker";
 
 interface ReceivedInvitationsComponentProps {
   onStatsUpdate: (
@@ -183,9 +184,12 @@ export const ReceivedInvitationsComponent = (
   // Đăng ký trực tiếp với SocketManager
   useEffect(() => {
     const unsub = SocketManager.on("FRIENDSHIP", (event) => {
+      // Bỏ qua event dội lại từ frontend
+      if (event.userSummaryResponse.id === Number(userSession?.id)) return;
+
       if (
         event.type === "INVITED" &&
-        Number(userSession?.id) !== event.userSummaryResponse.id
+        !hasSentInvite(event.userSummaryResponse.id)
       ) {
         setReceivedInvitations((prev) => {
           const invitationExists = prev.some((invitation) => invitation.id === event.userSummaryResponse.id);

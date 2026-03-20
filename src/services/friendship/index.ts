@@ -7,23 +7,23 @@ import type {
 } from "@/types/friendship";
 
 export const sendInvitationApi = (data: FriendInvitationRequest) => {
-  return axiosClient.post("/friendships", data);
+  return axiosClient.post("/core-service/friendships", data);
 };
 
 export const acceptInvitationApi = (id: number) => {
-  return axiosClient.post(`/friendships/${id}/accept`);
+  return axiosClient.post(`/core-service/friendships/${id}/accept`);
 };
 
 export const rejectInvitationApi = (id: number) => {
-  return axiosClient.delete(`/friendships/${id}/reject`);
+  return axiosClient.delete(`/core-service/friendships/${id}/reject`);
 };
 
 export const cancelInvitationApi = (id: number) => {
-  return axiosClient.delete(`/friendships/${id}/cancel`);
+  return axiosClient.delete(`/core-service/friendships/${id}/cancel`);
 };
 
 export const deleteFriendshipApi = (id: number) => {
-  return axiosClient.delete(`/friendships/${id}`);
+  return axiosClient.delete(`/core-service/friendships/${id}`);
 };
 
 export const getAcceptedFriendshipHistoryListApi = (
@@ -35,7 +35,7 @@ export const getAcceptedFriendshipHistoryListApi = (
   if (beforeId !== undefined) params.append("beforeId", beforeId.toString());
 
   return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
-    `/friendships/history?${params.toString()}`
+    `/core-service/friendships/history?${params.toString()}`
   );
 };
 
@@ -48,7 +48,7 @@ export const getReceivedHistoryInvitationsApi = (
   if (beforeId !== undefined) params.append("beforeId", beforeId.toString());
 
   return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
-    `/friendships/history/received?${params.toString()}`
+    `/core-service/friendships/history/received?${params.toString()}`
   );
 };
 
@@ -61,12 +61,12 @@ export const getSentHistoryInvitationsApi = (
   if (beforeId !== undefined) params.append("beforeId", beforeId.toString());
 
   return axiosClient.get<ApiResponse<HistoryFriendshipResponse>>(
-    `/friendships/history/sent?${params.toString()}`
+    `/core-service/friendships/history/sent?${params.toString()}`
   );
 };
 
 export const getUserFriendshipStatsApi = () => {
   return axiosClient.get<ApiResponse<UserFriendshipStatsResponse>>(
-    `/friendships/me/stats`
+    `/core-service/friendships/me/stats`
   );
 };
