@@ -3,7 +3,7 @@ export const markInviteAsSent = (targetUserId: number | string) => {
   let sent = JSON.parse(localStorage.getItem("sent_invites_tracker") || "[]");
   if (!sent.includes(id)) {
     sent.push(id);
-    if (sent.length > 100) sent = sent.slice(sent.length - 100);
+    if (sent.length > 100) sent = sent.slice(-100);
     localStorage.setItem("sent_invites_tracker", JSON.stringify(sent));
   }
 };
