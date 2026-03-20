@@ -5,12 +5,12 @@ import type { UserSummarySimpleResponse } from "@/types/common/userSummarySimple
 
 export const lookupApi = (email: string) => {
   return axiosClient.get<ApiResponse<UserSummaryResponse>>(
-    `/users/lookup/${email}`
+    `/core-service/users/lookup/${email}`
   );
 };
 
 export const lookupByIdApi = (id: number) => {
   return axiosClient.get<ApiResponse<UserSummarySimpleResponse>>(
-    `/users/lookup/id?id=${id}`
+    `/core-service/users/lookup/id?id=${id}`
   );
 };

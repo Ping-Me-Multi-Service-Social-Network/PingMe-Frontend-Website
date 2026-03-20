@@ -174,7 +174,7 @@ class SocketManagerClass {
 
     this.client = new Client({
       webSocketFactory: () => {
-        const url = `${opts.baseUrl}/ws`;
+        const url = `${opts.baseUrl}/core-service/ws`;
         console.log("[PingMe] Creating WebSocket to:", url);
         return new SockJS(url);
       },

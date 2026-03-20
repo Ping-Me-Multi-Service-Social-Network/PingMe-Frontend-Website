@@ -6,12 +6,12 @@ import type {AIMessage} from "@/types/ai/aiMessage";
 
 export const aiChatBoxService = {
   getChatHistory: (chatRoomId: string, page: number = 0, size: number = 20) =>
-    axiosClient.get<ApiResponse<Slice<AIMessage>>>(`/ai-chatbox/room/${chatRoomId}`, {
+    axiosClient.get<ApiResponse<Slice<AIMessage>>>(`/core-service/ai-chatbox/room/${chatRoomId}`, {
       params: { page, size },
     }),
 
   getUserChatRooms: (page: number = 0, size: number = 10) =>
-    axiosClient.get<ApiResponse<Slice<AIChatRoomInformation>>>(`/ai-chatbox/rooms`, {
+    axiosClient.get<ApiResponse<Slice<AIChatRoomInformation>>>(`/core-service/ai-chatbox/rooms`, {
       params: { page, size },
     }),
 
@@ -23,11 +23,11 @@ export const aiChatBoxService = {
       files.forEach((file) => formData.append("files", file));
     }
 
-    return axiosClient.post<ApiResponse<AIChatResponse>>("/ai-chatbox/chat", formData, {
+    return axiosClient.post<ApiResponse<AIChatResponse>>("/core-service/ai-chatbox/chat", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
 
   deleteChatRoom: (chatRoomId: string) =>
-    axiosClient.delete<ApiResponse<void>>(`/ai-chatbox/room/${chatRoomId}`),
+    axiosClient.delete<ApiResponse<void>>(`/core-service/ai-chatbox/room/${chatRoomId}`),
 };

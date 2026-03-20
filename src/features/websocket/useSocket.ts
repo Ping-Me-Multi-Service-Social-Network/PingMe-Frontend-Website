@@ -24,8 +24,15 @@ export const useSocket = () => {
 
     const unsubs = [
       SocketManager.on("FRIENDSHIP", (ev) => {
+        // Bỏ qua event dội echo từ server
+        if (ev.userSummaryResponse.id === Number(userSession?.id)) return;
+
         if (ev.type === "INVITED") {
-          toast.info(`Bạn nhận được lời mời kết bạn từ ${ev.userSummaryResponse.name}`);
+          import("@/utils/inviteTracker").then((module) => {
+            if (!module.hasSentInvite(ev.userSummaryResponse.id)) {
+              toast.info(`Bạn nhận được lời mời kết bạn từ ${ev.userSummaryResponse.name}`);
+            }
+          });
         } else if (ev.type === "ACCEPTED") {
           toast.success(`${ev.userSummaryResponse.name} đã chấp nhận lời mời kết bạn`);
         }

@@ -36,6 +36,7 @@ import type {
 } from "@/types/chat/room";
 import { createOrGetDirectRoomApi } from "@/services/chat";
 import { useTranslation } from "react-i18next";
+import { markInviteAsSent, clearSentInvite } from "@/utils/inviteTracker";
 
 interface UserLookupModalProps {
   onFriendAdded?: () => void;
@@ -78,11 +79,19 @@ export function UserLookupModal({
     if (!userData?.email) return;
     try {
       setIsSending(true);
+      
+      // Khắc phục Race Condition: BẮT BUỘC lưu ID TRƯỚC khi gọi API
+      // vì tin nhắn WebSocket có thể về nhanh hơn kết quả HTTP Response của Axios
+      markInviteAsSent(data.targetUserId);
+      
       await sendInvitationApi(data);
+      
       toast.success(t("userLookup.requestSuccess"));
 
       onFriendAdded?.();
     } catch (err) {
+      // Nếu lỗi HTTP thì dọn dẹp biến tạm
+      clearSentInvite(data.targetUserId);
       toast.error(getErrorMessage(err, t("userLookup.requestError")));
     } finally {
       setIsSending(false);
