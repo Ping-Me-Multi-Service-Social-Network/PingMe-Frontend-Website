@@ -13,6 +13,7 @@ import { getCurrentUserSession, logout } from "@/features/auth/authThunk";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
 import { setupAuthAxiosInterceptors } from "./lib/axiosAuthClient";
 import { setupMusicAxiosInterceptors } from "./lib/axiosMusicClient";
+import { setupReelAxiosInterceptors } from "./lib/axiosReelClient";
 import {
   setLogoutReason,
   updateUserSession,
@@ -81,6 +82,7 @@ function AppInner() {
     setupAxiosInterceptors(opts);
     setupAuthAxiosInterceptors(opts);
     setupMusicAxiosInterceptors(opts);
+    setupReelAxiosInterceptors(opts);
   }, []);
 
   if (isUnsupportedViewport) {
