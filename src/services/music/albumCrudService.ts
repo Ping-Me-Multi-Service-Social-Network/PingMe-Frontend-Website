@@ -1,4 +1,4 @@
-import axiosMusicClient from "@/lib/axiosMusicClient";
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type { AlbumResponse, AlbumRequest } from "@/types/music";
 import { createFormDataForAlbum } from "./helpers/formDataHelper";
@@ -13,7 +13,7 @@ export const albumCrudService = {
    * Get all albums
    */
   getAll: async (): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<AlbumResponse>>
     >(`${BASE_URL}/albums/all`);
     return response.data;
@@ -23,7 +23,7 @@ export const albumCrudService = {
    * Get album by ID
    */
   getById: async (id: number): Promise<AlbumResponse> => {
-    const response = await axiosMusicClient.get<ApiResponse<AlbumResponse>>(
+    const response = await axiosClient.get<ApiResponse<AlbumResponse>>(
       `${BASE_URL}/albums/${id}`,
     );
     return response.data.data;
@@ -35,7 +35,7 @@ export const albumCrudService = {
   search: async (
     title: string,
   ): Promise<ApiResponse<PageResponse<AlbumResponse>>> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<AlbumResponse>>
     >(`${BASE_URL}/albums/search`, {
       params: { title },
@@ -48,7 +48,7 @@ export const albumCrudService = {
    */
   create: async (data: AlbumRequest): Promise<AlbumResponse> => {
     const formData = createFormDataForAlbum(data);
-    const response = await axiosMusicClient.post<ApiResponse<AlbumResponse>>(
+    const response = await axiosClient.post<ApiResponse<AlbumResponse>>(
       `${BASE_URL}/albums/save`,
       formData,
       {
@@ -66,7 +66,7 @@ export const albumCrudService = {
     data: Partial<AlbumRequest>,
   ): Promise<AlbumResponse> => {
     const formData = createFormDataForAlbum(data);
-    const response = await axiosMusicClient.put<ApiResponse<AlbumResponse>>(
+    const response = await axiosClient.put<ApiResponse<AlbumResponse>>(
       `${BASE_URL}/albums/update/${id}`,
       formData,
       {
@@ -80,7 +80,7 @@ export const albumCrudService = {
    * Soft delete album
    */
   softDelete: async (id: number): Promise<void> => {
-    await axiosMusicClient.delete<ApiResponse<void>>(
+    await axiosClient.delete<ApiResponse<void>>(
       `${BASE_URL}/albums/soft-delete/${id}`,
     );
   },
@@ -89,7 +89,7 @@ export const albumCrudService = {
    * Hard delete album
    */
   hardDelete: async (id: number): Promise<void> => {
-    await axiosMusicClient.delete<ApiResponse<void>>(
+    await axiosClient.delete<ApiResponse<void>>(
       `${BASE_URL}/albums/hard-delete/${id}`,
     );
   },
@@ -98,7 +98,7 @@ export const albumCrudService = {
    * Restore deleted album
    */
   restore: async (id: number): Promise<void> => {
-    await axiosMusicClient.put<ApiResponse<void>>(
+    await axiosClient.put<ApiResponse<void>>(
       `${BASE_URL}/albums/restore/${id}`,
     );
   },

@@ -1,4 +1,4 @@
-import axiosMusicClient from "@/lib/axiosMusicClient";
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type { GenreResponse, GenreRequest } from "@/types/music";
 import { createFormDataForGenre } from "./helpers/formDataHelper";
@@ -13,7 +13,7 @@ export const genreCrudService = {
    * Get all genres
    */
   getAll: async (): Promise<ApiResponse<PageResponse<GenreResponse>>> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<GenreResponse>>
     >(`${BASE_URL}/genres/all`);
     return response.data;
@@ -23,7 +23,7 @@ export const genreCrudService = {
    * Get genre by ID
    */
   getById: async (id: number): Promise<GenreResponse> => {
-    const response = await axiosMusicClient.get<ApiResponse<GenreResponse>>(
+    const response = await axiosClient.get<ApiResponse<GenreResponse>>(
       `${BASE_URL}/genres/${id}`,
     );
     return response.data.data;
@@ -35,7 +35,7 @@ export const genreCrudService = {
   search: async (
     name: string,
   ): Promise<ApiResponse<PageResponse<GenreResponse>>> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<GenreResponse>>
     >(`${BASE_URL}/genres/search`, {
       params: { name },
@@ -48,7 +48,7 @@ export const genreCrudService = {
    */
   create: async (data: GenreRequest): Promise<GenreResponse> => {
     const formData = createFormDataForGenre(data);
-    const response = await axiosMusicClient.post<ApiResponse<GenreResponse>>(
+    const response = await axiosClient.post<ApiResponse<GenreResponse>>(
       `${BASE_URL}/genres/save`,
       formData,
       {
@@ -66,7 +66,7 @@ export const genreCrudService = {
     data: Partial<GenreRequest>,
   ): Promise<GenreResponse> => {
     const formData = createFormDataForGenre(data);
-    const response = await axiosMusicClient.put<ApiResponse<GenreResponse>>(
+    const response = await axiosClient.put<ApiResponse<GenreResponse>>(
       `${BASE_URL}/genres/update/${id}`,
       formData,
       {
@@ -80,7 +80,7 @@ export const genreCrudService = {
    * Soft delete genre
    */
   softDelete: async (id: number): Promise<void> => {
-    await axiosMusicClient.delete<ApiResponse<void>>(
+    await axiosClient.delete<ApiResponse<void>>(
       `${BASE_URL}/genres/soft-delete/${id}`,
     );
   },
@@ -89,7 +89,7 @@ export const genreCrudService = {
    * Hard delete genre
    */
   hardDelete: async (id: number): Promise<void> => {
-    await axiosMusicClient.delete<ApiResponse<void>>(
+    await axiosClient.delete<ApiResponse<void>>(
       `${BASE_URL}/genres/hard-delete/${id}`,
     );
   },
@@ -98,7 +98,7 @@ export const genreCrudService = {
    * Restore deleted genre
    */
   restore: async (id: number): Promise<void> => {
-    await axiosMusicClient.put<ApiResponse<void>>(
+    await axiosClient.put<ApiResponse<void>>(
       `${BASE_URL}/genres/restore/${id}`,
     );
   },

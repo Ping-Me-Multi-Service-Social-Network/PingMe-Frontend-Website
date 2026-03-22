@@ -53,7 +53,7 @@ export function createAxiosInstance(baseURL: string): {
     const performRefreshToken = async (): Promise<string> => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_AUTH_SERVICE_BASE_URL}/auth-service/auth/refresh`,
+                `${baseURL}/auth-service/auth/refresh`,
                 getSessionMetaRequest(),
                 { withCredentials: true },
             );

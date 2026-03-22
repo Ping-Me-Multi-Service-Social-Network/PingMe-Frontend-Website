@@ -1,4 +1,4 @@
-import axiosAuthClient from "@/lib/axiosAuthClient";
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   DefaultAuthResponse,
@@ -12,7 +12,7 @@ import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 // ============================================================================
 
 export const registerLocalApi = (data: RegisterRequest) => {
-  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth-service/auth/register",
     data,
   );
@@ -21,25 +21,25 @@ export const registerLocalApi = (data: RegisterRequest) => {
 export const loginLocalApi = (data: DefaultLoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 
-  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth-service/auth/login",
     data,
   );
 };
 
 export const logoutApi = () => {
-  return axiosAuthClient.post("/auth-service/auth/logout");
+  return axiosClient.post("/auth-service/auth/logout");
 };
 
 export const refreshApi = () => {
-  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth-service/auth/refresh",
     getSessionMetaRequest(),
   );
 };
 
 export const forgetPasswordApi = (data: { email: string }) => {
-  return axiosAuthClient.post<ApiResponse<any>>(
+  return axiosClient.post<ApiResponse<any>>(
     "/auth-service/auth/forget-password",
     data,
   );
@@ -52,7 +52,7 @@ export const forgetPasswordApi = (data: { email: string }) => {
 export const adminLoginApi = (data: DefaultLoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 
-  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth-service/auth/admin/login",
     data,
   );
@@ -65,14 +65,14 @@ export const adminLoginApi = (data: DefaultLoginRequest) => {
 export const mobileLoginApi = (data: DefaultLoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 
-  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth-service/auth/mobile/login",
     data,
   );
 };
 
 export const mobileRefreshApi = () => {
-  return axiosAuthClient.post<ApiResponse<DefaultAuthResponse>>(
+  return axiosClient.post<ApiResponse<DefaultAuthResponse>>(
     "/auth-service/auth/mobile/refresh",
     getSessionMetaRequest(),
   );
@@ -83,15 +83,15 @@ export const mobileRefreshApi = () => {
 // ============================================================================
 
 export const getOtpAdminStatusApi = () => {
-  return axiosAuthClient.get<ApiResponse<{ isEnabled: boolean }>>(
+  return axiosClient.get<ApiResponse<{ isEnabled: boolean }>>(
     "/auth-service/otp/admin/status",
   );
 };
 
 export const sendOtpApi = (data: { email: string; type?: string }) => {
-  return axiosAuthClient.post<ApiResponse<any>>("/auth-service/otp/send", data);
+  return axiosClient.post<ApiResponse<any>>("/auth-service/otp/send", data);
 };
 
 export const verifyOtpApi = (data: { email: string; otp: string; type?: string }) => {
-  return axiosAuthClient.post<ApiResponse<any>>("/auth-service/otp/verify", data);
+  return axiosClient.post<ApiResponse<any>>("/auth-service/otp/verify", data);
 };

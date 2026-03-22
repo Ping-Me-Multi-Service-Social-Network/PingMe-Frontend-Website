@@ -188,7 +188,7 @@ class SocketManagerClass {
               console.log("[PingMe] Token expired before WS connect, refreshing...");
               try {
                 const response = await axios.post(
-                  `${import.meta.env.VITE_AUTH_SERVICE_BASE_URL}/auth-service/auth/refresh`,
+                  `${import.meta.env.VITE_BACKEND_BASE_URL}/auth-service/auth/refresh`,
                   getSessionMetaRequest(),
                   { withCredentials: true },
                 );

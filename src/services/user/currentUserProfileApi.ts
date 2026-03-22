@@ -1,4 +1,4 @@
-import axiosAuthClient from "@/lib/axiosAuthClient";
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type {
   ChangePasswordRequest,
@@ -8,13 +8,13 @@ import type {
 } from "@/types/authentication";
 
 export const getCurrentUserSessionApi = () => {
-  return axiosAuthClient.get<ApiResponse<CurrentUserSessionResponse>>(
+  return axiosClient.get<ApiResponse<CurrentUserSessionResponse>>(
     "/auth-service/users/me",
   );
 };
 
 export const getCurrentUserInfoApi = () => {
-  return axiosAuthClient.get<ApiResponse<CurrentUserProfileResponse>>(
+  return axiosClient.get<ApiResponse<CurrentUserProfileResponse>>(
     "/auth-service/users/me/info",
   );
 };
@@ -22,7 +22,7 @@ export const getCurrentUserInfoApi = () => {
 export const updateCurrentUserPasswordApi = (
   changePasswordRequest: ChangePasswordRequest,
 ) => {
-  return axiosAuthClient.post<ApiResponse<CurrentUserSessionResponse>>(
+  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/auth-service/users/me/password",
     changePasswordRequest,
   );
@@ -31,14 +31,14 @@ export const updateCurrentUserPasswordApi = (
 export const updateCurrentUserProfileApi = (
   changeProfileRequest: ChangeProfileRequest,
 ) => {
-  return axiosAuthClient.post<ApiResponse<CurrentUserSessionResponse>>(
+  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/auth-service/users/me/profile",
     changeProfileRequest,
   );
 };
 
 export const updateCurrentUserAvatarApi = (data: FormData) => {
-  return axiosAuthClient.post<ApiResponse<CurrentUserSessionResponse>>(
+  return axiosClient.post<ApiResponse<CurrentUserSessionResponse>>(
     "/auth-service/users/me/avatar",
     data,
     {
@@ -50,7 +50,7 @@ export const updateCurrentUserAvatarApi = (data: FormData) => {
 };
 
 export const activateAccountApi = () => {
-  return axiosAuthClient.post<ApiResponse<{ isActivated: boolean }>>(
+  return axiosClient.post<ApiResponse<{ isActivated: boolean }>>(
     "/auth-service/users/me/activate",
   );
 };

@@ -1,4 +1,4 @@
-import axiosMusicClient from "@/lib/axiosMusicClient";
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse, PageResponse } from "@/types/base/apiResponse";
 import type {
   SongResponseWithAllAlbum,
@@ -17,7 +17,7 @@ export const searchService = {
    * Search all music entities by query
    */
   searchAll: async (query: string) => {
-    const response = await axiosMusicClient.get(`${BASE_URL}/search`, {
+    const response = await axiosClient.get(`${BASE_URL}/search`, {
       params: { q: query },
     });
     return response.data;
@@ -30,7 +30,7 @@ export const searchService = {
   getSongsByAlbum: async (
     albumId: number,
   ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<SongResponseWithAllAlbum>>
     >(`${BASE_URL}/songs/search-by-album`, {
       params: { id: albumId },
@@ -45,7 +45,7 @@ export const searchService = {
   getSongsByArtist: async (
     artistId: number,
   ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<SongResponseWithAllAlbum>>
     >(`${BASE_URL}/songs/search-by-artist`, {
       params: { id: artistId },
@@ -60,7 +60,7 @@ export const searchService = {
   getSongsByGenre: async (
     genreId: number,
   ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<SongResponseWithAllAlbum>>
     >(`${BASE_URL}/songs/genre`, {
       params: { id: genreId },
@@ -75,7 +75,7 @@ export const searchService = {
   searchSongs: async (
     query: string,
   ): Promise<SongResponseWithAllAlbum[]> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<SongResponseWithAllAlbum>>
     >(`${BASE_URL}/songs/search`, {
       params: { title: query },
@@ -90,7 +90,7 @@ export const searchService = {
   searchAlbums: async (
     query: string,
   ): Promise<AlbumResponse[]> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<AlbumResponse>>
     >(`${BASE_URL}/albums/search`, {
       params: { title: query },
@@ -105,7 +105,7 @@ export const searchService = {
   searchArtists: async (
     query: string,
   ): Promise<ArtistResponse[]> => {
-    const response = await axiosMusicClient.get<
+    const response = await axiosClient.get<
       ApiResponse<PageResponse<ArtistResponse>>
     >(`${BASE_URL}/artists/search`, {
       params: { name: query },

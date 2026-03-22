@@ -1,28 +1,28 @@
-import axiosMusicClient from "@/lib/axiosMusicClient";
+import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/base/apiResponse";
 import type { FavoriteDto } from "@/types/music/favorite";
 
 export const favoriteApi = {
     // Get all favorite songs for current user
     getFavorites: async (): Promise<FavoriteDto[]> => {
-        const response = await axiosMusicClient.get<ApiResponse<FavoriteDto[]>>("/music-service/favorites");
+        const response = await axiosClient.get<ApiResponse<FavoriteDto[]>>("/music-service/favorites");
         const data = response.data.data || response.data;
         return Array.isArray(data) ? data : [];
     },
 
     // Add a song to favorites
     addFavorite: async (songId: number): Promise<void> => {
-        await axiosMusicClient.post<ApiResponse<void>>(`/music-service/favorites/${songId}`);
+        await axiosClient.post<ApiResponse<void>>(`/music-service/favorites/${songId}`);
     },
 
     // Remove a song from favorites
     removeFavorite: async (songId: number): Promise<void> => {
-        await axiosMusicClient.delete<ApiResponse<void>>(`/music-service/favorites/${songId}`);
+        await axiosClient.delete<ApiResponse<void>>(`/music-service/favorites/${songId}`);
     },
 
     // Check if a song is in favorites
     isFavorite: async (songId: number): Promise<boolean> => {
-        const response = await axiosMusicClient.get<ApiResponse<boolean>>(`/music-service/favorites/is/${songId}`);
+        const response = await axiosClient.get<ApiResponse<boolean>>(`/music-service/favorites/is/${songId}`);
         return response.data.data;
     },
 };
