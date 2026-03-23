@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { reelsApi } from "@/services/reels";
 import type { Reel } from "@/types/reels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
-import { Heart, Bookmark, Eye, Play } from "lucide-react";
+import { Heart, Bookmark, Eye, Play, X } from "lucide-react";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import { formatRelativeTime } from "@/utils/dateFormatter.ts";
@@ -25,52 +25,100 @@ const ReelThumbnail = ({
 }) => {
   return (
     <div
-      className="relative aspect-[3/4] bg-gray-800 rounded overflow-hidden cursor-pointer group hover:opacity-90 transition-opacity"
+      className="reel-thumb"
       onClick={onClick}
+      style={{
+        position: "relative",
+        aspectRatio: "3/4",
+        borderRadius: "8px",
+        overflow: "hidden",
+        cursor: "pointer",
+        background: "var(--reel-surface, oklch(0.12 0.03 270))",
+      }}
     >
       <video
         src={reel.videoUrl}
-        className="w-full h-full object-cover"
+        className="reel-thumb__video"
         preload="metadata"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+        }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
-      {/* Play icon on hover */}
-      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <Play className="w-12 h-12 text-white" fill="white" />
+      {/* Bottom gradient */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to top, oklch(0.06 0.02 270 / 0.85) 0%, transparent 50%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Play overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "oklch(0.06 0.02 270 / 0.5)",
+          opacity: 0,
+          transition: "opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1)",
+        }}
+        className="reel-thumb__play-overlay"
+      >
+        <Play style={{ width: 40, height: 40, color: "white" }} fill="white" />
       </div>
 
-      {/* Stats overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 text-white text-xs space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1">
-            <Eye className="w-3 h-3" />
+      {/* Stats */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: "0.5rem",
+          color: "var(--reel-text-secondary, oklch(0.7 0.04 270))",
+          fontSize: "0.6875rem",
+          fontWeight: 600,
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.25rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+            <Eye style={{ width: 12, height: 12 }} />
             {reel.viewCount}
           </span>
-          <span className="flex items-center gap-1">
-            <Heart className="w-3 h-3" />
+          <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+            <Heart style={{ width: 12, height: 12 }} />
             {reel.likeCount}
           </span>
         </div>
         {timestamp && (
-          <div className="text-gray-300 text-[10px]">
+          <span style={{ fontSize: "0.625rem", color: "var(--reel-text-muted, oklch(0.5 0.03 270))" }}>
             {formatRelativeTime(timestamp)}
-          </div>
+          </span>
         )}
       </div>
+
+      {/* Hover style injected via CSS class */}
+      <style>{`
+        .reel-thumb:hover .reel-thumb__play-overlay { opacity: 1 !important; }
+      `}</style>
     </div>
   );
 };
 
-export function ReelsLibrary({
-  isOpen,
-  onClose,
-  onReelClick,
-}: ReelsLibraryProps) {
+export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps) {
   const { t } = useTranslation("reels");
-  const [activeTab, setActiveTab] = useState<"likes" | "saves" | "views">(
-    "likes"
-  );
+  const [activeTab, setActiveTab] = useState<"likes" | "saves" | "views">("likes");
   const [likedReels, setLikedReels] = useState<Reel[]>([]);
   const [savedReels, setSavedReels] = useState<Reel[]>([]);
   const [viewedReels, setViewedReels] = useState<Reel[]>([]);
@@ -78,7 +126,6 @@ export function ReelsLibrary({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const loadLibraryReels = async () => {
       setIsLoading(true);
       try {
@@ -96,52 +143,147 @@ export function ReelsLibrary({
         setIsLoading(false);
       }
     };
-
     loadLibraryReels();
   }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const renderGrid = (reelsList: Reel[], emptyTitle: string, emptyDesc: string) => {
+    if (reelsList.length === 0) {
+      return (
+        <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          <EmptyState title={emptyTitle} description={emptyDesc} />
+        </div>
+      );
+    }
+    return (
+      <div style={{ padding: "1rem" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+            gap: "0.75rem",
+          }}
+        >
+          {reelsList.map((reel) => (
+            <ReelThumbnail
+              key={reel.id}
+              reel={reel}
+              timestamp={reel.createdAt}
+              onClick={() => {
+                onReelClick?.(reel);
+                onClose();
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-lg w-[80vw] h-[80vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-white">{t("library.title")}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            ✕
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        background: "oklch(0.06 0.02 270 / 0.7)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+      }}
+    >
+      <div
+        style={{
+          background: "var(--reel-surface, oklch(0.12 0.03 270))",
+          border: "1px solid var(--reel-border, oklch(0.2 0.04 270))",
+          borderRadius: "1rem",
+          width: "80vw",
+          height: "80vh",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "1rem 1.25rem",
+            borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 270))",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "1.125rem",
+              fontWeight: 700,
+              color: "var(--reel-text-primary, oklch(0.96 0.01 270))",
+            }}
+          >
+            {t("library.title")}
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "2rem",
+              height: "2rem",
+              borderRadius: "50%",
+              border: "none",
+              background: "transparent",
+              color: "var(--reel-text-secondary, oklch(0.7 0.04 270))",
+              cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+          >
+            <X style={{ width: 18, height: 18 }} />
           </button>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center flex-1">
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <LoadingSpinner />
           </div>
         ) : (
           <Tabs
             value={activeTab}
-            onValueChange={(v) =>
-              setActiveTab(v as "likes" | "saves" | "views")
-            }
+            onValueChange={(v) => setActiveTab(v as "likes" | "saves" | "views")}
             className="flex-1 flex flex-col overflow-hidden"
           >
-            <TabsList className="w-full rounded-none bg-gray-800 border-b border-gray-700 flex-shrink-0">
+            <TabsList
+              className="w-full rounded-none flex-shrink-0"
+              style={{
+                background: "var(--reel-bg, oklch(0.06 0.02 270))",
+                borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 270))",
+              }}
+            >
               <TabsTrigger
                 value="likes"
-                className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
+                className="flex items-center gap-2 flex-1 font-bold"
+                style={{ color: "var(--reel-text-secondary)" }}
               >
                 <Heart className="w-4 h-4" />
                 {t("library.tabs.likes")} ({likedReels.length})
               </TabsTrigger>
               <TabsTrigger
                 value="saves"
-                className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
+                className="flex items-center gap-2 flex-1 font-bold"
+                style={{ color: "var(--reel-text-secondary)" }}
               >
                 <Bookmark className="w-4 h-4" />
                 {t("library.tabs.saves")} ({savedReels.length})
               </TabsTrigger>
               <TabsTrigger
                 value="views"
-                className="flex items-center gap-2 flex-1 font-bold text-white data-[state=active]:bg-white data-[state=active]:text-black"
+                className="flex items-center gap-2 flex-1 font-bold"
+                style={{ color: "var(--reel-text-secondary)" }}
               >
                 <Eye className="w-4 h-4" />
                 {t("library.tabs.views")} ({viewedReels.length})
@@ -149,84 +291,15 @@ export function ReelsLibrary({
             </TabsList>
 
             <TabsContent value="likes" className="m-0 flex-1 overflow-y-auto">
-              {likedReels.length === 0 ? (
-                <div className="h-full flex items-center justify-center p-4">
-                  <EmptyState
-                    title={t("library.emptyLikes")}
-                    description={t("library.emptyLikesDesc")}
-                  />
-                </div>
-              ) : (
-                <div className="p-4">
-                  <div className="grid grid-cols-5 gap-3">
-                    {likedReels.map((reel) => (
-                      <ReelThumbnail
-                        key={reel.id}
-                        reel={reel}
-                        timestamp={reel.createdAt}
-                        onClick={() => {
-                          onReelClick?.(reel);
-                          onClose();
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {renderGrid(likedReels, t("library.emptyLikes"), t("library.emptyLikesDesc"))}
             </TabsContent>
 
             <TabsContent value="saves" className="m-0 flex-1 overflow-y-auto">
-              {savedReels.length === 0 ? (
-                <div className="h-full flex items-center justify-center p-4">
-                  <EmptyState
-                    title={t("library.emptySaves")}
-                    description={t("library.emptySavesDesc")}
-                  />
-                </div>
-              ) : (
-                <div className="p-4">
-                  <div className="grid grid-cols-5 gap-3">
-                    {savedReels.map((reel) => (
-                      <ReelThumbnail
-                        key={reel.id}
-                        reel={reel}
-                        timestamp={reel.createdAt}
-                        onClick={() => {
-                          onReelClick?.(reel);
-                          onClose();
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {renderGrid(savedReels, t("library.emptySaves"), t("library.emptySavesDesc"))}
             </TabsContent>
 
             <TabsContent value="views" className="m-0 flex-1 overflow-y-auto">
-              {viewedReels.length === 0 ? (
-                <div className="h-full flex items-center justify-center p-4">
-                  <EmptyState
-                    title={t("library.emptyViews")}
-                    description={t("library.emptyViewsDesc")}
-                  />
-                </div>
-              ) : (
-                <div className="p-4">
-                  <div className="grid grid-cols-5 gap-3">
-                    {viewedReels.map((reel) => (
-                      <ReelThumbnail
-                        key={reel.id}
-                        reel={reel}
-                        timestamp={reel.createdAt}
-                        onClick={() => {
-                          onReelClick?.(reel);
-                          onClose();
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {renderGrid(viewedReels, t("library.emptyViews"), t("library.emptyViewsDesc"))}
             </TabsContent>
           </Tabs>
         )}

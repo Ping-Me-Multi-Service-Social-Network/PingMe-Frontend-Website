@@ -187,14 +187,14 @@ export default function CommentsModal({
 
   return (
     <>
-      <div className="inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden border border-gray-200">
+      <div className="inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: 'oklch(0.06 0.02 270 / 0.7)', backdropFilter: 'blur(12px)' }}>
+        <div className="rounded-2xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden" style={{ background: 'oklch(0.12 0.03 270)', border: '1px solid oklch(0.2 0.04 270)' }}>
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
+          <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid oklch(0.2 0.04 270)', background: 'oklch(0.1 0.03 270)' }}>
             <div className="flex items-center gap-3">
-              <MessageCircle className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-900">{t("comments.title")}</h2>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
+              <MessageCircle className="w-6 h-6" style={{ color: 'oklch(0.65 0.2 270)' }} />
+              <h2 className="text-xl font-bold" style={{ color: 'oklch(0.96 0.01 270)' }}>{t("comments.title")}</h2>
+              <span className="px-3 py-1 text-sm font-semibold rounded-full" style={{ background: 'oklch(0.2 0.08 270)', color: 'oklch(0.72 0.18 270)' }}>
                 {reel.commentCount}
               </span>
             </div>
@@ -202,29 +202,29 @@ export default function CommentsModal({
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="h-10 w-10 rounded-full hover:bg-white/80 transition-all hover:rotate-90"
+              className="h-10 w-10 rounded-full hover:bg-white/10 transition-all hover:rotate-90"
             >
               <X className="w-5 h-5" />
             </Button>
           </div>
 
           {/* Comments List */}
-          <div className="flex-1 overflow-y-auto px-4 py-2 bg-gradient-to-b from-gray-50/50 to-white">
+          <div className="flex-1 overflow-y-auto px-4 py-2" style={{ background: 'oklch(0.1 0.02 270)' }}>
             {isLoadingComments ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+              <div className="flex flex-col items-center justify-center h-full" style={{ color: 'oklch(0.5 0.03 270)' }}>
                 <div className="relative">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-blue-500" />
-                  <MessageCircle className="absolute inset-0 m-auto w-6 h-6 text-blue-400" />
+                  <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottom: '2px solid oklch(0.65 0.2 270)', borderTop: '2px solid oklch(0.65 0.2 270)' }} />
+                  <MessageCircle className="absolute inset-0 m-auto w-6 h-6" style={{ color: 'oklch(0.65 0.2 270)' }} />
                 </div>
                 <p className="mt-4 text-sm font-medium">{t("comments.loading")}</p>
               </div>
             ) : getParentComments().length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mb-4">
-                  <MessageCircle className="w-10 h-10 text-blue-400" />
+              <div className="flex flex-col items-center justify-center h-full" style={{ color: 'oklch(0.5 0.03 270)' }}>
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{ background: 'oklch(0.2 0.08 270)' }}>
+                  <MessageCircle className="w-10 h-10" style={{ color: 'oklch(0.65 0.2 270)' }} />
                 </div>
-                <p className="text-lg font-semibold text-gray-700">{t("comments.empty")}</p>
-                <p className="text-sm mt-2 text-gray-500">{t("comments.emptyDesc")}</p>
+                <p className="text-lg font-semibold" style={{ color: 'oklch(0.8 0.04 270)' }}>{t("comments.empty")}</p>
+                <p className="text-sm mt-2" style={{ color: 'oklch(0.5 0.03 270)' }}>{t("comments.emptyDesc")}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -236,17 +236,17 @@ export default function CommentsModal({
                   return (
                     <div key={comment.id}>
                       {/* Parent Comment */}
-                      <div className="p-4 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 transition-all duration-200 rounded-xl mx-2 my-1">
+                      <div className="p-4 hover:bg-white/5 transition-all duration-200 rounded-xl mx-2 my-1">
                         <div className="flex gap-3">
                           {/* Avatar */}
                           {comment.userAvatarUrl ? (
                             <img
                               src={comment.userAvatarUrl || "/placeholder.svg"}
                               alt={comment.userName}
-                              className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-blue-100 shadow-sm"
+                              className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 shadow-sm" style={{ '--tw-ring-color': 'oklch(0.2 0.08 270)' } as React.CSSProperties}
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 ring-2 ring-blue-100 shadow-lg">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg" style={{ background: 'oklch(0.55 0.2 270)' }}>
                               <User className="w-5 h-5 text-white" />
                             </div>
                           )}
@@ -254,21 +254,21 @@ export default function CommentsModal({
                           {/* Comment Content */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-bold text-gray-900">{comment.userName}</p>
+                              <p className="text-sm font-bold" style={{ color: 'oklch(0.96 0.01 270)' }}>{comment.userName}</p>
                               {comment.isReelOwner && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold rounded-full shadow-sm">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-white text-xs font-semibold rounded-full shadow-sm" style={{ background: 'oklch(0.55 0.2 270)' }}>
                                   <Shield className="w-3 h-3" />
                                   {t("comments.owner")}
                                 </span>
                               )}
-                              <p className="text-xs text-gray-400 font-medium">
+                              <p className="text-xs font-medium" style={{ color: 'oklch(0.5 0.03 270)' }}>
                                 {formatDistanceToNow(new Date(comment.createdAt), {
                                   addSuffix: true,
                                   locale: i18n.language === "vi" ? vi : enUS,
                                 })}
                               </p>
                             </div>
-                            <p className="text-sm text-gray-800 mt-2 break-words leading-relaxed">
+                            <p className="text-sm mt-2 break-words leading-relaxed" style={{ color: 'oklch(0.8 0.04 270)' }}>
                               {comment.content}
                             </p>
 
@@ -324,7 +324,7 @@ export default function CommentsModal({
 
                       {/* Reply Input */}
                       {replyingToId === comment.id && (
-                        <div className="px-5 pb-5 bg-gradient-to-r from-blue-50 to-purple-50 flex gap-3 border-l-4 border-blue-400 ml-4">
+                        <div className="px-5 pb-5 flex gap-3 ml-4" style={{ background: 'oklch(0.14 0.04 270)', borderLeft: '4px solid oklch(0.55 0.2 270)' }}>
                           <div className="w-11 flex-shrink-0" />
                           <div className="flex-1 flex gap-3">
                             <Input
@@ -350,11 +350,11 @@ export default function CommentsModal({
 
                       {/* Replies Section */}
                       {replies.length > 0 && (
-                        <div className="bg-gradient-to-b from-gray-50 to-white">
+                        <div style={{ background: 'oklch(0.1 0.02 270)' }}>
                           {visibleReplies.map((reply) => (
                             <div
                               key={reply.id}
-                              className="pl-12 pr-4 py-3 border-l-2 border-blue-300 ml-4 hover:bg-blue-50/30 transition-colors"
+                              className="pl-12 pr-4 py-3 ml-4 hover:bg-white/5 transition-colors" style={{ borderLeft: '2px solid oklch(0.45 0.15 270)' }}
                             >
                               <div className="flex gap-2">
                                 {/* Reply Avatar */}
@@ -365,7 +365,7 @@ export default function CommentsModal({
                                     className="w-7 h-7 rounded-full object-cover flex-shrink-0"
                                   />
                                 ) : (
-                                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center flex-shrink-0">
+                                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'oklch(0.5 0.18 270)' }}>
                                     <User className="w-3.5 h-3.5 text-white" />
                                   </div>
                                 )}
@@ -374,7 +374,7 @@ export default function CommentsModal({
                                 <div className="flex-1 min-w-0">
                                   {/* Header with Name, Badge, and Time */}
                                   <div className="flex items-center gap-1.5 flex-wrap">
-                                    <p className="text-xs font-semibold text-gray-900 leading-tight">
+                                    <p className="text-xs font-semibold leading-tight" style={{ color: 'oklch(0.96 0.01 270)' }}>
                                       {reply.userName}
                                     </p>
                                     {reply.isReelOwner && (
@@ -392,7 +392,7 @@ export default function CommentsModal({
                                   </div>
 
                                   {/* Reply Text */}
-                                  <p className="text-xs text-gray-700 mt-1.5 break-words leading-relaxed">
+                                  <p className="text-xs mt-1.5 break-words leading-relaxed" style={{ color: 'oklch(0.75 0.04 270)' }}>
                                     {reply.content}
                                   </p>
 
@@ -470,7 +470,7 @@ export default function CommentsModal({
           </div>
 
           {/* Comment Input */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white shadow-lg">
+          <div className="px-6 py-4 shadow-lg" style={{ borderTop: '1px solid oklch(0.2 0.04 270)', background: 'oklch(0.1 0.03 270)' }}>
             <form onSubmit={onSubmitComment} className="flex gap-3">
               <Input
                 type="text"
@@ -478,13 +478,13 @@ export default function CommentsModal({
                 value={commentText}
                 onChange={(e) => onCommentTextChange(e.target.value)}
                 disabled={isSubmittingComment}
-                className="text-sm h-11 rounded-full border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                className="text-sm h-11 rounded-full transition-all" style={{ background: 'oklch(0.16 0.03 270)', border: '1px solid oklch(0.25 0.05 270)', color: 'oklch(0.96 0.01 270)' }}
               />
               <Button
                 type="submit"
                 size="sm"
                 disabled={isSubmittingComment || !commentText.trim()}
-                className="h-11 px-5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-md hover:shadow-lg transition-all"
+                className="h-11 px-5 text-white rounded-full shadow-md hover:shadow-lg transition-all" style={{ background: 'oklch(0.55 0.2 270)' }}
               >
                 <Send className="w-4 h-4" />
               </Button>
