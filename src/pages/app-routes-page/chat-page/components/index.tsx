@@ -116,8 +116,8 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   };
 
   return (
-    <div className="flex-1 flex bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="flex-1 flex flex-col">
+    <div className="chat-box">
+      <div className="chat-box__main">
         <ChatBoxHeader
           selectedChat={selectedChat}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}

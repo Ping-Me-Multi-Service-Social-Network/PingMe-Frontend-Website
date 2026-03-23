@@ -66,9 +66,9 @@ const ThemeSelectionModal = ({
                 <div className="flex items-center gap-3">
                   {/* Theme preview */}
                   <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200">
-                    <div className={`h-4 ${theme.header.background}`} />
+                    <div className="h-4" style={theme.header.bgStyle} />
                     <div className={`h-4 ${theme.content.background}`} />
-                    <div className={`h-4 ${theme.input.background}`} />
+                    <div className="h-4" style={theme.input.toolbarBgStyle} />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{theme.name}</p>

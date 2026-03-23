@@ -15,7 +15,6 @@ import {
   User,
   Phone,
   Video,
-  Pencil,
   Camera,
 } from "lucide-react";
 import { useState } from "react";
@@ -59,9 +58,7 @@ const ConversationSidebar = ({
 
   if (currentView === "members") {
     return (
-      <div
-        className={`w-80 border-l flex flex-col h-full ${theme.sidebar.background}`}
-      >
+      <div className={`conv-sidebar ${theme.sidebar.background}`}>
         <MemberList
           participants={selectedChat.participants}
           roomType={selectedChat.roomType}
@@ -74,15 +71,13 @@ const ConversationSidebar = ({
 
   return (
     <div
-      className={`w-80 border-l flex flex-col h-full ${theme.sidebar.background} ${theme.sidebar.borderColor}`}
+      className={`conv-sidebar ${theme.sidebar.background} ${theme.sidebar.borderColor}`}
     >
       {/* Header */}
       <div
-        className={`p-4 border-b flex items-center justify-between ${theme.sidebar.headerBg} ${theme.sidebar.borderColor}`}
+        className={`conv-sidebar__header ${theme.sidebar.headerBg} ${theme.sidebar.borderColor}`}
       >
-        <h3 className={`font-semibold ${theme.sidebar.headerText}`}>
-          {t("sidebar.title")}
-        </h3>
+        <h3 className={theme.sidebar.headerText}>{t("sidebar.title")}</h3>
         <Button
           variant="ghost"
           size="icon"
@@ -97,7 +92,7 @@ const ConversationSidebar = ({
       <div className="flex-1 overflow-y-auto">
         {/* User/Room Info */}
         <div
-          className={`p-6 border-b flex flex-col items-center ${theme.sidebar.cardBg} ${theme.sidebar.borderColor}`}
+          className={`conv-sidebar__profile ${theme.sidebar.cardBg} ${theme.sidebar.borderColor}`}
         >
           <div className="relative group">
             <Avatar
@@ -136,32 +131,24 @@ const ConversationSidebar = ({
           </div>
 
           {selectedChat.roomType === "GROUP" ? (
-            <div className="relative w-full max-w-xs group">
+            <div className="relative w-full max-w-xs group text-center">
               <h4
-                className={`font-semibold text-lg text-center truncate px-10 ${theme.sidebar.textPrimary}`}
+                className={`conv-sidebar__profile-name truncate px-10 ${theme.sidebar.textPrimary}`}
               >
                 {selectedChat.name}
               </h4>
-              <Button
-                size="icon"
-                variant="ghost"
-                className={`h-8 w-8 absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity ${theme.header.iconHoverBg}`}
-                onClick={() => setIsRenameModalOpen(true)}
-              >
-                <Pencil className={`h-4 w-4 ${theme.header.iconColor}`} />
-              </Button>
             </div>
           ) : (
             <h4
-              className={`font-semibold text-lg ${theme.sidebar.textPrimary}`}
+              className={`conv-sidebar__profile-name ${theme.sidebar.textPrimary}`}
             >
               {otherParticipant?.name}
             </h4>
           )}
 
-          <div className="flex items-center justify-center gap-6 mt-4">
+          <div className="conv-sidebar__quick-actions">
             {selectedChat.roomType === "DIRECT" && (
-              <div className="flex flex-col items-center gap-2">
+              <div className="conv-sidebar__quick-action">
                 <Button
                   variant="outline"
                   size="icon"
@@ -209,7 +196,7 @@ const ConversationSidebar = ({
           </div>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="conv-sidebar__menu">
           <Button
             variant="outline"
             className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}

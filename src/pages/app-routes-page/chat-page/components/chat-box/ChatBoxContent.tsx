@@ -33,6 +33,12 @@ export const ChatBoxContent = ({
 }: ChatBoxContentProps) => {
   const { t } = useTranslation("chat");
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const [prevRoomId, setPrevRoomId] = useState(selectedChat.roomId);
+
+  if (selectedChat.roomId !== prevRoomId) {
+    setPrevRoomId(selectedChat.roomId);
+    setShouldScrollToBottom(true);
+  }
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -54,9 +60,6 @@ export const ChatBoxContent = ({
     }
   }, [messages.length, shouldScrollToBottom, isLoadingMore]);
 
-  useEffect(() => {
-    setShouldScrollToBottom(true);
-  }, [selectedChat.roomId]);
 
   useLayoutEffect(() => {
     if (messagesContainerRef.current && prevScrollHeightRef.current > 0) {
@@ -121,24 +124,21 @@ export const ChatBoxContent = ({
       {/* Content layer */}
       <div
         ref={messagesContainerRef}
-        className="relative z-10 h-full overflow-y-auto px-4 flex flex-col py-2"
+        className="chat-messages"
         onScroll={handleScroll}
       >
-        <div className="flex-1 invisible" />{" "}
-        {/* Spacer to help push content down */}
+        <div className="chat-messages__spacer" />
         {isLoadingMore && (
           <div className="flex justify-center py-2 shrink-0">
             <LoadingSpinner className="w-8 h-8 text-purple-600" />
           </div>
         )}
-        <div className="mt-auto space-y-2 pb-2">
+        <div className="chat-messages__list">
           {messages.map((message) => (
             <div key={message.id}>
               {message.type === "SYSTEM" ? (
-                <div className="flex justify-center my-2">
-                  <div
-                    className={`px-3 py-1 ${theme.content.systemMessageBg} ${theme.content.systemMessageText} text-sm rounded-full`}
-                  >
+                <div className="chat-system-msg">
+                  <div className={`chat-system-msg__pill ${theme.content.systemMessageBg} ${theme.content.systemMessageText}`}>
                     {message.content}
                   </div>
                 </div>
@@ -169,8 +169,8 @@ export const ChatBoxContent = ({
         </div>
         <div className="min-h-8 flex items-center pl-2">
           {otherUsersTyping.length > 0 && (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full animate-in fade-in duration-200">
-              <span className="text-sm text-muted-foreground italic">
+            <div className="chat-typing animate-in fade-in duration-200">
+              <span className="chat-typing__text">
                 {otherUsersTyping.length === 1
                   ? `${otherUsersTyping[0].name}`
                   : otherUsersTyping.length === 2
@@ -179,10 +179,10 @@ export const ChatBoxContent = ({
                       count: otherUsersTyping.length - 1
                     })}`}
               </span>
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" />
+              <div className="chat-typing__dots">
+                <span className="chat-typing__dot" />
+                <span className="chat-typing__dot" />
+                <span className="chat-typing__dot" />
               </div>
             </div>
           )}

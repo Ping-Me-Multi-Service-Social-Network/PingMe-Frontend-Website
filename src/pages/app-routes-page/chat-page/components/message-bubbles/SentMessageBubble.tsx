@@ -102,7 +102,7 @@ export default function SentMessageBubble({
       case "TEXT":
       default:
         return (
-          <p className="text-sm leading-relaxed wrap-break-word">
+          <p className="text-sm leading-relaxed">
             {message.content}
           </p>
         );
@@ -114,8 +114,8 @@ export default function SentMessageBubble({
   }
 
   return (
-    <div className="flex justify-end mb-4 group">
-      <div className="max-w-[80%] relative">
+    <div className="msg-row msg-row--sent group">
+      <div className="msg-bubble-wrapper relative">
         {message.isActive && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -143,12 +143,13 @@ export default function SentMessageBubble({
           <div>{renderMessageContent()}</div>
         ) : (
           <div
-            className={`${theme.messages.sentBubbleBg} ${theme.messages.sentBubbleText} rounded-2xl rounded-br-md px-4 py-3 shadow-sm`}
+            className={`msg-bubble msg-bubble--sent ${theme.messages.sentBubbleText}`}
+            style={theme.messages.sentBubbleStyle}
           >
             {renderMessageContent()}
           </div>
         )}
-        <div className="text-xs text-muted-foreground mt-1.5 text-right opacity-70">
+        <div className="msg-time msg-time--sent">
           {formatMessageTime(message.createdAt)}
         </div>
       </div>

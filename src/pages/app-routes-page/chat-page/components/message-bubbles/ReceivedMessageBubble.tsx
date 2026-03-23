@@ -81,7 +81,7 @@ export default function ReceivedMessageBubble({
       case "TEXT":
       default:
         return (
-          <p className="text-sm leading-relaxed break-words">
+          <p className="text-sm leading-relaxed">
             {message.content}
           </p>
         );
@@ -92,7 +92,7 @@ export default function ReceivedMessageBubble({
     return (
       <div className="flex items-start mb-4 group">
         <Avatar
-          className={`w-10 h-10 mr-3 flex-shrink-0 ring-2 ${theme.messages.avatarRing}`}
+          className={`w-10 h-10 mr-3 shrink-0 ring-2 ${theme.messages.avatarRing}`}
         >
           <AvatarImage
             src={senderAvatar || "/placeholder.svg"}
@@ -100,7 +100,7 @@ export default function ReceivedMessageBubble({
           />
           <UserAvatarFallback name={senderName} size="md" />
         </Avatar>
-        <div className="max-w-[80%]">
+        <div className="msg-bubble-wrapper">
           {roomType === "GROUP" && senderName && (
             <div className="text-xs font-medium text-gray-600 mb-1 ml-1">
               {senderName}
@@ -113,9 +113,9 @@ export default function ReceivedMessageBubble({
   }
 
   return (
-    <div className="flex items-start mb-4 group">
+    <div className="msg-row msg-row--received group">
       <Avatar
-        className={`w-10 h-10 mr-3 flex-shrink-0 ring-2 ${theme.messages.avatarRing}`}
+        className={`w-10 h-10 mr-3 shrink-0 ring-2 ${theme.messages.avatarRing}`}
       >
         <AvatarImage
           src={senderAvatar || "/placeholder.svg"}
@@ -124,7 +124,7 @@ export default function ReceivedMessageBubble({
         <UserAvatarFallback name={senderName} size="md" />
       </Avatar>
 
-      <div className="max-w-[80%]">
+      <div className="msg-bubble-wrapper">
         {roomType === "GROUP" && senderName && (
           <div className="text-xs font-medium text-gray-600 mb-1 ml-1">
             {senderName}
@@ -135,12 +135,13 @@ export default function ReceivedMessageBubble({
           <div>{renderMessageContent()}</div>
         ) : (
           <div
-            className={`${theme.messages.receivedBubbleBg} ${theme.messages.receivedBubbleText} rounded-2xl rounded-bl-md px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 border ${theme.messages.receivedBubbleBorder}`}
+            className={`msg-bubble msg-bubble--received ${theme.messages.receivedBubbleText} border ${theme.messages.receivedBubbleBorder}`}
+            style={theme.messages.receivedBubbleStyle}
           >
             {renderMessageContent()}
           </div>
         )}
-        <div className="text-xs text-muted-foreground mt-1.5 opacity-70">
+        <div className="msg-time">
           {formatMessageTime(message.createdAt)}
         </div>
       </div>

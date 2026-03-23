@@ -40,23 +40,27 @@ const ChatBoxHeader = ({
 
   return (
     <div
-      className={`flex items-center justify-between p-4 border-b ${theme.header.background}`}
+      className={`chat-box-header`}
+      style={theme.header.bgStyle}
     >
-      <div className="flex items-center space-x-3">
+      <div className="chat-box-header__user">
         <Avatar className={`w-10 h-10 ring-2 ${theme.header.avatarRing}`}>
           <AvatarImage src={avatarUrl || "/placeholder.svg"} />
-          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 text-white font-semibold">
+          <AvatarFallback
+            style={{ background: "oklch(0.45 0.18 270)", color: "white" }}
+            className="font-semibold"
+          >
             {displayName?.charAt(0) || "?"}
           </AvatarFallback>
         </Avatar>
         <div>
-          <h3 className={`font-semibold ${theme.header.textColor}`}>
+          <h3 className={`chat-box-header__name ${theme.header.textColor}`}>
             {displayName}
           </h3>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="chat-box-header__actions">
         {selectedChat.roomType === "DIRECT" && otherParticipant && (
           <CallButton
             targetUserId={otherParticipant.userId}

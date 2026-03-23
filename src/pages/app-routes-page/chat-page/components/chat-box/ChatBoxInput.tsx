@@ -291,17 +291,16 @@ export function ChatBoxInput({
     <div className="border-t bg-white">
       {/* Toolbar: Image, File, Weather, Mic */}
       <div
-        className={`flex items-center space-x-1 p-3 border-b ${theme.input.background}`}
+        className="chat-input-toolbar"
+        style={theme.input.toolbarBgStyle}
       >
-        <Button
-          variant="ghost"
-          size="lg"
-          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
+        <button
+          className="chat-input-toolbar__btn"
           onClick={handleImageClick}
           disabled={disabled || isSending || isRecording || isTranscribing}
         >
-          <ImagePlus className="w-24 h-24" />
-        </Button>
+          <ImagePlus />
+        </button>
         <input
           ref={imageInputRef}
           type="file"
@@ -311,15 +310,13 @@ export function ChatBoxInput({
           onChange={handleImageChange}
         />
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
+        <button
+          className="chat-input-toolbar__btn"
           onClick={handleFileClick}
           disabled={disabled || isSending || isRecording || isTranscribing}
         >
-          <Paperclip className="w-5 h-5" />
-        </Button>
+          <Paperclip />
+        </button>
         <input
           ref={fileInputRef}
           type="file"
@@ -328,28 +325,24 @@ export function ChatBoxInput({
           onChange={handleFileChange}
         />
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
+        <button
+          className="chat-input-toolbar__btn"
           onClick={handleWeatherClick}
           disabled={disabled || isSending || isRecording || isTranscribing}
           title={t("input.sendWeatherTitle")}
         >
-          <CloudSun className="w-5 h-5" />
-        </Button>
+          <CloudSun />
+        </button>
 
         {/* Mic button in toolbar */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`${theme.input.iconColor} ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg`}
+        <button
+          className="chat-input-toolbar__btn"
           onClick={startRecording}
           disabled={disabled || isSending || isRecording || isTranscribing}
           title={t("input.micTitle")}
         >
-          <Mic className="w-5 h-5" />
-        </Button>
+          <Mic />
+        </button>
       </div>
 
       {selectedFiles.length > 0 && (
@@ -438,7 +431,7 @@ export function ChatBoxInput({
         {isTranscribing && (
           <div className="flex items-center gap-3 h-12 px-4 border border-purple-200 rounded-lg bg-purple-50">
             <div
-              className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full flex-shrink-0"
+              className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full shrink-0"
               style={{ animation: "spin 0.8s linear infinite" }}
             />
             <span
@@ -452,25 +445,22 @@ export function ChatBoxInput({
 
         {/* ===== RECORDING STATE ===== */}
         {isRecording && !isTranscribing && (
-          <div className="flex items-center gap-2 h-12">
+          <div className="chat-recording pl-4 pr-4">
             {/* Cancel button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={cancelRecording}
-              className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg h-10 px-3"
+              className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg h-10 px-3 shrink-0"
               title={t("input.cancelRecord")}
             >
               <X className="w-5 h-5" />
             </Button>
 
             {/* Recording indicator bar */}
-            <div className="flex-1 flex items-center gap-3 h-12 px-4 border border-red-200 rounded-lg bg-red-50">
+            <div className="chat-recording__bar">
               {/* Pulsing red dot */}
-              <div
-                className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"
-                style={{ animation: "pulse 1.2s ease-in-out infinite" }}
-              />
+              <div className="chat-recording__dot" />
               <span className="text-sm font-medium text-red-500">{t("input.recording")}</span>
               <span
                 className="text-sm text-gray-500"
@@ -480,11 +470,11 @@ export function ChatBoxInput({
               </span>
 
               {/* Waveform bars */}
-              <div className="flex items-center gap-0.5 ml-auto h-6">
+              <div className="chat-recording__waves">
                 {[...Array(12)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-[3px] rounded-sm bg-red-400"
+                    className="chat-recording__wave-bar"
                     style={{
                       animation: `waveBar 0.9s ease-in-out ${i * 0.08}s infinite alternate`,
                       height: "4px",
@@ -495,20 +485,22 @@ export function ChatBoxInput({
             </div>
 
             {/* Stop button */}
-            <Button
+            <button
               onClick={stopRecording}
-              className="bg-gradient-to-r from-red-500 to-rose-600 text-white h-10 px-4 rounded-lg shadow-md hover:shadow-lg"
+              className="chat-send-btn shrink-0"
+              style={{ background: 'oklch(0.6 0.22 25)' }}
               title={t("input.stopRecord")}
             >
-              <Square className="w-4 h-4 fill-current" />
-            </Button>
+              <Square className="w-4 h-4 fill-current mr-2" />
+              {t("input.stopRecord")}
+            </button>
           </div>
         )}
 
         {/* ===== NORMAL INPUT STATE ===== */}
         {!isRecording && !isTranscribing && (
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+          <div className="chat-input-row">
+            <div className="chat-input-field">
               <Input
                 value={newMessage}
                 onChange={handleInputChange}
@@ -540,17 +532,18 @@ export function ChatBoxInput({
               </div>
             </div>
 
-            <Button
+            <button
               onClick={handleSend}
               disabled={
                 (!newMessage.trim() && selectedFiles.length === 0) ||
                 disabled ||
                 isSending
               }
-              className={`${theme.input.buttonBg} ${theme.input.buttonHover} ${theme.input.buttonText} h-12 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+              className="chat-send-btn"
+              style={theme.input.sendBtnStyle}
             >
-              <Send className="w-5 h-5" />
-            </Button>
+              <Send />
+            </button>
           </div>
         )}
       </div>

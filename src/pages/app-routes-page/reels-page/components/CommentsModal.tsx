@@ -187,7 +187,7 @@ export default function CommentsModal({
 
   return (
     <>
-      <div className="inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: 'oklch(0.06 0.02 270 / 0.7)', backdropFilter: 'blur(12px)' }}>
+      <div className="inset-0 z-9999 flex items-center justify-center p-4" style={{ background: 'oklch(0.06 0.02 270 / 0.7)', backdropFilter: 'blur(12px)' }}>
         <div className="rounded-2xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden" style={{ background: 'oklch(0.12 0.03 270)', border: '1px solid oklch(0.2 0.04 270)' }}>
           {/* Header */}
           <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid oklch(0.2 0.04 270)', background: 'oklch(0.1 0.03 270)' }}>
@@ -243,10 +243,10 @@ export default function CommentsModal({
                             <img
                               src={comment.userAvatarUrl || "/placeholder.svg"}
                               alt={comment.userName}
-                              className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 shadow-sm" style={{ '--tw-ring-color': 'oklch(0.2 0.08 270)' } as React.CSSProperties}
+                              className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 shadow-sm" style={{ '--tw-ring-color': 'oklch(0.2 0.08 270)' } as React.CSSProperties}
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg" style={{ background: 'oklch(0.55 0.2 270)' }}>
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg" style={{ background: 'oklch(0.55 0.2 270)' }}>
                               <User className="w-5 h-5 text-white" />
                             </div>
                           )}
@@ -268,7 +268,7 @@ export default function CommentsModal({
                                 })}
                               </p>
                             </div>
-                            <p className="text-sm mt-2 break-words leading-relaxed" style={{ color: 'oklch(0.8 0.04 270)' }}>
+                            <p className="text-sm mt-2 wrap-break-word leading-relaxed" style={{ color: 'oklch(0.8 0.04 270)' }}>
                               {comment.content}
                             </p>
 
@@ -325,7 +325,7 @@ export default function CommentsModal({
                       {/* Reply Input */}
                       {replyingToId === comment.id && (
                         <div className="px-5 pb-5 flex gap-3 ml-4" style={{ background: 'oklch(0.14 0.04 270)', borderLeft: '4px solid oklch(0.55 0.2 270)' }}>
-                          <div className="w-11 flex-shrink-0" />
+                          <div className="w-11 shrink-0" />
                           <div className="flex-1 flex gap-3">
                             <Input
                               type="text"
@@ -362,10 +362,10 @@ export default function CommentsModal({
                                   <img
                                     src={reply.userAvatarUrl || "/placeholder.svg"}
                                     alt={reply.userName}
-                                    className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                                    className="w-7 h-7 rounded-full object-cover shrink-0"
                                   />
                                 ) : (
-                                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'oklch(0.5 0.18 270)' }}>
+                                  <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: 'oklch(0.5 0.18 270)' }}>
                                     <User className="w-3.5 h-3.5 text-white" />
                                   </div>
                                 )}
@@ -378,7 +378,7 @@ export default function CommentsModal({
                                       {reply.userName}
                                     </p>
                                     {reply.isReelOwner && (
-                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full flex-shrink-0">
+                                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full shrink-0">
                                         <Shield className="w-2.5 h-2.5" />
                                         <span>{t("comments.owner")}</span>
                                       </span>
@@ -392,7 +392,7 @@ export default function CommentsModal({
                                   </div>
 
                                   {/* Reply Text */}
-                                  <p className="text-xs mt-1.5 break-words leading-relaxed" style={{ color: 'oklch(0.75 0.04 270)' }}>
+                                  <p className="text-xs mt-1.5 wrap-break-word leading-relaxed" style={{ color: 'oklch(0.75 0.04 270)' }}>
                                     {reply.content}
                                   </p>
 
@@ -418,7 +418,7 @@ export default function CommentsModal({
                                 {currentUserId && reply.userId === currentUserId && (
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 flex-shrink-0">
+                                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 shrink-0">
                                         <MoreVertical className="w-3 h-3 text-gray-500" />
                                       </Button>
                                     </DropdownMenuTrigger>

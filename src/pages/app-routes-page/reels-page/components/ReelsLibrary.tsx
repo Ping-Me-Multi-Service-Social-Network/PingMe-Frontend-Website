@@ -258,7 +258,7 @@ export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps
             className="flex-1 flex flex-col overflow-hidden"
           >
             <TabsList
-              className="w-full rounded-none flex-shrink-0"
+              className="w-full rounded-none shrink-0"
               style={{
                 background: "var(--reel-bg, oklch(0.06 0.02 270))",
                 borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 270))",

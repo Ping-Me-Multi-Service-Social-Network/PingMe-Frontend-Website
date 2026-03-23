@@ -43,16 +43,16 @@ export default function WeatherMessageBubble({
     return new Date(timestamp * 1000).toLocaleTimeString();
   };
 
-  const WeatherSummary = () => (
+  const renderWeatherSummary = () => (
     <div
       onClick={() => setShowModal(true)}
-      className={`${isSent ? theme.messages.sentBubbleBg : theme.messages.receivedBubbleBg
-        } ${isSent
+      className={`${isSent
           ? theme.messages.sentBubbleText
           : theme.messages.receivedBubbleText
         } rounded-2xl ${isSent ? "rounded-br-md" : "rounded-bl-md"
         } px-4 py-3 shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 max-w-sm ${!isSent && `border ${theme.messages.receivedBubbleBorder}`
         }`}
+      style={isSent ? theme.messages.sentBubbleStyle : theme.messages.receivedBubbleStyle}
     >
       <div className="flex items-center gap-3">
         <img
@@ -74,7 +74,7 @@ export default function WeatherMessageBubble({
     </div>
   );
 
-  const WeatherDetail = () => (
+  const renderWeatherDetail = () => (
     <Dialog open={showModal} onOpenChange={setShowModal}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -84,7 +84,7 @@ export default function WeatherMessageBubble({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'oklch(0.95 0.04 240)' }}>
             <div>
               <div className="text-3xl font-bold">
                 {weather.name}, {weather.sys.country}
@@ -162,7 +162,7 @@ export default function WeatherMessageBubble({
             </div>
           </div>
 
-          <div className="flex items-center justify-around bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg">
+          <div className="flex items-center justify-around p-4 rounded-lg" style={{ background: 'oklch(0.96 0.04 70)' }}>
             <div className="flex items-center gap-2">
               <Sunrise className="w-6 h-6 text-orange-500" />
               <div>
@@ -190,8 +190,8 @@ export default function WeatherMessageBubble({
   return (
     <div className={`flex ${isSent ? "justify-end" : "justify-start"} mb-4`}>
       <div className="max-w-[80%]">
-        <WeatherSummary />
-        <WeatherDetail />
+        {renderWeatherSummary()}
+        {renderWeatherDetail()}
         <div
           className={`text-xs text-muted-foreground mt-1.5 ${isSent ? "text-right" : ""
             } opacity-70`}

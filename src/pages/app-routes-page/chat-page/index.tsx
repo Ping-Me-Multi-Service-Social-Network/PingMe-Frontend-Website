@@ -15,6 +15,7 @@ import { SocketManager } from "@/features/websocket/socketManager";
 import { useTranslation } from "react-i18next";
 import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
+import "./chat.css";
 
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
@@ -71,7 +72,7 @@ export default function MessagesPage() {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
 
     if (
       isAtBottom &&
@@ -97,7 +98,6 @@ export default function MessagesPage() {
     userSession,
   });
 
-  // Play "ting" notification when tab is out-of-focus and new message arrives
   useNotificationSound({ currentUserId: userSession?.id });
 
   useEffect(() => {
@@ -119,14 +119,16 @@ export default function MessagesPage() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        <ChatActionBar
-          onFriendAdded={refetchRooms}
-          setSelectedChat={handleSetSelectedChat}
-        />
+    <div className="chat-shell">
+      <div className="chat-sidebar">
+        <div className="chat-sidebar__header">
+          <ChatActionBar
+            onFriendAdded={refetchRooms}
+            setSelectedChat={handleSetSelectedChat}
+          />
+        </div>
 
-        <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
+        <div className="chat-sidebar__list" onScroll={handleScroll}>
           {isFetchingRooms ? (
             <div className="flex items-center justify-center h-full">
               <LoadingSpinner />
@@ -144,7 +146,9 @@ export default function MessagesPage() {
               ))}
               {roomsPagination.isLoadingMore && (
                 <div className="p-4 text-center">
-                  <div className="text-sm text-gray-500">{t("layout.loadingMore")}</div>
+                  <div className="text-sm" style={{ color: "oklch(0.5 0.02 270)" }}>
+                    {t("layout.loadingMore")}
+                  </div>
                 </div>
               )}
             </>
