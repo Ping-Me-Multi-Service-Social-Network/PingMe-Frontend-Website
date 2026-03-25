@@ -17,6 +17,7 @@ import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 import "./chat.css";
 
+// Trigger part 3
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
   const { t } = useTranslation("chat");
@@ -108,9 +109,9 @@ export default function MessagesPage() {
           participants: room.participants.map((participant) =>
             participant.userId === Number(statusPayload.userId)
               ? {
-                ...participant,
-                status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
-              }
+                  ...participant,
+                  status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+                }
               : participant,
           ),
         })),
@@ -147,7 +148,10 @@ export default function MessagesPage() {
               ))}
               {roomsPagination.isLoadingMore && (
                 <div className="p-4 text-center">
-                  <div className="text-sm" style={{ color: "oklch(0.5 0.02 270)" }}>
+                  <div
+                    className="text-sm"
+                    style={{ color: "oklch(0.5 0.02 270)" }}
+                  >
                     {t("layout.loadingMore")}
                   </div>
                 </div>
