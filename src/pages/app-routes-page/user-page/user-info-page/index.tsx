@@ -42,6 +42,7 @@ import type { AccountStatusType } from "@/types/common/userSummary";
 import { useNavigate } from "react-router-dom";
 import { sendOtpToEmailApi } from "@/services/authentication/authOtpApi";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 const UserInfoPage = () => {
   const { t } = useTranslation("profile");
@@ -70,7 +71,6 @@ const UserInfoPage = () => {
     try {
       const res = await getCurrentUserInfoApi();
       const data = res.data.data;
-      console.log(data);
 
       setFormData({
         name: data.name || "",
@@ -84,7 +84,7 @@ const UserInfoPage = () => {
     } finally {
       setIsFetchLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchUserDetails();
@@ -115,19 +115,8 @@ const UserInfoPage = () => {
     }
   };
 
-  if (isLoading || isFetchLoading)
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="flex items-center space-x-2 text-purple-600">
-          <Loader2 className="w-6 h-6 animate-spin" />
-          <span className="text-lg font-medium">{t("common.loading")}</span>
-        </div>
-      </div>
-    );
-
-  // Hàm xử lý khi bấm nút Kích hoạt
   const handleActivate = async () => {
-    if (!userSession.email) return;
+    if (!userSession?.email) return;
     setIsSendingOtp(true);
     try {
       await sendOtpToEmailApi({
@@ -151,84 +140,140 @@ const UserInfoPage = () => {
     }
   };
 
+  if (isLoading || isFetchLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }} 
+          className="flex items-center space-x-3 text-primary bg-primary/5 px-6 py-4 rounded-full border border-primary/10"
+        >
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm font-semibold tracking-wide">{t("common.loading")}</span>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 350, damping: 25 } }
+  };
+
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-          <User className="w-5 h-5 mr-2 text-purple-600" />
+    <motion.div 
+      className="p-8"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center">
+          <div className="p-2 bg-primary/10 rounded-lg mr-3">
+            <User className="w-5 h-5 text-primary" />
+          </div>
           {t("userInfo.title")}
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-muted-foreground mt-2 max-w-lg">
           {t("userInfo.subtitle")}
         </p>
       </div>
-      {/* NÚT KÍCH HOẠT (Chỉ hiện khi NON_ACTIVATED) */}
-      {accountStatus === "NON_ACTIVATED" && (
-        <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-          <div className="flex items-center gap-2 text-yellow-700">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-sm font-medium">
-              {t("userInfo.activateRequired")}
-            </span>
-          </div>
-          <Button
-            size="sm"
-            variant="default"
-            className="bg-yellow-600 hover:bg-yellow-700 text-white"
-            onClick={handleActivate}
-            disabled={isSendingOtp}
+
+      <AnimatePresence>
+        {/* NÚT KÍCH HOẠT (Chỉ hiện khi NON_ACTIVATED) */}
+        {accountStatus === "NON_ACTIVATED" && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+            animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            className="overflow-hidden"
           >
-            {isSendingOtp ? (
-              <>
-                <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                {t("userInfo.activateSending")}
-              </>
-            ) : (
-              t("userInfo.activateBtn")
-            )}
-          </Button>
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div id="profile-info-fields" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 p-4 rounded-xl shadow-sm">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-amber-700 dark:text-amber-500 font-semibold">
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>{t("userInfo.activateRequired")}</span>
+                </div>
+                <p className="text-xs text-amber-600/80 dark:text-amber-500/80 ml-7">
+                  {t("userInfo.activateSubtitle", "Kích hoạt để trải nghiệm trọn vẹn")}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white shadow-md w-full sm:w-auto ml-7 sm:ml-0"
+                onClick={handleActivate}
+                disabled={isSendingOtp}
+              >
+                {isSendingOtp ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t("userInfo.activateSending")}
+                  </>
+                ) : (
+                  t("userInfo.activateBtn")
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          id="profile-info-fields" 
+          className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-7"
+        >
           {/* Email (Read-only) */}
-          <div id="profile-email-field" className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">{t("userInfo.fields.email")}</Label>
+          <motion.div variants={itemVariants} id="profile-email-field" className="space-y-2">
+            <Label className="text-sm font-semibold text-foreground/80">{t("userInfo.fields.email")}</Label>
             <Input
-              value={userSession.email ?? ""}
+              value={userSession?.email ?? ""}
               disabled
-              className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+              className="bg-muted border-transparent text-muted-foreground cursor-not-allowed opacity-70"
             />
-          </div>
+          </motion.div>
 
           {/* Name */}
-          <div id="profile-name-field" className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-              {t("userInfo.fields.fullName")} <span className="text-red-500">*</span>
+          <motion.div variants={itemVariants} id="profile-name-field" className="space-y-2 group">
+            <Label htmlFor="name" className="text-sm font-semibold text-foreground/80 group-focus-within:text-primary transition-colors">
+              {t("userInfo.fields.fullName")} <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder={t("userInfo.fields.fullNamePlaceholder")}
-                className="pl-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                className="pl-9 border-border focus:border-primary focus:ring-primary shadow-sm bg-background transition-all"
                 required
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* Gender */}
-          <div id="profile-gender-field" className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">
-              {t("userInfo.fields.gender")} <span className="text-red-500">*</span>
+          <motion.div variants={itemVariants} id="profile-gender-field" className="space-y-2">
+            <Label className="text-sm font-semibold text-foreground/80">
+              {t("userInfo.fields.gender")} <span className="text-destructive">*</span>
             </Label>
             <Select
               value={formData.gender}
               onValueChange={(value) => handleInputChange("gender", value)}
             >
-              <SelectTrigger className="border-gray-200 focus:border-purple-300 focus:ring-purple-200">
+              <SelectTrigger className="border-border focus:border-primary focus:ring-primary shadow-sm bg-background">
                 <SelectValue placeholder={t("userInfo.fields.genderPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
@@ -237,11 +282,11 @@ const UserInfoPage = () => {
                 <SelectItem value="OTHER">{t("userInfo.fields.genderOther")}</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </motion.div>
 
           {/* Date of Birth */}
-          <div id="profile-dob-field" className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">
+          <motion.div variants={itemVariants} id="profile-dob-field" className="space-y-2">
+            <Label className="text-sm font-semibold text-foreground/80">
               {t("userInfo.fields.dob")}
             </Label>
             <Popover>
@@ -249,7 +294,7 @@ const UserInfoPage = () => {
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal border-gray-200 focus:border-purple-300 focus:ring-purple-200",
+                    "w-full justify-start text-left font-normal border-border focus:border-primary shadow-sm bg-background hover:bg-muted/50 transition-colors",
                     !dob && "text-muted-foreground",
                   )}
                 >
@@ -259,7 +304,7 @@ const UserInfoPage = () => {
                     : t("userInfo.fields.dobPlaceholder")}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 border-border" align="start">
                 <Calendar
                   mode="single"
                   selected={dob}
@@ -272,48 +317,58 @@ const UserInfoPage = () => {
                 />
               </PopoverContent>
             </Popover>
-          </div>
+          </motion.div>
 
           {/* Address */}
-          <div id="profile-address-field" className="space-y-2 md:col-span-2">
+          <motion.div variants={itemVariants} id="profile-address-field" className="space-y-2 md:col-span-2 group">
             <Label
               htmlFor="address"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-semibold text-foreground/80 group-focus-within:text-primary transition-colors"
             >
               {t("userInfo.fields.address")}
             </Label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 id="address"
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 placeholder={t("userInfo.fields.addressPlaceholder")}
-                className="pl-10 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+                className="pl-9 border-border focus:border-primary focus:ring-primary shadow-sm bg-background transition-all"
               />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Submit Button */}
-        <div id="profile-info-submit" className="pt-4">
+        <motion.div 
+          id="profile-info-submit" 
+          className="pt-6 border-t border-border mt-8 flex justify-end"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           <Button
             type="submit"
             disabled={isUpdating}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 font-medium"
+            className="w-full sm:w-auto min-w-[160px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold rounded-full px-8 h-11"
           >
             {isUpdating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                className="flex items-center gap-2"
+              >
+                <Loader2 className="w-4 h-4 animate-spin" />
                 {t("common.updating")}
-              </>
+              </motion.div>
             ) : (
               t("userInfo.updateBtn")
             )}
           </Button>
-        </div>
+        </motion.div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

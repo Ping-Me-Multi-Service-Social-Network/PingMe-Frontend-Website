@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import UserAvatarPanel from "./components/UserAvatarPanel.tsx";
 import { useProfileTour } from "@/hooks/tours";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 const navigationItems = [
   {
@@ -55,27 +56,27 @@ export default function UserPage() {
 
   return (
     <div className="h-full flex flex-col overflow-y-auto">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <UserAvatarPanel />
       </div>
 
       {/* Main Content Container */}
       <div className="max-w-6xl mx-auto my-8 relative lg:w-2/3 md:w-3/4 w-4/5 pb-8">
-        <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-card rounded-xl shadow-2xl border border-border overflow-hidden">
           <div className="flex flex-col lg:flex-row min-h-[600px]">
-            <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-gray-200">
+            <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-border bg-muted/20">
               <div className="p-4 lg:p-6">
                 <div className="flex items-center justify-between">
                   <h2
                     id="profile-settings-title"
-                    className="text-lg font-semibold text-gray-900 mb-4"
+                    className="text-lg font-semibold text-foreground mb-4"
                   >
                     {t("common.accountSettings")}
                   </h2>
                   {isTourCompleted() && (
                     <button
                       onClick={handleRestartTour}
-                      className="mb-4 p-1.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200"
+                      className="mb-4 p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200"
                       title={t("common.restartTourTooltip")}
                     >
                       <HelpCircle className="w-4 h-4" />
@@ -84,29 +85,49 @@ export default function UserPage() {
                 </div>
               </div>
               <nav className="px-3 pb-4 lg:pb-0">
-                <ul className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1 overflow-x-auto lg:overflow-x-visible">
+                <motion.ul 
+                  className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1 overflow-x-auto lg:overflow-x-visible"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+                  }}
+                >
                   {navigationItems.map((item) => {
                     const isActive = currentPath === item.href;
                     return (
-                      <li
+                      <motion.li
                         key={item.titleKey}
                         id={item.id}
-                        className="flex-shrink-0 lg:flex-shrink"
+                        className="shrink-0 lg:shrink relative group"
+                        variants={{
+                          hidden: { opacity: 0, x: -20 },
+                          visible: { opacity: 1, x: 0 }
+                        }}
                       >
                         <NavLink
                           to={item.href}
                           className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap lg:whitespace-normal ${isActive
-                            ? "bg-purple-100 text-purple-700 shadow-sm border-l-4 lg:border-l-4 border-purple-500"
-                            : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
+                            ? "bg-primary/10 text-primary shadow-sm"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             }`}
                         >
+                          {isActive && (
+                            <motion.div 
+                              layoutId="profile-nav-indicator"
+                              className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full hidden lg:block" 
+                              initial={false}
+                              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            />
+                          )}
                           <item.icon
-                            className={`w-5 h-5 mr-3 ${isActive ? "text-purple-600" : "text-gray-400"
+                            className={`w-5 h-5 mr-3 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                               }`}
                           />
                           <div className="hidden sm:block lg:block">
                             <div className="font-medium">{t(item.titleKey)}</div>
-                            <div className="text-xs text-gray-500 mt-0.5 hidden lg:block">
+                            <div className="text-xs text-muted-foreground/80 mt-0.5 hidden lg:block">
                               {t(item.descriptionKey)}
                             </div>
                           </div>
@@ -116,10 +137,10 @@ export default function UserPage() {
                             </div>
                           </div>
                         </NavLink>
-                      </li>
+                      </motion.li>
                     );
                   })}
-                </ul>
+                </motion.ul>
               </nav>
             </div>
 
