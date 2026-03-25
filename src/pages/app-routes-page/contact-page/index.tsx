@@ -12,6 +12,7 @@ import { useAppSelector } from "@/features/hooks.ts";
 import { SocketManager } from "@/features/websocket/socketManager";
 import type { UserStatusPayload, FriendshipEventPayload } from "@/features/websocket/models/systemEvents";
 import { hasSentInvite } from "@/utils/inviteTracker";
+import { AnimatePresence, motion } from "framer-motion";
 
 
 export default function ContactsPage() {
@@ -130,10 +131,10 @@ export default function ContactsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-80 bg-card border-r border-border flex flex-col shrink-0">
         <ChatActionBar />
-
         <ContactSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -141,7 +142,21 @@ export default function ContactsPage() {
         />
       </div>
 
-      <div className="flex-1 bg-white">{renderActiveComponent()}</div>
+      {/* Main Content Area */}
+      <div className="flex-1 bg-card min-w-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            className="h-full"
+          >
+            {renderActiveComponent()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { useTranslation } from "react-i18next";
 import { InvitationUserCard } from "./InvitationUserCard";
+import { AnimatePresence } from "framer-motion";
 
 import { SocketManager } from "@/features/websocket/socketManager";
 import { useAppSelector } from "@/features/hooks.ts";
@@ -222,14 +223,15 @@ export const ReceivedInvitationsComponent = (
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-gray-200">
+      <div className="px-6 py-5 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {t("receivedInvitations.title")}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {receivedInvitations.length} {t("receivedInvitations.count")}
+            <p className="text-sm text-muted-foreground mt-0.5">
+              <span className="tabular-nums font-medium">{receivedInvitations.length}</span>{" "}
+              {t("receivedInvitations.count")}
             </p>
           </div>
         </div>
@@ -239,9 +241,9 @@ export const ReceivedInvitationsComponent = (
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {isLoading && receivedInvitations.length === 0 ? (
           <div className="flex items-center justify-center h-64">
-            <div className="flex items-center space-x-3 text-purple-600">
-              <LoadingSpinner className="w-8 h-8" />
-              <span className="text-lg font-medium">
+            <div className="flex items-center gap-3 text-primary">
+              <LoadingSpinner className="w-6 h-6" />
+              <span className="text-sm font-medium">
                 {t("receivedInvitations.loading")}
               </span>
             </div>
@@ -255,66 +257,78 @@ export const ReceivedInvitationsComponent = (
             />
           </div>
         ) : (
-          <div className="p-4 space-y-3">
-            {receivedInvitations.map((invitation) => {
-              const friendshipId = invitation.friendshipSummary?.id;
-              const isProcessing = friendshipId
-                ? processingInvitations.has(friendshipId)
-                : false;
+          <div className="p-3 space-y-2">
+            <AnimatePresence mode="popLayout">
+              {receivedInvitations.map((invitation, index) => {
+                const friendshipId = invitation.friendshipSummary?.id;
+                const isProcessing = friendshipId
+                  ? processingInvitations.has(friendshipId)
+                  : false;
 
-              return (
-                <InvitationUserCard
-                  key={invitation.id}
-                  invitation={invitation}
-                  actions={
-                    <>
-                      {friendshipId && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => handleAcceptInvitation(friendshipId)}
-                            disabled={isProcessing}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            {isProcessing ? (
-                              <LoadingSpinner className="w-4 h-4 mr-2" />
-                            ) : (
-                              <Check className="w-4 h-4 mr-2" />
-                            )}
-                            {t("receivedInvitations.btnAccept")}
-                          </Button>
+                return (
+                  <InvitationUserCard
+                    key={invitation.id}
+                    invitation={invitation}
+                    index={index}
+                    actions={
+                      <>
+                        {friendshipId && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleAcceptInvitation(friendshipId)}
+                              disabled={isProcessing}
+                              className="
+                                bg-emerald-600 hover:bg-emerald-700 text-white
+                                h-8 px-3 text-xs font-medium
+                                transition-colors duration-150
+                              "
+                            >
+                              {isProcessing ? (
+                                <LoadingSpinner className="w-3.5 h-3.5 mr-1.5" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5 mr-1.5" />
+                              )}
+                              {t("receivedInvitations.btnAccept")}
+                            </Button>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRejectInvitation(friendshipId)}
-                            disabled={isProcessing}
-                            className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                          >
-                            <X className="w-4 h-4 mr-2" />
-                            {t("receivedInvitations.btnReject")}
-                          </Button>
-                        </>
-                      )}
-                    </>
-                  }
-                />
-              );
-            })}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRejectInvitation(friendshipId)}
+                              disabled={isProcessing}
+                              className="
+                                text-destructive hover:text-destructive hover:bg-destructive/10
+                                h-8 px-3 text-xs font-medium
+                                transition-colors duration-150
+                              "
+                            >
+                              <X className="w-3.5 h-3.5 mr-1.5" />
+                              {t("receivedInvitations.btnReject")}
+                            </Button>
+                          </>
+                        )}
+                      </>
+                    }
+                  />
+                );
+              })}
+            </AnimatePresence>
+
             {/* Loading indicator khi load thêm */}
             {isLoadingRef.current && hasMoreInvitations && (
               <div className="flex justify-center py-4">
-                <div className="flex items-center space-x-2 text-purple-600">
-                  <LoadingSpinner className="w-5 h-5" />
-                  <span>{t("common.loadingMore")}</span>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <LoadingSpinner className="w-4 h-4" />
+                  <span className="text-xs">{t("common.loadingMore")}</span>
                 </div>
               </div>
             )}
 
             {/* Thông báo hết dữ liệu */}
             {!hasMoreInvitations && receivedInvitations.length > 0 && (
-              <div className="text-center py-4 text-gray-500">
-                <p>{t("common.displayedAllInvitations")}</p>
+              <div className="text-center py-4">
+                <p className="text-xs text-muted-foreground">{t("common.displayedAllInvitations")}</p>
               </div>
             )}
           </div>

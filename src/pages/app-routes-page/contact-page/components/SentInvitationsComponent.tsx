@@ -19,6 +19,7 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { InvitationUserCard } from "./InvitationUserCard";
+import { AnimatePresence } from "framer-motion";
 
 import { SocketManager } from "@/features/websocket/socketManager";
 import { useAppSelector } from "@/features/hooks.ts";
@@ -165,14 +166,15 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-gray-200">
+      <div className="px-6 py-5 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {t("sentInvitations.title")}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {sentInvitations.length} {t("sentInvitations.count")}
+            <p className="text-sm text-muted-foreground mt-0.5">
+              <span className="tabular-nums font-medium">{sentInvitations.length}</span>{" "}
+              {t("sentInvitations.count")}
             </p>
           </div>
         </div>
@@ -181,9 +183,9 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {isLoading && sentInvitations.length === 0 ? (
           <div className="flex items-center justify-center h-64">
-            <div className="flex items-center space-x-3 text-purple-600">
-              <LoadingSpinner className="w-8 h-8" />
-              <span className="text-lg font-medium">
+            <div className="flex items-center gap-3 text-primary">
+              <LoadingSpinner className="w-6 h-6" />
+              <span className="text-sm font-medium">
                 {t("sentInvitations.loading")}
               </span>
             </div>
@@ -197,49 +199,62 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
             />
           </div>
         ) : (
-          <div className="p-4 space-y-3">
-            {sentInvitations.map((invitation) => (
-              <InvitationUserCard
-                key={invitation.id}
-                invitation={invitation}
-                actions={
-                  <>
-                    <Badge
-                      variant="outline"
-                      className="text-orange-600 border-orange-200 bg-orange-50"
-                    >
-                      <Clock className="w-3 h-3 mr-1" />
-                      {t("sentInvitations.statusPending")}
-                    </Badge>
-
-                    {invitation.friendshipSummary && (
-                      <Button
+          <div className="p-3 space-y-2">
+            <AnimatePresence mode="popLayout">
+              {sentInvitations.map((invitation, index) => (
+                <InvitationUserCard
+                  key={invitation.id}
+                  invitation={invitation}
+                  index={index}
+                  actions={
+                    <>
+                      <Badge
                         variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleCancelInvitation(invitation.friendshipSummary!.id)
-                        }
-                        className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                        className="
+                          text-amber-600 border-amber-200 bg-amber-50
+                          dark:text-amber-400 dark:border-amber-800 dark:bg-amber-950/50
+                          text-[11px] font-medium h-6
+                        "
                       >
-                        <X className="w-4 h-4 mr-2" />
-                        {t("sentInvitations.btnCancel")}
-                      </Button>
-                    )}
-                  </>
-                }
-              />
-            ))}
+                        <Clock className="w-3 h-3 mr-1" />
+                        {t("sentInvitations.statusPending")}
+                      </Badge>
+
+                      {invitation.friendshipSummary && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleCancelInvitation(invitation.friendshipSummary!.id)
+                          }
+                          className="
+                            text-destructive hover:text-destructive hover:bg-destructive/10
+                            h-8 px-3 text-xs font-medium
+                            transition-colors duration-150
+                          "
+                        >
+                          <X className="w-3.5 h-3.5 mr-1.5" />
+                          {t("sentInvitations.btnCancel")}
+                        </Button>
+                      )}
+                    </>
+                  }
+                />
+              ))}
+            </AnimatePresence>
+
             {isLoadingRef.current && hasMoreInvitations && (
               <div className="flex justify-center py-4">
-                <div className="flex items-center space-x-2 text-purple-600">
-                  <LoadingSpinner className="w-5 h-5" />
-                  <span>{t("common.loadingMore")}</span>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <LoadingSpinner className="w-4 h-4" />
+                  <span className="text-xs">{t("common.loadingMore")}</span>
                 </div>
               </div>
             )}
+
             {!hasMoreInvitations && sentInvitations.length > 0 && (
-              <div className="text-center py-4 text-gray-500">
-                <p>{t("common.displayedAllInvitations")}</p>
+              <div className="text-center py-4">
+                <p className="text-xs text-muted-foreground">{t("common.displayedAllInvitations")}</p>
               </div>
             )}
           </div>

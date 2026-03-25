@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { type UserStatusPayload } from "@/types/common/userStatus.ts";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { SocketManager } from "@/features/websocket/socketManager";
 
@@ -179,14 +180,15 @@ export const FriendsListComponent = (props: FriendsListComponentProps) => {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="px-6 py-5 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {t("friendsList.title")}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {friends.length} {t("friendsList.count")}
+            <p className="text-sm text-muted-foreground mt-0.5">
+              <span className="tabular-nums font-medium">{friends.length}</span>{" "}
+              {t("friendsList.count")}
             </p>
           </div>
         </div>
@@ -196,9 +198,9 @@ export const FriendsListComponent = (props: FriendsListComponentProps) => {
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {isLoading && friends.length === 0 ? (
           <div className="flex items-center justify-center h-64">
-            <div className="flex items-center space-x-3 text-purple-600">
-              <LoadingSpinner className="w-8 h-8" />
-              <span className="text-lg font-medium">
+            <div className="flex items-center gap-3 text-primary">
+              <LoadingSpinner className="w-6 h-6" />
+              <span className="text-sm font-medium">
                 {t("friendsList.loading")}
               </span>
             </div>
@@ -212,73 +214,99 @@ export const FriendsListComponent = (props: FriendsListComponentProps) => {
             />
           </div>
         ) : (
-          <div className="p-4 space-y-3">
-            {friends.map((friend) => (
-              <div
-                key={friend.id}
-                className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center space-x-3">
-                  {/* <Avatar className="w-12 h-12">
-                    <AvatarImage
-                      src={friend.avatarUrl || "/placeholder.svg"}
-                      alt={friend.name}
-                    />
-                    <AvatarFallback className="bg-purple-100 text-purple-600">
-                      {getUserInitials(friend.name)}
-                    </AvatarFallback>
-                  </Avatar> */}
+          <div className="p-3 space-y-1.5">
+            <AnimatePresence mode="popLayout">
+              {friends.map((friend, index) => (
+                <motion.div
+                  key={friend.id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+                  transition={{
+                    duration: 0.25,
+                    delay: Math.min(index * 0.03, 0.3),
+                    ease: [0.25, 0.1, 0.25, 1],
+                  }}
+                  className="
+                    group flex items-center justify-between p-3 rounded-xl
+                    hover:bg-accent/50 transition-colors duration-150 ease-out
+                  "
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Avatar with online indicator */}
+                    <div className="relative shrink-0">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage
+                          src={friend.avatarUrl || "/placeholder.svg"}
+                          alt={friend.name}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                          {getUserInitials(friend.name)}
+                        </AvatarFallback>
+                      </Avatar>
 
-                  {/* Đoạn code sau đã được sửa từ đoạn code đã được comment ở trên. 
-                  Hiển thị chấm xanh nếu người dùng online, ngược lại nếu người dùng offline thì chấm xanh biến mất */}
-                  <div className="relative">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage
-                        src={friend.avatarUrl || "/placeholder.svg"}
-                        alt={friend.name}
-                      />
-                      <AvatarFallback className="bg-purple-100 text-purple-600">
-                        {getUserInitials(friend.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                      {/* Online status dot */}
+                      <AnimatePresence>
+                        {friend.status === "ONLINE" && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                            className="absolute -bottom-0.5 -right-0.5 block w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-background"
+                          />
+                        )}
+                      </AnimatePresence>
+                    </div>
 
-                    {friend.status === "ONLINE" && (
-                      <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full ring-2 ring-white"></span>
-                    )}
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-medium text-foreground truncate">
+                        {friend.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                        {friend.email}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h3 className="font-medium text-gray-900">{friend.name}</h3>
-                    <p className="text-sm text-gray-500">{friend.email}</p>
-                  </div>
-                </div>
+                  {/* Remove button - visible on hover */}
+                  {friend.friendshipSummary && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleRemoveFriend(friend.friendshipSummary!.id)
+                      }
+                      className="
+                        opacity-0 group-hover:opacity-100
+                        text-destructive hover:text-destructive hover:bg-destructive/10
+                        transition-all duration-150
+                        h-8 px-2.5 text-xs shrink-0 ml-2
+                      "
+                    >
+                      <UserMinus className="w-3.5 h-3.5 mr-1.5" />
+                      {t("friendsList.btnRemove")}
+                    </Button>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
 
-                {friend.friendshipSummary && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      handleRemoveFriend(friend.friendshipSummary!.id)
-                    }
-                    className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                  >
-                    <UserMinus className="w-4 h-4 mr-2" />
-                    {t("friendsList.btnRemove")}
-                  </Button>
-                )}
-              </div>
-            ))}
+            {/* Loading more indicator */}
             {isLoadingRef.current && hasMoreFriends && (
               <div className="flex justify-center py-4">
-                <div className="flex items-center space-x-2 text-purple-600">
-                  <LoadingSpinner className="w-5 h-5" />
-                  <span>{t("common.loadingMore")}</span>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <LoadingSpinner className="w-4 h-4" />
+                  <span className="text-xs">{t("common.loadingMore")}</span>
                 </div>
               </div>
             )}
+
+            {/* End of list */}
             {!hasMoreFriends && friends.length > 0 && (
-              <div className="text-center py-4 text-gray-500">
-                <p>{t("common.displayedAllFriends")}</p>
+              <div className="text-center py-4">
+                <p className="text-xs text-muted-foreground">{t("common.displayedAllFriends")}</p>
               </div>
             )}
           </div>
