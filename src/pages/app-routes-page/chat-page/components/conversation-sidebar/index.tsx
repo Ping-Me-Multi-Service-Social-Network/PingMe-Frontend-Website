@@ -24,6 +24,7 @@ import ThemeSelectionModal from "./theme-selection-modal.tsx";
 import UpdateGroupImageModal from "./update-group-image-modal.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -196,51 +197,72 @@ const ConversationSidebar = ({
           </div>
         </div>
 
-        <div className="conv-sidebar__menu">
-          <Button
-            variant="outline"
-            className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
-            onClick={() => setCurrentView("members")}
-          >
-            <Users className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-            <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-              {t("sidebar.members")}
-            </span>
-          </Button>
+        <motion.div 
+          className="conv-sidebar__menu"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1
+              }
+            }
+          }}
+        >
+          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
+            <Button
+              variant="outline"
+              className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+              onClick={() => setCurrentView("members")}
+            >
+              <Users className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+              <span className={`font-medium ${theme.sidebar.textPrimary}`}>
+                {t("sidebar.members")}
+              </span>
+            </Button>
+          </motion.div>
 
-          <Button
-            variant="outline"
-            disabled
-            className={`w-full justify-start gap-3 h-14 bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-          >
-            <FileImage className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-            <span className={`font-medium ${theme.sidebar.textSecondary}`}>
-              {t("sidebar.media")}
-            </span>
-          </Button>
+          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
+            <Button
+              variant="outline"
+              disabled
+              className={`w-full justify-start gap-3 h-14 bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
+            >
+              <FileImage className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+              <span className={`font-medium ${theme.sidebar.textSecondary}`}>
+                {t("sidebar.media")}
+              </span>
+            </Button>
+          </motion.div>
 
-          <Button
-            variant="outline"
-            className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
-            onClick={() => setIsThemeModalOpen(true)}
-          >
-            <Palette className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-            <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-              {t("sidebar.theme")}
-            </span>
-          </Button>
+          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
+            <Button
+              variant="outline"
+              className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+              onClick={() => setIsThemeModalOpen(true)}
+            >
+              <Palette className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+              <span className={`font-medium ${theme.sidebar.textPrimary}`}>
+                {t("sidebar.theme")}
+              </span>
+            </Button>
+          </motion.div>
 
-          <Button
-            variant="outline"
-            disabled
-            className={`w-full justify-start gap-3 h-14 bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-          >
-            <UserCog className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-            <span className={`font-medium ${theme.sidebar.textSecondary}`}>
-              {t("sidebar.nickname")}
-            </span>
-          </Button>
-        </div>
+          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
+            <Button
+              variant="outline"
+              disabled
+              className={`w-full justify-start gap-3 h-14 bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
+            >
+              <UserCog className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+              <span className={`font-medium ${theme.sidebar.textSecondary}`}>
+                {t("sidebar.nickname")}
+              </span>
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Rename Group Modal */}

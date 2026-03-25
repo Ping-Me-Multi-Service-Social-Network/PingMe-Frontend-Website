@@ -12,12 +12,14 @@ import {
   getRoomAvatar,
   getRoomDisplayName,
 } from "@/pages/app-routes-page/chat-page/utils/getRoomInfo.ts";
+import { motion } from "framer-motion";
 
 interface ChatCardProps {
   room: RoomResponse;
   userSession: CurrentUserSessionResponse | null;
   isSelected: boolean;
   onClick: () => void;
+  index?: number;
 }
 
 export function ChatCard({
@@ -25,40 +27,53 @@ export function ChatCard({
   userSession,
   isSelected,
   onClick,
+  index = 0,
 }: ChatCardProps) {
   const unreadCount = 0;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{
+        duration: 0.3,
+        delay: Math.min(index * 0.05, 0.5),
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
       onClick={onClick}
       className={`chat-card ${isSelected ? "chat-card--selected" : ""}`}
     >
-      <div className="chat-card__avatar">
+      <div className="chat-card__avatar relative">
         <Avatar
-          className={`w-12 h-12 transition-all duration-200 ${
-            isSelected ? "ring-2 ring-purple-300 ring-offset-2" : ""
+          className={`w-12 h-12 transition-shadow duration-300 ${
+            isSelected ? "ring-[3px] ring-primary/30 ring-offset-2 ring-offset-background" : "hover:ring-2 hover:ring-primary/20"
           }`}
         >
           <AvatarImage
             src={getRoomAvatar(room, userSession) || "/placeholder.svg"}
           />
-          <AvatarFallback className="chat-card__avatar-fallback">
-            {getRoomDisplayName(room, userSession).charAt(0)}
+          <AvatarFallback className="chat-card__avatar-fallback bg-primary/10! text-primary!">
+            {getRoomDisplayName(room, userSession).charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
 
         {room.roomType === "DIRECT" &&
           getOtherParticipant(room, userSession)?.status === "ONLINE" && (
-            <span className="chat-card__online-dot" />
+            <motion.span 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 25 }}
+              className="chat-card__online-dot absolute bottom-0 right-0 w-3.5! h-3.5! bg-emerald-500! border-[2.5px]! border-background! shadow-sm" 
+            />
           )}
       </div>
 
-      <div className="chat-card__body">
+      <div className="chat-card__body overflow-hidden">
         <div className="chat-card__top-row">
-          <h3 className="chat-card__name">
+          <h3 className={`chat-card__name transition-colors duration-200 ${isSelected ? "text-primary" : "text-foreground"}`}>
             {getRoomDisplayName(room, userSession)}
           </h3>
-          <span className="chat-card__time">
+          <span className={`chat-card__time transition-colors duration-200 ${isSelected ? "text-primary/70 font-semibold" : "text-muted-foreground"}`}>
             {room.lastMessage
               ? new Date(room.lastMessage.createdAt).toLocaleTimeString(
                   "vi-VN",
@@ -67,17 +82,17 @@ export function ChatCard({
               : ""}
           </span>
         </div>
-        <div className="flex items-center justify-between mt-0.5">
-          <p className="chat-card__preview">
+        <div className="flex items-center justify-between mt-1 gap-2">
+          <p className={`chat-card__preview transition-colors duration-200 ${isSelected ? "text-foreground/80" : "text-muted-foreground"}`}>
             {getLastMessagePreview(room, userSession)}
           </p>
           {unreadCount > 0 && (
-            <Badge className="chat-card__badge">
+            <Badge className="chat-card__badge bg-primary shrink-0 self-start">
               {unreadCount}
             </Badge>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

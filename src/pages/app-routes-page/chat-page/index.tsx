@@ -135,13 +135,14 @@ export default function MessagesPage() {
             </div>
           ) : (
             <>
-              {rooms.map((room) => (
+              {rooms.map((room, index) => (
                 <ChatCard
                   key={room.roomId}
                   room={room}
                   userSession={userSession}
                   isSelected={selectedChat?.roomId === room.roomId}
                   onClick={() => setSelectedChat(room)}
+                  index={index}
                 />
               ))}
               {roomsPagination.isLoadingMore && (

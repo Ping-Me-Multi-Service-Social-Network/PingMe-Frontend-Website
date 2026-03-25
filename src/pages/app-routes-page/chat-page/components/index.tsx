@@ -15,6 +15,7 @@ import ChatBoxHeader from "./chat-box/ChatBoxHeader.tsx";
 import ConversationSidebar from "./conversation-sidebar";
 import { useTranslation } from "react-i18next";
 import { useMessages } from "../hooks/useMessages";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -116,8 +117,13 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   };
 
   return (
-    <div className="chat-box">
-      <div className="chat-box__main">
+    <div className="chat-box overflow-hidden">
+      <motion.div 
+        layout
+        className="chat-box__main shrink-0 w-full"
+        animate={{ width: isSidebarOpen ? "calc(100% - 20rem)" : "100%" }}
+        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+      >
         <ChatBoxHeader
           selectedChat={selectedChat}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -144,12 +150,24 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           onSendWeather={handleSendWeather}
           disabled={isLoadingMessages}
         />
-      </div>
-      <ConversationSidebar
-        selectedChat={selectedChat}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
+      </motion.div>
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "20rem", opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 350, damping: 30 }}
+            className="h-full border-l shrink-0 flex flex-col overflow-hidden"
+          >
+            <ConversationSidebar
+              selectedChat={selectedChat}
+              isOpen={true}
+              onClose={() => setIsSidebarOpen(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

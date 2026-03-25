@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
@@ -58,9 +59,13 @@ export default function SentMessageBubble({
   const renderMessageContent = () => {
     if (!message.isActive) {
       return (
-        <p className="text-md italic text-black select-none">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-md italic text-black/60 select-none pb-0.5"
+        >
           {t("bubbles.messages.recalled")}
-        </p>
+        </motion.p>
       );
     }
 
@@ -109,50 +114,67 @@ export default function SentMessageBubble({
     }
   };
 
-  if (isWeatherMessage && message.isActive) {
-    return <>{renderMessageContent()}</>;
-  }
-
   return (
-    <div className="msg-row msg-row--sent group">
+    <motion.div
+      layout="position"
+      initial={{ opacity: 0, scale: 0.95, y: 10, originX: 1, originY: 1 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      transition={{ type: "spring", stiffness: 450, damping: 25 }}
+      className="msg-row msg-row--sent group"
+    >
       <div className="msg-bubble-wrapper relative">
-        {message.isActive && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute -left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={handleRecallMessage}
-                className="cursor-pointer"
-              >
-                <RotateCcw className="mr-2 h-4 w-4" />
-                {t("bubbles.messages.recallBtn")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <AnimatePresence>
+          {message.isActive && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute -left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-muted-foreground hover:bg-black/5"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onClick={handleRecallMessage}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.recallBtn")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </AnimatePresence>
 
-        {isMediaMessage ? (
-          <div>{renderMessageContent()}</div>
-        ) : (
-          <div
-            className={`msg-bubble msg-bubble--sent ${theme.messages.sentBubbleText}`}
-            style={theme.messages.sentBubbleStyle}
-          >
-            {renderMessageContent()}
-          </div>
-        )}
-        <div className="msg-time msg-time--sent">
+        <motion.div layout="size" transition={{ type: "spring", stiffness: 400, damping: 30 }}>
+          {(isMediaMessage || isWeatherMessage) && message.isActive ? (
+            <div>{renderMessageContent()}</div>
+          ) : (
+            <div
+              className={`msg-bubble msg-bubble--sent ${!message.isActive ? "bg-black/5 text-black border border-black/10 shadow-none dark:bg-white/10 dark:text-white dark:border-white/10" : theme.messages.sentBubbleText}`}
+              style={message.isActive ? theme.messages.sentBubbleStyle : {}}
+            >
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={message.isActive ? "active" : "recalled"}
+                  initial={{ opacity: 0, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {renderMessageContent()}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
+        <motion.div layout="position" className="msg-time msg-time--sent">
           {formatMessageTime(message.createdAt)}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

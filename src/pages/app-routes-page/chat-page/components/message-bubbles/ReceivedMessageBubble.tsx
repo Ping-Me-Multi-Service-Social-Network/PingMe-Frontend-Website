@@ -10,6 +10,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -31,15 +32,19 @@ export default function ReceivedMessageBubble({
     message.type === "IMAGE" ||
     message.type === "VIDEO" ||
     message.type === "FILE";
-  const isWeatherMessage = message.type === "WEATHER"; // Added weather message check
+  const isWeatherMessage = message.type === "WEATHER"; 
 
   const renderMessageContent = () => {
     if (!message.isActive) {
       return (
-        <div className="flex items-center gap-2 text-gray-700">
-          <RotateCcw className="h-4 w-4 text-gray-500" />
-          <p className="text-sm italic">{t("bubbles.messages.recalled")}</p>
-        </div>
+        <motion.div
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           className="flex items-center gap-2 text-muted-foreground"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          <p className="text-sm italic font-medium">{t("bubbles.messages.recalled")}</p>
+        </motion.div>
       );
     }
 
@@ -88,34 +93,18 @@ export default function ReceivedMessageBubble({
     }
   };
 
-  if (isWeatherMessage && message.isActive) {
-    return (
-      <div className="flex items-start mb-4 group">
-        <Avatar
-          className={`w-10 h-10 mr-3 shrink-0 ring-2 ${theme.messages.avatarRing}`}
-        >
-          <AvatarImage
-            src={senderAvatar || "/placeholder.svg"}
-            alt={senderName}
-          />
-          <UserAvatarFallback name={senderName} size="md" />
-        </Avatar>
-        <div className="msg-bubble-wrapper">
-          {roomType === "GROUP" && senderName && (
-            <div className="text-xs font-medium text-gray-600 mb-1 ml-1">
-              {senderName}
-            </div>
-          )}
-          {renderMessageContent()}
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="msg-row msg-row--received group">
+    <motion.div
+      layout="position"
+      initial={{ opacity: 0, scale: 0.95, y: 10, originX: 0, originY: 1 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      transition={{ type: "spring", stiffness: 450, damping: 25 }}
+      className="msg-row msg-row--received group mb-4 flex items-start"
+    >
       <Avatar
-        className={`w-10 h-10 mr-3 shrink-0 ring-2 ${theme.messages.avatarRing}`}
+        className={`w-10 h-10 mr-3 mt-1 shrink-0 ring-2 ${theme.messages.avatarRing}`}
       >
         <AvatarImage
           src={senderAvatar || "/placeholder.svg"}
@@ -124,27 +113,42 @@ export default function ReceivedMessageBubble({
         <UserAvatarFallback name={senderName} size="md" />
       </Avatar>
 
-      <div className="msg-bubble-wrapper">
+      <div className="msg-bubble-wrapper min-w-0">
         {roomType === "GROUP" && senderName && (
-          <div className="text-xs font-medium text-gray-600 mb-1 ml-1">
+          <div className="text-xs font-semibold text-muted-foreground mb-1 ml-1 truncate max-w-[200px]">
             {senderName}
           </div>
         )}
 
-        {isMediaMessage ? (
-          <div>{renderMessageContent()}</div>
-        ) : (
-          <div
-            className={`msg-bubble msg-bubble--received ${theme.messages.receivedBubbleText} border ${theme.messages.receivedBubbleBorder}`}
-            style={theme.messages.receivedBubbleStyle}
-          >
-            {renderMessageContent()}
-          </div>
-        )}
-        <div className="msg-time">
+        <motion.div layout="size" transition={{ type: "spring", stiffness: 400, damping: 30 }}>
+            {isWeatherMessage && message.isActive ? (
+                <div>{renderMessageContent()}</div>
+            ) : isMediaMessage && message.isActive ? (
+            <div>{renderMessageContent()}</div>
+            ) : (
+            <div
+                className={`msg-bubble msg-bubble--received ${!message.isActive ? "bg-muted text-muted-foreground border border-border shadow-none" : theme.messages.receivedBubbleText} border ${message.isActive ? theme.messages.receivedBubbleBorder : ""}`}
+                style={message.isActive ? theme.messages.receivedBubbleStyle : {}}
+            >
+                <AnimatePresence mode="popLayout">
+                <motion.div
+                    key={message.isActive ? "active" : "recalled"}
+                    initial={{ opacity: 0, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, filter: "blur(4px)", transition: { duration: 0.15 } }}
+                    transition={{ duration: 0.2 }}
+                >
+                    {renderMessageContent()}
+                </motion.div>
+                </AnimatePresence>
+            </div>
+            )}
+        </motion.div>
+        
+        <motion.div layout="position" className="msg-time ml-1">
           {formatMessageTime(message.createdAt)}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
