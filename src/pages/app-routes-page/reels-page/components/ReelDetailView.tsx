@@ -303,6 +303,17 @@ export default function ReelDetailView({
                 ref={progressRef}
                 className="reel-progress__bar-wrapper"
                 onClick={handleSeek}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    // Could optionally implement seek using arrow keys here
+                  }
+                }}
+                role="slider"
+                aria-valuenow={progressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                tabIndex={0}
               >
                 <div
                   className="reel-progress__bar-fill"
