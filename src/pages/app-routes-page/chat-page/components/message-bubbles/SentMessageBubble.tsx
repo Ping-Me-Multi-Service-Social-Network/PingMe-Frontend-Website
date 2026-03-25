@@ -16,9 +16,10 @@ import {
 import { recallMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
-import type { ChatTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
+import { memo } from "react";
+import type { ChatTheme } from "../../utils/chatThemes.ts";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
@@ -26,7 +27,7 @@ interface SentMessageBubbleProps {
   theme: ChatTheme;
 }
 
-export default function SentMessageBubble({
+export const SentMessageBubble = memo(function SentMessageBubble({
   message,
   onMessageRecalled,
   theme,
@@ -179,4 +180,6 @@ export default function SentMessageBubble({
       </div>
     </motion.div>
   );
-}
+});
+
+export default SentMessageBubble;

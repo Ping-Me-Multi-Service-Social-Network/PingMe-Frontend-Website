@@ -13,16 +13,17 @@ import {
   getRoomDisplayName,
 } from "@/pages/app-routes-page/chat-page/utils/getRoomInfo.ts";
 import { motion } from "framer-motion";
+import { memo } from "react";
 
 interface ChatCardProps {
   room: RoomResponse;
   userSession: CurrentUserSessionResponse | null;
   isSelected: boolean;
-  onClick: () => void;
+  onClick: (room: RoomResponse) => void;
   index?: number;
 }
 
-export function ChatCard({
+export const ChatCard = memo(function ChatCard({
   room,
   userSession,
   isSelected,
@@ -40,7 +41,7 @@ export function ChatCard({
         delay: Math.min(index * 0.05, 0.5),
         ease: [0.25, 0.1, 0.25, 1],
       }}
-      onClick={onClick}
+      onClick={() => onClick(room)}
       className={`chat-card ${isSelected ? "chat-card--selected" : ""}`}
     >
       <div className="chat-card__avatar relative">
@@ -95,4 +96,4 @@ export function ChatCard({
       </div>
     </motion.div>
   );
-}
+});

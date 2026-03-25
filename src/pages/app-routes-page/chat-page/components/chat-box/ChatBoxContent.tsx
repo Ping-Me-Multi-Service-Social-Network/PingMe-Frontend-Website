@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, memo } from "react";
 import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
@@ -22,7 +22,7 @@ interface ChatBoxContentProps {
   isCurrentUserMessage: (senderId: number) => boolean;
 }
 
-export const ChatBoxContent = ({
+export const ChatBoxContent = memo(({
   selectedChat,
   messages,
   isLoadingMessages,
@@ -191,4 +191,4 @@ export const ChatBoxContent = ({
       </div>
     </div>
   );
-};
+});

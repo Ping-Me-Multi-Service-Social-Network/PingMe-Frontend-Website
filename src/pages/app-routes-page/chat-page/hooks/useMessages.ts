@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type {
   MessageResponse,
   HistoryMessageResponse,
@@ -95,7 +95,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
 
   // Merge history messages + Redux real-time messages
   // History = loaded from API, Redux = from WebSocket
-  const messages = (() => {
+  const messages = useMemo(() => {
     if (reduxMessages.length === 0) return historyMessages;
 
     const historyIds = new Set(historyMessages.map((m) => m.id));
@@ -122,7 +122,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
     const merged = [...updatedHistory, ...newFromRedux];
     merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     return merged;
-  })();
+  }, [historyMessages, reduxMessages]);
 
   /**
    * Optimistic add for sent messages (API response).

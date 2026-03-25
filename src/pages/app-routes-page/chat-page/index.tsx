@@ -141,7 +141,7 @@ export default function MessagesPage() {
                   room={room}
                   userSession={userSession}
                   isSelected={selectedChat?.roomId === room.roomId}
-                  onClick={() => setSelectedChat(room)}
+                  onClick={setSelectedChat}
                   index={index}
                 />
               ))}

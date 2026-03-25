@@ -10,6 +10,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
+import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ReceivedMessageBubbleProps {
@@ -20,7 +21,7 @@ interface ReceivedMessageBubbleProps {
   theme: ChatTheme;
 }
 
-export default function ReceivedMessageBubble({
+export const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   message,
   senderName,
   senderAvatar,
@@ -150,4 +151,6 @@ export default function ReceivedMessageBubble({
       </div>
     </motion.div>
   );
-}
+});
+
+export default ReceivedMessageBubble;
