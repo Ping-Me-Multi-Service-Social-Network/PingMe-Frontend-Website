@@ -20,6 +20,7 @@ import CommentsModal from "./CommentsModal.tsx";
 import { useAppSelector } from "@/features/hooks.ts";
 import { useTranslation } from "react-i18next";
 
+// trigger deploy
 interface ReelDetailViewProps {
   reel: Reel;
   onUpdate?: (reel: Reel) => void;
@@ -47,7 +48,9 @@ export default function ReelDetailView({
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showPlayIndicator, setShowPlayIndicator] = useState(false);
-  const [playIndicatorIcon, setPlayIndicatorIcon] = useState<"play" | "pause">("pause");
+  const [playIndicatorIcon, setPlayIndicatorIcon] = useState<"play" | "pause">(
+    "pause",
+  );
 
   // Interaction states
   const [isLiking, setIsLiking] = useState(false);
@@ -122,7 +125,9 @@ export default function ReelDetailView({
     if (!commentText.trim()) return;
     setIsSubmittingComment(true);
     try {
-      const newComment = await reelsApi.createComment(reel.id, { content: commentText });
+      const newComment = await reelsApi.createComment(reel.id, {
+        content: commentText,
+      });
       setComments((prev) => [newComment, ...prev]);
       setCommentText("");
       if (onUpdate) {
@@ -206,7 +211,10 @@ export default function ReelDetailView({
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!videoRef.current || !progressRef.current) return;
     const rect = progressRef.current.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const ratio = Math.max(
+      0,
+      Math.min(1, (e.clientX - rect.left) / rect.width),
+    );
     const time = ratio * duration;
     videoRef.current.currentTime = time;
     setCurrentTime(time);
@@ -235,10 +243,16 @@ export default function ReelDetailView({
       video.play().catch(() => {});
       reelsApi
         .incrementViewCount(reel.id)
-        .catch((err) => console.error("[PingMe] Error incrementing views:", err));
+        .catch((err) =>
+          console.error("[PingMe] Error incrementing views:", err),
+        );
     } else {
       video.pause();
-      try { video.currentTime = 0; } catch { /* ignore */ }
+      try {
+        video.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
       setIsPlaying(false);
     }
   }, [reel.id, isActive]);
@@ -276,8 +290,12 @@ export default function ReelDetailView({
             onClick={handleVideoClick}
             controlsList="nodownload"
             loop
-            onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
-            onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
+            onTimeUpdate={(e) =>
+              setCurrentTime((e.target as HTMLVideoElement).currentTime)
+            }
+            onLoadedMetadata={(e) =>
+              setDuration((e.target as HTMLVideoElement).duration)
+            }
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />
@@ -327,16 +345,32 @@ export default function ReelDetailView({
 
             {/* Control Buttons */}
             <div className="reel-detail__control-btns">
-              <button className="reel-ctrl-btn" onClick={handlePlayPause} title={isPlaying ? "Pause" : "Play"}>
+              <button
+                className="reel-ctrl-btn"
+                onClick={handlePlayPause}
+                title={isPlaying ? "Pause" : "Play"}
+              >
                 {isPlaying ? <Pause /> : <Play />}
               </button>
-              <button className="reel-ctrl-btn" onClick={handleMuteToggle} title={isMuted ? "Unmute" : "Mute"}>
+              <button
+                className="reel-ctrl-btn"
+                onClick={handleMuteToggle}
+                title={isMuted ? "Unmute" : "Mute"}
+              >
                 {isMuted ? <VolumeX /> : <Volume2 />}
               </button>
-              <button className="reel-ctrl-btn reel-ctrl-btn--speed" onClick={handleSpeedChange} title="Speed">
+              <button
+                className="reel-ctrl-btn reel-ctrl-btn--speed"
+                onClick={handleSpeedChange}
+                title="Speed"
+              >
                 {playbackSpeed}x
               </button>
-              <button className="reel-ctrl-btn reel-ctrl-btn--speed" onClick={handleStop} title="Stop">
+              <button
+                className="reel-ctrl-btn reel-ctrl-btn--speed"
+                onClick={handleStop}
+                title="Stop"
+              >
                 {t("feed.stop")}
               </button>
             </div>
