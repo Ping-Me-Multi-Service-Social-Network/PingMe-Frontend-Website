@@ -32,9 +32,7 @@ interface FilePreview {
 
 interface ChatInputProps {
   selectedChat: RoomResponse;
-  newMessage: string;
-  setNewMessage: (message: string) => void;
-  onSendMessage: () => void;
+  onSendMessage: (msg: string) => void;
   onSendFile: (file: File, type: "IMAGE" | "VIDEO" | "FILE") => Promise<void>;
   onSendWeather: (lat: number, lon: number) => Promise<void>;
   disabled?: boolean;
@@ -42,8 +40,6 @@ interface ChatInputProps {
 
 export function ChatBoxInput({
   selectedChat,
-  newMessage,
-  setNewMessage,
   onSendMessage,
   onSendFile,
   onSendWeather,
@@ -55,6 +51,7 @@ export function ChatBoxInput({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FilePreview[]>([]);
   const [isSending, setIsSending] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -162,7 +159,8 @@ export function ChatBoxInput({
       }
 
       if (newMessage.trim()) {
-        onSendMessage();
+        onSendMessage(newMessage);
+        setNewMessage("");
       }
 
       setShowEmojiPicker(false);

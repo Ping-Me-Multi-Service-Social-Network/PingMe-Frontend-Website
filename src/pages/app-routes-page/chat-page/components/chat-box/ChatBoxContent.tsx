@@ -109,11 +109,11 @@ export const ChatBoxContent = ({
   }
 
   return (
-    <div className="relative h-full overflow-hidden">
+    <div className="relative h-full flex flex-col overflow-hidden">
       {/* Background image layer */}
       {theme.backgroundImage && (
         <div
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0 opacity-40 z-0 pointer-events-none mix-blend-overlay"
           style={{
             backgroundImage: `url(${theme.backgroundImage})`,
             backgroundPosition: "center",
@@ -124,7 +124,7 @@ export const ChatBoxContent = ({
       {/* Content layer */}
       <div
         ref={messagesContainerRef}
-        className="chat-messages"
+        className="chat-messages relative z-10 w-full"
         onScroll={handleScroll}
       >
         <div className="chat-messages__spacer" />

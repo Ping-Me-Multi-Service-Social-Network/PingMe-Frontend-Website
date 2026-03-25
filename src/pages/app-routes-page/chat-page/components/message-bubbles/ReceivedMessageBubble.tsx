@@ -96,7 +96,6 @@ export default function ReceivedMessageBubble({
 
   return (
     <motion.div
-      layout="position"
       initial={{ opacity: 0, scale: 0.95, y: 10, originX: 0, originY: 1 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
@@ -120,7 +119,7 @@ export default function ReceivedMessageBubble({
           </div>
         )}
 
-        <motion.div layout="size" transition={{ type: "spring", stiffness: 400, damping: 30 }}>
+        <motion.div transition={{ type: "spring", stiffness: 400, damping: 30 }}>
             {isWeatherMessage && message.isActive ? (
                 <div>{renderMessageContent()}</div>
             ) : isMediaMessage && message.isActive ? (
@@ -145,9 +144,9 @@ export default function ReceivedMessageBubble({
             )}
         </motion.div>
         
-        <motion.div layout="position" className="msg-time ml-1">
+        <div className="msg-time ml-1">
           {formatMessageTime(message.createdAt)}
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   );

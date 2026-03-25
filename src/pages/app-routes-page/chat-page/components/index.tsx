@@ -26,7 +26,6 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const { t } = useTranslation("chat");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [newMessage, setNewMessage] = useState("");
 
   const {
     messages,
@@ -50,11 +49,11 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
 
   // ---- Send Handlers ----
 
-  const handleSendMessage = async () => {
-    if (newMessage.trim()) {
+  const handleSendMessage = async (msgText: string) => {
+    if (msgText.trim()) {
       try {
         const messageData = {
-          content: newMessage.trim(),
+          content: msgText.trim(),
           clientMsgId: crypto.randomUUID(),
           type: "TEXT" as const,
           roomId: selectedChat.roomId,
@@ -63,7 +62,6 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
         const response = await sendMessageApi(messageData);
         const sentMessage = response.data.data as MessageResponse;
         addMessage(sentMessage);
-        setNewMessage("");
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -120,7 +118,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     <div className="chat-box overflow-hidden">
       <motion.div 
         layout
-        className="chat-box__main shrink-0 w-full"
+        className="chat-box__main shrink-0 w-full min-h-0"
         animate={{ width: isSidebarOpen ? "calc(100% - 20rem)" : "100%" }}
         transition={{ type: "spring", stiffness: 350, damping: 30 }}
       >
@@ -129,7 +127,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
-        <div className="flex-1 overflow-hidden relative">
+        <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
           <ChatBoxContent
             selectedChat={selectedChat}
             messages={messages}
@@ -143,8 +141,6 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
 
         <ChatBoxInput
           selectedChat={selectedChat}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
           onSendMessage={handleSendMessage}
           onSendFile={handleSendFile}
           onSendWeather={handleSendWeather}

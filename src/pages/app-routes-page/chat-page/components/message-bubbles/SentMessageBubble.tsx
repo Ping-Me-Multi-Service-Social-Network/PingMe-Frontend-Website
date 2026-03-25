@@ -116,12 +116,11 @@ export default function SentMessageBubble({
 
   return (
     <motion.div
-      layout="position"
       initial={{ opacity: 0, scale: 0.95, y: 10, originX: 1, originY: 1 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
       transition={{ type: "spring", stiffness: 450, damping: 25 }}
-      className="msg-row msg-row--sent group"
+      className="msg-row msg-row--sent group mb-4"
     >
       <div className="msg-bubble-wrapper relative">
         <AnimatePresence>
@@ -149,12 +148,14 @@ export default function SentMessageBubble({
           )}
         </AnimatePresence>
 
-        <motion.div layout="size" transition={{ type: "spring", stiffness: 400, damping: 30 }}>
-          {(isMediaMessage || isWeatherMessage) && message.isActive ? (
+        <motion.div transition={{ type: "spring", stiffness: 400, damping: 30 }}>
+          {isWeatherMessage && message.isActive ? (
+            <div>{renderMessageContent()}</div>
+          ) : isMediaMessage && message.isActive ? (
             <div>{renderMessageContent()}</div>
           ) : (
             <div
-              className={`msg-bubble msg-bubble--sent ${!message.isActive ? "bg-black/5 text-black border border-black/10 shadow-none dark:bg-white/10 dark:text-white dark:border-white/10" : theme.messages.sentBubbleText}`}
+              className={`msg-bubble msg-bubble--sent border ${!message.isActive ? "bg-muted text-muted-foreground border-border shadow-none" : theme.messages.sentBubbleText}`}
               style={message.isActive ? theme.messages.sentBubbleStyle : {}}
             >
               <AnimatePresence mode="popLayout">
@@ -171,9 +172,10 @@ export default function SentMessageBubble({
             </div>
           )}
         </motion.div>
-        <motion.div layout="position" className="msg-time msg-time--sent">
+
+        <div className="msg-time msg-time--sent mr-1">
           {formatMessageTime(message.createdAt)}
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   );
