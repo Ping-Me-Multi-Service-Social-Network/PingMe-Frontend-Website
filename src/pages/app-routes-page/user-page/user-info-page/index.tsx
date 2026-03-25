@@ -42,7 +42,7 @@ import type { AccountStatusType } from "@/types/common/userSummary";
 import { useNavigate } from "react-router-dom";
 import { sendOtpToEmailApi } from "@/services/authentication/authOtpApi";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 const UserInfoPage = () => {
   const { t } = useTranslation("profile");
@@ -155,7 +155,7 @@ const UserInfoPage = () => {
     );
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -165,9 +165,9 @@ const UserInfoPage = () => {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 350, damping: 25 } }
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } }
   };
 
   return (

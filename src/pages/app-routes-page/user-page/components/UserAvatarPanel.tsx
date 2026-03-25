@@ -130,7 +130,7 @@ const UserAvatarPanel = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-primary to-primary/80 h-[280px] relative overflow-hidden flex items-center justify-center">
+      <div className="bg-linear-to-r from-primary to-primary/80 h-[280px] relative overflow-hidden flex items-center justify-center">
         {/* Background Patterns using motion */}
         <motion.div
           initial={{ opacity: 0, scale: 1.1 }}
@@ -139,15 +139,20 @@ const UserAvatarPanel = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat mix-blend-overlay opacity-50 dark:opacity-20"
           style={{ backgroundImage: "url('/bg_office.jpg')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/60 to-background/95"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-primary/80 via-primary/60 to-background/95"></div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white pt-8">
-          <motion.div 
+          <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-            id="profile-avatar-panel" 
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 20,
+              delay: 0.1,
+            }}
+            id="profile-avatar-panel"
             className="relative mb-6 group"
           >
             <div
@@ -191,16 +196,27 @@ const UserAvatarPanel = () => {
           </motion.div>
 
           {/* User Info */}
-          <motion.div 
+          <motion.div
             initial={{ y: 15, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 20,
+              delay: 0.2,
+            }}
             className="text-center"
           >
-            <h1 id="profile-user-name" className="text-3xl font-bold tracking-tight drop-shadow-md mb-1.5 text-foreground">
+            <h1
+              id="profile-user-name"
+              className="text-white text-3xl font-bold tracking-tight drop-shadow-md mb-1.5"
+            >
               {userSession?.name || t("avatar.defaultName")}
             </h1>
-            <p id="profile-user-email" className="text-muted-foreground text-sm font-medium bg-background/50 px-3 py-1 rounded-full backdrop-blur-md inline-flex border border-border/50">
+            <p
+              id="profile-user-email"
+              className="text-muted-foreground text-sm font-medium bg-background/50 px-3 py-1 rounded-full backdrop-blur-md inline-flex border border-border/50"
+            >
               {userSession?.email || t("avatar.defaultEmail")}
             </p>
           </motion.div>
@@ -246,7 +262,7 @@ const UserAvatarPanel = () => {
 
                 {/* File Info */}
                 {selectedFile && (
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="bg-muted rounded-lg p-3 mb-4 text-sm font-medium text-center text-muted-foreground border border-border"
@@ -257,13 +273,15 @@ const UserAvatarPanel = () => {
 
                 {/* Progress */}
                 {isUpdating && (
-                  <motion.div 
-                    initial={{ y: 10, opacity: 0 }} 
-                    animate={{ y: 0, opacity: 1 }} 
+                  <motion.div
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
                     className="space-y-2"
                   >
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t("avatar.uploading")}</span>
+                      <span className="text-muted-foreground">
+                        {t("avatar.uploading")}
+                      </span>
                       <span className="text-primary font-bold">
                         {uploadProgress}%
                       </span>
