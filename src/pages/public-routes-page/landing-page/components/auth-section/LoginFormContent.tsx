@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { AnimatePresence, m } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { m } from "framer-motion";
+import { Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Turnstile } from "@marsidev/react-turnstile";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useAppDispatch } from "@/features/hooks";
@@ -14,13 +13,13 @@ import Field from "./ui/Field";
 import FieldLabel from "./ui/FieldLabel";
 import StyledInputWrap from "./ui/StyledInputWrap";
 import PrimaryButton from "./ui/PrimaryButton";
+import PasswordToggleButton from "./ui/PasswordToggleButton";
+import TurnstileField from "./ui/TurnstileField";
+import { INPUT_CLASS } from "./ui/authConstants";
 
 interface LoginFormContentProps {
   t: (key: string) => string;
 }
-
-const INPUT_CLASS =
-  "pl-11 pr-4 h-12 rounded-[16px] text-[15px] bg-zinc-50/80 border border-zinc-200 text-black placeholder:text-black/40 focus-visible:ring-1 focus-visible:ring-purple-500/50 focus-visible:border-purple-500/50 transition-all hover:bg-zinc-100/80";
 
 export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>) {
   const [isLoading, setIsLoading] = useState(false);
@@ -55,12 +54,14 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
         <p className="text-[15px] text-black/60">{t("auth.login.subtitle")}</p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleLogin} className="space-y-5">
+        {/* Email */}
         <Field delay={0.05}>
           <FieldLabel htmlFor="email">{t("auth.fields.email")}</FieldLabel>
           <StyledInputWrap>
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-black/40" />
+            <m.span className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none">
+              <Mail className="h-[18px] w-[18px]" />
+            </m.span>
             <Input
               id="email"
               type="email"
@@ -73,6 +74,7 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
           </StyledInputWrap>
         </Field>
 
+        {/* Password */}
         <Field delay={0.1}>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">{t("auth.fields.password")}</FieldLabel>
@@ -85,7 +87,9 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
             </button>
           </div>
           <StyledInputWrap>
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-black/40" />
+            <m.span className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none">
+              <Lock className="h-[18px] w-[18px]" />
+            </m.span>
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -95,40 +99,23 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
               className={cn(INPUT_CLASS, "pr-12")}
               required
             />
-            <m.button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 hover:text-black/70 transition-colors"
-              whileTap={{ scale: 0.85 }}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <m.span
-                  key={String(showPassword)}
-                  initial={{ opacity: 0, rotate: -45 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 45 }}
-                  transition={{ duration: 0.15 }}
-                  className="block"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </m.span>
-              </AnimatePresence>
-            </m.button>
+            <PasswordToggleButton
+              isVisible={showPassword}
+              onToggle={() => setShowPassword(!showPassword)}
+            />
           </StyledInputWrap>
         </Field>
 
+        {/* Turnstile */}
         <Field delay={0.15}>
-          <div className="flex justify-center rounded-[16px] overflow-hidden shadow-inner ring-1 ring-black/5 bg-black/5 p-1">
-            <Turnstile
-              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-              onSuccess={(token) => setTurnstileToken(token)}
-              onError={() => setTurnstileToken("")}
-              onExpire={() => setTurnstileToken("")}
-              options={{ theme: "light" }}
-            />
-          </div>
+          <TurnstileField
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken("")}
+            onExpire={() => setTurnstileToken("")}
+          />
         </Field>
 
+        {/* Submit */}
         <Field delay={0.2}>
           <PrimaryButton
             type="submit"
