@@ -4,20 +4,20 @@
 
 /* --- Design Tokens --- */
 .reels-shell {
-  --reel-bg: oklch(0.06 0.02 270);
-  --reel-surface: oklch(0.12 0.03 270);
-  --reel-surface-hover: oklch(0.18 0.04 270);
-  --reel-border: oklch(0.2 0.04 270);
-  --reel-text-primary: oklch(0.96 0.01 270);
-  --reel-text-secondary: oklch(0.7 0.04 270);
-  --reel-text-muted: oklch(0.5 0.03 270);
-  --reel-accent: oklch(0.65 0.2 270);
-  --reel-accent-hover: oklch(0.72 0.22 270);
+  --reel-bg: oklch(0.06 0.02 292);
+  --reel-surface: oklch(0.12 0.03 292);
+  --reel-surface-hover: oklch(0.18 0.04 292);
+  --reel-border: oklch(0.2 0.04 292);
+  --reel-text-primary: oklch(0.96 0.01 292);
+  --reel-text-secondary: oklch(0.7 0.04 292);
+  --reel-text-muted: oklch(0.5 0.03 292);
+  --reel-accent: oklch(0.65 0.2 292);
+  --reel-accent-hover: oklch(0.72 0.22 292);
   --reel-like: oklch(0.65 0.25 25);
   --reel-save: oklch(0.78 0.16 85);
-  --reel-overlay-from: oklch(0.06 0.02 270 / 0.9);
+  --reel-overlay-from: oklch(0.06 0.02 292 / 0.9);
   --reel-overlay-to: transparent;
-  --reel-topbar-bg: oklch(0.08 0.02 270 / 0.92);
+  --reel-topbar-bg: oklch(0.08 0.02 292 / 0.92);
 
   /* Easing */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -48,7 +48,7 @@
   background: var(--reel-topbar-bg);
   backdrop-filter: blur(16px) saturate(1.6);
   -webkit-backdrop-filter: blur(16px) saturate(1.6);
-  border-bottom: 1px solid oklch(0.2 0.04 270 / 0.5);
+  border-bottom: 1px solid oklch(0.2 0.04 292 / 0.5);
 }
 
 .reels-topbar__title {
@@ -86,7 +86,7 @@
 .reels-topbar__btn:hover {
   background: var(--reel-surface-hover);
   color: var(--reel-text-primary);
-  border-color: oklch(0.3 0.06 270);
+  border-color: oklch(0.3 0.06 292);
 }
 
 .reels-topbar__btn svg {
@@ -221,7 +221,7 @@
   height: 2.75rem;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid oklch(0.96 0.01 270 / 0.6);
+  border: 2px solid oklch(0.96 0.01 292 / 0.6);
   flex-shrink: 0;
 }
 
@@ -233,7 +233,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid oklch(0.96 0.01 270 / 0.4);
+  border: 2px solid oklch(0.96 0.01 292 / 0.4);
   flex-shrink: 0;
 }
 
@@ -319,7 +319,7 @@
 }
 
 .reel-detail__hashtag:hover {
-  color: oklch(0.82 0.2 270);
+  color: oklch(0.82 0.2 292);
   text-decoration: underline;
 }
 
@@ -353,7 +353,7 @@
 .reel-progress__bar-wrapper {
   flex: 1;
   height: 3px;
-  background: oklch(0.4 0.02 270 / 0.5);
+  background: oklch(0.4 0.02 292 / 0.5);
   border-radius: 9999px;
   cursor: pointer;
   position: relative;
@@ -415,7 +415,7 @@
 }
 
 .reel-ctrl-btn:hover {
-  background: oklch(0.3 0.04 270 / 0.5);
+  background: oklch(0.3 0.04 292 / 0.5);
   color: var(--reel-text-primary);
 }
 
@@ -466,7 +466,7 @@
   height: 2.75rem;
   border-radius: 50%;
   border: none;
-  background: oklch(0.16 0.03 270 / 0.85);
+  background: oklch(0.16 0.03 292 / 0.85);
   color: var(--reel-text-primary);
   cursor: pointer;
   transition: all 0.2s var(--ease-out-quart);
@@ -479,17 +479,17 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px solid oklch(0.4 0.04 270 / 0.3);
+  border: 1.5px solid oklch(0.4 0.04 292 / 0.3);
   transition: border-color 0.2s;
 }
 
 .reel-action__btn:hover {
-  background: oklch(0.22 0.05 270 / 0.9);
+  background: oklch(0.22 0.05 292 / 0.9);
   transform: scale(1.08);
 }
 
 .reel-action__btn:hover::before {
-  border-color: oklch(0.5 0.06 270 / 0.5);
+  border-color: oklch(0.5 0.06 292 / 0.5);
 }
 
 .reel-action__btn:active {
@@ -533,7 +533,7 @@
 
 /* Comment active state */
 .reel-action__btn--active {
-  background: oklch(0.25 0.1 270 / 0.85);
+  background: oklch(0.25 0.1 292 / 0.85);
 }
 
 .reel-action__btn--active::before {
@@ -598,7 +598,7 @@
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: oklch(0.12 0.02 270 / 0.75);
+  background: oklch(0.12 0.02 292 / 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -635,7 +635,7 @@
 .reel-delete-overlay {
   position: fixed;
   inset: 0;
-  background: oklch(0.06 0.02 270 / 0.8);
+  background: oklch(0.06 0.02 292 / 0.8);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;

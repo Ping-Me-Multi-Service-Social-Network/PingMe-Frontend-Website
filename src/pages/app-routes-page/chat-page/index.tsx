@@ -150,7 +150,7 @@ export default function MessagesPage() {
                 <div className="p-4 text-center">
                   <div
                     className="text-sm"
-                    style={{ color: "oklch(0.5 0.02 270)" }}
+                    style={{ color: "oklch(0.5 0.02 292)" }}
                   >
                     {t("layout.loadingMore")}
                   </div>
