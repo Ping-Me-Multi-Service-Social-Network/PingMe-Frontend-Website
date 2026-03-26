@@ -212,22 +212,28 @@ function BentoCard({
       transition={{ delay: index * 0.1, duration: 0.6, ease: EASE_OUT_QUART }}
       whileHover={{ y: -4 }}
     >
-      <div
+      <button
+        type="button"
         onClick={onNavigate}
-        className="h-full rounded-2xl overflow-hidden cursor-pointer flex flex-col"
+        className="h-full rounded-2xl overflow-hidden flex flex-col text-left"
         style={{
+          width: "100%",
+          padding: 0,
           background: "rgba(255,255,255,0.9)",
           backdropFilter: "blur(12px)",
           boxShadow: "0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)",
           border: "1px solid rgba(255,255,255,0.9)",
+          cursor: "pointer",
           transition: "box-shadow 0.3s ease, transform 0.3s ease",
+          font: "inherit",
+          color: "inherit",
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow =
+          (e.currentTarget as HTMLButtonElement).style.boxShadow =
             "0 20px 60px rgba(147,51,234,0.15), 0 4px 16px rgba(0,0,0,0.06)";
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow =
+          (e.currentTarget as HTMLButtonElement).style.boxShadow =
             "0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)";
         }}
       >
@@ -308,7 +314,7 @@ function BentoCard({
             </m.div>
           </div>
         </div>
-      </div>
+      </button>
     </m.div>
   );
 }

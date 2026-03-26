@@ -27,12 +27,20 @@ export default function LandingFooter() {
             {t("footer.copyright")}
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-xs font-medium transition-opacity hover:opacity-60" style={{ color: PURPLE }}>
+            <button
+              type="button"
+              className="text-xs font-medium transition-opacity hover:opacity-60"
+              style={{ color: PURPLE, background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit" }}
+            >
               Privacy
-            </a>
-            <a href="#" className="text-xs font-medium transition-opacity hover:opacity-60" style={{ color: PURPLE }}>
+            </button>
+            <button
+              type="button"
+              className="text-xs font-medium transition-opacity hover:opacity-60"
+              style={{ color: PURPLE, background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit" }}
+            >
               Terms
-            </a>
+            </button>
           </div>
         </div>
       </m.footer>
