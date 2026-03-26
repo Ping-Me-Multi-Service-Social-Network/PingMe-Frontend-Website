@@ -24,15 +24,17 @@ export default function LandingPage() {
   }, [isLogin, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <section className="min-h-svh flex flex-col">
-        <AuthSection mode={mode} />
-      </section>
+    <div className="min-h-screen selection:bg-purple-500/30 selection:text-purple-900" style={{ background: "oklch(0.985 0.008 292)" }}>
+      {/* Hero / Auth — full-height split layout */}
+      <AuthSection mode={mode} />
 
-      <section id="intro" className="scroll-mt-16">
-        <IntroSection />
-      </section>
+      {/* Scroll anchor */}
+      <div id="intro" />
 
+      {/* Features + CTA */}
+      <IntroSection />
+
+      {/* Footer */}
       <LandingFooter />
     </div>
   );

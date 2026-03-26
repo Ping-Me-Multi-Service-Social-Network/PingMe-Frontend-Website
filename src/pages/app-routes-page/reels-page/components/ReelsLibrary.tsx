@@ -33,7 +33,7 @@ const ReelThumbnail = ({
         borderRadius: "8px",
         overflow: "hidden",
         cursor: "pointer",
-        background: "var(--reel-surface, oklch(0.12 0.03 270))",
+        background: "var(--reel-surface, oklch(0.12 0.03 292))",
       }}
     >
       <video
@@ -53,7 +53,7 @@ const ReelThumbnail = ({
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to top, oklch(0.06 0.02 270 / 0.85) 0%, transparent 50%)",
+          background: "linear-gradient(to top, oklch(0.06 0.02 292 / 0.85) 0%, transparent 50%)",
           pointerEvents: "none",
         }}
       />
@@ -66,7 +66,7 @@ const ReelThumbnail = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "oklch(0.06 0.02 270 / 0.5)",
+          background: "oklch(0.06 0.02 292 / 0.5)",
           opacity: 0,
           transition: "opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1)",
         }}
@@ -83,7 +83,7 @@ const ReelThumbnail = ({
           left: 0,
           right: 0,
           padding: "0.5rem",
-          color: "var(--reel-text-secondary, oklch(0.7 0.04 270))",
+          color: "var(--reel-text-secondary, oklch(0.7 0.04 292))",
           fontSize: "0.6875rem",
           fontWeight: 600,
           display: "flex",
@@ -102,7 +102,7 @@ const ReelThumbnail = ({
           </span>
         </div>
         {timestamp && (
-          <span style={{ fontSize: "0.625rem", color: "var(--reel-text-muted, oklch(0.5 0.03 270))" }}>
+          <span style={{ fontSize: "0.625rem", color: "var(--reel-text-muted, oklch(0.5 0.03 292))" }}>
             {formatRelativeTime(timestamp)}
           </span>
         )}
@@ -187,7 +187,7 @@ export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps
         position: "fixed",
         inset: 0,
         zIndex: 50,
-        background: "oklch(0.06 0.02 270 / 0.7)",
+        background: "oklch(0.06 0.02 292 / 0.7)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         display: "flex",
@@ -198,8 +198,8 @@ export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps
     >
       <div
         style={{
-          background: "var(--reel-surface, oklch(0.12 0.03 270))",
-          border: "1px solid var(--reel-border, oklch(0.2 0.04 270))",
+          background: "var(--reel-surface, oklch(0.12 0.03 292))",
+          border: "1px solid var(--reel-border, oklch(0.2 0.04 292))",
           borderRadius: "1rem",
           width: "80vw",
           height: "80vh",
@@ -215,14 +215,14 @@ export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps
             alignItems: "center",
             justifyContent: "space-between",
             padding: "1rem 1.25rem",
-            borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 270))",
+            borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 292))",
           }}
         >
           <h2
             style={{
               fontSize: "1.125rem",
               fontWeight: 700,
-              color: "var(--reel-text-primary, oklch(0.96 0.01 270))",
+              color: "var(--reel-text-primary, oklch(0.96 0.01 292))",
             }}
           >
             {t("library.title")}
@@ -238,7 +238,7 @@ export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps
               borderRadius: "50%",
               border: "none",
               background: "transparent",
-              color: "var(--reel-text-secondary, oklch(0.7 0.04 270))",
+              color: "var(--reel-text-secondary, oklch(0.7 0.04 292))",
               cursor: "pointer",
               transition: "all 0.15s",
             }}
@@ -260,8 +260,8 @@ export function ReelsLibrary({ isOpen, onClose, onReelClick }: ReelsLibraryProps
             <TabsList
               className="w-full rounded-none shrink-0"
               style={{
-                background: "var(--reel-bg, oklch(0.06 0.02 270))",
-                borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 270))",
+                background: "var(--reel-bg, oklch(0.06 0.02 292))",
+                borderBottom: "1px solid var(--reel-border, oklch(0.2 0.04 292))",
               }}
             >
               <TabsTrigger
