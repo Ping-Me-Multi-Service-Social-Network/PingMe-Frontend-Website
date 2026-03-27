@@ -167,10 +167,10 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
   const changeField = (field: string, value: string) => {
     onChange(field, value);
     if (touched[field]) {
-      setTimeout(() => {
-        const errs = validateStep1(formData.name, formData.email, formData.password, emailStatus, t);
-        setErrors((prev) => ({ ...prev, [field]: errs[field as keyof Errors] }));
-      }, 0);
+      // [M1 fix] Truyền value mới trực tiếp, tránh stale closure từ formData cũ
+      const nextForm = { ...formData, [field]: value };
+      const errs = validateStep1(nextForm.name, nextForm.email, nextForm.password, emailStatus, t);
+      setErrors((prev) => ({ ...prev, [field]: errs[field as keyof Errors] }));
     }
   };
 

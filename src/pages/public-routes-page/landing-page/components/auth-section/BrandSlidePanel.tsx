@@ -16,16 +16,14 @@ const EASE_QUART = [0.25, 1, 0.5, 1] as const;
 const SLIDE_INTERVAL = 4500;
 
 const TAG_CHIP_STYLE: React.CSSProperties = {
-  background: "oklch(1 0 0 / 0.1)",
-  border: "1px solid oklch(1 0 0 / 0.15)",
+  background: "oklch(1 0 0 / 0.14)",
+  border: "1px solid oklch(1 0 0 / 0.18)",
   color: "oklch(0.88 0.06 292)",
-  backdropFilter: "blur(8px)",
 };
 
 const BUBBLE_CONTAINER_STYLE: React.CSSProperties = {
-  background: "oklch(1 0 0 / 0.07)",
+  background: "oklch(1 0 0 / 0.09)",
   border: "1px solid oklch(1 0 0 / 0.12)",
-  backdropFilter: "blur(12px)",
 };
 
 const BUBBLE_LEFT_STYLE: React.CSSProperties = {
@@ -38,7 +36,6 @@ const BUBBLE_LEFT_STYLE: React.CSSProperties = {
 type BubbleAlign = "left" | "right";
 interface Bubble { text: string; align: BubbleAlign; top: string; }
 
-/** All slides share the same left/right/left layout at fixed vertical positions. */
 function makeBubbles(t1: string, t2: string, t3: string): Bubble[] {
   return [
     { text: t1, align: "left",  top: "22%" },
@@ -47,7 +44,7 @@ function makeBubbles(t1: string, t2: string, t3: string): Bubble[] {
   ];
 }
 
-const SLIDES = [
+const SLIDES_DATA = [
   {
     id: "chat",
     gradient: ["oklch(0.28 0.18 275)", "oklch(0.20 0.16 305)"],
@@ -133,12 +130,12 @@ export default function BrandSlidePanel() {
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setCurrent((c) => (c + 1) % SLIDES.length);
+      setCurrent((c) => (c + 1) % SLIDES_DATA.length);
     }, SLIDE_INTERVAL);
     return () => clearInterval(timer);
   }, [isPaused]);
 
-  const slide = SLIDES[current];
+  const slide = SLIDES_DATA[current];
   const Icon = slide.icon;
 
   return (
@@ -150,20 +147,14 @@ export default function BrandSlidePanel() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Animated background */}
-      <AnimatePresence mode="wait">
-        <m.div
-          key={slide.id + "-bg"}
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(145deg, ${slide.gradient[0]} 0%, ${slide.gradient[1]} 100%)`,
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
-        />
-      </AnimatePresence>
+      {/* [C1 fix] Background dùng CSS transition thay vì AnimatePresence */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(145deg, ${slide.gradient[0]} 0%, ${slide.gradient[1]} 100%)`,
+          transition: "background 0.6s ease",
+        }}
+      />
 
       {/* Dot grid overlay */}
       <div
@@ -174,21 +165,15 @@ export default function BrandSlidePanel() {
         }}
       />
 
-      {/* Glow blob */}
-      <AnimatePresence mode="wait">
-        <m.div
-          key={slide.id + "-glow"}
-          className="absolute top-[-20%] right-[-15%] w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{
-            background: `radial-gradient(circle, ${slide.glowColor} 0%, transparent 70%)`,
-            filter: "blur(60px)",
-          }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.8 }}
-        />
-      </AnimatePresence>
+      {/* [C1 fix] Glow blob dùng CSS transition thay vì AnimatePresence */}
+      <div
+        className="absolute top-[-20%] right-[-15%] w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, ${slide.glowColor} 0%, transparent 70%)`,
+          filter: "blur(60px)",
+          transition: "background 0.6s ease",
+        }}
+      />
       <m.div
         className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] rounded-full pointer-events-none"
         style={{
@@ -207,12 +192,13 @@ export default function BrandSlidePanel() {
               src="/icons/logo.webp"
               alt="PingMe"
               className="w-10 h-10 rounded-xl relative z-10 border border-white/20"
+              loading="eager"
             />
           </div>
           <span className="text-2xl font-black tracking-tight text-white">PingMe</span>
         </div>
 
-        {/* Slide content */}
+        {/* [C1 fix] Slide content — 1 AnimatePresence duy nhất bao toàn bộ nội dung */}
         <div className="flex-1 flex flex-col justify-center py-8 min-h-0">
           <AnimatePresence mode="wait">
             <m.div
@@ -223,14 +209,13 @@ export default function BrandSlidePanel() {
               exit={{ opacity: 0, y: -28 }}
               transition={{ duration: 0.55, ease: EASE_QUART }}
             >
-              {/* Badge */}
+              {/* Badge — [H2 fix] bỏ backdropFilter */}
               <m.div
                 className="inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
                 style={{
-                  background: "oklch(1 0 0 / 0.12)",
-                  border: "1px solid oklch(1 0 0 / 0.2)",
+                  background: "oklch(1 0 0 / 0.13)",
+                  border: "1px solid oklch(1 0 0 / 0.22)",
                   color: slide.accentColor,
-                  backdropFilter: "blur(12px)",
                 }}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -350,7 +335,7 @@ export default function BrandSlidePanel() {
         <div className="shrink-0 flex items-center gap-4">
           {/* Dot indicators */}
           <div className="flex items-center gap-2">
-            {SLIDES.map((s, i) => (
+            {SLIDES_DATA.map((s, i) => (
               <button
                 key={s.id}
                 onClick={() => setCurrent(i)}
