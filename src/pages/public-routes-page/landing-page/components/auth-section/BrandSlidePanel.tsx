@@ -35,6 +35,18 @@ const BUBBLE_LEFT_STYLE: React.CSSProperties = {
   borderBottomLeftRadius: "6px",
 };
 
+type BubbleAlign = "left" | "right";
+interface Bubble { text: string; align: BubbleAlign; top: string; }
+
+/** All slides share the same left/right/left layout at fixed vertical positions. */
+function makeBubbles(t1: string, t2: string, t3: string): Bubble[] {
+  return [
+    { text: t1, align: "left",  top: "22%" },
+    { text: t2, align: "right", top: "38%" },
+    { text: t3, align: "left",  top: "54%" },
+  ];
+}
+
 const SLIDES = [
   {
     id: "chat",
@@ -55,23 +67,11 @@ const SLIDES = [
       { value: "2M+", label: "Active users" },
       { value: "<50ms", label: "Message latency" },
     ],
-    bubbles: [
-      {
-        text: "Hey! Are you free tonight? 🎉",
-        align: "left" as const,
-        top: "22%",
-      },
-      {
-        text: "Absolutely! Let's catch up 😊",
-        align: "right" as const,
-        top: "38%",
-      },
-      {
-        text: "Just pinged you the details!",
-        align: "left" as const,
-        top: "54%",
-      },
-    ],
+    bubbles: makeBubbles(
+      "Hey! Are you free tonight? 🎉",
+      "Absolutely! Let's catch up 😊",
+      "Just pinged you the details!",
+    ),
   },
   {
     id: "music",
@@ -92,23 +92,11 @@ const SLIDES = [
       { value: "50M+", label: "Tracks available" },
       { value: "120+", label: "Genres covered" },
     ],
-    bubbles: [
-      {
-        text: "🎵 Now playing: Blinding Lights",
-        align: "left" as const,
-        top: "22%",
-      },
-      {
-        text: "This track is 🔥 adding to playlist!",
-        align: "right" as const,
-        top: "38%",
-      },
-      {
-        text: "Check this new drop 🎧",
-        align: "left" as const,
-        top: "54%",
-      },
-    ],
+    bubbles: makeBubbles(
+      "🎵 Now playing: Blinding Lights",
+      "This track is 🔥 adding to playlist!",
+      "Check this new drop 🎧",
+    ),
   },
   {
     id: "social",
@@ -129,23 +117,11 @@ const SLIDES = [
       { value: "500K+", label: "Communities" },
       { value: "98%", label: "User satisfaction" },
     ],
-    bubbles: [
-      {
-        text: "Just joined the Design community! 🎨",
-        align: "left" as const,
-        top: "22%",
-      },
-      {
-        text: "Welcome! Great to have you 🙌",
-        align: "right" as const,
-        top: "38%",
-      },
-      {
-        text: "Let's collab on something awesome",
-        align: "left" as const,
-        top: "54%",
-      },
-    ],
+    bubbles: makeBubbles(
+      "Just joined the Design community! 🎨",
+      "Welcome! Great to have you 🙌",
+      "Let's collab on something awesome",
+    ),
   },
 ];
 

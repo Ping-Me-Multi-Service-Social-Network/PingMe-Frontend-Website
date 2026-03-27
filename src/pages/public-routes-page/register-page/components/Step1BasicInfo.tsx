@@ -91,6 +91,36 @@ async function checkEmailStatus(
   }
 }
 
+function SubmitButton({ isChecking, t }: Readonly<{ isChecking: boolean; t: (k: string) => string }>) {
+  return (
+    <button
+      type="submit"
+      disabled={isChecking}
+      className="w-full h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all mt-1"
+      style={{
+        background: isChecking ? "oklch(0.8 0.05 292)" : "oklch(0.55 0.2 292)",
+        color: "white",
+        cursor: isChecking ? "not-allowed" : "pointer",
+        boxShadow: isChecking ? "none" : "0 4px 12px oklch(0.55 0.2 292 / 0.3)",
+      }}
+    >
+      {isChecking ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {t("auth.register.nav.checking")}
+        </>
+      ) : (
+        <>
+          {t("auth.register.nav.next")}
+          <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </>
+      )}
+    </button>
+  );
+}
+
 export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readonly<Props>) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -263,31 +293,7 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
 
         {/* Next button */}
         <Field delay={0.13}>
-          <button
-            type="submit"
-            disabled={emailStatus === "checking"}
-            className="w-full h-11 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all mt-1"
-            style={{
-              background: emailStatus === "checking" ? "oklch(0.8 0.05 292)" : "oklch(0.55 0.2 292)",
-              color: "white",
-              cursor: emailStatus === "checking" ? "not-allowed" : "pointer",
-              boxShadow: emailStatus === "checking" ? "none" : "0 4px 12px oklch(0.55 0.2 292 / 0.3)",
-            }}
-          >
-            {emailStatus === "checking" ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t("auth.register.nav.checking")}
-              </>
-            ) : (
-              <>
-                {t("auth.register.nav.next")}
-                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </>
-            )}
-          </button>
+          <SubmitButton isChecking={emailStatus === "checking"} t={t} />
         </Field>
       </form>
     </div>
