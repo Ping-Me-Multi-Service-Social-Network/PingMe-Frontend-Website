@@ -269,9 +269,9 @@ export default function HeroPanelSection({
                   border: "1px solid oklch(1 0 0 / 0.12)",
                 }}
               >
-                {slide.bubbles.map((b, i) => (
+                {slide.bubbles.map((b) => (
                   <div
-                    key={i}
+                    key={b.text}
                     className="flex"
                     style={{ justifyContent: b.side === "right" ? "flex-end" : "flex-start" }}
                   >
@@ -314,12 +314,17 @@ export default function HeroPanelSection({
         >
           {/* Avatar circles */}
           <div className="flex -space-x-2.5 shrink-0">
-            {[0, 1, 2, 3].map((i) => (
+            {([
+              { id: "avatar-a", l: 0.58, h: 290 },
+              { id: "avatar-b", l: 0.64, h: 310 },
+              { id: "avatar-c", l: 0.70, h: 330 },
+              { id: "avatar-d", l: 0.76, h: 350 },
+            ] as const).map(({ id, l, h }) => (
               <div
-                key={i}
+                key={id}
                 className="w-9 h-9 rounded-full border-[2.5px] shadow-sm"
                 style={{
-                  background: `oklch(${0.58 + i * 0.06} 0.18 ${290 + i * 20})`,
+                  background: `oklch(${l} 0.18 ${h})`,
                   borderColor: "white",
                 }}
               />

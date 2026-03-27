@@ -15,12 +15,12 @@ import Step3Verify from "./components/Step3Verify";
 const EASE_QUART = [0.25, 1, 0.5, 1] as const;
 
 const BUBBLES = [
-  { size: 56, x: "12%", y: "18%", hue: 292, delay: 0 },
-  { size: 40, x: "72%", y: "10%", hue: 320, delay: 0.15 },
-  { size: 72, x: "80%", y: "55%", hue: 260, delay: 0.3 },
-  { size: 32, x: "25%", y: "72%", hue: 340, delay: 0.1 },
-  { size: 48, x: "55%", y: "82%", hue: 280, delay: 0.25 },
-  { size: 24, x: "88%", y: "30%", hue: 300, delay: 0.4 },
+  { id: "bubble-1", size: 56, x: "12%", y: "18%", hue: 292, delay: 0 },
+  { id: "bubble-2", size: 40, x: "72%", y: "10%", hue: 320, delay: 0.15 },
+  { id: "bubble-3", size: 72, x: "80%", y: "55%", hue: 260, delay: 0.3 },
+  { id: "bubble-4", size: 32, x: "25%", y: "72%", hue: 340, delay: 0.1 },
+  { id: "bubble-5", size: 48, x: "55%", y: "82%", hue: 280, delay: 0.25 },
+  { id: "bubble-6", size: 24, x: "88%", y: "30%", hue: 300, delay: 0.4 },
 ];
 
 const EMPTY_FORM: RegisterRequest = {
@@ -106,8 +106,8 @@ export default function RegisterPage() {
             style={{ background: "radial-gradient(circle, oklch(0.55 0.2 340 / 0.3) 0%, transparent 70%)", filter: "blur(80px)" }} />
 
           {/* Floating bubbles */}
-          {BUBBLES.map((b, i) => (
-            <m.div key={i} className="absolute rounded-full pointer-events-none"
+          {BUBBLES.map((b) => (
+            <m.div key={b.id} className="absolute rounded-full pointer-events-none"
               style={{
                 width: b.size, height: b.size, left: b.x, top: b.y,
                 background: `oklch(0.7 0.18 ${b.hue} / 0.25)`,
@@ -196,7 +196,20 @@ export default function RegisterPage() {
               {/* ── Step Indicator ── */}
               <m.div className="mb-8" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
                 <div className="flex items-center">
-                  {STEPS.map((label, i) => (
+                  {STEPS.map((label, i) => {
+                    const stepBg = i < step
+                      ? "oklch(0.55 0.2 292)"
+                      : i === step ? "white" : "transparent";
+                    const stepBorder = i <= step
+                      ? "oklch(0.55 0.2 292)"
+                      : "oklch(0.82 0.04 292)";
+                    const stepColor = i < step
+                      ? "white"
+                      : i === step ? "oklch(0.35 0.15 292)" : "oklch(0.65 0.04 292)";
+                    const labelColor = i === step
+                      ? "oklch(0.2 0.1 292)"
+                      : i < step ? "oklch(0.55 0.2 292)" : "oklch(0.65 0.04 292)";
+                    return (
                     <div key={label} className="flex items-center flex-1 last:flex-none">
                       <button
                         type="button"
@@ -206,9 +219,9 @@ export default function RegisterPage() {
                         <m.div
                           className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 border-2 transition-all"
                           animate={{
-                            background: i < step ? "oklch(0.55 0.2 292)" : i === step ? "white" : "transparent",
-                            borderColor: i <= step ? "oklch(0.55 0.2 292)" : "oklch(0.82 0.04 292)",
-                            color: i < step ? "white" : i === step ? "oklch(0.35 0.15 292)" : "oklch(0.65 0.04 292)",
+                            background: stepBg,
+                            borderColor: stepBorder,
+                            color: stepColor,
                             scale: i === step ? 1.1 : 1,
                           }}
                           transition={{ duration: 0.3 }}
@@ -221,9 +234,7 @@ export default function RegisterPage() {
                         </m.div>
                         <m.span
                           className="text-sm font-semibold hidden sm:block"
-                          animate={{
-                            color: i === step ? "oklch(0.2 0.1 292)" : i < step ? "oklch(0.55 0.2 292)" : "oklch(0.65 0.04 292)",
-                          }}
+                          animate={{ color: labelColor }}
                           transition={{ duration: 0.3 }}
                         >
                           {label}
@@ -242,7 +253,8 @@ export default function RegisterPage() {
                         </div>
                       )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </m.div>
 

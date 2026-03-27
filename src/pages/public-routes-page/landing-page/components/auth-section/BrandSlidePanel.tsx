@@ -309,7 +309,7 @@ export default function BrandSlidePanel() {
               >
                 {slide.bubbles.map((bubble, i) => (
                   <m.div
-                    key={i}
+                    key={bubble.text}
                     className="absolute"
                     style={{
                       top: bubble.top,

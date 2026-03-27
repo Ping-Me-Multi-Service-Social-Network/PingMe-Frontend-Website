@@ -29,6 +29,29 @@ type EmailStatus = "idle" | "checking" | "available" | "taken" | "invalid";
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,63}(?:\.[^\s@]{1,63})*\.[^\s@]{2,24}$/;
 const DEBOUNCE_MS = 600;
 
+function EmailStatusIcon({ email, status }: Readonly<{ email: string; status: EmailStatus }>) {
+  if (!email || status === "idle") return null;
+  if (status === "checking") return (
+    <span className="absolute right-4 top-1/2 -translate-y-1/2">
+      <Loader2 className="h-4 w-4 animate-spin" style={{ color: "oklch(0.55 0.2 292)" }} />
+    </span>
+  );
+  if (status === "available") return (
+    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">
+      <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+  if (status === "taken") return (
+    <span className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: "oklch(0.55 0.2 25)" }}>
+      <AlertCircle className="h-4 w-4" />
+    </span>
+  );
+  return null;
+}
+
 export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readonly<Props>) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -109,29 +132,6 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
     }
   };
 
-  // Email status indicator
-  const emailIndicator = () => {
-    if (!formData.email || emailStatus === "idle") return null;
-    if (emailStatus === "checking") return (
-      <span className="absolute right-4 top-1/2 -translate-y-1/2">
-        <Loader2 className="h-4 w-4 animate-spin" style={{ color: "oklch(0.55 0.2 292)" }} />
-      </span>
-    );
-    if (emailStatus === "available") return (
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">
-        <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-          <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </span>
-    );
-    if (emailStatus === "taken") return (
-      <span className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: "oklch(0.55 0.2 25)" }}>
-        <AlertCircle className="h-4 w-4" />
-      </span>
-    );
-    return null;
-  };
 
   const emailError = touched.email && (
     errors.email ??
@@ -201,7 +201,7 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
                 touched.email && emailStatus === "available" && !emailError && "border-green-300 focus-visible:ring-green-300/50",
               )}
             />
-            {emailIndicator()}
+            <EmailStatusIcon email={formData.email} status={emailStatus} />
           </StyledInputWrap>
           {touched.email && emailError && (
             <p className="flex items-center gap-1.5 mt-1.5 text-xs" style={{ color: "oklch(0.5 0.2 25)" }}>
