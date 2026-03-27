@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { m } from "framer-motion";
 import { Mail, Lock, User, MapPin, CalendarIcon } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
@@ -25,13 +25,13 @@ import { getErrorMessage } from "@/utils/errorMessageHandler";
 import { registerLocalApi } from "@/services/authentication";
 import PasswordStrengthMeter from "@/pages/commons/PasswordStrengthMeter";
 import type { RegisterRequest } from "@/types/authentication";
-import Field from "./ui/Field";
-import FieldLabel from "./ui/FieldLabel";
-import StyledInputWrap from "./ui/StyledInputWrap";
-import PrimaryButton from "./ui/PrimaryButton";
-import PasswordToggleButton from "./ui/PasswordToggleButton";
-import TurnstileField from "./ui/TurnstileField";
-import { INPUT_CLASS, SELECT_TRIGGER_CLASS } from "./ui/authConstants";
+import Field from "@/pages/public-routes-page/shared/auth-ui/Field";
+import FieldLabel from "@/pages/public-routes-page/shared/auth-ui/FieldLabel";
+import StyledInputWrap from "@/pages/public-routes-page/shared/auth-ui/StyledInputWrap";
+import PrimaryButton from "@/pages/public-routes-page/shared/auth-ui/PrimaryButton";
+import PasswordToggleButton from "@/pages/public-routes-page/shared/auth-ui/PasswordToggleButton";
+import TurnstileField from "@/pages/public-routes-page/shared/auth-ui/TurnstileField";
+import { INPUT_CLASS, SELECT_TRIGGER_CLASS } from "@/pages/public-routes-page/shared/auth-ui/authConstants";
 
 interface RegisterFormContentProps {
   t: (key: string) => string;
@@ -67,7 +67,7 @@ export default function RegisterFormContent({ t }: Readonly<RegisterFormContentP
         dob: dob?.toLocaleDateString("en-CA"),
       });
       toast.success(t("auth.register.success"));
-      navigate("/?mode=login");
+      navigate("/");
     } catch (err) {
       toast.error(getErrorMessage(err, t("auth.register.fail")));
     } finally {
@@ -78,16 +78,16 @@ export default function RegisterFormContent({ t }: Readonly<RegisterFormContentP
   const dateLocale = i18n.language === "vi" ? vi : enUS;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="text-center md:text-left">
-        <h2 className="text-3xl font-bold tracking-tight text-[oklch(0.12_0.03_292)] mb-2">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight mb-1" style={{ color: "oklch(0.12 0.03 292)" }}>
           {t("auth.register.title")}
         </h2>
-        <p className="text-[15px] text-black/60">{t("auth.register.subtitle")}</p>
+        <p className="text-sm" style={{ color: "oklch(0.48 0.04 292)" }}>{t("auth.register.subtitle")}</p>
       </div>
 
-      <form onSubmit={handleRegister} className="space-y-4">
+      <form onSubmit={handleRegister} className="space-y-3.5">
         {/* Name */}
         <Field delay={0.05}>
           <FieldLabel htmlFor="r-name">
@@ -273,20 +273,6 @@ export default function RegisterFormContent({ t }: Readonly<RegisterFormContentP
         </Field>
       </form>
 
-      {/* Footer link */}
-      <Field delay={0.27}>
-        <div className="text-center pt-2">
-          <p className="text-[15px] text-black/60">
-            {t("auth.register.hasAccount")}{" "}
-            <Link
-              to="/?mode=login"
-              className="text-[oklch(0.12_0.03_292)] font-semibold hover:text-purple-300 transition-colors ml-1"
-            >
-              {t("auth.register.loginNow")}
-            </Link>
-          </p>
-        </div>
-      </Field>
     </div>
   );
 }

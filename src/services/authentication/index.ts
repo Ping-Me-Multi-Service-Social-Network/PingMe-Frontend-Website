@@ -18,6 +18,13 @@ export const registerLocalApi = (data: RegisterRequest) => {
   );
 };
 
+export const checkEmailExistsApi = (email: string) => {
+  return axiosClient.get<ApiResponse<{ exists: boolean }>>(
+    `/auth-service/auth/check-email?email=${encodeURIComponent(email)}`,
+  );
+};
+
+
 export const loginLocalApi = (data: DefaultLoginRequest) => {
   data.submitSessionMetaRequest = getSessionMetaRequest();
 

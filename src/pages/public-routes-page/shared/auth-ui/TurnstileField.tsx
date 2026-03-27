@@ -7,8 +7,7 @@ interface TurnstileFieldProps {
 }
 
 /**
- * Centred Cloudflare Turnstile widget with the standard auth-form chrome
- * (rounded container, inner shadow, light theme).
+ * Centred Cloudflare Turnstile widget for auth forms.
  */
 export default function TurnstileField({
   onSuccess,
@@ -16,7 +15,7 @@ export default function TurnstileField({
   onExpire,
 }: Readonly<TurnstileFieldProps>) {
   return (
-    <div className="flex justify-center rounded-[16px] overflow-hidden shadow-inner ring-1 ring-black/5 bg-black/5 p-1">
+    <div className="flex justify-center overflow-hidden">
       <Turnstile
         siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
         onSuccess={onSuccess}
