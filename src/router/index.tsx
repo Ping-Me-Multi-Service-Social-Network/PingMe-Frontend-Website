@@ -10,6 +10,9 @@ import ActiveAccountVerifyOtpPage from "@/pages/app-routes-page/user-page/user-i
 const LandingPage = lazy(
   () => import("@/pages/public-routes-page/landing-page"),
 );
+const RegisterPage = lazy(
+  () => import("@/pages/public-routes-page/register-page"),
+);
 
 // ===========================================================
 // APP PAGES - Layout
@@ -123,7 +126,15 @@ export const router = createBrowserRouter([
       </LazyElement>
     ),
   },
-  // Redirect old routes to landing page
+  {
+    path: "/register",
+    element: (
+      <LazyElement>
+        <RegisterPage />
+      </LazyElement>
+    ),
+  },
+  // Redirect old mode=register query to /register
   {
     path: "/home",
     element: <Navigate to="/" replace />,

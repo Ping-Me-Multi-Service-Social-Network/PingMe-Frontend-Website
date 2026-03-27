@@ -9,13 +9,13 @@ import { useAppDispatch } from "@/features/hooks";
 import { login } from "@/features/auth/authThunk";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
 import type { DefaultLoginRequest } from "@/types/authentication";
-import Field from "./ui/Field";
-import FieldLabel from "./ui/FieldLabel";
-import StyledInputWrap from "./ui/StyledInputWrap";
-import PrimaryButton from "./ui/PrimaryButton";
-import PasswordToggleButton from "./ui/PasswordToggleButton";
-import TurnstileField from "./ui/TurnstileField";
-import { INPUT_CLASS } from "./ui/authConstants";
+import Field from "@/pages/public-routes-page/shared/auth-ui/Field";
+import FieldLabel from "@/pages/public-routes-page/shared/auth-ui/FieldLabel";
+import StyledInputWrap from "@/pages/public-routes-page/shared/auth-ui/StyledInputWrap";
+import PrimaryButton from "@/pages/public-routes-page/shared/auth-ui/PrimaryButton";
+import PasswordToggleButton from "@/pages/public-routes-page/shared/auth-ui/PasswordToggleButton";
+import TurnstileField from "@/pages/public-routes-page/shared/auth-ui/TurnstileField";
+import { INPUT_CLASS } from "@/pages/public-routes-page/shared/auth-ui/authConstants";
 
 interface LoginFormContentProps {
   t: (key: string) => string;
@@ -134,7 +134,7 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
           <p className="text-[15px] text-black/60">
             {t("auth.login.noAccount")}{" "}
             <Link
-              to="/?mode=register"
+              to="/register"
               className="text-[oklch(0.12_0.03_292)] font-semibold hover:text-purple-300 transition-colors ml-1"
             >
               {t("auth.login.registerNow")}

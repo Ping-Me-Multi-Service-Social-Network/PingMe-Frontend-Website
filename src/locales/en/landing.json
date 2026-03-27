@@ -10,7 +10,51 @@
             "noAccount": "Don't have an account?",
             "registerNow": "Register now",
             "success": "Login successful",
-            "fail": "Login failed"
+            "fail": "Login failed",
+            "heroPanel": {
+                "tab0": "Chat",
+                "tab1": "Music",
+                "tab2": "Reels",
+                "slide0": {
+                    "headline1": "Talk to anyone,",
+                    "headline2": "instantly.",
+                    "body": "Send messages, voice notes, and media in real time. Fast, private, and always in sync.",
+                    "tag1": "< 50ms latency",
+                    "tag2": "E2E encrypted",
+                    "tag3": "Works globally",
+                    "bubble1": "Hey! Are you free tonight? 🎉",
+                    "bubble2": "Absolutely! Let's catch up 😊",
+                    "bubble3": "Just pinged you the details!",
+                    "statValue": "2M+",
+                    "statLabel": "Active users"
+                },
+                "slide1": {
+                    "headline1": "Your vibe,",
+                    "headline2": "shared.",
+                    "body": "Discover tracks, share playlists, and vibe together with friends. Let the music speak.",
+                    "tag1": "Share your mood",
+                    "tag2": "Curated picks",
+                    "tag3": "AI radio",
+                    "bubble1": "🎵 Now playing: Blinding Lights",
+                    "bubble2": "This is fire 🔥 drop the link!",
+                    "bubble3": "Playlist sent — enjoy! 🎧",
+                    "statValue": "50M+",
+                    "statLabel": "Tracks"
+                },
+                "slide2": {
+                    "headline1": "Your moments,",
+                    "headline2": "on screen.",
+                    "body": "Capture and share short videos with your world. Go viral, inspire, and tell your story through Reels.",
+                    "tag1": "Short-form video",
+                    "tag2": "Instant sharing",
+                    "tag3": "Trending now",
+                    "bubble1": "Watched your reel — amazing! 🎬",
+                    "bubble2": "This blew up! 100K views 🚀",
+                    "bubble3": "Dropping a new reel tonight 🎥",
+                    "statValue": "10M+",
+                    "statLabel": "Reels shared"
+                }
+            }
         },
         "logout": {
             "success": "Logout successful",
@@ -24,7 +68,61 @@
             "success": "Registration successful! Please login.",
             "fail": "Registration failed",
             "hasAccount": "Already have an account?",
-            "loginNow": "Login now"
+            "loginNow": "Login now",
+            "hero": {
+                "greeting": "Welcome",
+                "line1": "Connect.",
+                "line2": "Share.",
+                "line3": "Together.",
+                "desc": "Join the PingMe community — where every conversation matters.",
+                "stat1Value": "2M+",
+                "stat1Label": "Members",
+                "stat2Value": "50M+",
+                "stat2Label": "Messages/day",
+                "stat3Value": "140+",
+                "stat3Label": "Countries",
+                "haveAccount": "Already have an account?",
+                "loginLink": "Login now"
+            },
+            "steps": {
+                "step1": "Info",
+                "step2": "Personal",
+                "step3": "Verify"
+            },
+            "step1": {
+                "title": "Create Account",
+                "subtitle": "Fill in the information to start using PingMe"
+            },
+            "step2": {
+                "title": "Personal Information",
+                "subtitle": "Help us know you better"
+            },
+            "step3": {
+                "title": "Security Verification",
+                "subtitle": "Complete verification to create your account",
+                "summaryTitle": "Information ready",
+                "summaryDesc": "Complete the verification step below to create your account"
+            },
+            "nav": {
+                "next": "Next",
+                "back": "Back",
+                "checking": "Checking email...",
+                "mobileLogin": "Login"
+            },
+            "validation": {
+                "nameRequired": "Please enter your full name",
+                "nameMinLength": "Name must be at least 2 characters",
+                "emailRequired": "Please enter your email",
+                "emailInvalid": "Invalid email address",
+                "emailTaken": "This email is already registered",
+                "passwordRequired": "Please enter your password",
+                "passwordMinLength": "Password must be at least 6 characters",
+                "genderRequired": "Please select your gender"
+            },
+            "emailStatus": {
+                "available": "Email is available",
+                "taken": "This email is already registered"
+            }
         },
         "fields": {
             "name": "Full Name",

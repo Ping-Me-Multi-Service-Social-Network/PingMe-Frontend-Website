@@ -4,29 +4,16 @@ import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import LanguageSwitcher from "@/pages/commons/LanguageSwitcher";
 import HeroPanelSection from "./HeroPanelSection";
 import LoginFormContent from "./LoginFormContent";
-import RegisterFormContent from "./RegisterFormContent";
 
 const EASE_OUT_QUART = [0.25, 1, 0.5, 1] as const;
 
 interface AuthSectionProps {
   mode: string;
-  heroImageSrc?: string;
 }
 
-export default function AuthSection({
-  mode,
-  heroImageSrc = "/images/hero-chat.webp",
-}: Readonly<AuthSectionProps>) {
+export default function AuthSection({ mode }: Readonly<AuthSectionProps>) {
   const [activeFeature, setActiveFeature] = useState(0);
   const { t } = useTranslation("landing");
-  const isLogin = mode === "login";
-
-  const imagesForFeatures = [
-    heroImageSrc,
-    "/images/feature-music.webp",
-    "/images/feature-reels.webp",
-  ];
-  const currentImage = imagesForFeatures[activeFeature];
 
   return (
     <LazyMotion features={domAnimation}>
@@ -73,7 +60,6 @@ export default function AuthSection({
 
         {/* Left hero panel */}
         <HeroPanelSection
-          currentImage={currentImage}
           activeFeature={activeFeature}
           onSelectFeature={setActiveFeature}
         />
@@ -102,7 +88,7 @@ export default function AuthSection({
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3, ease: EASE_OUT_QUART }}
               >
-                {isLogin ? <LoginFormContent t={t} /> : <RegisterFormContent t={t} />}
+                <LoginFormContent t={t} />
               </m.div>
             </AnimatePresence>
           </m.div>
