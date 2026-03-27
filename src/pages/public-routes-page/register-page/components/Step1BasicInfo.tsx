@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { m } from "framer-motion";
 import { Mail, Lock, User, AlertCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -73,29 +73,37 @@ function validateStep1(
   return e;
 }
 
+async function checkEmailStatus(
+  email: string,
+  setStatus: (s: EmailStatus) => void,
+): Promise<void> {
+  if (!EMAIL_RE.test(email)) {
+    setStatus("invalid");
+    return;
+  }
+  setStatus("checking");
+  try {
+    const res = await checkEmailExistsApi(email);
+    setStatus(res.data.data.exists ? "taken" : "available");
+  } catch {
+    // If API fails, don't block — let backend catch it on submit
+    setStatus("idle");
+  }
+}
+
 export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readonly<Props>) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const checkEmail = useCallback((email: string) => {
-    if (!EMAIL_RE.test(email)) {
-      setEmailStatus("invalid");
-      return;
-    }
-    setEmailStatus("checking");
+  const checkEmail = (email: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const res = await checkEmailExistsApi(email);
-        setEmailStatus(res.data.data.exists ? "taken" : "available");
-      } catch {
-        // If API fails, don't block — let backend catch it on submit
-        setEmailStatus("idle");
-      }
-    }, DEBOUNCE_MS);
-  }, []);
+    debounceRef.current = setTimeout(
+      () => checkEmailStatus(email, setEmailStatus),
+      DEBOUNCE_MS,
+    );
+  };
 
   const handleEmailChange = (value: string) => {
     onChange("email", value);

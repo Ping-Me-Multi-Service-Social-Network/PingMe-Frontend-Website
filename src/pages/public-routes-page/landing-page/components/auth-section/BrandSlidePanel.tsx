@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
@@ -14,6 +14,26 @@ import {
 
 const EASE_QUART = [0.25, 1, 0.5, 1] as const;
 const SLIDE_INTERVAL = 4500;
+
+const TAG_CHIP_STYLE: React.CSSProperties = {
+  background: "oklch(1 0 0 / 0.1)",
+  border: "1px solid oklch(1 0 0 / 0.15)",
+  color: "oklch(0.88 0.06 292)",
+  backdropFilter: "blur(8px)",
+};
+
+const BUBBLE_CONTAINER_STYLE: React.CSSProperties = {
+  background: "oklch(1 0 0 / 0.07)",
+  border: "1px solid oklch(1 0 0 / 0.12)",
+  backdropFilter: "blur(12px)",
+};
+
+const BUBBLE_LEFT_STYLE: React.CSSProperties = {
+  background: "oklch(1 0 0 / 0.18)",
+  color: "oklch(0.92 0.04 292)",
+  border: "1px solid oklch(1 0 0 / 0.12)",
+  borderBottomLeftRadius: "6px",
+};
 
 const SLIDES = [
   {
@@ -281,12 +301,7 @@ export default function BrandSlidePanel() {
                     <div
                       key={tag.text}
                       className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-semibold"
-                      style={{
-                        background: "oklch(1 0 0 / 0.1)",
-                        border: "1px solid oklch(1 0 0 / 0.15)",
-                        color: "oklch(0.88 0.06 292)",
-                        backdropFilter: "blur(8px)",
-                      }}
+                      style={TAG_CHIP_STYLE}
                     >
                       <TagIcon className="w-3.5 h-3.5" style={{ color: slide.accentColor }} />
                       {tag.text}
@@ -298,11 +313,7 @@ export default function BrandSlidePanel() {
               {/* Mock chat bubbles */}
               <m.div
                 className="relative h-[160px] mt-2 rounded-2xl overflow-hidden"
-                style={{
-                  background: "oklch(1 0 0 / 0.07)",
-                  border: "1px solid oklch(1 0 0 / 0.12)",
-                  backdropFilter: "blur(12px)",
-                }}
+                style={BUBBLE_CONTAINER_STYLE}
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.35, duration: 0.5 }}
@@ -330,12 +341,7 @@ export default function BrandSlidePanel() {
                               color: "white",
                               borderBottomRightRadius: "6px",
                             }
-                          : {
-                              background: "oklch(1 0 0 / 0.18)",
-                              color: "oklch(0.92 0.04 292)",
-                              border: "1px solid oklch(1 0 0 / 0.12)",
-                              borderBottomLeftRadius: "6px",
-                            }
+                          : BUBBLE_LEFT_STYLE
                       }
                     >
                       {bubble.text}
