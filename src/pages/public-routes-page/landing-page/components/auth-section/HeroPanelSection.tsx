@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -103,7 +103,10 @@ export default function HeroPanelSection({
   onSelectFeature,
 }: Readonly<HeroPanelSectionProps>) {
   const { t } = useTranslation("landing");
-  const SLIDES = getSlides(t);
+
+  // [H4 fix] Memoize slides — chỉ tạo lại khi ngôn ngữ thay đổi
+  const SLIDES = useMemo(() => getSlides(t), [t]);
+
   const [current, setCurrent] = useState(activeFeature);
   const slide = SLIDES[current];
 
@@ -120,12 +123,15 @@ export default function HeroPanelSection({
       transition={{ duration: 0.8, ease: EASE_OUT_QUART }}
     >
       <div className="relative w-full max-w-[680px]">
-        {/* Outer glow behind the frame */}
-        <m.div
-          className="absolute inset-0 rounded-[32px] blur-[50px] -z-10"
-          animate={{ background: slide.glowColor }}
-          transition={{ duration: 0.8 }}
-          style={{ transform: "scale(0.9) translateY(16px)" }}
+        {/* Outer glow behind the frame — [C1 fix] CSS transition thay vì AnimatePresence animate */}
+        <div
+          className="absolute inset-0 rounded-[32px] -z-10"
+          style={{
+            background: slide.glowColor,
+            filter: "blur(50px)",
+            transform: "scale(0.9) translateY(16px)",
+            transition: "background 0.8s ease",
+          }}
         />
 
         {/* ── Main Content Frame  ── */}
@@ -135,18 +141,14 @@ export default function HeroPanelSection({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8, ease: EASE_OUT_QUART }}
         >
-          {/* Animated gradient background — crossfade, no flash */}
-          <AnimatePresence initial={false}>
-            <m.div
-              key={slide.id + "-bg"}
-              className="absolute inset-0"
-              style={{ background: slide.gradient }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.9, ease: "easeInOut" }}
-            />
-          </AnimatePresence>
+          {/* [C1 fix] Gradient background — CSS transition thay vì AnimatePresence */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: slide.gradient,
+              transition: "background 0.9s ease",
+            }}
+          />
 
           {/* Dot grid pattern */}
           <div
@@ -157,21 +159,15 @@ export default function HeroPanelSection({
             }}
           />
 
-          {/* Top-right glow blob */}
-          <AnimatePresence initial={false}>
-            <m.div
-              key={slide.id + "-glow"}
-              className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
-              style={{
-                background: `radial-gradient(circle, ${slide.glowColor} 0%, transparent 70%)`,
-                filter: "blur(32px)",
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.1, ease: "easeInOut" }}
-            />
-          </AnimatePresence>
+          {/* [C1 fix] Top-right glow blob — CSS transition thay vì AnimatePresence */}
+          <div
+            className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
+            style={{
+              background: `radial-gradient(circle, ${slide.glowColor} 0%, transparent 70%)`,
+              filter: "blur(32px)",
+              transition: "background 1.1s ease",
+            }}
+          />
 
           {/* ── Tab nav row ── */}
           <div
@@ -208,7 +204,7 @@ export default function HeroPanelSection({
             ))}
           </div>
 
-          {/* ── Slide content ── */}
+          {/* ── Slide content — 1 AnimatePresence duy nhất ── */}
           <AnimatePresence mode="wait" initial={false}>
             <m.div
               key={slide.id}
@@ -220,7 +216,6 @@ export default function HeroPanelSection({
             >
               {/* Top: headline */}
               <div className="flex flex-col gap-4">
-
                 {/* Headline */}
                 <h2
                   className="text-white font-black leading-[1.06]"
@@ -239,7 +234,7 @@ export default function HeroPanelSection({
                   {slide.body}
                 </p>
 
-                {/* Feature tags */}
+                {/* Feature tags — [H2 fix] bỏ backdropFilter */}
                 <div className="flex flex-wrap gap-2">
                   {slide.tags.map((tag) => {
                     const TagIcon = tag.icon;
@@ -248,8 +243,8 @@ export default function HeroPanelSection({
                         key={tag.label}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold"
                         style={{
-                          background: "oklch(1 0 0 / 0.1)",
-                          border: "1px solid oklch(1 0 0 / 0.15)",
+                          background: "oklch(1 0 0 / 0.12)",
+                          border: "1px solid oklch(1 0 0 / 0.18)",
                           color: "oklch(0.90 0.05 292)",
                         }}
                       >
@@ -300,7 +295,6 @@ export default function HeroPanelSection({
             </m.div>
           </AnimatePresence>
 
-
           {/* Inner shadow overlay */}
           <div className="absolute inset-0 shadow-[inset_0_0_24px_rgba(0,0,0,0.1)] pointer-events-none z-30" />
         </m.div>
@@ -349,8 +343,6 @@ export default function HeroPanelSection({
             </p>
           </div>
         </m.div>
-
-
       </div>
     </m.div>
   );

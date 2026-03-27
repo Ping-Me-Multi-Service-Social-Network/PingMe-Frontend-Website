@@ -15,6 +15,7 @@ import {
   setLogoutReason,
   updateUserSession,
 } from "@/features/auth/authSlice";
+import { LazyMotion, domAnimation } from "framer-motion";
 
 const PersistLoader = () => (
   <AppLoader type="pulse" message="Restoring session..." />
@@ -103,8 +104,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <AppInner />
-    </Provider>
+    <LazyMotion features={domAnimation} strict>
+      <Provider store={store}>
+        <AppInner />
+      </Provider>
+    </LazyMotion>
   );
 }

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useAppSelector } from "@/features/hooks";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
@@ -70,18 +70,18 @@ export default function RegisterPage() {
     }
   };
 
-  const STEPS = [
+  // [H3 fix] Memoize — chỉ tạo lại khi ngôn ngữ thay đổi
+  const STEPS = useMemo(() => [
     t("auth.register.steps.step1"),
     t("auth.register.steps.step2"),
     t("auth.register.steps.step3"),
-  ];
+  ], [t]);
 
   return (
-    <LazyMotion features={domAnimation}>
-      <div
-        className="min-h-screen flex flex-col md:flex-row overflow-hidden"
-        style={{ background: "oklch(0.985 0.008 292)" }}
-      >
+    <div
+      className="min-h-screen flex flex-col md:flex-row overflow-hidden"
+      style={{ background: "oklch(0.985 0.008 292)" }}
+    >
         {/* ── Left Visual Panel ── */}
         <m.aside
           className="hidden md:flex md:w-[42%] lg:w-[45%] flex-shrink-0 flex-col justify-between p-10 lg:p-14 relative overflow-hidden"
@@ -123,7 +123,7 @@ export default function RegisterPage() {
           <div className="relative z-10 flex items-center gap-3">
             <div className="relative">
               <div className="absolute inset-0 bg-white/30 rounded-xl blur-md" />
-              <img src="/icons/logo.webp" alt="PingMe" className="w-10 h-10 rounded-xl relative z-10 border border-white/20" />
+              <img src="/icons/logo.webp" alt="PingMe" loading="eager" decoding="async" className="w-10 h-10 rounded-xl relative z-10 border border-white/20" />
             </div>
             <span className="text-2xl font-black tracking-tight text-white">PingMe</span>
           </div>
@@ -182,7 +182,7 @@ export default function RegisterPage() {
           {/* Top bar */}
           <div className="flex items-center justify-between px-6 pt-6 md:px-10 md:pt-8 flex-shrink-0">
             <div className="flex md:hidden items-center gap-2.5">
-              <img src="/icons/logo.webp" alt="PingMe" className="w-8 h-8 rounded-xl border border-black/5" />
+              <img src="/icons/logo.webp" alt="PingMe" loading="eager" decoding="async" className="w-8 h-8 rounded-xl border border-black/5" />
               <span className="text-xl font-black tracking-tight" style={{ color: "oklch(0.12 0.03 292)" }}>PingMe</span>
             </div>
             <div className="hidden md:block" />
@@ -305,6 +305,5 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-    </LazyMotion>
   );
 }

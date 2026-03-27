@@ -204,8 +204,16 @@
 
   body {
     @apply bg-background text-foreground;
-    transition: background-color 0.6s ease-in-out;
+    transition: background-color 0.4s ease-in-out;
   }
+}
+
+/* [C3 fix] Bento card hover — dùng CSS thay vì JS onMouseEnter/Leave mutation */
+.bento-card {
+  transition: box-shadow 0.3s ease;
+}
+.bento-card:hover {
+  box-shadow: 0 20px 60px rgba(147, 51, 234, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* Global no-gradient policy (use flat color based on gradient start color) */
