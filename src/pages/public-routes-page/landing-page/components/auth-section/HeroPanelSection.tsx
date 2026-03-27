@@ -317,7 +317,7 @@ export default function HeroPanelSection({
             {([
               { id: "avatar-a", l: 0.58, h: 290 },
               { id: "avatar-b", l: 0.64, h: 310 },
-              { id: "avatar-c", l: 0.70, h: 330 },
+              { id: "avatar-c", l: 0.7, h: 330 },
               { id: "avatar-d", l: 0.76, h: 350 },
             ] as const).map(({ id, l, h }) => (
               <div

@@ -52,29 +52,33 @@ function EmailStatusIcon({ email, status }: Readonly<{ email: string; status: Em
   return null;
 }
 
+function validateStep1(
+  name: string,
+  email: string,
+  password: string,
+  emailStatus: EmailStatus,
+  t: (key: string) => string,
+): Errors {
+  const e: Errors = {};
+  if (!name.trim()) e.name = t("auth.register.validation.nameRequired");
+  else if (name.trim().length < 2) e.name = t("auth.register.validation.nameMinLength");
+
+  if (!email.trim()) e.email = t("auth.register.validation.emailRequired");
+  else if (!EMAIL_RE.test(email)) e.email = t("auth.register.validation.emailInvalid");
+  else if (emailStatus === "taken") e.email = t("auth.register.validation.emailTaken");
+
+  if (!password) e.password = t("auth.register.validation.passwordRequired");
+  else if (password.length < 6) e.password = t("auth.register.validation.passwordMinLength");
+
+  return e;
+}
+
 export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readonly<Props>) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const validate = useCallback((): Errors => {
-    const e: Errors = {};
-    if (!formData.name.trim()) e.name = t("auth.register.validation.nameRequired");
-    else if (formData.name.trim().length < 2) e.name = t("auth.register.validation.nameMinLength");
-
-    if (!formData.email.trim()) e.email = t("auth.register.validation.emailRequired");
-    else if (!EMAIL_RE.test(formData.email)) e.email = t("auth.register.validation.emailInvalid");
-    else if (emailStatus === "taken") e.email = t("auth.register.validation.emailTaken");
-
-    if (!formData.password) e.password = t("auth.register.validation.passwordRequired");
-    else if (formData.password.length < 6) e.password = t("auth.register.validation.passwordMinLength");
-
-    return e;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.name, formData.email, formData.password, emailStatus, t]);
-
   const checkEmail = useCallback((email: string) => {
     if (!EMAIL_RE.test(email)) {
       setEmailStatus("invalid");
@@ -98,7 +102,7 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
     if (value.trim()) checkEmail(value.trim());
     else setEmailStatus("idle");
     if (touched.email) {
-      const e = validate();
+      const e = validateStep1(formData.name, value.trim(), formData.password, emailStatus, t);
       setErrors((prev) => ({ ...prev, email: e.email }));
     }
   };
@@ -108,7 +112,7 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
     const allTouched = { name: true, email: true, password: true };
     setTouched(allTouched);
     if (emailStatus === "checking") return; // wait for check
-    const errs = validate();
+    const errs = validateStep1(formData.name, formData.email, formData.password, emailStatus, t);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -118,7 +122,7 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
 
   const blur = (field: string) => {
     setTouched((p) => ({ ...p, [field]: true }));
-    const errs = validate();
+    const errs = validateStep1(formData.name, formData.email, formData.password, emailStatus, t);
     setErrors((prev) => ({ ...prev, [field]: errs[field as keyof Errors] }));
   };
 
@@ -126,7 +130,7 @@ export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readon
     onChange(field, value);
     if (touched[field]) {
       setTimeout(() => {
-        const errs = validate();
+        const errs = validateStep1(formData.name, formData.email, formData.password, emailStatus, t);
         setErrors((prev) => ({ ...prev, [field]: errs[field as keyof Errors] }));
       }, 0);
     }

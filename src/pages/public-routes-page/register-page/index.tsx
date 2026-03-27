@@ -197,18 +197,25 @@ export default function RegisterPage() {
               <m.div className="mb-8" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
                 <div className="flex items-center">
                   {STEPS.map((label, i) => {
-                    const stepBg = i < step
-                      ? "oklch(0.55 0.2 292)"
-                      : i === step ? "white" : "transparent";
+                    let stepBg: string;
+                    if (i < step) stepBg = "oklch(0.55 0.2 292)";
+                    else if (i === step) stepBg = "white";
+                    else stepBg = "transparent";
+
                     const stepBorder = i <= step
                       ? "oklch(0.55 0.2 292)"
                       : "oklch(0.82 0.04 292)";
-                    const stepColor = i < step
-                      ? "white"
-                      : i === step ? "oklch(0.35 0.15 292)" : "oklch(0.65 0.04 292)";
-                    const labelColor = i === step
-                      ? "oklch(0.2 0.1 292)"
-                      : i < step ? "oklch(0.55 0.2 292)" : "oklch(0.65 0.04 292)";
+
+                    let stepColor: string;
+                    if (i < step) stepColor = "white";
+                    else if (i === step) stepColor = "oklch(0.35 0.15 292)";
+                    else stepColor = "oklch(0.65 0.04 292)";
+
+                    let labelColor: string;
+                    if (i === step) labelColor = "oklch(0.2 0.1 292)";
+                    else if (i < step) labelColor = "oklch(0.55 0.2 292)";
+                    else labelColor = "oklch(0.65 0.04 292)";
+
                     return (
                     <div key={label} className="flex items-center flex-1 last:flex-none">
                       <button
