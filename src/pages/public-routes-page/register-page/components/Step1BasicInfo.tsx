@@ -26,8 +26,7 @@ interface Errors {
 }
 
 type EmailStatus = "idle" | "checking" | "available" | "taken" | "invalid";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,63}(?:\.[^\s@]{1,63})*\.[^\s@]{2,24}$/;
 const DEBOUNCE_MS = 600;
 
 export default function Step1BasicInfo({ t, formData, onChange, onNext }: Readonly<Props>) {
