@@ -47,7 +47,7 @@ const ChatBoxHeader = ({
         <Avatar className={`w-10 h-10 ring-2 ${theme.header.avatarRing}`}>
           <AvatarImage src={avatarUrl || "/placeholder.svg"} />
           <AvatarFallback
-            style={{ background: "oklch(0.45 0.18 270)", color: "white" }}
+            style={{ background: "oklch(0.45 0.18 292)", color: "white" }}
             className="font-semibold"
           >
             {displayName?.charAt(0) || "?"}

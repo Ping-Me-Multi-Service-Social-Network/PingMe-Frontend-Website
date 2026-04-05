@@ -84,7 +84,7 @@ export default function WeatherMessageBubble({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'oklch(0.95 0.04 240)' }}>
+          <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'oklch(0.95 0.04 285)' }}>
             <div>
               <div className="text-3xl font-bold">
                 {weather.name}, {weather.sys.country}

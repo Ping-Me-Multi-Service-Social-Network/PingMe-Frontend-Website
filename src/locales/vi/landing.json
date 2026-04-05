@@ -10,7 +10,51 @@
             "noAccount": "Chưa có tài khoản?",
             "registerNow": "Đăng ký ngay",
             "success": "Đăng nhập thành công",
-            "fail": "Đăng nhập thất bại"
+            "fail": "Đăng nhập thất bại",
+            "heroPanel": {
+                "tab0": "Chat",
+                "tab1": "Âm nhạc",
+                "tab2": "Thước phim",
+                "slide0": {
+                    "headline1": "Nhắn tin với ai,",
+                    "headline2": "tức thì.",
+                    "body": "Gửi tin nhắn, ghi âm và file đa phương tiện theo thời gian thực. Nhanh, bảo mật và luôn đồng bộ.",
+                    "tag1": "Độ trễ < 50ms",
+                    "tag2": "Mã hóa đầu cuối",
+                    "tag3": "Hoạt động toàn cầu",
+                    "bubble1": "Hey! Tối nay bạn rảnh không? 🎉",
+                    "bubble2": "Rảnh chứ! Gặp đi nào 😊",
+                    "bubble3": "Vừa ping chi tiết cho bạn rồi!",
+                    "statValue": "2M+",
+                    "statLabel": "Người dùng"
+                },
+                "slide1": {
+                    "headline1": "Cảm xúc của bạn,",
+                    "headline2": "được chia sẻ.",
+                    "body": "Khám phá bài hát, chia sẻ playlist và cùng thưởng thức âm nhạc với bạn bè.",
+                    "tag1": "Chia sẻ tâm trạng",
+                    "tag2": "Playlist tuyển chọn",
+                    "tag3": "Radio AI",
+                    "bubble1": "🎵 Đang phát: Blinding Lights",
+                    "bubble2": "Hay quá 🔥 chia link đi!",
+                    "bubble3": "Đã gửi playlist — nghe vui nhé! 🎧",
+                    "statValue": "50M+",
+                    "statLabel": "Bài hát"
+                },
+                "slide2": {
+                    "headline1": "Khoảnh khắc của bạn,",
+                    "headline2": "lên sóng ngay.",
+                    "body": "Quay và chia sẻ video ngắn với thế giới của bạn. Gây bão, truyền cảm hứng và kể câu chuyện qua Thước phim.",
+                    "tag1": "Video ngắn",
+                    "tag2": "Chia sẻ tức thì",
+                    "tag3": "Đang thịnh hành",
+                    "bubble1": "Xem reel của bạn rồi — tuyệt vời! 🎬",
+                    "bubble2": "Viral rồi kìa! 100K lượt xem 🚀",
+                    "bubble3": "Tối nay tung reel mới nhé 🎥",
+                    "statValue": "10M+",
+                    "statLabel": "Thước phim đã chia sẻ"
+                }
+            }
         },
         "logout": {
             "success": "Đăng xuất thành công",
@@ -24,7 +68,61 @@
             "success": "Đăng ký thành công! Vui lòng đăng nhập.",
             "fail": "Đăng ký thất bại",
             "hasAccount": "Đã có tài khoản?",
-            "loginNow": "Đăng nhập ngay"
+            "loginNow": "Đăng nhập ngay",
+            "hero": {
+                "greeting": "Chào mừng bạn",
+                "line1": "Kết nối.",
+                "line2": "Chia sẻ.",
+                "line3": "Cùng nhau.",
+                "desc": "Tham gia cộng đồng PingMe — nơi mọi cuộc trò chuyện đều có ý nghĩa.",
+                "stat1Value": "2M+",
+                "stat1Label": "Thành viên",
+                "stat2Value": "50M+",
+                "stat2Label": "Tin nhắn/ngày",
+                "stat3Value": "140+",
+                "stat3Label": "Quốc gia",
+                "haveAccount": "Đã có tài khoản?",
+                "loginLink": "Đăng nhập ngay"
+            },
+            "steps": {
+                "step1": "Thông tin",
+                "step2": "Cá nhân",
+                "step3": "Xác minh"
+            },
+            "step1": {
+                "title": "Tạo tài khoản",
+                "subtitle": "Điền thông tin để bắt đầu sử dụng PingMe"
+            },
+            "step2": {
+                "title": "Thông tin cá nhân",
+                "subtitle": "Giúp chúng tôi hiểu bạn hơn"
+            },
+            "step3": {
+                "title": "Xác minh bảo mật",
+                "subtitle": "Hoàn tất xác minh để tạo tài khoản của bạn",
+                "summaryTitle": "Thông tin đã sẵn sàng",
+                "summaryDesc": "Hoàn tất bước xác minh bên dưới để tạo tài khoản"
+            },
+            "nav": {
+                "next": "Tiếp theo",
+                "back": "Quay lại",
+                "checking": "Đang kiểm tra email...",
+                "mobileLogin": "Đăng nhập"
+            },
+            "validation": {
+                "nameRequired": "Vui lòng nhập họ và tên",
+                "nameMinLength": "Tên phải có ít nhất 2 ký tự",
+                "emailRequired": "Vui lòng nhập email",
+                "emailInvalid": "Email không hợp lệ",
+                "emailTaken": "Email này đã được đăng ký",
+                "passwordRequired": "Vui lòng nhập mật khẩu",
+                "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
+                "genderRequired": "Vui lòng chọn giới tính"
+            },
+            "emailStatus": {
+                "available": "Email hợp lệ, có thể sử dụng",
+                "taken": "Email này đã được đăng ký"
+            }
         },
         "fields": {
             "name": "Họ và tên",

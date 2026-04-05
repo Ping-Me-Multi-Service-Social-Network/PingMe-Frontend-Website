@@ -24,7 +24,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--error-text": "var(--destructive)",
           "--error-border": "var(--destructive)",
           // Info toasts - use primary purple colors
-          "--info-bg": "oklch(0.97 0.03 270)",
+          "--info-bg": "oklch(0.97 0.03 292)",
           "--info-text": "var(--primary)",
           "--info-border": "var(--primary)",
           // Warning toasts - orange colors
