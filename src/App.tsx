@@ -9,9 +9,10 @@ import MobileUnsupportedView from "./components/custom/MobileUnsupportedView";
 import { router } from "./router";
 import { persistor, store } from "./features/store";
 import { useAppDispatch, useAppSelector } from "./features/hooks";
-import { getCurrentUserSession, logout } from "@/features/auth/authThunk";
+import { getCurrentUserSession } from "@/features/auth/authThunk";
 import { setupAxiosInterceptors } from "./lib/axiosClient";
 import {
+  clearAuthState,
   setLogoutReason,
   updateUserSession,
 } from "@/features/auth/authSlice";
@@ -71,8 +72,9 @@ function AppInner() {
       onTokenRefreshed: (payload: any) =>
         store.dispatch(updateUserSession(payload)),
       onLogout: () => {
+        localStorage.removeItem("access_token");
         store.dispatch(setLogoutReason("EXPIRED"));
-        store.dispatch(logout());
+        store.dispatch(clearAuthState());
       },
     };
 

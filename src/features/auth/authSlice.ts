@@ -29,6 +29,13 @@ const authSlice = createSlice({
       state.userSession = action.payload.userSession;
     },
 
+    clearAuthState(state) {
+      state.userSession = {} as CurrentUserSessionResponse;
+      state.isLogin = false;
+      state.isLoading = false;
+      state.error = null;
+    },
+
     setLogoutReason(state, action: PayloadAction<AuthState["logoutReason"]>) {
       state.logoutReason = action.payload;
     },
@@ -110,7 +117,8 @@ const authSlice = createSlice({
 // ===========================================
 // EXPORT REDUCER
 // ===========================================
-export const { updateUserSession, setLogoutReason } = authSlice.actions;
+export const { updateUserSession, clearAuthState, setLogoutReason } =
+  authSlice.actions;
 export default authSlice.reducer;
 
 // ===========================================

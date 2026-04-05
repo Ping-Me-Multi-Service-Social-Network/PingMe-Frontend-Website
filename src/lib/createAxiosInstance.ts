@@ -66,8 +66,16 @@ export function createAxiosInstance(baseURL: string): {
 
             return payload.accessToken;
         } catch (error) {
-            localStorage.removeItem("access_token");
-            if (onLogout) onLogout();
+            const status = axios.isAxiosError(error)
+                ? error.response?.status
+                : undefined;
+
+            // Chỉ xem như phiên hết hạn khi refresh token thực sự bị từ chối.
+            // Với lỗi mạng/5xx tạm thời, giữ nguyên session để tránh logout oan.
+            if (status === 401 || status === 403) {
+                localStorage.removeItem("access_token");
+                if (onLogout) onLogout();
+            }
             throw error;
         }
     };
