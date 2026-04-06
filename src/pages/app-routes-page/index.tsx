@@ -2,19 +2,17 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import AppNavigation from "./components/navigation/AppNavigation.tsx";
 import { AudioPlayerProvider } from "@/hooks/useAudio.tsx";
-import GlobalAudioPlayer from "./components/audio/GlobalAudioPlayer.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
-const CallProvider = lazy(() =>
-  import("@/features/websocket/hooks/useCall").then((module) => ({
-    default: module.CallProvider,
-  }))
-);
 import { useSocket } from "@/features/websocket/useSocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
 import { useGlobalTour } from "@/hooks/tours";
 
 const MessagesPage = lazy(() => import("@/pages/app-routes-page/chat-page"));
-
+const CallProvider = lazy(() =>
+  import("@/features/websocket/hooks/useCall").then((module) => ({
+    default: module.CallProvider,
+  }))
+);
 export default function AppPageLayout() {
   const location = useLocation();
 
@@ -81,8 +79,6 @@ export default function AppPageLayout() {
               {/* Other pages via router Outlet (hidden when on chat page) */}
               {!isChatPage && <Outlet />}
             </div>
-
-            {isMusicPage && <GlobalAudioPlayer />}
 
             {!isMusicPage && <DraggableMiniPlayer />}
           </div>

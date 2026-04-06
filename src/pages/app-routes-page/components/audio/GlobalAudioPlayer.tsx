@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useState, useCallback } from "react";
-import { useAudio } from "@/hooks/useAudio.tsx";
+import { useAudio, useAudioTime } from "@/hooks/useAudio.tsx";
 import {
   Music2,
   ChevronDown,
@@ -28,14 +28,13 @@ const GlobalAudioPlayer: React.FC = () => {
     audioRef,
     isPlaying,
     togglePlayPause,
-    currentTime,
-    duration,
     volume,
     setVolume,
     repeatMode,
     cycleRepeatMode,
     playbackContext,
   } = useAudio();
+  const { currentTime, duration } = useAudioTime();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHoveringProgress, setIsHoveringProgress] = useState(false);
@@ -163,8 +162,9 @@ const GlobalAudioPlayer: React.FC = () => {
 
   return (
     <div
-      className={`fixed bottom-0 left-16 right-0 bg-linear-to-t from-gray-900 via-gray-800 to-gray-900 border-t border-gray-700 shadow-2xl transition-all duration-300 z-50 ${isMinimized ? "h-16" : "h-24"
+      className={`fixed bottom-0 left-0 right-0 bg-linear-to-t from-gray-900 via-gray-800 to-gray-900 border-t border-gray-700 shadow-2xl transition-all duration-300 z-50 ${isMinimized ? "h-16" : "h-24"
         }`}
+      style={{ left: "var(--app-sidebar-width, 4rem)" }}
     >
       {/* Minimized View */}
       {isMinimized ? (
@@ -234,7 +234,7 @@ const GlobalAudioPlayer: React.FC = () => {
                 <button
                   onClick={handleToggleFavorite}
                   className={`transition-colors ${isFavorite
-                    ? "text-purple-500"
+                    ? "text-purple-500 hover:text-purple-300"
                     : "text-gray-400 hover:text-white"
                     }`}
                   title={
