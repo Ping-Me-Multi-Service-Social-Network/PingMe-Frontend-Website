@@ -19,11 +19,29 @@ import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/dial
 import { toast } from "sonner";
 
 function formatTime(seconds: number) {
-    if (!seconds || isNaN(seconds)) return "0:00";
+    if (!seconds || Number.isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
+
+const REPEAT_CONFIG = {
+    off: {
+        color: "text-zinc-500 hover:text-white",
+        title: "Bật lặp",
+        Icon: Repeat,
+    },
+    one: {
+        color: "text-blue-400",
+        title: "Tắt lặp",
+        Icon: Repeat1,
+    },
+    all: {
+        color: "text-green-400",
+        title: "Lặp 1 bài",
+        Icon: Repeat,
+    },
+} as const;
 
 const InlineMusicPlayer: React.FC = () => {
     const {
@@ -44,6 +62,24 @@ const InlineMusicPlayer: React.FC = () => {
     const [isFavorite, setIsFavorite] = useState(false);
     const [isHoveringProgress, setIsHoveringProgress] = useState(false);
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
+
+    const repeatConfig = REPEAT_CONFIG[repeatMode] || REPEAT_CONFIG.off;
+    const RepeatIcon = repeatConfig.Icon;
+
+    const featuredArtistsText = currentSong?.featuredArtists?.length
+        ? `, ${currentSong.featuredArtists.map((a) => a.name).join(", ")}`
+        : "";
+
+    const progressValue = duration > 0 ? (currentTime / duration) * 100 : 0;
+    const progressBarWidth = `${progressValue}%`;
+    const thumbLeft = duration > 0 ? `calc(${progressValue}% - 6px)` : "-6px";
+
+    const favoriteButtonColor = isFavorite ? "text-pink-400" : "text-zinc-500 hover:text-white";
+    const favoriteButtonTitle = isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích";
+    const favoriteIconClass = isFavorite ? "fill-current" : "";
+
+    const PlayPauseIcon = isPlaying ? Pause : Play;
+    const VolumeIcon = volume > 0 ? Volume2 : VolumeX;
 
     useEffect(() => {
         const checkFavorite = async () => {
@@ -142,7 +178,7 @@ const InlineMusicPlayer: React.FC = () => {
                 <div
                     className="absolute left-0 top-0 h-full transition-all duration-300"
                     style={{
-                        width: duration > 0 ? `${(currentTime / duration) * 100}%` : "0%",
+                        width: progressBarWidth,
                         background: "linear-gradient(90deg, #7c3aed, #a855f7)",
                     }}
                 />
@@ -163,7 +199,7 @@ const InlineMusicPlayer: React.FC = () => {
                     <div
                         className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg pointer-events-none"
                         style={{
-                            left: duration > 0 ? `calc(${(currentTime / duration) * 100}% - 6px)` : "-6px",
+                            left: thumbLeft,
                         }}
                     />
                 )}
@@ -186,22 +222,16 @@ const InlineMusicPlayer: React.FC = () => {
                         <p className="text-sm font-semibold text-white truncate">{currentSong.title}</p>
                         <p className="text-xs text-zinc-400 truncate">
                             {currentSong.mainArtist?.name || "Unknown Artist"}
-                            {currentSong.featuredArtists?.length
-                                ? `, ${currentSong.featuredArtists.map((a) => a.name).join(", ")}`
-                                : ""}
+                            {featuredArtistsText}
                         </p>
                     </div>
                     {/* Favorite */}
                     <button
                         onClick={handleToggleFavorite}
-                        className={`w-8 h-8 rounded-full hidden sm:flex items-center justify-center transition-all flex-shrink-0 ${
-                            isFavorite
-                                ? "text-pink-400"
-                                : "text-zinc-500 hover:text-white"
-                        }`}
-                        title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                        className={`w-8 h-8 rounded-full hidden sm:flex items-center justify-center transition-all flex-shrink-0 ${favoriteButtonColor}`}
+                        title={favoriteButtonTitle}
                     >
-                        <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
+                        <Heart className={`w-4 h-4 ${favoriteIconClass}`} />
                     </button>
                 </div>
 
@@ -212,20 +242,10 @@ const InlineMusicPlayer: React.FC = () => {
                         {/* Repeat */}
                         <button
                             onClick={cycleRepeatMode}
-                            className={`transition-colors hidden sm:block ${
-                                repeatMode === "off"
-                                    ? "text-zinc-500 hover:text-white"
-                                    : repeatMode === "one"
-                                    ? "text-blue-400"
-                                    : "text-green-400"
-                            }`}
-                            title={repeatMode === "off" ? "Bật lặp" : repeatMode === "all" ? "Lặp 1 bài" : "Tắt lặp"}
+                            className={`transition-colors hidden sm:block ${repeatConfig.color}`}
+                            title={repeatConfig.title}
                         >
-                            {repeatMode === "one" ? (
-                                <Repeat1 className="w-4 h-4" />
-                            ) : (
-                                <Repeat className="w-4 h-4" />
-                            )}
+                            <RepeatIcon className="w-4 h-4" />
                         </button>
 
                         {/* Prev */}
@@ -245,11 +265,7 @@ const InlineMusicPlayer: React.FC = () => {
                                 boxShadow: "0 0 20px rgba(168,85,247,0.4)",
                             }}
                         >
-                            {isPlaying ? (
-                                <Pause className="w-5 h-5 text-white" />
-                            ) : (
-                                <Play className="w-5 h-5 text-white ml-0.5" />
-                            )}
+                            <PlayPauseIcon className={`w-5 h-5 text-white ${!isPlaying ? "ml-0.5" : ""}`} />
                         </button>
 
                         {/* Next */}
@@ -292,7 +308,7 @@ const InlineMusicPlayer: React.FC = () => {
                         onClick={toggleMute}
                         className="text-zinc-400 hover:text-white transition-colors"
                     >
-                        {volume > 0 ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                        <VolumeIcon className="w-4 h-4" />
                     </button>
                     <input
                         type="range"

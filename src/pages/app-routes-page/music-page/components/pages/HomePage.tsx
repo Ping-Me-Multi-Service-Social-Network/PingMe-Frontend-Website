@@ -57,16 +57,10 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-900 pb-32" style={{ minHeight: "100vh" }}>
-
-      {/* Hero Banner — trải full width */}
       <div className="relative h-48 bg-gradient-to-b from-zinc-800/60 to-transparent overflow-hidden">
         <div className="absolute -top-10 -left-10 w-64 h-64 bg-purple-700/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -top-4 right-1/3 w-48 h-48 bg-pink-700/15 rounded-full blur-3xl pointer-events-none" />
       </div>
-
-      {/* Content — w-full, không dùng max-w.
-          MusicLayout giờ dùng CSS Grid nên main luôn là 1fr,
-          không bao giờ overflow ra ngoài dù content bên trong rộng cỡ nào. */}
       <div className="max-w-7xl mx-auto px-8 py-8 space-y-10">
 
         {/* Rankings */}
@@ -122,13 +116,14 @@ export default function HomePage() {
             <SectionHeader title={t("home.genres.title")} />
             <ScrollRow>
               {genres.map((genre) => (
-                <div
+                <button
+                  type="button"
                   key={genre.id}
-                  className="shrink-0 w-40 cursor-pointer"
+                  className="shrink-0 w-40 cursor-pointer text-left border-none bg-transparent p-0"
                   onClick={() => handleGenreSelect(genre)}
                 >
                   <GenreTag genre={genre} />
-                </div>
+                </button>
               ))}
             </ScrollRow>
           </section>

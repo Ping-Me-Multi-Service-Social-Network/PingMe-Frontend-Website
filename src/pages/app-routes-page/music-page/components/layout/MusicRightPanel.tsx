@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 function formatDuration(seconds: number): string {
-    if (!seconds || isNaN(seconds)) return "0:00";
+    if (!seconds || Number.isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -91,27 +91,7 @@ export default function MusicRightPanel() {
     }
 
     let contentNode = null;
-    if (!currentSong) {
-        contentNode = (
-            <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 text-center">
-                <div
-                    className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
-                    style={{
-                        background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(168,85,247,0.08))",
-                        border: "1px solid rgba(139,92,246,0.2)",
-                    }}
-                >
-                    <Music2 className="w-9 h-9 text-purple-500/60" />
-                </div>
-                <p className="text-sm font-semibold text-zinc-300 mb-2">
-                    {t("player.noSongPlaying") || "Chưa có bài hát nào"}
-                </p>
-                <p className="text-xs text-zinc-600 leading-relaxed">
-                    {t("player.selectSong") || "Chọn một bài hát để bắt đầu phát"}
-                </p>
-            </div>
-        );
-    } else {
+    if (currentSong) {
         contentNode = (
             <div className="flex flex-col px-5 pb-6 gap-5">
                 {/* Album Art */}
@@ -321,6 +301,26 @@ export default function MusicRightPanel() {
                         </div>
                     </>
                 )}
+            </div>
+        );
+    } else {
+        contentNode = (
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 text-center">
+                <div
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
+                    style={{
+                        background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(168,85,247,0.08))",
+                        border: "1px solid rgba(139,92,246,0.2)",
+                    }}
+                >
+                    <Music2 className="w-9 h-9 text-purple-500/60" />
+                </div>
+                <p className="text-sm font-semibold text-zinc-300 mb-2">
+                    {t("player.noSongPlaying") || "Chưa có bài hát nào"}
+                </p>
+                <p className="text-xs text-zinc-600 leading-relaxed">
+                    {t("player.selectSong") || "Chọn một bài hát để bắt đầu phát"}
+                </p>
             </div>
         );
     }

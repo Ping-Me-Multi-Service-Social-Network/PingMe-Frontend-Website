@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function ScrollRow({ children }: { children: React.ReactNode }) {
+export default function ScrollRow({ children }: Readonly<{ children: React.ReactNode }>) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);

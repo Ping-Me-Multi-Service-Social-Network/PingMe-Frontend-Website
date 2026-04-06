@@ -105,15 +105,16 @@ export default function MusicLeftSidebar() {
     } else if (playlists.length === 0) {
         contentToRender = (
             <div className="px-3 py-4">
-                <div
-                    className="border border-dashed border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-purple-600/40 transition-colors group"
+                <button
+                    type="button"
+                    className="w-full border border-dashed border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-purple-600/40 transition-colors group"
                     onClick={() => setShowCreateDialog(true)}
                 >
                     <ListMusic className="w-7 h-7 text-zinc-600 group-hover:text-purple-400 transition-colors mx-auto mb-2" />
                     <p className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors">
                         {t("sidebar.createFirstPlaylist") || "Tạo playlist đầu tiên"}
                     </p>
-                </div>
+                </button>
             </div>
         );
     } else {
@@ -125,25 +126,29 @@ export default function MusicLeftSidebar() {
                         lockIcon = <Globe className="w-3 h-3 text-zinc-500" />;
                     }
 
+                    const playlistPath = `/app/music/playlists/${playlist.id}`;
+                    const textColor = getTextColor(playlistPath);
+                    const hue1 = (playlist.id * 47) % 360;
+                    const hue2 = (playlist.id * 47 + 120) % 360;
+                    const gradientBackground = `linear-gradient(135deg, hsl(${hue1}, 60%, 40%), hsl(${hue2}, 60%, 30%))`;
+
                     return (
                         <button
                             key={playlist.id}
-                            onClick={() => navigate(`/app/music/playlists/${playlist.id}`)}
+                            onClick={() => navigate(playlistPath)}
                             className={getPlaylistBtnClasses(playlist.id)}
                         >
                             {/* Playlist Thumbnail */}
                             <div
                                 className="w-10 h-10 rounded-md flex-shrink-0 flex items-center justify-center"
-                                style={{
-                                    background: `linear-gradient(135deg, hsl(${(playlist.id * 47) % 360}, 60%, 40%), hsl(${(playlist.id * 47 + 120) % 360}, 60%, 30%))`,
-                                }}
+                                style={{ background: gradientBackground }}
                             >
                                 <Music className="w-4 h-4 text-white/80" />
                             </div>
 
                             {/* Info */}
                             <div className="flex-1 min-w-0">
-                                <p className={`text-sm font-medium truncate ${getTextColor(`/app/music/playlists/${playlist.id}`)}`}>
+                                <p className={`text-sm font-medium truncate ${textColor}`}>
                                     {playlist.name}
                                 </p>
                                 <div className="flex items-center gap-1 mt-0.5">
