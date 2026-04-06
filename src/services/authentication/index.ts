@@ -45,13 +45,6 @@ export const refreshApi = () => {
   );
 };
 
-export const forgetPasswordApi = (data: { email: string }) => {
-  return axiosClient.post<ApiResponse<any>>(
-    "/auth-service/auth/forget-password",
-    data,
-  );
-};
-
 // ============================================================================
 // 2. ADMIN AUTHENTICATION
 // ============================================================================

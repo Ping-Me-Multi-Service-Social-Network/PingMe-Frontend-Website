@@ -25,7 +25,7 @@ export const verifyOtpApi = (data: VerifyOtpRequest) => {
 
 export const resetPasswordApi = (data: ResetPasswordRequest) => {
   return axiosClient.post<ApiResponse<ResetPasswordResponse>>(
-    "/auth-service/auth/forget-password",
+    "/auth-service/auth/reset-password",
     data,
   );
 };
