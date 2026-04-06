@@ -115,6 +115,27 @@ export const fetchSongsByArtist = createAsyncThunk(
   },
 );
 
+export const fetchTodaySongs = createAsyncThunk(
+  "music/fetchTodaySongs",
+  async () => {
+    return await songApi.getTopSongsToday(10);
+  },
+);
+
+export const fetchWeekSongs = createAsyncThunk(
+  "music/fetchWeekSongs", 
+  async () => {
+    return await songApi.getTopSongsThisWeek(10);
+  },
+);
+
+export const fetchMonthSongs = createAsyncThunk(
+  "music/fetchMonthSongs",
+  async () => {
+    return await songApi.getTopSongsThisMonth(10);
+  },
+);
+
 const musicSlice = createSlice({
   name: "music",
   initialState,

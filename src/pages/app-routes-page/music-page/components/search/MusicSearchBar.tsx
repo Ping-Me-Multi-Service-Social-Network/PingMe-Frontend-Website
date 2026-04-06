@@ -62,48 +62,54 @@ export default function MusicSearchBar({ onSongPlay }: Readonly<MusicSearchBarPr
     };
 
     return (
-        <div className="sticky top-0 z-30 bg-gray-900 border-b border-zinc-800 shadow-lg">
-            <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4">
-                <div className="lg:ml-0 ml-14">
-                    <div className="relative">
-                        <div className="relative flex items-center">
-                            <Search className="absolute left-3 w-5 h-5 text-zinc-400 pointer-events-none" />
-                            <input
-                                type="text"
-                                placeholder={t("layout.header.searchPlaceholder")}
-                                value={searchQuery}
-                                onChange={handleSearchChange}
-                                onFocus={() => setShowSearchDropdown(true)}
-                                className="w-full pl-10 pr-10 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition"
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={handleClearSearch}
-                                    className="absolute right-3 text-zinc-400 hover:text-white transition"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            )}
-                        </div>
-                        <SearchDropdown
-                            query={searchQuery}
-                            isOpen={showSearchDropdown && searchQuery.length > 0}
-                            onSongSelect={(song: SongResponseWithAllAlbum) => {
-                                setSearchQuery("");
+        <div className="relative w-full">
+            <div className="relative flex items-center">
+                <Search className="absolute left-3 w-4 h-4 text-zinc-400 pointer-events-none" />
+                <input
+                    type="text"
+                    placeholder={t("layout.header.searchPlaceholder")}
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={() => setShowSearchDropdown(true)}
+                    className="w-full pl-10 pr-10 py-2 rounded-full text-sm text-white placeholder-zinc-500 focus:outline-none transition"
+                    style={{
+                        background: "rgba(255,255,255,0.08)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                    }}
+                    onBlur={(e) => {
+                        // Delay hiding dropdown to allow click events
+                        setTimeout(() => {
+                            if (!e.currentTarget.contains(document.activeElement)) {
                                 setShowSearchDropdown(false);
-                                if (onSongPlay) {
-                                    onSongPlay(song);
-                                }
-                            }}
-                            onAlbumSelect={handleAlbumSelect}
-                            onArtistSelect={handleArtistSelect}
-                            onViewMoreSongs={handleViewAllSongs}
-                            onViewMoreAlbums={handleViewAllAlbums}
-                            onViewMoreArtists={handleViewAllArtists}
-                        />
-                    </div>
-                </div>
+                            }
+                        }, 200);
+                    }}
+                />
+                {searchQuery && (
+                    <button
+                        onClick={handleClearSearch}
+                        className="absolute right-3 text-zinc-400 hover:text-white transition"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
             </div>
+            <SearchDropdown
+                query={searchQuery}
+                isOpen={showSearchDropdown && searchQuery.length > 0}
+                onSongSelect={(song: SongResponseWithAllAlbum) => {
+                    setSearchQuery("");
+                    setShowSearchDropdown(false);
+                    if (onSongPlay) {
+                        onSongPlay(song);
+                    }
+                }}
+                onAlbumSelect={handleAlbumSelect}
+                onArtistSelect={handleArtistSelect}
+                onViewMoreSongs={handleViewAllSongs}
+                onViewMoreAlbums={handleViewAllAlbums}
+                onViewMoreArtists={handleViewAllArtists}
+            />
         </div>
     );
 }

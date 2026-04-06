@@ -28,8 +28,6 @@ import {
 export interface AudioPlayerContextType {
   currentSong: Song | null;
   isPlaying: boolean;
-  currentTime: number;
-  duration: number;
   audioRef: React.RefObject<HTMLAudioElement | null>;
   playlist: Song[];
   volume: number;
@@ -77,8 +75,6 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   const { currentSong, isPlaying, playlist, volume, repeatMode, playbackContext = { type: null, id: null } } =
     useAppSelector((state) => state.audioPlayer);
 
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playCountTrackedRef = useRef<Set<number>>(new Set());
@@ -109,7 +105,6 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   const seekTo = useCallback((time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
-      setCurrentTime(time);
     }
   }, []);
 
@@ -196,8 +191,6 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     if (!audio) return;
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-
       if (currentSong && audio.duration > 0) {
         const progress = audio.currentTime / audio.duration;
 
@@ -220,9 +213,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       }
     };
 
-    const handleDurationChange = () => {
-      setDuration(audio.duration);
-    };
+
 
     const handleEnded = () => {
       if (repeatMode === "one") {
@@ -267,13 +258,11 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     };
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("durationchange", handleDurationChange);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
 
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("durationchange", handleDurationChange);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
     };
@@ -283,8 +272,6 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     () => ({
       currentSong,
       isPlaying,
-      currentTime,
-      duration,
       audioRef,
       playlist,
       volume,
@@ -303,8 +290,6 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     [
       currentSong,
       isPlaying,
-      currentTime,
-      duration,
       audioRef,
       playlist,
       volume,
@@ -339,4 +324,53 @@ export function useAudio() {
     throw new Error("useAudio must be used within AudioPlayerProvider");
   }
   return context;
+}
+
+export function useAudioTime() {
+  const { audioRef } = useAudio();
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let animationFrameId: number;
+
+    const updateTime = () => {
+      setCurrentTime(audio.currentTime);
+      setDuration(audio.duration || 0);
+      animationFrameId = requestAnimationFrame(updateTime);
+    };
+
+    const handlePlay = () => {
+      updateTime();
+    };
+
+    const handlePause = () => {
+      cancelAnimationFrame(animationFrameId);
+      setCurrentTime(audio.currentTime); // Ensure final sync
+    };
+
+    // Initialize
+    setCurrentTime(audio.currentTime);
+    setDuration(audio.duration || 0);
+
+    if (!audio.paused) {
+      updateTime();
+    }
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('seeked', handlePause); // Force update on seek
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('seeked', handlePause);
+    };
+  }, [audioRef]);
+
+  return { currentTime, duration };
 }

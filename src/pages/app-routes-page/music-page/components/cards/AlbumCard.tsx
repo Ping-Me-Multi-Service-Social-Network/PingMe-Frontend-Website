@@ -95,6 +95,8 @@ export default function AlbumCard({ album }: Readonly<AlbumCardProps>) {
           <img
             src={album.coverImgUrl || "/placeholder.svg"}
             alt={album.title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (

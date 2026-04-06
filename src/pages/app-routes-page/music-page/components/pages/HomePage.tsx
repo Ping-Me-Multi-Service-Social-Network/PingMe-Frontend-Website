@@ -1,382 +1,187 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { songApi } from "@/services/music/songApi.ts";
-import SongListItem from "../cards/SongListItem.tsx";
-import AlbumCard from "../cards/AlbumCard.tsx";
-import ArtistCard from "../cards/ArtistCard.tsx";
-import GenreTag from "../shared/GenreTag.tsx";
-import RankingCard from "../cards/RankingCard.tsx";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
+import SectionHeader from "@/pages/app-routes-page/music-page/components/shared/SectionHeader.tsx";
+import ScrollRow from "@/pages/app-routes-page/music-page/components/shared/ScrollRow.tsx";
+import RankingCard from "@/pages/app-routes-page/music-page/components/cards/RankingCard.tsx";
+import GenreTag from "@/pages/app-routes-page/music-page/components/shared/GenreTag";
+import AlbumCard from "@/pages/app-routes-page/music-page/components/cards/AlbumCard.tsx";
+import ArtistCard from "@/pages/app-routes-page/music-page/components/cards/ArtistCard.tsx";
+import SongListItem from "@/pages/app-routes-page/music-page/components/cards/SongListItem.tsx";
+import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import {
+  fetchMusicData,
+  fetchTodaySongs,
+  fetchWeekSongs,
+  fetchMonthSongs,
+} from "@/features/music/musicSlice";
+import { useAudio } from "@/hooks/useAudio";
 import type { Song } from "@/types/music/song";
 import type { Genre } from "@/types/music/genre";
-import type { SongResponseWithAllAlbum } from "@/types/music";
-import { useAudio } from "@/hooks/useAudio.tsx";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { fetchMusicData } from "@/features/music/musicSlice";
-import { isCacheValid } from "@/utils/musicCacheUtils";
-import { DEFAULT_TOP_SONGS_LIMIT } from "@/constants/musicConstants";
 import { useTranslation } from "react-i18next";
 
-/**
- * HomePage - Music module home/dashboard page
- * Displays top songs, popular albums, artists, genres, and rankings
- */
-export default function HomePage() {
-  const dispatch = useAppDispatch();
-  const { playSong, setPlaylist } = useAudio();
-  const navigate = useNavigate();
-  const genreScrollRef = useRef<HTMLDivElement>(null);
 
-  // Lấy data từ Redux cache
+export default function HomePage() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { playSong } = useAudio();
   const {
-    topSongs,
+    allGenres: genres,
     popularAlbums: albums,
     popularArtists: artists,
-    allGenres: genres,
-    loading,
-    error: reduxError,
+    topSongs,
     lastFetched,
     cacheExpiry,
   } = useAppSelector((state) => state.music);
 
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(false);
   const { t } = useTranslation("music");
 
-  // Derive error from Redux state instead of syncing via useEffect
-  const error = reduxError ? t("home.errorLoad") : null;
-
-  // Check cache validity và fetch nếu cần
   useEffect(() => {
-    if (!isCacheValid(lastFetched, cacheExpiry)) {
-      dispatch(fetchMusicData(DEFAULT_TOP_SONGS_LIMIT));
+    const now = Date.now();
+    const isExpired = !cacheExpiry || now > cacheExpiry;
+    if (!lastFetched || isExpired) {
+      dispatch(fetchMusicData(8));
     }
   }, [dispatch, lastFetched, cacheExpiry]);
 
-  // Set playlist khi topSongs thay đổi
-  useEffect(() => {
-    if (topSongs.length > 0) {
-      const playlistSongs: Song[] = topSongs.map(
-        (song: SongResponseWithAllAlbum) => ({
-          id: song.id,
-          title: song.title,
-          duration: song.duration,
-          playCount: song.playCount,
-          songUrl: song.songUrl,
-          coverImageUrl: song.coverImageUrl,
-          mainArtist: song.mainArtist,
-          featuredArtists: song.otherArtists || [],
-          genre: song.genres || [],
-          album: song.albums || [],
-        }),
-      );
-      setPlaylist(playlistSongs);
-    }
-  }, [topSongs, setPlaylist]);
+  const fetchTodaySongsData = useCallback(() => dispatch(fetchTodaySongs()).unwrap(), [dispatch]);
+  const fetchWeekSongsData  = useCallback(() => dispatch(fetchWeekSongs()).unwrap(),  [dispatch]);
+  const fetchMonthSongsData = useCallback(() => dispatch(fetchMonthSongs()).unwrap(), [dispatch]);
 
-  useEffect(() => {
-    const checkScroll = () => {
-      if (genreScrollRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = genreScrollRef.current;
-        setShowLeftArrow(scrollLeft > 0);
-        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-      }
-    };
-
-    checkScroll();
-    const scrollElement = genreScrollRef.current;
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", checkScroll, { passive: true });
-      globalThis.addEventListener("resize", checkScroll);
-    }
-
-    return () => {
-      if (scrollElement) {
-        scrollElement.removeEventListener("scroll", checkScroll);
-      }
-      globalThis.removeEventListener("resize", checkScroll);
-    };
-  }, [genres]);
-
-  const scrollGenres = (direction: "left" | "right") => {
-    if (genreScrollRef.current) {
-      const cardWidth = 192; // w-48 = 192px
-      const gap = 16; // gap-4 = 16px
-      const scrollAmount = cardWidth + gap; // Scroll 1 card at a time
-      const newScrollLeft =
-        genreScrollRef.current.scrollLeft +
-        (direction === "left" ? -scrollAmount : scrollAmount);
-      genreScrollRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const handleSongPlay = (song: Song | SongResponseWithAllAlbum) => {
-    const songToPlay: Song = {
-      id: song.id,
-      title: song.title,
-      duration: song.duration,
-      playCount: song.playCount,
-      songUrl: song.songUrl,
-      coverImageUrl: song.coverImageUrl,
-      mainArtist: song.mainArtist,
-      featuredArtists: "otherArtists" in song ? song.otherArtists : [],
-      genre: "genres" in song ? song.genres : [],
-      album: "albums" in song ? song.albums : [],
-    };
-    playSong(songToPlay);
+  const handleSongPlay = (song: Song) => {
+    playSong(song, { type: "all", id: "home" });
   };
 
   const handleGenreSelect = (genre: Genre) => {
-    navigate(
-      `/app/music/songs?type=genre&id=${genre.id}&name=${encodeURIComponent(
-        genre.name,
-      )}`,
-    );
+    navigate(`/app/music/songs?type=genre&id=${genre.id}&name=${encodeURIComponent(genre.name)}`);
   };
-
-  // Memoize fetch functions to prevent re-creation on every render
-  const fetchTodaySongs = useCallback(() => songApi.getTopSongsToday(50), []);
-  const fetchWeekSongs = useCallback(() => songApi.getTopSongsThisWeek(50), []);
-  const fetchMonthSongs = useCallback(
-    () => songApi.getTopSongsThisMonth(50),
-    [],
-  );
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-96 bg-gray-900 min-h-full">
-        <p className="text-red-400">{error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-gray-900 pb-32" style={{ minHeight: "100vh" }}>
-      <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
-        {/* Quick Links Section */}
-        <section className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <button
-            onClick={() => navigate("/app/music/favorites")}
-            className="group relative overflow-hidden rounded-xl bg-linear-to-br from-red-900/40 via-pink-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
-          >
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">
-                {t("home.quickLinks.favorites")}
-              </h3>
-              <p className="text-sm text-gray-300">{t("home.quickLinks.favoritesDesc")}</p>
-            </div>
-            <div className="absolute inset-0 bg-linear-to-r from-red-600/20 to-pink-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
+      <div className="relative h-48 bg-gradient-to-b from-zinc-800/60 to-transparent overflow-hidden">
+        <div className="absolute -top-10 -left-10 w-64 h-64 bg-purple-700/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-4 right-1/3 w-48 h-48 bg-pink-700/15 rounded-full blur-3xl pointer-events-none" />
+      </div>
+      <div className="max-w-7xl mx-auto px-8 py-8 space-y-10">
 
-          <button
-            onClick={() => navigate("/app/music/playlists")}
-            className="group relative overflow-hidden rounded-xl bg-linear-to-br from-purple-900/40 via-purple-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
-          >
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">
-                {t("home.quickLinks.playlists")}
-              </h3>
-              <p className="text-sm text-white">{t("home.quickLinks.playlistsDesc")}</p>
+        {/* Rankings */}
+        <section>
+          <SectionHeader
+            title={t("home.rankings.title")}
+            onViewAll={() => navigate("/app/music/rankings")}
+            viewAllLabel={t("home.rankings.viewAll")}
+          />
+          <ScrollRow>
+            <div className="shrink-0 w-72">
+              <RankingCard
+                title={t("home.rankings.today")}
+                description={t("home.rankings.todayDesc")}
+                gradientFrom="from-pink-900/40"
+                gradientVia="via-red-900/40"
+                hoverFrom="from-pink-600/20"
+                hoverTo="to-red-700/20"
+                fetchData={fetchTodaySongsData}
+                tabType="today"
+              />
             </div>
-            <div className="absolute inset-0 bg-linear-to-r from-purple-600/20 to-purple-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-
-          <button
-            onClick={() => navigate("/app/music/playlists/discover")}
-            className="group relative overflow-hidden rounded-xl bg-linear-to-br from-green-900/40 via-teal-900/40 to-gray-800 p-6 text-left hover:scale-105 transition-transform"
-          >
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">
-                {t("home.quickLinks.discover")}
-              </h3>
-              <p className="text-sm text-white">{t("home.quickLinks.discoverDesc")}</p>
+            <div className="shrink-0 w-72">
+              <RankingCard
+                title={t("home.rankings.week")}
+                description={t("home.rankings.weekDesc")}
+                gradientFrom="from-purple-900/40"
+                gradientVia="via-violet-900/40"
+                hoverFrom="from-purple-600/20"
+                hoverTo="to-violet-700/20"
+                fetchData={fetchWeekSongsData}
+                tabType="week"
+              />
             </div>
-            <div className="absolute inset-0 bg-linear-to-r from-green-600/20 to-teal-700/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
+            <div className="shrink-0 w-72">
+              <RankingCard
+                title={t("home.rankings.month")}
+                description={t("home.rankings.monthDesc")}
+                gradientFrom="from-indigo-900/40"
+                gradientVia="via-blue-900/40"
+                hoverFrom="from-indigo-600/20"
+                hoverTo="to-blue-700/20"
+                fetchData={fetchMonthSongsData}
+                tabType="month"
+              />
+            </div>
+          </ScrollRow>
         </section>
 
-        {/* Rankings Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">{t("home.rankings.title")}</h2>
-            <button
-              onClick={() => navigate("/app/music/rankings")}
-              className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
-            >
-              {t("home.rankings.viewAll")}
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Top 50 Today */}
-            <RankingCard
-              title={t("home.rankings.today")}
-              description={t("home.rankings.todayDesc")}
-              gradientFrom="from-pink-900/40"
-              gradientVia="via-red-900/40"
-              hoverFrom="from-pink-600/20"
-              hoverTo="to-red-700/20"
-              fetchData={fetchTodaySongs}
-              tabType="today"
+        {/* Genres */}
+        {genres.length > 0 && (
+          <section>
+            <SectionHeader title={t("home.genres.title")} />
+            <ScrollRow>
+              {genres.map((genre) => (
+                <button
+                  type="button"
+                  key={genre.id}
+                  className="shrink-0 w-40 cursor-pointer text-left border-none bg-transparent p-0"
+                  onClick={() => handleGenreSelect(genre)}
+                >
+                  <GenreTag genre={genre} />
+                </button>
+              ))}
+            </ScrollRow>
+          </section>
+        )}
+
+        {/* Albums */}
+        {albums.length > 0 && (
+          <section>
+            <SectionHeader
+              title={t("home.albums.title")}
+              onViewAll={() => navigate("/app/music/albums")}
+              viewAllLabel={t("home.rankings.viewAll")}
             />
+            <ScrollRow>
+              {albums.map((album) => (
+                <div key={album.id} className="shrink-0 w-44">
+                  <AlbumCard album={album} />
+                </div>
+              ))}
+            </ScrollRow>
+          </section>
+        )}
 
-            {/* Top 50 Week */}
-            <RankingCard
-              title={t("home.rankings.week")}
-              description={t("home.rankings.weekDesc")}
-              gradientFrom="from-purple-900/40"
-              gradientVia="via-violet-900/40"
-              hoverFrom="from-purple-600/20"
-              hoverTo="to-violet-700/20"
-              fetchData={fetchWeekSongs}
-              tabType="week"
+        {/* Artists */}
+        {artists.length > 0 && (
+          <section>
+            <SectionHeader
+              title={t("home.artists.title")}
+              onViewAll={() => navigate("/app/music/artists")}
+              viewAllLabel={t("home.rankings.viewAll")}
             />
+            <ScrollRow>
+              {artists.map((artist) => (
+                <div key={artist.id} className="shrink-0 w-44">
+                  <ArtistCard artist={artist} />
+                </div>
+              ))}
+            </ScrollRow>
+          </section>
+        )}
 
-            {/* Top 50 Month */}
-            <RankingCard
-              title={t("home.rankings.month")}
-              description={t("home.rankings.monthDesc")}
-              gradientFrom="from-purple-900/40"
-              gradientVia="via-indigo-900/40"
-              hoverFrom="from-purple-600/20"
-              hoverTo="to-indigo-700/20"
-              fetchData={fetchMonthSongs}
-              tabType="month"
-            />
-          </div>
-        </section>
-
-        {/* Genres Section */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">{t("home.genres.title")}</h2>
-          <div className="relative group">
-            {/* Left Arrow */}
-            {showLeftArrow && (
-              <button
-                onClick={() => scrollGenres("left")}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/95 hover:bg-gray-700 text-white p-3 rounded-full shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-            )}
-
-            {/* Right Arrow */}
-            {showRightArrow && (
-              <button
-                onClick={() => scrollGenres("right")}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/95 hover:bg-gray-700 text-white p-3 rounded-full shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            )}
-
-            {/* Scrollable Container */}
-            <div
-              ref={genreScrollRef}
-              className="flex gap-4 overflow-x-auto pb-2 pr-4"
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                scrollSnapType: "x mandatory",
-              }}
-            >
-              <style>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                  display: none;
-                }
-              `}</style>
-              {genres.length > 0 ? (
-                genres.map((genre) => (
-                  <div
-                    key={genre.id}
-                    className="shrink-0 w-48"
-                    style={{ scrollSnapAlign: "start" }}
-                  >
-                    <GenreTag genre={genre} onClick={handleGenreSelect} />
-                  </div>
-                ))
-              ) : (
-                <p className="text-zinc-500">{t("home.genres.empty")}</p>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Albums Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">{t("home.albums.title")}</h2>
-            <button
-              onClick={() => navigate("/app/music/albums")}
-              className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
-            >
-              {t("home.albums.more")}
-            </button>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {albums.length > 0 ? (
-              albums.map((album) => <AlbumCard key={album.id} album={album} />)
-            ) : (
-              <p className="text-zinc-500 col-span-full">{t("home.albums.empty")}</p>
-            )}
-          </div>
-        </section>
-
-        {/* Artists Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">{t("home.artists.title")}</h2>
-            <button
-              onClick={() => navigate("/app/music/artists")}
-              className="text-sm font-medium text-purple-400 hover:text-purple-300 transition"
-            >
-              {t("home.artists.more")}
-            </button>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {artists.length > 0 ? (
-              artists.map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
-              ))
-            ) : (
-              <p className="text-zinc-500 col-span-full">
-                {t("home.artists.empty")}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {/* Top Songs Section */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">{t("home.topSongs.title")}</h2>
-          <div className="space-y-2">
-            {topSongs.length > 0 ? (
-              topSongs.map((song, index) => (
+        {/* Top Songs */}
+        {topSongs.length > 0 && (
+          <section>
+            <SectionHeader title={t("home.topSongs.title")} />
+            <ul className="flex flex-col gap-1">
+              {topSongs.map((song, index) => (
                 <SongListItem
                   key={song.id}
                   song={song}
-                  onPlay={handleSongPlay}
                   index={index + 1}
+                  onPlay={() => handleSongPlay(song)}
                 />
-              ))
-            ) : (
-              <p className="text-zinc-500">{t("home.topSongs.empty")}</p>
-            )}
-          </div>
-        </section>
+              ))}
+            </ul>
+          </section>
+        )}
+
       </div>
     </div>
   );
