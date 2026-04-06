@@ -265,7 +265,7 @@ const InlineMusicPlayer: React.FC = () => {
                                 boxShadow: "0 0 20px rgba(168,85,247,0.4)",
                             }}
                         >
-                            <PlayPauseIcon className={`w-5 h-5 text-white ${!isPlaying ? "ml-0.5" : ""}`} />
+                            <PlayPauseIcon className={`w-5 h-5 text-white ${isPlaying ? "" : "ml-0.5"}`} />
                         </button>
 
                         {/* Next */}
