@@ -4,7 +4,7 @@ import axios, {
     type AxiosError,
 } from "axios";
 import type { DefaultAuthResponse } from "@/types/authentication";
-import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
+import { refreshAccessToken, setupRefreshTokenManager } from "./refreshTokenManager";
 
 export interface AxiosInterceptorOptions {
     onTokenRefreshed?: (payload: DefaultAuthResponse) => void;
@@ -17,7 +17,6 @@ interface RetryableRequest extends InternalAxiosRequestConfig {
 
 /**
  * Factory: tạo một axios instance với interceptors auth token dùng chung.
- * Mỗi instance có refresh promise riêng để tránh xung đột giữa các service.
  *
  * @param baseURL - Base URL của service (vd: http://localhost:8080)
  * @returns { client, setup } - axios instance và hàm setup redux bridge
@@ -34,51 +33,9 @@ export function createAxiosInstance(baseURL: string): {
         },
     });
 
-    // ============================================================
-    // REDUX BRIDGE (scoped per instance)
-    // ============================================================
-    let onTokenRefreshed: ((payload: DefaultAuthResponse) => void) | null = null;
-    let onLogout: (() => void) | null = null;
-
     function setup(opts: AxiosInterceptorOptions) {
-        onTokenRefreshed = opts.onTokenRefreshed ?? null;
-        onLogout = opts.onLogout ?? null;
+        setupRefreshTokenManager(opts);
     }
-
-    // ============================================================
-    // SHARED PROMISE (scoped per instance)
-    // ============================================================
-    let refreshPromise: Promise<string> | null = null;
-
-    const performRefreshToken = async (): Promise<string> => {
-        try {
-            const response = await axios.post(
-                `${baseURL}/auth-service/auth/refresh`,
-                getSessionMetaRequest(),
-                { withCredentials: true },
-            );
-
-            const payload = response.data.data as DefaultAuthResponse;
-
-            localStorage.setItem("access_token", payload.accessToken);
-
-            if (onTokenRefreshed) onTokenRefreshed(payload);
-
-            return payload.accessToken;
-        } catch (error) {
-            const status = axios.isAxiosError(error)
-                ? error.response?.status
-                : undefined;
-
-            // Chỉ xem như phiên hết hạn khi refresh token thực sự bị từ chối.
-            // Với lỗi mạng/5xx tạm thời, giữ nguyên session để tránh logout oan.
-            if (status === 401 || status === 403) {
-                localStorage.removeItem("access_token");
-                if (onLogout) onLogout();
-            }
-            throw error;
-        }
-    };
 
     // ============================================================
     // REQUEST INTERCEPTOR
@@ -123,13 +80,8 @@ export function createAxiosInstance(baseURL: string): {
 
             originalRequest._retry = true;
 
-            // 3. Logic Shared Promise
-            refreshPromise ??= performRefreshToken().finally(() => {
-                refreshPromise = null;
-            });
-
-            // Chờ Promise refresh xong
-            const newToken = await refreshPromise;
+            // 3. Toàn app dùng chung một refresh promise để tránh refresh song song
+            const newToken = await refreshAccessToken(baseURL);
 
             // Gắn token mới và gọi lại request cũ
             originalRequest.headers = originalRequest.headers ?? {};

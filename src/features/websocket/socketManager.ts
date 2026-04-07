@@ -5,9 +5,8 @@ import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler";
-import axios from "axios";
-import { getSessionMetaRequest } from "@/utils/sessionMetaHandler";
 import { logout } from "@/features/auth/authThunk";
+import { refreshAccessToken } from "@/lib/refreshTokenManager";
 
 function isJwtExpired(token: string | null): boolean {
   if (!token) return true;
@@ -187,13 +186,9 @@ class SocketManagerClass {
             if (isJwtExpired(token)) {
               console.log("[PingMe] Token expired before WS connect, refreshing...");
               try {
-                const response = await axios.post(
-                  `${import.meta.env.VITE_BACKEND_BASE_URL}/auth-service/auth/refresh`,
-                  getSessionMetaRequest(),
-                  { withCredentials: true },
+                token = await refreshAccessToken(
+                  import.meta.env.VITE_BACKEND_BASE_URL,
                 );
-                token = response.data.data.accessToken;
-                localStorage.setItem("access_token", token!);
               } catch (err) {
                 console.error("[PingMe] Failed to refresh token before WS connect", err);
                 this.disconnect();
