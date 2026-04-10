@@ -10,7 +10,7 @@ import { useAppSelector, useAppDispatch } from "@/features/hooks.ts";
 import {
   setCurrentRoom,
   selectMessages,
-} from "@/features/websocket/slices/chatSlice";
+} from "@/features/websocket/chat";
 import { useTranslation } from "react-i18next";
 import { addUniqueMessage } from "../utils/addUniqueMessage";
 

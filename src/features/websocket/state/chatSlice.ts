@@ -5,7 +5,7 @@ import type {
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
   TypingSignalPayload,
-} from "../models/chatEvents";
+} from "../events/chatEvents";
 import type { RootState } from "@/features/store";
 
 // =================================================================

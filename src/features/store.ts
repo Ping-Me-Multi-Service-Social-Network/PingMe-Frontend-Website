@@ -12,7 +12,7 @@ import {
 import storage from "redux-persist/es/storage";
 import authReducer from "./auth/authSlice";
 import musicReducer from "./music/musicSlice";
-import chatReducer from "@/features/websocket/slices/chatSlice";
+import { chatReducer } from "@/features/websocket/chat";
 
 import audioPlayerReducer from "./music/audioPlayerSlice";
 

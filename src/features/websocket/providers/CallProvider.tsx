@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import type { CallType, CallState } from "@/types/call/call";
-import type { SignalingPayload } from "@/features/websocket/models/systemEvents";
+import type { SignalingPayload } from "../events/systemEvents";
 import { sendSignalingApi } from "@/services/call/callApi";
 import { lookupByIdApi } from "@/services/user/userLookupApi";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ import { CallNotification } from "@/components/call/CallNotification";
 import { ZegoCallUI } from "@/components/call/ZegoCallUI";
 import type { RoomParticipantResponse } from "@/types/chat/room";
 import { useAppSelector } from "@/features/hooks";
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "../core/socketManager";
 
 // --- Context Definition ---
 interface CallContextType {

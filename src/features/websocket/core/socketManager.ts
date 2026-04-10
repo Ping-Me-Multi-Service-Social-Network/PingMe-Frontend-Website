@@ -27,7 +27,7 @@ import {
   messageRecalled,
   readStateChanged,
   userTyping,
-} from "@/features/websocket/slices/chatSlice";
+} from "@/features/websocket/chat";
 import type {
   MessageCreatedEventPayload,
   MessageRecalledEventPayload,
@@ -38,13 +38,13 @@ import type {
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
   TypingSignalPayload,
-} from "./models/chatEvents";
+} from "@/features/websocket/chat";
 
 import type {
   FriendshipEventPayload,
   UserStatusPayload,
   SignalingPayload,
-} from "./models/systemEvents";
+} from "@/features/websocket/system";
 import type { TitleUpdate } from "@/types/ai/titleUpdate";
 
 // =================================================================

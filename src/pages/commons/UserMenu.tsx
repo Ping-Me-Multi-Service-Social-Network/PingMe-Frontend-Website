@@ -36,7 +36,7 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
 
   useEffect(() => {
     if (userSession?.updatedAt) {
-      setAvatarVersion(Date.now());
+      setAvatarVersion(new Date(userSession.updatedAt).getTime());
     }
   }, [userSession?.updatedAt]);
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useAppDispatch } from "@/features/hooks";
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "../core/socketManager";
 import type {
   MessageCreatedEventPayload,
   RoomUpdatedEventPayload,
@@ -9,8 +9,8 @@ import type {
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
-} from "@/features/websocket/models/chatEvents";
-import { messageCreated } from "@/features/websocket/slices/chatSlice";
+} from "../events/chatEvents";
+import { messageCreated } from "../state/chatSlice";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
 

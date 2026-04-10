@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 
 /**
  * Synthesizes a pleasant "ting" notification chime using Web Audio API.
@@ -92,7 +92,7 @@ export function useNotificationSound({
   });
 
   const handleIncomingMessage = useCallback(
-    (event: import("@/features/websocket/models/chatEvents").MessageCreatedEventPayload) => {
+    (event: import("@/features/websocket/chat").MessageCreatedEventPayload) => {
       if (!enabled) return;
 
       const message = event.messageResponse;

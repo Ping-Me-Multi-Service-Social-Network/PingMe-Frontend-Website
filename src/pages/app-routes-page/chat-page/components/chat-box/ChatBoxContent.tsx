@@ -8,7 +8,7 @@ import SentMessageBubble from "../message-bubbles/SentMessageBubble.tsx";
 import ReceivedMessageBubble from "../message-bubbles/ReceivedMessageBubble.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
 import { useSelector } from "react-redux";
-import { selectTypingUsers } from "@/features/websocket/slices/chatSlice";
+import { selectTypingUsers } from "@/features/websocket/chat";
 import { selectUser } from "@/features/auth/authSlice";
 import { useTranslation } from "react-i18next";
 

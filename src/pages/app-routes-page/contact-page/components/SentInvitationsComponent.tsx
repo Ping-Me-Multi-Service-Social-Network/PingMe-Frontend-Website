@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { InvitationUserCard } from "./InvitationUserCard";
 import { AnimatePresence } from "framer-motion";
 
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 import { useAppSelector } from "@/features/hooks.ts";
 import { hasSentInvite } from "@/utils/inviteTracker";
 

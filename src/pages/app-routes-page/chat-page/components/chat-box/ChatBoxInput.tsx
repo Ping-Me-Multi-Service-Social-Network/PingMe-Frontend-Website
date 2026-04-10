@@ -2,27 +2,20 @@ import type React from "react";
 import { getTheme } from "../../utils/chatThemes.ts";
 import type { RoomResponse } from "@/types/chat/room";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import {
-  Smile,
-  ImagePlus,
-  Paperclip,
-  Send,
-  X,
-  FileText,
-  Video,
-  CloudSun,
-  Mic,
-  Square,
-} from "lucide-react";
+import { useReducer, useRef, useEffect, useCallback } from "react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 import { useTranslation } from "react-i18next";
 import { useVoiceRecorder } from "../../hooks/useVoiceRecorder";
+
+import {
+  ChatInputToolbar,
+  FilePreviewList,
+  ChatInputArea,
+  RecordingState,
+} from "./chat-input-components";
 
 interface FilePreview {
   file: File;
@@ -38,6 +31,74 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
+// State declaration for useReducer
+interface ChatInputState {
+  showEmojiPicker: boolean;
+  selectedFiles: FilePreview[];
+  isSending: boolean;
+  newMessage: string;
+  isTyping: boolean;
+}
+
+type ChatInputAction =
+  | { type: "SET_EMOJI_PICKER"; payload: boolean }
+  | { type: "TOGGLE_EMOJI_PICKER" }
+  | { type: "SET_SELECTED_FILES"; payload: FilePreview[] }
+  | { type: "ADD_SELECTED_FILES"; payload: FilePreview[] }
+  | { type: "REMOVE_FILE"; payload: number }
+  | { type: "CLEAR_FILES" }
+  | { type: "SET_SENDING"; payload: boolean }
+  | { type: "SET_MESSAGE"; payload: string }
+  | { type: "SET_TYPING"; payload: boolean };
+
+const chatInputReducer = (
+  state: ChatInputState,
+  action: ChatInputAction,
+): ChatInputState => {
+  switch (action.type) {
+    case "SET_EMOJI_PICKER":
+      return { ...state, showEmojiPicker: action.payload };
+    case "TOGGLE_EMOJI_PICKER":
+      return { ...state, showEmojiPicker: !state.showEmojiPicker };
+    case "SET_SELECTED_FILES":
+      return { ...state, selectedFiles: action.payload };
+    case "ADD_SELECTED_FILES":
+      return { ...state, selectedFiles: [...state.selectedFiles, ...action.payload] };
+    case "REMOVE_FILE": {
+      const newFiles = [...state.selectedFiles];
+      if (newFiles[action.payload].previewUrl) {
+        URL.revokeObjectURL(newFiles[action.payload].previewUrl!);
+      }
+      newFiles.splice(action.payload, 1);
+      return { ...state, selectedFiles: newFiles };
+    }
+    case "CLEAR_FILES": {
+      state.selectedFiles.forEach((filePreview) => {
+        if (filePreview.previewUrl) {
+          URL.revokeObjectURL(filePreview.previewUrl);
+        }
+      });
+      return { ...state, selectedFiles: [] };
+    }
+    case "SET_SENDING":
+      return { ...state, isSending: action.payload };
+    case "SET_MESSAGE":
+      return { ...state, newMessage: action.payload };
+    case "SET_TYPING":
+      return { ...state, isTyping: action.payload };
+    default:
+      return state;
+  }
+};
+
+const initialState: ChatInputState = {
+  showEmojiPicker: false,
+  selectedFiles: [],
+  isSending: false,
+  newMessage: "",
+  isTyping: false,
+};
+
 export function ChatBoxInput({
   selectedChat,
   onSendMessage,
@@ -48,13 +109,17 @@ export function ChatBoxInput({
   const theme = getTheme(selectedChat.theme);
   const { t } = useTranslation("chat");
 
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<FilePreview[]>([]);
-  const [isSending, setIsSending] = useState(false);
-  const [newMessage, setNewMessage] = useState("");
+  const [state, dispatch] = useReducer(chatInputReducer, initialState);
+  const {
+    showEmojiPicker,
+    selectedFiles,
+    isSending,
+    newMessage,
+    isTyping,
+  } = state;
+
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const latestMessageRef = useRef(newMessage);
 
@@ -69,14 +134,15 @@ export function ChatBoxInput({
     formatTime,
   } = useVoiceRecorder({
     onTranscribed: (text) => {
-      setNewMessage(
-        newMessage.trim() ? newMessage + " " + text : text
-      );
+      dispatch({
+        type: "SET_MESSAGE",
+        payload: newMessage.trim() ? newMessage + " " + text : text,
+      });
     },
   });
 
   const startRecording = useCallback(async () => {
-    setShowEmojiPicker(false);
+    dispatch({ type: "SET_EMOJI_PICKER", payload: false });
     await startRec();
   }, [startRec]);
 
@@ -86,13 +152,16 @@ export function ChatBoxInput({
 
   const handleEmojiSelect = useCallback(
     (emojiData: EmojiClickData) => {
-      setNewMessage(`${latestMessageRef.current}${emojiData.emoji}`);
+      dispatch({
+        type: "SET_MESSAGE",
+        payload: `${latestMessageRef.current}${emojiData.emoji}`,
+      });
     },
-    [setNewMessage],
+    [],
   );
 
   const toggleEmojiPicker = () => {
-    setShowEmojiPicker(!showEmojiPicker);
+    dispatch({ type: "TOGGLE_EMOJI_PICKER" });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -105,10 +174,10 @@ export function ChatBoxInput({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      setNewMessage(value);
+      dispatch({ type: "SET_MESSAGE", payload: value });
 
       if (!isTyping && value.trim()) {
-        setIsTyping(true);
+        dispatch({ type: "SET_TYPING", payload: true });
         SocketManager.sendTyping(selectedChat.roomId, true);
       }
 
@@ -117,11 +186,11 @@ export function ChatBoxInput({
       }
 
       typingTimeoutRef.current = setTimeout(() => {
-        setIsTyping(false);
+        dispatch({ type: "SET_TYPING", payload: false });
         SocketManager.sendTyping(selectedChat.roomId, false);
       }, 2000);
     },
-    [selectedChat.roomId, isTyping, setNewMessage],
+    [selectedChat.roomId, isTyping],
   );
 
   useEffect(() => {
@@ -141,31 +210,31 @@ export function ChatBoxInput({
     }
 
     if (isTyping) {
-      setIsTyping(false);
+      dispatch({ type: "SET_TYPING", payload: false });
       SocketManager.sendTyping(selectedChat.roomId, false);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
     }
 
-    setIsSending(true);
+    dispatch({ type: "SET_SENDING", payload: true });
 
     try {
       if (selectedFiles.length > 0) {
         for (const filePreview of selectedFiles) {
           await onSendFile(filePreview.file, filePreview.type);
         }
-        clearFiles();
+        dispatch({ type: "CLEAR_FILES" });
       }
 
       if (newMessage.trim()) {
         onSendMessage(newMessage);
-        setNewMessage("");
+        dispatch({ type: "SET_MESSAGE", payload: "" });
       }
 
-      setShowEmojiPicker(false);
+      dispatch({ type: "SET_EMOJI_PICKER", payload: false });
     } finally {
-      setIsSending(false);
+      dispatch({ type: "SET_SENDING", payload: false });
     }
   };
 
@@ -189,6 +258,7 @@ export function ChatBoxInput({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
+      const newFiles: FilePreview[] = [];
       Array.from(files).forEach((file) => {
         const fileType = getFileType(file);
         const previewUrl =
@@ -196,15 +266,13 @@ export function ChatBoxInput({
             ? URL.createObjectURL(file)
             : undefined;
 
-        setSelectedFiles((prev) => [
-          ...prev,
-          {
-            file,
-            type: fileType,
-            previewUrl,
-          },
-        ]);
+        newFiles.push({
+          file,
+          type: fileType,
+          previewUrl,
+        });
       });
+      dispatch({ type: "ADD_SELECTED_FILES", payload: newFiles });
       e.target.value = "";
     }
   };
@@ -212,6 +280,7 @@ export function ChatBoxInput({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
+      const newFiles: FilePreview[] = [];
       Array.from(files).forEach((file) => {
         const fileType = getFileType(file);
         const previewUrl =
@@ -219,37 +288,19 @@ export function ChatBoxInput({
             ? URL.createObjectURL(file)
             : undefined;
 
-        setSelectedFiles((prev) => [
-          ...prev,
-          {
-            file,
-            type: fileType,
-            previewUrl,
-          },
-        ]);
+        newFiles.push({
+          file,
+          type: fileType,
+          previewUrl,
+        });
       });
+      dispatch({ type: "ADD_SELECTED_FILES", payload: newFiles });
       e.target.value = "";
     }
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles((prev) => {
-      const newFiles = [...prev];
-      if (newFiles[index].previewUrl) {
-        URL.revokeObjectURL(newFiles[index].previewUrl!);
-      }
-      newFiles.splice(index, 1);
-      return newFiles;
-    });
-  };
-
-  const clearFiles = () => {
-    selectedFiles.forEach((filePreview) => {
-      if (filePreview.previewUrl) {
-        URL.revokeObjectURL(filePreview.previewUrl);
-      }
-    });
-    setSelectedFiles([]);
+    dispatch({ type: "REMOVE_FILE", payload: index });
   };
 
   const handleWeatherClick = () => {
@@ -259,15 +310,13 @@ export function ChatBoxInput({
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            setIsSending(true);
+            dispatch({ type: "SET_SENDING", payload: true });
             await onSendWeather(latitude, longitude);
             toast.success(t("input.weatherSentSuccess"));
           } catch (error) {
-            toast.error(
-              getErrorMessage(error, t("input.weatherSentError")),
-            );
+            toast.error(getErrorMessage(error, t("input.weatherSentError")));
           } finally {
-            setIsSending(false);
+            dispatch({ type: "SET_SENDING", payload: false });
           }
         },
         (error) => {
@@ -280,134 +329,31 @@ export function ChatBoxInput({
     }
   };
 
-  const getFilePreviewKey = (filePreview: FilePreview) => {
-    const { file, previewUrl, type } = filePreview;
-    return `${type}-${file.name}-${file.size}-${file.lastModified}-${previewUrl ?? "no-preview"}`;
-  };
-
   return (
     <div className="border-t bg-white">
       {/* Toolbar: Image, File, Weather, Mic */}
-      <div
-        className="chat-input-toolbar"
-        style={theme.input.toolbarBgStyle}
-      >
-        <button
-          className="chat-input-toolbar__btn"
-          onClick={handleImageClick}
-          disabled={disabled || isSending || isRecording || isTranscribing}
-        >
-          <ImagePlus />
-        </button>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          className="hidden"
-          onChange={handleImageChange}
-        />
+      <ChatInputToolbar
+        theme={theme}
+        disabled={disabled}
+        isSending={isSending}
+        isRecording={isRecording}
+        isTranscribing={isTranscribing}
+        onImageClick={handleImageClick}
+        onFileClick={handleFileClick}
+        onWeatherClick={handleWeatherClick}
+        onRecordingClick={startRecording}
+        imageInputRef={imageInputRef}
+        fileInputRef={fileInputRef}
+        handleImageChange={handleImageChange}
+        handleFileChange={handleFileChange}
+      />
 
-        <button
-          className="chat-input-toolbar__btn"
-          onClick={handleFileClick}
-          disabled={disabled || isSending || isRecording || isTranscribing}
-        >
-          <Paperclip />
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          className="hidden"
-          onChange={handleFileChange}
-        />
-
-        <button
-          className="chat-input-toolbar__btn"
-          onClick={handleWeatherClick}
-          disabled={disabled || isSending || isRecording || isTranscribing}
-          title={t("input.sendWeatherTitle")}
-        >
-          <CloudSun />
-        </button>
-
-        {/* Mic button in toolbar */}
-        <button
-          className="chat-input-toolbar__btn"
-          onClick={startRecording}
-          disabled={disabled || isSending || isRecording || isTranscribing}
-          title={t("input.micTitle")}
-        >
-          <Mic />
-        </button>
-      </div>
-
-      {selectedFiles.length > 0 && (
-        <div className="p-3 border-b bg-gray-50">
-          <div className="flex flex-wrap gap-2">
-            {selectedFiles.map((filePreview, index) => (
-              <div key={getFilePreviewKey(filePreview)} className="relative group">
-                {filePreview.type === "IMAGE" && filePreview.previewUrl ? (
-                  <div
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${theme.input.attachmentBorder}`}
-                  >
-                    <img
-                      src={filePreview.previewUrl || "/placeholder.svg"}
-                      alt={filePreview.file.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={() => removeFile(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      disabled={isSending}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : filePreview.type === "VIDEO" && filePreview.previewUrl ? (
-                  <div
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 ${theme.input.attachmentBorder}`}
-                  >
-                    <video
-                      src={filePreview.previewUrl}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                      <Video className="w-8 h-8 text-white" />
-                    </div>
-                    <button
-                      onClick={() => removeFile(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                      disabled={isSending}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    className={`relative w-20 h-20 rounded-lg border-2 ${theme.input.attachmentBorder} bg-white flex flex-col items-center justify-center p-2`}
-                  >
-                    <FileText className="w-6 h-6 text-purple-600 mb-1" />
-                    <span className="text-xs text-gray-600 truncate w-full text-center">
-                      {filePreview.file.name.length > 10
-                        ? filePreview.file.name.substring(0, 10) + "..."
-                        : filePreview.file.name}
-                    </span>
-                    <button
-                      onClick={() => removeFile(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      disabled={isSending}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <FilePreviewList
+        theme={theme}
+        selectedFiles={selectedFiles}
+        isSending={isSending}
+        onRemoveFile={removeFile}
+      />
 
       <div className="p-4 relative">
         {showEmojiPicker && (
@@ -443,106 +389,27 @@ export function ChatBoxInput({
 
         {/* ===== RECORDING STATE ===== */}
         {isRecording && !isTranscribing && (
-          <div className="chat-recording pl-4 pr-4">
-            {/* Cancel button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={cancelRecording}
-              className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg h-10 px-3 shrink-0"
-              title={t("input.cancelRecord")}
-            >
-              <X className="w-5 h-5" />
-            </Button>
-
-            {/* Recording indicator bar */}
-            <div className="chat-recording__bar">
-              {/* Pulsing red dot */}
-              <div className="chat-recording__dot" />
-              <span className="text-sm font-medium text-red-500">{t("input.recording")}</span>
-              <span
-                className="text-sm text-gray-500"
-                style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "0.5px" }}
-              >
-                {formatTime(recordingTime)}
-              </span>
-
-              {/* Waveform bars */}
-              <div className="chat-recording__waves">
-                {[...Array(12)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="chat-recording__wave-bar"
-                    style={{
-                      animation: `waveBar 0.9s ease-in-out ${i * 0.08}s infinite alternate`,
-                      height: "4px",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Stop button */}
-            <button
-              onClick={stopRecording}
-              className="chat-send-btn shrink-0"
-              style={{ background: 'oklch(0.6 0.22 25)' }}
-              title={t("input.stopRecord")}
-            >
-              <Square className="w-4 h-4 fill-current mr-2" />
-              {t("input.stopRecord")}
-            </button>
-          </div>
+          <RecordingState
+            recordingTime={recordingTime}
+            formatTime={formatTime}
+            onCancel={cancelRecording}
+            onStop={stopRecording}
+          />
         )}
 
         {/* ===== NORMAL INPUT STATE ===== */}
         {!isRecording && !isTranscribing && (
-          <div className="chat-input-row">
-            <div className="chat-input-field">
-              <Input
-                value={newMessage}
-                onChange={handleInputChange}
-                placeholder={t("input.placeholder")}
-                className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
-                onKeyPress={handleKeyPress}
-                disabled={disabled || isSending}
-              />
-
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-                <span
-                  className={`text-xs ${
-                    newMessage.length > 1000
-                      ? "text-red-500 font-semibold"
-                      : "text-gray-500"
-                  }`}
-                >
-                  {newMessage.length}/1000
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleEmojiPicker}
-                  className={`text-gray-500 ${theme.input.iconHoverColor} ${theme.input.iconHoverBg} transition-all duration-200 rounded-lg p-2 h-8 w-8`}
-                  disabled={isSending}
-                >
-                  <Smile className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
-
-            <button
-              onClick={handleSend}
-              disabled={
-                (!newMessage.trim() && selectedFiles.length === 0) ||
-                disabled ||
-                isSending
-              }
-              className="chat-send-btn"
-              style={theme.input.sendBtnStyle}
-            >
-              <Send />
-            </button>
-          </div>
+          <ChatInputArea
+            theme={theme}
+            newMessage={newMessage}
+            hasFiles={selectedFiles.length > 0}
+            disabled={disabled}
+            isSending={isSending}
+            onInputChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            onToggleEmojiPicker={toggleEmojiPicker}
+            onSend={handleSend}
+          />
         )}
       </div>
 

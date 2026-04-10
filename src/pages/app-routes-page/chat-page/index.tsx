@@ -11,7 +11,7 @@ import type { RoomResponse } from "@/types/chat/room";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { getCurrentUserRoomsApi } from "@/services/chat";
 import { useChatSocketHandler } from "@/features/websocket/hooks/useChatSocketHandler";
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 import { useTranslation } from "react-i18next";
 import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
 import { useNotificationSound } from "@/hooks/useNotificationSound";

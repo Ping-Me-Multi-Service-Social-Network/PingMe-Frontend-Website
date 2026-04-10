@@ -1,4 +1,4 @@
-import { useCall } from "@/features/websocket/hooks/useCall";
+import { useCall } from "@/features/websocket";
 import { useTranslation } from "react-i18next";
 
 export function CallStatus() {

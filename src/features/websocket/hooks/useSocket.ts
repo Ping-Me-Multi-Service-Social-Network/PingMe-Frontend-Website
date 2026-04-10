@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import { SocketManager } from "./socketManager";
+import { SocketManager } from "../core/socketManager";
 import { toast } from "sonner";
 // Actions are dispatched within SocketManager
 

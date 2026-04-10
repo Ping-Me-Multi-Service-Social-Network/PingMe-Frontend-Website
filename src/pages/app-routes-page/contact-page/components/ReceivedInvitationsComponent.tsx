@@ -1,13 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
-import { Inbox, Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button.tsx";
-import { EmptyState } from "@/components/custom/EmptyState.tsx";
-import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   acceptInvitationApi,
   getReceivedHistoryInvitationsApi,
@@ -19,12 +10,14 @@ import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { useTranslation } from "react-i18next";
-import { InvitationUserCard } from "./InvitationUserCard";
-import { AnimatePresence } from "framer-motion";
-
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 import { useAppSelector } from "@/features/hooks.ts";
 import { hasSentInvite } from "@/utils/inviteTracker";
+
+import {
+  ReceivedInvitationsHeader,
+  ReceivedInvitationsList,
+} from "./received-invitations-components";
 
 interface ReceivedInvitationsComponentProps {
   onStatsUpdate: (
@@ -33,7 +26,7 @@ interface ReceivedInvitationsComponentProps {
 }
 
 export const ReceivedInvitationsComponent = (
-  props: ReceivedInvitationsComponentProps
+  props: ReceivedInvitationsComponentProps,
 ) => {
   const { onStatsUpdate } = props;
   const { t } = useTranslation("contacts");
@@ -89,7 +82,7 @@ export const ReceivedInvitationsComponent = (
         isLoadingRef.current = false;
       }
     },
-    [],
+    [t],
   );
 
   // Xử lý infinite scroll
@@ -143,7 +136,7 @@ export const ReceivedInvitationsComponent = (
         });
       }
     },
-    [processingInvitations, onStatsUpdate],
+    [processingInvitations, onStatsUpdate, t],
   );
 
   const handleRejectInvitation = useCallback(
@@ -179,7 +172,7 @@ export const ReceivedInvitationsComponent = (
         });
       }
     },
-    [processingInvitations, onStatsUpdate],
+    [processingInvitations, onStatsUpdate, t],
   );
 
   // Đăng ký trực tiếp với SocketManager
@@ -193,13 +186,15 @@ export const ReceivedInvitationsComponent = (
         !hasSentInvite(event.userSummaryResponse.id)
       ) {
         setReceivedInvitations((prev) => {
-          const invitationExists = prev.some((invitation) => invitation.id === event.userSummaryResponse.id);
+          const invitationExists = prev.some(
+            (invitation) => invitation.id === event.userSummaryResponse.id,
+          );
           if (invitationExists) return prev;
           return [event.userSummaryResponse, ...prev];
         });
       } else if (event.type === "CANCELED") {
         setReceivedInvitations((prev) =>
-          prev.filter((inv) => inv.id !== event.userSummaryResponse.id)
+          prev.filter((inv) => inv.id !== event.userSummaryResponse.id),
         );
       }
     });
@@ -221,119 +216,35 @@ export const ReceivedInvitationsComponent = (
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  const listLabels = {
+    loading: t("receivedInvitations.loading"),
+    emptyTitle: t("receivedInvitations.emptyTitle"),
+    emptyDesc: t("receivedInvitations.emptyDesc"),
+    btnAccept: t("receivedInvitations.btnAccept"),
+    btnReject: t("receivedInvitations.btnReject"),
+    loadingMore: t("common.loadingMore"),
+    displayedAllInvitations: t("common.displayedAllInvitations"),
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("receivedInvitations.title")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              <span className="tabular-nums font-medium">{receivedInvitations.length}</span>{" "}
-              {t("receivedInvitations.count")}
-            </p>
-          </div>
-        </div>
-      </div>
+      <ReceivedInvitationsHeader
+        title={t("receivedInvitations.title")}
+        countTitle={t("receivedInvitations.count")}
+        count={receivedInvitations.length}
+      />
 
-      {/* Danh sách lời mời nhận được */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-        {isLoading && receivedInvitations.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="flex items-center gap-3 text-primary">
-              <LoadingSpinner className="w-6 h-6" />
-              <span className="text-sm font-medium">
-                {t("receivedInvitations.loading")}
-              </span>
-            </div>
-          </div>
-        ) : receivedInvitations.length === 0 ? (
-          <div className="h-64">
-            <EmptyState
-              icon={Inbox}
-              title={t("receivedInvitations.emptyTitle")}
-              description={t("receivedInvitations.emptyDesc")}
-            />
-          </div>
-        ) : (
-          <div className="p-3 space-y-2">
-            <AnimatePresence mode="popLayout">
-              {receivedInvitations.map((invitation, index) => {
-                const friendshipId = invitation.friendshipSummary?.id;
-                const isProcessing = friendshipId
-                  ? processingInvitations.has(friendshipId)
-                  : false;
-
-                return (
-                  <InvitationUserCard
-                    key={invitation.id}
-                    invitation={invitation}
-                    index={index}
-                    actions={
-                      <>
-                        {friendshipId && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleAcceptInvitation(friendshipId)}
-                              disabled={isProcessing}
-                              className="
-                                bg-emerald-600 hover:bg-emerald-700 text-white
-                                h-8 px-3 text-xs font-medium
-                                transition-colors duration-150
-                              "
-                            >
-                              {isProcessing ? (
-                                <LoadingSpinner className="w-3.5 h-3.5 mr-1.5" />
-                              ) : (
-                                <Check className="w-3.5 h-3.5 mr-1.5" />
-                              )}
-                              {t("receivedInvitations.btnAccept")}
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRejectInvitation(friendshipId)}
-                              disabled={isProcessing}
-                              className="
-                                text-destructive hover:text-destructive hover:bg-destructive/10
-                                h-8 px-3 text-xs font-medium
-                                transition-colors duration-150
-                              "
-                            >
-                              <X className="w-3.5 h-3.5 mr-1.5" />
-                              {t("receivedInvitations.btnReject")}
-                            </Button>
-                          </>
-                        )}
-                      </>
-                    }
-                  />
-                );
-              })}
-            </AnimatePresence>
-
-            {/* Loading indicator khi load thêm */}
-            {isLoadingRef.current && hasMoreInvitations && (
-              <div className="flex justify-center py-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <LoadingSpinner className="w-4 h-4" />
-                  <span className="text-xs">{t("common.loadingMore")}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Thông báo hết dữ liệu */}
-            {!hasMoreInvitations && receivedInvitations.length > 0 && (
-              <div className="text-center py-4">
-                <p className="text-xs text-muted-foreground">{t("common.displayedAllInvitations")}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <ReceivedInvitationsList
+        isLoading={isLoading}
+        receivedInvitations={receivedInvitations}
+        processingInvitations={processingInvitations}
+        hasMoreInvitations={hasMoreInvitations}
+        isLoadingRef={isLoadingRef}
+        scrollContainerRef={scrollContainerRef}
+        onAcceptInvitation={handleAcceptInvitation}
+        onRejectInvitation={handleRejectInvitation}
+        labels={listLabels}
+      />
     </div>
   );
 };

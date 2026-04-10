@@ -3,19 +3,20 @@ import { ChatActionBar } from "../components/chat-shared-components/ChatActionBa
 import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
 import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
 import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
+import { ActiveTabContent } from "./components/ActiveTabContent";
 import { ContactSidebar } from "./components/ContactSidebar";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import type { UserFriendshipStatsResponse } from "@/types/friendship";
 import { getUserFriendshipStatsApi } from "@/services/friendship";
 import { useAppSelector } from "@/features/hooks.ts";
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 import type {
   UserStatusPayload,
   FriendshipEventPayload,
-} from "@/features/websocket/models/systemEvents";
+} from "@/features/websocket/system";
 import { hasSentInvite } from "@/utils/inviteTracker";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m as motion, LazyMotion, domAnimation } from "framer-motion";
 
 // trigger deploy
 export default function ContactsPage() {
@@ -106,34 +107,7 @@ export default function ContactsPage() {
     return () => unsub();
   }, [userSession?.id]);
 
-  const renderActiveComponent = () => {
-    switch (activeTab) {
-      case "friends":
-        return (
-          <FriendsListComponent
-            onStatsUpdate={setUserFriendshipStats}
-            statusPayload={statusPayload}
-          />
-        );
-      case "received-invitations":
-        return (
-          <ReceivedInvitationsComponent
-            onStatsUpdate={setUserFriendshipStats}
-          />
-        );
-      case "sent-invitations":
-        return (
-          <SentInvitationsComponent onStatsUpdate={setUserFriendshipStats} />
-        );
-      default:
-        return (
-          <FriendsListComponent
-            onStatsUpdate={setUserFriendshipStats}
-            statusPayload={statusPayload}
-          />
-        );
-    }
-  };
+
 
   return (
     <div className="flex h-screen bg-background">
@@ -149,6 +123,7 @@ export default function ContactsPage() {
 
       {/* Main Content Area */}
       <div className="flex-1 bg-card min-w-0">
+        <LazyMotion features={domAnimation}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -158,9 +133,14 @@ export default function ContactsPage() {
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             className="h-full"
           >
-            {renderActiveComponent()}
+            <ActiveTabContent
+              activeTab={activeTab}
+              setUserFriendshipStats={setUserFriendshipStats}
+              statusPayload={statusPayload}
+            />
           </motion.div>
         </AnimatePresence>
+        </LazyMotion>
       </div>
     </div>
   );

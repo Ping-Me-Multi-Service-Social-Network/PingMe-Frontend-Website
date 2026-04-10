@@ -25,9 +25,9 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { type UserStatusPayload } from "@/types/common/userStatus.ts";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 
-import { SocketManager } from "@/features/websocket/socketManager";
+import { SocketManager } from "@/features/websocket";
 
 interface FriendsListComponentProps {
   onStatsUpdate: (
@@ -250,9 +250,9 @@ export const FriendsListComponent = (props: FriendsListComponentProps) => {
                       <AnimatePresence>
                         {friend.status === "ONLINE" && (
                           <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
                             transition={{ type: "spring", stiffness: 500, damping: 25 }}
                             className="absolute -bottom-0.5 -right-0.5 block w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-background"
                           />

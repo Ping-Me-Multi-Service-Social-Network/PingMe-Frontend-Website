@@ -3,13 +3,13 @@ import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import AppNavigation from "./components/navigation/AppNavigation.tsx";
 import { AudioPlayerProvider } from "@/hooks/useAudio.tsx";
 import DraggableMiniPlayer from "./components/audio/DraggableMiniPlayer.tsx";
-import { useSocket } from "@/features/websocket/useSocket";
+import { useSocket } from "@/features/websocket";
 import AppLoader from "@/components/custom/AppLoader.tsx";
 import { useGlobalTour } from "@/hooks/tours";
 
 const MessagesPage = lazy(() => import("@/pages/app-routes-page/chat-page"));
 const CallProvider = lazy(() =>
-  import("@/features/websocket/hooks/useCall").then((module) => ({
+  import("@/features/websocket").then((module) => ({
     default: module.CallProvider,
   }))
 );
