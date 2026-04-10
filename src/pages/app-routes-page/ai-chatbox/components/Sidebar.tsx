@@ -148,13 +148,14 @@ export default function Sidebar({
 
               {/* Three-dot menu button */}
               <div
-                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={(e) => handleMenuToggle(e, room.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.stopPropagation();
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     handleMenuToggle(e as any, room.id);
                   }
                 }}
@@ -223,7 +224,7 @@ export default function Sidebar({
       {/* ===== Confirmation Modal ===== */}
       {confirmDeleteId && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={handleCancelDelete}
           role="button"
           tabIndex={0}
@@ -273,7 +274,7 @@ export default function Sidebar({
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-medium shadow-md hover:shadow-lg transition-all"
+                className="flex-1 px-4 py-2.5 bg-linear-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-medium shadow-md hover:shadow-lg transition-all"
               >
                 {t("sidebar.delete")}
               </button>

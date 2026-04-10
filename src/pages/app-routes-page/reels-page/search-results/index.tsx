@@ -57,7 +57,7 @@ export default function SearchResultsPage() {
     }
 
     fetchSearchResults()
-  }, [query, navigate])
+  }, [query, navigate, t])
 
   const handleReelUpdate = (updatedReel: Reel) => {
     setReels((prev) =>

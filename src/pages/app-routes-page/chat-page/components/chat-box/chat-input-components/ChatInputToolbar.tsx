@@ -3,6 +3,7 @@ import { ImagePlus, Paperclip, CloudSun, Mic } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface ChatInputToolbarProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   theme: any;
   disabled: boolean;
   isSending: boolean;

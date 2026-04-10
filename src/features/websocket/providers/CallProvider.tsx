@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
   useContext,
@@ -268,7 +269,7 @@ export function CallProvider({ children }: CallProviderProps) {
       {/* Giao diện Video Call */}
       {isInCall && userSession && (
         <ZegoCallUI
-          roomId={activeRoomIdRef.current}
+          roomId={callState.roomId?.toString() || ""}
           currentUserId={userSession.id.toString()}
           currentUserName={userSession.name || "User"}
           callType={callType}

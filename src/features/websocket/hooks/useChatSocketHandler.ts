@@ -4,7 +4,7 @@ import { SocketManager } from "../core/socketManager";
 import type {
   MessageCreatedEventPayload,
   RoomUpdatedEventPayload,
-  MessageRecalledEventPayload,
+
   RoomCreatedEventPayload,
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
@@ -128,7 +128,7 @@ export const useChatSocketHandler = ({
   );
 
   const handleRecallMessage = useCallback(
-    (_event: MessageRecalledEventPayload) => {
+    () => {
       // Recall is handled reactively by chatSlice.messageRecalled reducer
       // (sets isActive: false) → ChatBox picks it up via selectMessages
     },

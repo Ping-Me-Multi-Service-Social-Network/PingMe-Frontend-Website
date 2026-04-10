@@ -192,7 +192,7 @@ export function useTourFactory(options: TourOptions) {
 
         driverRef.current = driverObj;
         driverObj.drive();
-    }, [isTourCompleted, markTourCompleted, tourSteps, doneText, returnRoute, prerequisiteKey, navigate]);
+    }, [isTourCompleted, markTourCompleted, tourSteps, doneText, returnRoute, prerequisiteKey, navigate, t]);
 
     useEffect(() => {
         return () => {

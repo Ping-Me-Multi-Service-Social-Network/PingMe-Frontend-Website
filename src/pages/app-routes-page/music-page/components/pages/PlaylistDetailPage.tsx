@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Play, Pause, Trash2, GripVertical, Music2, Lock, Globe, Edit, Save, X } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
@@ -122,11 +122,27 @@ export default function PlaylistDetailPage() {
         })
     );
 
+    const fetchPlaylistDetail = useCallback(async (playlistId: number) => {
+        try {
+            setLoading(true);
+            const data = await playlistApi.getPlaylistDetail(playlistId);
+            setPlaylistDetail(data);
+            const sortedItems = [...data.items].sort((a, b) => a.position - b.position);
+            setItems(sortedItems);
+            setError(null);
+        } catch (err) {
+            console.error("Error fetching playlist details:", err);
+            setError(t("pages.playlistDetail.errorLoad"));
+        } finally {
+            setLoading(false);
+        }
+    }, [t]);
+
     useEffect(() => {
         if (id) {
             fetchPlaylistDetail(Number.parseInt(id));
         }
-    }, [id]);
+    }, [id, fetchPlaylistDetail]);
 
     // Listen for playlist updates from GlobalAudioPlayer
     useEffect(() => {
@@ -141,23 +157,7 @@ export default function PlaylistDetailPage() {
         return () => {
             globalThis.removeEventListener('playlist-updated', handlePlaylistUpdate);
         };
-    }, [id]);
-
-    const fetchPlaylistDetail = async (playlistId: number) => {
-        try {
-            setLoading(true);
-            const data = await playlistApi.getPlaylistDetail(playlistId);
-            setPlaylistDetail(data);
-            const sortedItems = [...data.items].sort((a, b) => a.position - b.position);
-            setItems(sortedItems);
-            setError(null);
-        } catch (err) {
-            console.error("Error fetching playlist details:", err);
-            setError(t("pages.playlistDetail.errorLoad"));
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [id, fetchPlaylistDetail]);
 
     const handleRemoveSong = async (songId: number) => {
         if (!playlistDetail) return;

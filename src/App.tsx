@@ -1,4 +1,5 @@
 import { Provider } from "react-redux";
+import type { DefaultAuthResponse } from "@/types/auth/auth";
 import { PersistGate } from "redux-persist/integration/react";
 import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
@@ -70,7 +71,7 @@ function AppInner() {
 
   useEffect(() => {
     const opts = {
-      onTokenRefreshed: (payload: any) =>
+      onTokenRefreshed: (payload: DefaultAuthResponse) =>
         store.dispatch(updateUserSession(payload)),
       onLogout: () => {
         localStorage.removeItem("access_token");

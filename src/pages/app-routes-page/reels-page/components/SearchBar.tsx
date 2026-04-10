@@ -134,7 +134,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
         clearTimeout(debounceTimerRef.current)
       }
     }
-  }, [query])
+  }, [query, handleSearch, onSearchResults, onSearchChange])
 
   // Close search when clicking outside
   useEffect(() => {
@@ -272,7 +272,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                     role="button"
                     tabIndex={0}
                   >
-                    <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    <Clock className="w-4 h-4 text-gray-500 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{item.query}</p>
                       <p className="text-xs text-gray-500">
@@ -286,7 +286,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                     </div>
                     <button
                       onClick={(e) => handleDeleteHistory(e, item.id)}
-                      className="opacity-0 group-hover:opacity-100 p-2 hover:bg-gray-600 rounded-full transition-all flex-shrink-0"
+                      className="opacity-0 group-hover:opacity-100 p-2 hover:bg-gray-600 rounded-full transition-all shrink-0"
                       title={t("search.deleteHistoryTip")}
                     >
                       <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
@@ -324,7 +324,7 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
                       tabIndex={0}
                     >
                       {/* Thumbnail */}
-                      <div className="w-12 h-12 rounded bg-gray-700 overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-12 rounded bg-gray-700 overflow-hidden shrink-0">
                         <video src={reel.videoUrl} className="w-full h-full object-cover" />
                       </div>
 

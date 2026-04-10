@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Music, Globe, Users, Loader2 } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
@@ -19,11 +19,7 @@ export default function DiscoverPlaylistsPage() {
     const pageSize = 20;
     const { t } = useTranslation("music");
 
-    useEffect(() => {
-        fetchPublicPlaylists(0);
-    }, []);
-
-    const fetchPublicPlaylists = async (page: number) => {
+    const fetchPublicPlaylists = useCallback(async (page: number) => {
         try {
             if (page === 0) {
                 setLoading(true);
@@ -49,7 +45,11 @@ export default function DiscoverPlaylistsPage() {
             setLoading(false);
             setLoadingMore(false);
         }
-    };
+    }, [pageSize, t]);
+
+    useEffect(() => {
+        fetchPublicPlaylists(0);
+    }, [fetchPublicPlaylists]);
 
     const handleLoadMore = () => {
         if (!loadingMore && hasMore) {

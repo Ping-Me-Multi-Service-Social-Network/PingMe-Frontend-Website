@@ -5,6 +5,7 @@ import { Smile, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface ChatInputAreaProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   theme: any;
   newMessage: string;
   hasFiles: boolean;

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   useState,
   useRef,
@@ -174,7 +175,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     } else {
       audio.pause();
     }
-  }, [isPlaying, currentSong]); // Depend on currentSong to ensure we try to play after loading
+  }, [isPlaying, currentSong, dispatch]); // Depend on currentSong to ensure we try to play after loading
 
   // Sync Volume & Loop
   useEffect(() => {

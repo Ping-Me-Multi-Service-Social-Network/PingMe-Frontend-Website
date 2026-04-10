@@ -58,5 +58,5 @@ export const useSocket = () => {
       unsubs.forEach((unsub) => unsub());
       SocketManager.disconnect();
     };
-  }, [userSession, dispatch]);
+  }, [userSession, isLogin, dispatch]);
 };

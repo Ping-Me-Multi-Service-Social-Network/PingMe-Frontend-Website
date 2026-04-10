@@ -3,7 +3,7 @@ import { useAudio } from "@/hooks/useAudio";
 /**
  * Returns play state for a single song.
  */
-export function useSongPlayState(songId: number, onPlay: (song: any) => void) {
+export function useSongPlayState(songId: number, onPlay: (song: unknown) => void) {
   const { currentSong, isPlaying, togglePlayPause } = useAudio();
 
   const isCurrent = String(currentSong?.id) === String(songId);
@@ -42,7 +42,7 @@ export function useAlbumPlayState(albumId: number | string) {
  */
 export function useCollectionPlayState(
   onPlayAll: () => void,
-  contextType: "artist" | "playlist" | "genre" | "all" | "favorite",
+  contextType: "artist" | "playlist" | "genre" | "all" | "favorite" | "album",
   contextId: number | string
 ) {
   const { playbackContext, isPlaying, togglePlayPause } = useAudio();

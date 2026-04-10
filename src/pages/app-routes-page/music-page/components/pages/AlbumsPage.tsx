@@ -60,7 +60,7 @@ export default function AlbumsPage() {
         };
 
         fetchData();
-    }, [dispatch, allAlbums?.lastFetched, allAlbums?.data, cacheExpiry, allAlbums]);
+    }, [dispatch, allAlbums?.lastFetched, allAlbums?.data, cacheExpiry, allAlbums, t]);
 
     const albums = allAlbums?.data || [];
 

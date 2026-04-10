@@ -239,7 +239,6 @@ export const ReceivedInvitationsComponent = (
         receivedInvitations={receivedInvitations}
         processingInvitations={processingInvitations}
         hasMoreInvitations={hasMoreInvitations}
-        isLoadingRef={isLoadingRef}
         scrollContainerRef={scrollContainerRef}
         onAcceptInvitation={handleAcceptInvitation}
         onRejectInvitation={handleRejectInvitation}

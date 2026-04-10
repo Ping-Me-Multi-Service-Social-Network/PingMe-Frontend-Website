@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Plus, ListPlus, Music2 } from "lucide-react";
 import {
     DropdownMenu,
@@ -135,12 +135,22 @@ export default function PlaylistDropdown({
     const [isLoading, setIsLoading] = useState(false);
     const { t } = useTranslation("music");
 
+    const loadPlaylists = useCallback(async () => {
+        try {
+            const data = await playlistApi.getPlaylists();
+            setPlaylists(data);
+        } catch (error) {
+            console.error("Error loading playlists:", error);
+            toast.error(t("playlistDropdown.loadError"));
+        }
+    }, [t]);
+
     // Load playlists when dropdown opens
     useEffect(() => {
         if (open) {
             loadPlaylists();
         }
-    }, [open]);
+    }, [open, loadPlaylists]);
 
     // Listen for playlist updates from other components
     useEffect(() => {
@@ -154,17 +164,7 @@ export default function PlaylistDropdown({
         return () => {
             globalThis.removeEventListener("playlist-updated", handlePlaylistUpdated);
         };
-    }, [open]);
-
-    const loadPlaylists = async () => {
-        try {
-            const data = await playlistApi.getPlaylists();
-            setPlaylists(data);
-        } catch (error) {
-            console.error("Error loading playlists:", error);
-            toast.error(t("playlistDropdown.loadError"));
-        }
-    };
+    }, [open, loadPlaylists]);
 
     const handleAddToPlaylist = async (playlistId: number) => {
         try {

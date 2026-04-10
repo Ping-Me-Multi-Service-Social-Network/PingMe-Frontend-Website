@@ -97,7 +97,7 @@ export default function MusicLayout() {
     let leftSidebarBtnTitle = "Hiện thư viện";
     let leftSidebarBtnColor = "#a1a1aa";
     let leftSidebarOpacity = 0;
-    let leftSidebarPointer = "none";
+    let leftSidebarPointer: "none" | "auto" = "none";
     if (showLeftSidebar) {
         leftSidebarBtnTitle = "Ẩn thư viện";
         leftSidebarBtnColor = "#a78bfa";
@@ -108,7 +108,7 @@ export default function MusicLayout() {
     let rightPanelBtnTitle = "Hiện thông tin bài hát";
     let rightPanelBtnColor = "#a1a1aa";
     let rightPanelOpacity = 0;
-    let rightPanelPointer = "none";
+    let rightPanelPointer: "none" | "auto" = "none";
     if (showRightPanel) {
         rightPanelBtnTitle = "Ẩn thông tin bài hát";
         rightPanelBtnColor = "#a78bfa";
@@ -216,7 +216,7 @@ export default function MusicLayout() {
                     className="h-full overflow-hidden"
                     style={{
                         opacity: leftSidebarOpacity,
-                        pointerEvents: leftSidebarPointer as any,
+                        pointerEvents: leftSidebarPointer,
                         transition: "opacity 300ms ease-in-out",
                     }}
                 >
@@ -242,7 +242,7 @@ export default function MusicLayout() {
                     className="h-full overflow-hidden"
                     style={{
                         opacity: rightPanelOpacity,
-                        pointerEvents: rightPanelPointer as any,
+                        pointerEvents: rightPanelPointer,
                         transition: "opacity 300ms ease-in-out",
                     }}
                 >

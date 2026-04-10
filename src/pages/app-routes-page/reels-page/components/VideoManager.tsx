@@ -33,7 +33,7 @@ export function VideoManager({ onClose, onUpdate }: VideoManagerProps) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchUserReels();

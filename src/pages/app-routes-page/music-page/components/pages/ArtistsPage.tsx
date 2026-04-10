@@ -59,7 +59,7 @@ export default function ArtistsPage() {
         };
 
         fetchData();
-    }, [dispatch, allArtists?.lastFetched, allArtists?.data, cacheExpiry, allArtists]);
+    }, [dispatch, allArtists?.lastFetched, allArtists?.data, cacheExpiry, allArtists, t]);
 
     const artists = allArtists?.data || [];
 

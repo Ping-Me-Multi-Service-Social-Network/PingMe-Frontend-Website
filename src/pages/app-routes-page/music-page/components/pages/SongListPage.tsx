@@ -198,20 +198,20 @@ export default function SongListPage() {
       genre: song.genres,
       album: song.albums,
     } : song;
-    playSong(songToPlay, { type: type as any, id: id || "all" });
+    playSong(songToPlay, { type: type as "album" | "artist" | "genre", id: id || "all" });
   };
 
 
   const startPlayAll = () => {
     if (Array.isArray(songs) && songs.length > 0) {
       const firstSong = convertToSong(songs[0]);
-      playSong(firstSong, { type: type as any, id: id || "all" });
+      playSong(firstSong, { type: type as "album" | "artist" | "genre", id: id || "all" });
     }
   };
 
   const { isCollectionPlaying, handlePlayPauseCollection } = useCollectionPlayState(
     startPlayAll,
-    type as any,
+    type as "album" | "artist" | "genre",
     id || "all"
   );
 

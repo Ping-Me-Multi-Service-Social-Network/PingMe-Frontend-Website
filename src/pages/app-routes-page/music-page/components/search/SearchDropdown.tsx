@@ -183,7 +183,7 @@ export default function SearchDropdown({
 
     const debounceTimer = setTimeout(fetchSearchResults, 300);
     return () => clearTimeout(debounceTimer);
-  }, [query, isOpen]);
+  }, [query, isOpen, t]);
 
   if (!isOpen || !query.trim()) {
     return null;

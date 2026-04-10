@@ -7,6 +7,7 @@ import { SocketManager } from "@/features/websocket";
  */
 function playTingSound() {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
 
     // --- First tone (higher pitch) ---

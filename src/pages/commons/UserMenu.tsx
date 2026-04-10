@@ -11,7 +11,7 @@ import {
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+
 import { logout } from "@/features/auth/authThunk";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback";
 import { setLogoutReason } from "@/features/auth/authSlice";
@@ -27,18 +27,13 @@ const UserMenu = ({ openInNewTab = false }: UserMenuProps) => {
   const navigate = useNavigate();
   const { currentLanguage, toggleLanguage, t } = useLanguage("common");
 
-  const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
-
+  const avatarVersion = userSession?.updatedAt
+    ? new Date(userSession.updatedAt).getTime()
+    : undefined;
   const handleLogout = () => {
     dispatch(setLogoutReason("MANUAL"));
     dispatch(logout());
   };
-
-  useEffect(() => {
-    if (userSession?.updatedAt) {
-      setAvatarVersion(new Date(userSession.updatedAt).getTime());
-    }
-  }, [userSession?.updatedAt]);
 
   if (!userSession) return null;
 

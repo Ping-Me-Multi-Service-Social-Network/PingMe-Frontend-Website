@@ -89,9 +89,9 @@ export const getOtpAdminStatusApi = () => {
 };
 
 export const sendOtpApi = (data: { email: string; type?: string }) => {
-  return axiosClient.post<ApiResponse<any>>("/auth-service/otp/send", data);
+  return axiosClient.post<ApiResponse<unknown>>("/auth-service/otp/send", data);
 };
 
 export const verifyOtpApi = (data: { email: string; otp: string; type?: string }) => {
-  return axiosClient.post<ApiResponse<any>>("/auth-service/otp/verify", data);
+  return axiosClient.post<ApiResponse<unknown>>("/auth-service/otp/verify", data);
 };

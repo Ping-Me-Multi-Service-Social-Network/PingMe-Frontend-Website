@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ScrollRow({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -20,7 +20,7 @@ export default function ScrollRow({ children }: Readonly<{ children: React.React
     return () => window.removeEventListener("resize", handleScroll);
   }, [children]);
 
-  const scroll = (direction: "left" | "right") => {
+  const scroll = useCallback((direction: "left" | "right") => {
     if (!scrollRef.current) return;
     
     const element = scrollRef.current;
@@ -52,7 +52,7 @@ export default function ScrollRow({ children }: Readonly<{ children: React.React
     };
 
     requestAnimationFrame(animateScroll);
-  };
+  }, []);
 
   const renderScrollButton = (direction: "left" | "right", isVisible: boolean) => {
     const isLeft = direction === "left";

@@ -3,7 +3,7 @@
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button.tsx"
 import { Input } from "@/components/ui/input.tsx"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 interface EditCommentModalProps {
@@ -23,12 +23,14 @@ export default function EditCommentModal({
 }: EditCommentModalProps) {
   const { t } = useTranslation("reels")
   const [content, setContent] = useState(initialContent)
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
-  useEffect(() => {
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen)
     if (isOpen) {
       setContent(initialContent)
     }
-  }, [isOpen, initialContent])
+  }
 
   if (!isOpen) return null
 

@@ -80,23 +80,24 @@ export default function AudioPlayerComponent({
     }
   };
 
-  useEffect(() => {
+  const [prevSongId, setPrevSongId] = useState(currentSong?.id);
+  if (currentSong?.id !== prevSongId) {
+    setPrevSongId(currentSong?.id);
     if (currentSong && playlist.length > 0) {
       const index = playlist.findIndex((t) => t && t.id === currentSong.id);
-      if (index >= 0) {
-        setCurrentTrackIndex(index);
-        if (audioRef.current) {
-          audioRef.current.src = currentSong.songUrl;
-          setTimeout(() => {
-            audioRef.current?.play();
-            setIsPlaying(true);
-          }, 100);
-        }
-      } else {
-        setCurrentTrackIndex(0);
-      }
+      setCurrentTrackIndex(index >= 0 ? index : 0);
     }
-  }, [currentSong, audioRef, playlist, setIsPlaying]);
+  }
+
+  useEffect(() => {
+    if (currentSong && audioRef.current && audioRef.current.getAttribute("src") !== currentSong.songUrl) {
+      audioRef.current.src = currentSong.songUrl;
+      setTimeout(() => {
+        audioRef.current?.play();
+        setIsPlaying(true);
+      }, 100);
+    }
+  }, [currentSong, audioRef, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;

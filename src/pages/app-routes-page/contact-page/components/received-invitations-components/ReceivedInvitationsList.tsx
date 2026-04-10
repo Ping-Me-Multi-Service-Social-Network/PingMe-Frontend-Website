@@ -12,8 +12,7 @@ interface ReceivedInvitationsListProps {
   receivedInvitations: UserSummaryResponse[];
   processingInvitations: Set<number>;
   hasMoreInvitations: boolean;
-  isLoadingRef: React.MutableRefObject<boolean>;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   onAcceptInvitation: (friendshipId: number) => void;
   onRejectInvitation: (friendshipId: number) => void;
   labels: {
@@ -32,7 +31,6 @@ export function ReceivedInvitationsList({
   receivedInvitations,
   processingInvitations,
   hasMoreInvitations,
-  isLoadingRef,
   scrollContainerRef,
   onAcceptInvitation,
   onRejectInvitation,
@@ -89,7 +87,7 @@ export function ReceivedInvitationsList({
           </AnimatePresence>
 
           {/* Loading indicator khi load thêm */}
-          {isLoadingRef.current && hasMoreInvitations && (
+          {isLoading && hasMoreInvitations && (
             <div className="flex justify-center py-4">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <LoadingSpinner className="w-4 h-4" />

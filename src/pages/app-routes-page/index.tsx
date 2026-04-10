@@ -19,18 +19,22 @@ export default function AppPageLayout() {
   const isMusicPage = location.pathname.startsWith("/app/music");
   const isChatPage = location.pathname === "/app/chat";
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const previousIsMusicPage = useRef(isMusicPage);
+  const [prevIsMusicPage, setPrevIsMusicPage] = useState(isMusicPage);
+
+  if (prevIsMusicPage && !isMusicPage) {
+    setPrevIsMusicPage(isMusicPage);
+    setIsTransitioning(true);
+  } else if (!prevIsMusicPage && isMusicPage) {
+    setPrevIsMusicPage(isMusicPage);
+  }
 
   // Handle transition from music to other pages
   useEffect(() => {
-    // Check if we're leaving music page
-    if (previousIsMusicPage.current && !isMusicPage) {
-      setIsTransitioning(true);
+    if (isTransitioning) {
       const timer = setTimeout(() => setIsTransitioning(false), 600);
       return () => clearTimeout(timer);
     }
-    previousIsMusicPage.current = isMusicPage;
-  }, [isMusicPage]);
+  }, [isTransitioning]);
 
   // Handle socket connection and global notifications
   useSocket();

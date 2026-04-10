@@ -25,10 +25,11 @@ export default function MusicRightPanel() {
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-    // Reset image load state when song changes
-    useEffect(() => {
+    const [prevSongId, setPrevSongId] = useState(currentSong?.id);
+    if (currentSong?.id !== prevSongId) {
+        setPrevSongId(currentSong?.id);
         setIsImageLoaded(false);
-    }, [currentSong?.id]);
+    }
 
     // Check favorite status
     useEffect(() => {

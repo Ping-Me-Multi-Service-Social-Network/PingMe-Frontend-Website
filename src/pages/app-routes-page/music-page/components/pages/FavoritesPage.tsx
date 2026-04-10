@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Play, Pause } from "lucide-react";
 import { favoriteApi } from "@/services/music/favoriteApi.ts";
@@ -19,17 +19,7 @@ export default function FavoritesPage() {
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation("music");
 
-    useEffect(() => {
-        fetchFavorites();
-    }, []);
-
-    // Listen for favorite updates from audio players
-    useFavoriteEventListener(
-        () => fetchFavorites(),
-        () => fetchFavorites()
-    );
-
-    const fetchFavorites = async () => {
+    const fetchFavorites = useCallback(async () => {
         try {
             setLoading(true);
             const data = await favoriteApi.getFavorites();
@@ -41,7 +31,17 @@ export default function FavoritesPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
+
+    useEffect(() => {
+        fetchFavorites();
+    }, [fetchFavorites]);
+
+    // Listen for favorite updates from audio players
+    useFavoriteEventListener(
+        () => fetchFavorites(),
+        () => fetchFavorites()
+    );
 
     const handleRemoveFavorite = async (songId: number) => {
         try {

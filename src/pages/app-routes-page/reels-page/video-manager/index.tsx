@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/features/hooks";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { reelsApi } from "@/services/reels";
@@ -15,7 +15,7 @@ import { ReelManagerCard } from "../components/ReelManagerCard.tsx";
 export default function VideoManagerPage() {
   const { t } = useTranslation("reels");
   const navigate = useNavigate();
-  const currentUserId = useSelector((state: any) => state.auth.userSession?.id);
+  const currentUserId = useAppSelector((state) => state.auth.userSession?.id);
   const [userReels, setUserReels] = useState<Reel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingReel, setEditingReel] = useState<Reel | undefined>();
@@ -56,7 +56,7 @@ export default function VideoManagerPage() {
         setIsLoadingMore(false);
       }
     },
-    [currentUserId],
+    [currentUserId, t],
   );
 
   useEffect(() => {

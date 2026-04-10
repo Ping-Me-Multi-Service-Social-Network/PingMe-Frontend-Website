@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import { ChatActionBar } from "../components/chat-shared-components/ChatActionBar.tsx";
-import { FriendsListComponent } from "./components/FriendsListComponent.tsx";
-import { SentInvitationsComponent } from "./components/SentInvitationsComponent.tsx";
-import { ReceivedInvitationsComponent } from "./components/ReceivedInvitationsComponent.tsx";
 import { ActiveTabContent } from "./components/ActiveTabContent";
 import { ContactSidebar } from "./components/ContactSidebar";
 import { toast } from "sonner";
