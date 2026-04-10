@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import MemberList from "./member-list.tsx";
 import RenameGroupModal from "./rename-group-modal.tsx";
+import { CallButton } from "@/components/call/CallButton";
 import ThemeSelectionModal from "./theme-selection-modal.tsx";
 import UpdateGroupImageModal from "./update-group-image-modal.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
@@ -165,35 +166,50 @@ const ConversationSidebar = ({
               </div>
             )}
 
-            <div className="flex flex-col items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled
-                className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-                title={t("sidebar.voiceCall")}
-              >
-                <Phone className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              </Button>
-              <span className={`text-xs ${theme.sidebar.textSecondary}`}>
-                {t("sidebar.voiceCall")}
-              </span>
-            </div>
+            {selectedChat.roomType === "DIRECT" && otherParticipant ? (
+              <CallButton
+                variant="sidebar"
+                theme={theme}
+                targetUserId={otherParticipant.userId}
+                roomId={selectedChat.roomId}
+                isTargetOnline={otherParticipant.status === "ONLINE"}
+                targetName={otherParticipant.name}
+                audioLabel={t("sidebar.voiceCall")}
+                videoLabel={t("sidebar.videoCall")}
+              />
+            ) : (
+              <>
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled
+                    className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
+                    title={t("sidebar.voiceCall")}
+                  >
+                    <Phone className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+                  </Button>
+                  <span className={`text-xs ${theme.sidebar.textSecondary}`}>
+                    {t("sidebar.voiceCall")}
+                  </span>
+                </div>
 
-            <div className="flex flex-col items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled
-                className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-                title={t("sidebar.videoCall")}
-              >
-                <Video className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              </Button>
-              <span className={`text-xs ${theme.sidebar.textSecondary}`}>
-                {t("sidebar.videoCall")}
-              </span>
-            </div>
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled
+                    className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
+                    title={t("sidebar.videoCall")}
+                  >
+                    <Video className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+                  </Button>
+                  <span className={`text-xs ${theme.sidebar.textSecondary}`}>
+                    {t("sidebar.videoCall")}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

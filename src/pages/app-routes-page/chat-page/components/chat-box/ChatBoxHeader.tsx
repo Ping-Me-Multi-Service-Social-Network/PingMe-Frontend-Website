@@ -67,6 +67,8 @@ const ChatBoxHeader = ({
             roomId={selectedChat.roomId}
             isTargetOnline={otherParticipant.status === "ONLINE"}
             targetName={otherParticipant.name}
+            variant="header"
+            theme={theme}
           />
         )}
 

@@ -5,18 +5,29 @@ import { toast } from "sonner";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { useTranslation } from "react-i18next";
 
+import { Button } from "@/components/ui/button.tsx";
+
 interface CallButtonProps {
-  targetUserId: number;
+  targetUserId?: number;
   roomId: number;
-  isTargetOnline: boolean;
+  isTargetOnline?: boolean;
   targetName?: string;
+  variant?: "header" | "sidebar";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  theme?: any;
+  audioLabel?: string;
+  videoLabel?: string;
 }
 
 export function CallButton({
   targetUserId,
   roomId,
-  isTargetOnline,
+  isTargetOnline = false,
   targetName = "User",
+  variant = "header",
+  theme,
+  audioLabel,
+  videoLabel,
 }: CallButtonProps) {
   const { callState, initiateCall } = useCall();
   const [isLoading, setIsLoading] = useState(false);
@@ -25,10 +36,10 @@ export function CallButton({
   const isCallActive = ["calling", "ringing", "connected"].includes(
     callState.status
   );
-  const isDisabled = !isTargetOnline || isCallActive || isLoading;
+  const isDisabled = !targetUserId || !isTargetOnline || isCallActive || isLoading;
 
   const handleStartVideoCall = async () => {
-    if (isDisabled) return;
+    if (isDisabled || !targetUserId) return;
 
     setIsLoading(true);
     try {
@@ -42,7 +53,7 @@ export function CallButton({
   };
 
   const handleStartAudioCall = async () => {
-    if (isDisabled) return;
+    if (isDisabled || !targetUserId) return;
 
     setIsLoading(true);
     try {
@@ -55,55 +66,118 @@ export function CallButton({
     }
   };
 
-  return (
-    <div className="flex items-center gap-2">
-      {/* Video Call Button */}
-      <button
-        onClick={handleStartVideoCall}
-        disabled={isDisabled}
-        title={
-          !isTargetOnline
-            ? t("button.offline", { name: targetName })
-            : isCallActive
-              ? t("button.active")
-              : t("button.video")
-        }
-        className={`p-2 rounded-full transition-all ${isDisabled
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-purple-600 hover:bg-purple-700 text-white"
-          }`}
-        aria-label="Start video call"
-      >
-        {isLoading ? (
-          <LoadingSpinner size="sm" />
-        ) : (
-          <Video className="w-5 h-5" />
-        )}
-      </button>
+  if (variant === "sidebar" && theme) {
+    return (
+      <>
+        {/* Audio Call Button (Sidebar) */}
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleStartAudioCall}
+            disabled={isDisabled}
+            className={`h-12 w-12 rounded-full bg-transparent transition-all ${
+              isDisabled ? "opacity-50 cursor-not-allowed" : theme.sidebar.buttonHoverBg
+            } ${theme.sidebar.buttonBorder}`}
+            title={
+              !isTargetOnline && targetUserId
+                ? t("button.offline", { name: targetName })
+                : isCallActive
+                  ? t("button.active")
+                  : t("button.audio")
+            }
+          >
+            {isLoading ? (
+              <LoadingSpinner size="sm" />
+            ) : (
+              <Phone className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+            )}
+          </Button>
+          <span className={`text-xs ${theme.sidebar.textSecondary}`}>
+            {audioLabel || t("button.audio")}
+          </span>
+        </div>
 
+        {/* Video Call Button (Sidebar) */}
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleStartVideoCall}
+            disabled={isDisabled}
+            className={`h-12 w-12 rounded-full bg-transparent transition-all ${
+              isDisabled ? "opacity-50 cursor-not-allowed" : theme.sidebar.buttonHoverBg
+            } ${theme.sidebar.buttonBorder}`}
+            title={
+              !isTargetOnline && targetUserId
+                ? t("button.offline", { name: targetName })
+                : isCallActive
+                  ? t("button.active")
+                  : t("button.video")
+            }
+          >
+            {isLoading ? (
+              <LoadingSpinner size="sm" />
+            ) : (
+              <Video className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+            )}
+          </Button>
+          <span className={`text-xs ${theme.sidebar.textSecondary}`}>
+            {videoLabel || t("button.video")}
+          </span>
+        </div>
+      </>
+    );
+  }
+
+  // Header Variant (Default)
+  return (
+    <div className="flex items-center gap-1 mr-1">
       {/* Audio Call Button */}
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={handleStartAudioCall}
         disabled={isDisabled}
         title={
-          !isTargetOnline
+          !isTargetOnline && targetUserId
             ? t("button.offline", { name: targetName })
             : isCallActive
               ? t("button.active")
               : t("button.audio")
         }
-        className={`p-2 rounded-full transition-all ${isDisabled
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
+        className={theme ? theme.header.iconHoverBg : ""}
         aria-label="Start audio call"
       >
         {isLoading ? (
           <LoadingSpinner size="sm" />
         ) : (
-          <Phone className="w-5 h-5" />
+          <Phone className={`h-5 w-5 ${theme ? theme.header.iconColor : 'text-zinc-500'}`} />
         )}
-      </button>
+      </Button>
+
+      {/* Video Call Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleStartVideoCall}
+        disabled={isDisabled}
+        title={
+          !isTargetOnline && targetUserId
+            ? t("button.offline", { name: targetName })
+            : isCallActive
+              ? t("button.active")
+              : t("button.video")
+        }
+        className={theme ? theme.header.iconHoverBg : ""}
+        aria-label="Start video call"
+      >
+        {isLoading ? (
+          <LoadingSpinner size="sm" />
+        ) : (
+          <Video className={`h-5 w-5 ${theme ? theme.header.iconColor : 'text-zinc-500'}`} />
+        )}
+      </Button>
     </div>
   );
 }
