@@ -38,7 +38,7 @@ export default function IntroSection() {
 }
 
 // ─── Bento Features ───────────────────────────────────────────────────────────
-function BentoFeaturesSection({ t }: Readonly<{ t: any }>) {
+function BentoFeaturesSection({ t }: Readonly<{ t: (key: string) => string }>) {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const ref = useRef(null);
 
@@ -312,7 +312,7 @@ function BentoCard({
 }
 
 // ─── CTA Section ─────────────────────────────────────────────────────────────
-function CTASection({ t }: Readonly<{ t: any }>) {
+function CTASection({ t }: Readonly<{ t: (key: string) => string }>) {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });

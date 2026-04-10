@@ -26,7 +26,7 @@ const ResetPasswordPage: React.FC = () => {
       toast.error(t("forgotPassword.resetStep.fail"));
       navigate("/forgot-password");
     }
-  }, [token, navigate]);
+  }, [token, navigate, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -93,7 +93,7 @@ const DeviceManagementPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleDeleteSession = async (sessionId: string) => {
     console.log("[PingMe] Delete session:", sessionId);
