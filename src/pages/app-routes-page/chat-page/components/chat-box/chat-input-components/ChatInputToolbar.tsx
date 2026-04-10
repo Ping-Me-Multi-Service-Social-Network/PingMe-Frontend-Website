@@ -13,8 +13,8 @@ interface ChatInputToolbarProps {
   onFileClick: () => void;
   onWeatherClick: () => void;
   onRecordingClick: () => void;
-  imageInputRef: React.RefObject<HTMLInputElement>;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  imageInputRef: React.RefObject<HTMLInputElement | null>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }

@@ -1,4 +1,4 @@
-import type React from "react";
+
 import { X, FileText, Video } from "lucide-react";
 
 interface FilePreview {

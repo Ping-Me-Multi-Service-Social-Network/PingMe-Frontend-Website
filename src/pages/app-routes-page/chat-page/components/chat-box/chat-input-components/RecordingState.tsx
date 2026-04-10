@@ -1,4 +1,4 @@
-import type React from "react";
+
 import { Button } from "@/components/ui/button.tsx";
 import { X, Square } from "lucide-react";
 import { useTranslation } from "react-i18next";

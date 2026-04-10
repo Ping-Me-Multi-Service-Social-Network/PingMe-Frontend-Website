@@ -1,9 +1,10 @@
-import type React from "react";
+
 
 interface ReceivedInvitationsHeaderProps {
   title: string;
   countTitle: string;
   count: number;
+  children?: React.ReactNode;
 }
 
 export function ReceivedInvitationsHeader({

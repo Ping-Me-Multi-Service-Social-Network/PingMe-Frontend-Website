@@ -1,4 +1,4 @@
-import type React from "react";
+
 import { Button } from "@/components/ui/button.tsx";
 import { Check, X } from "lucide-react";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
