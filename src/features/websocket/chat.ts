@@ -22,6 +22,7 @@ export {
   clearRoomTyping,
   selectCurrentRoomId,
   selectMessages,
+  selectRecalledMessageIds,
   selectTypingUsers,
 } from "./state/chatSlice";
 

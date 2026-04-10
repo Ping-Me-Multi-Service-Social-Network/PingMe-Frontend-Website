@@ -27,7 +27,7 @@ interface SentMessageBubbleProps {
   theme: ChatTheme;
 }
 
-export const SentMessageBubble = memo(function SentMessageBubble({
+const SentMessageBubble = memo(function SentMessageBubble({
   message,
   onMessageRecalled,
   theme,

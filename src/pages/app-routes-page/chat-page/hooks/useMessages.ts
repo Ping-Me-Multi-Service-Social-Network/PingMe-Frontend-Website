@@ -10,6 +10,7 @@ import { useAppSelector, useAppDispatch } from "@/features/hooks.ts";
 import {
   setCurrentRoom,
   selectMessages,
+  selectRecalledMessageIds,
 } from "@/features/websocket/chat";
 import { useTranslation } from "react-i18next";
 import { addUniqueMessage } from "../utils/addUniqueMessage";
@@ -26,6 +27,7 @@ interface UseMessagesReturn {
 export function useMessages(roomId: number): UseMessagesReturn {
   const dispatch = useAppDispatch();
   const reduxMessages = useAppSelector(selectMessages);
+  const recalledMessageIds = useAppSelector(selectRecalledMessageIds);
   const { t } = useTranslation("chat");
 
   // Local state for history messages (fetched via API)
@@ -96,7 +98,12 @@ export function useMessages(roomId: number): UseMessagesReturn {
   // Merge history messages + Redux real-time messages
   // History = loaded from API, Redux = from WebSocket
   const messages = useMemo(() => {
-    if (reduxMessages.length === 0) return historyMessages;
+    const recalledIds = new Set(recalledMessageIds);
+    const updatedHistory = historyMessages.map((m) =>
+      recalledIds.has(m.id) ? { ...m, isActive: false } : m
+    );
+
+    if (reduxMessages.length === 0) return updatedHistory;
 
     const historyIds = new Set(historyMessages.map((m) => m.id));
     const historyClientIds = new Set(
@@ -108,21 +115,13 @@ export function useMessages(roomId: number): UseMessagesReturn {
       (m) => !historyIds.has(m.id) && !historyClientIds.has(m.clientMsgId)
     );
 
-    // Apply recall status from Redux to history messages
-    const recalledIds = new Set(
-      reduxMessages.filter((m) => !m.isActive).map((m) => m.id)
-    );
-    const updatedHistory = historyMessages.map((m) =>
-      recalledIds.has(m.id) ? { ...m, isActive: false } : m
-    );
-
     // Merge and sort by createdAt to maintain correct chronological order.
     // Without sorting, optimistically-added messages (via addMessage → historyMessages)
     // can appear before WebSocket-only messages (in Redux), causing bubbles to jump.
     const merged = [...updatedHistory, ...newFromRedux];
     merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     return merged;
-  }, [historyMessages, reduxMessages]);
+  }, [historyMessages, reduxMessages, recalledMessageIds]);
 
   /**
    * Optimistic add for sent messages (API response).

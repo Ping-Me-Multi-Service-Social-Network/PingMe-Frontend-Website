@@ -21,7 +21,7 @@ interface ReceivedMessageBubbleProps {
   theme: ChatTheme;
 }
 
-export const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
+const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   message,
   senderName,
   senderAvatar,

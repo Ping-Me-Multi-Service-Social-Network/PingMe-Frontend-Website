@@ -23,6 +23,7 @@ export interface ChatState {
   // Current room messages
   currentRoomId: number | null;
   messages: MessageResponse[];
+  recalledMessageIds: string[];
 
   typingUsers: Record<number, TypingUser[]>;
 }
@@ -30,6 +31,7 @@ export interface ChatState {
 const initialState: ChatState = {
   currentRoomId: null,
   messages: [],
+  recalledMessageIds: [],
   typingUsers: {},
 };
 
@@ -43,10 +45,12 @@ const chatSlice = createSlice({
     setCurrentRoom(state, action: PayloadAction<number | null>) {
       state.currentRoomId = action.payload;
       state.messages = [];
+      state.recalledMessageIds = [];
     },
 
     clearMessages(state) {
       state.messages = [];
+      state.recalledMessageIds = [];
     },
 
     messageCreated(state, action: PayloadAction<MessageCreatedEventPayload>) {
@@ -66,6 +70,10 @@ const chatSlice = createSlice({
 
     messageRecalled(state, action: PayloadAction<MessageRecalledEventPayload>) {
       const messageId = action.payload.messageRecalledResponse.id;
+      if (!state.recalledMessageIds.includes(messageId)) {
+        state.recalledMessageIds.push(messageId);
+      }
+
       const idx = state.messages.findIndex((m) => m.id === messageId);
       if (idx !== -1) {
         state.messages[idx].isActive = false;
@@ -142,5 +150,7 @@ export default chatSlice.reducer;
 export const selectCurrentRoomId = (state: RootState) =>
   state.chat.currentRoomId;
 export const selectMessages = (state: RootState) => state.chat.messages;
+export const selectRecalledMessageIds = (state: RootState) =>
+  state.chat.recalledMessageIds;
 export const selectTypingUsers = (roomId: number) => (state: RootState) =>
   state.chat.typingUsers[roomId] || [];
