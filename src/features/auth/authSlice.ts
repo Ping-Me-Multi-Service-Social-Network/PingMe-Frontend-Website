@@ -32,6 +32,12 @@ const authSlice = createSlice({
     setLogoutReason(state, action: PayloadAction<AuthState["logoutReason"]>) {
       state.logoutReason = action.payload;
     },
+
+    updateUserAvatarUrl(state, action: PayloadAction<string>) {
+      if (state.userSession) {
+        state.userSession.avatarUrl = action.payload;
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -93,7 +99,21 @@ const authSlice = createSlice({
     builder.addCase(
       getCurrentUserSession.fulfilled,
       (state, action: PayloadAction<CurrentUserSessionResponse>) => {
-        state.userSession = action.payload;
+        const prevUrl = state.userSession?.avatarUrl;
+        let newUrl = action.payload.avatarUrl;
+
+        // Maintain cache-busted avatar URL across session re-fetches
+        if (prevUrl && newUrl) {
+          const prevBase = prevUrl.split("?v=")[0];
+          if (prevBase === newUrl && prevUrl.includes("?v=")) {
+            newUrl = prevUrl;
+          }
+        }
+
+        state.userSession = {
+          ...action.payload,
+          avatarUrl: newUrl,
+        };
 
         state.isLogin = true;
         state.isLoading = false;
@@ -110,7 +130,7 @@ const authSlice = createSlice({
 // ===========================================
 // EXPORT REDUCER
 // ===========================================
-export const { updateUserSession, setLogoutReason } = authSlice.actions;
+export const { updateUserSession, setLogoutReason, updateUserAvatarUrl } = authSlice.actions;
 export default authSlice.reducer;
 
 // ===========================================
