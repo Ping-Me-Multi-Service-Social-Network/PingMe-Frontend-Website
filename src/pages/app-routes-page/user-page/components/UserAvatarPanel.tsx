@@ -1,5 +1,6 @@
 import type React from "react";
 import { useAppDispatch, useAppSelector } from "@/features/hooks.ts";
+import { updateUserAvatarUrl } from "@/features/auth/authSlice.ts";
 import {
   Avatar,
   AvatarFallback,
@@ -33,7 +34,6 @@ const UserAvatarPanel = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
 
@@ -109,11 +109,16 @@ const UserAvatarPanel = () => {
         });
       }, 200);
 
-      await updateCurrentUserAvatarApi(data);
+      const res = await updateCurrentUserAvatarApi(data);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
-      setAvatarVersion(Date.now());
+
+      const newAvatarUrl = res.data.data.avatarUrl;
+      const cacheBustedUrl = newAvatarUrl ? `${newAvatarUrl}?v=${Date.now()}` : "";
+      if (cacheBustedUrl) {
+        dispatch(updateUserAvatarUrl(cacheBustedUrl));
+      }
 
       setTimeout(() => {
         toast.success(t("avatar.updateSuccess"));
@@ -164,11 +169,7 @@ const UserAvatarPanel = () => {
             >
               <Avatar className="h-28 w-28 ring-4 ring-white/20 shadow-2xl transition-all duration-300 group-hover:ring-white/40 group-hover:scale-105">
                 <AvatarImage
-                  src={
-                    userSession?.avatarUrl
-                      ? `${userSession.avatarUrl}?v=${avatarVersion}`
-                      : undefined
-                  }
+                  src={userSession?.avatarUrl || undefined}
                   alt={userSession?.name || t("avatar.defaultName")}
                   className="object-cover"
                 />
