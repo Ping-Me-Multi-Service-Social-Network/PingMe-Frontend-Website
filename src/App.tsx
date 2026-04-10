@@ -1,5 +1,5 @@
 import { Provider } from "react-redux";
-import type { DefaultAuthResponse } from "@/types/auth/auth";
+import type { DefaultAuthResponse } from "@/types/authentication";
 import { PersistGate } from "redux-persist/integration/react";
 import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
