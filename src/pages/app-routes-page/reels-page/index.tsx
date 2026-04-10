@@ -99,13 +99,13 @@ export default function ReelsPage() {
     navigate("/app/reels/video-manager");
   };
 
-  const handleSearchResults = (results: Reel[]) => {
+  const handleSearchResults = useCallback((results: Reel[]) => {
     setSearchResults(results);
-  };
+  }, []);
 
-  const handleSearchChange = (searching: boolean) => {
+  const handleSearchChange = useCallback((searching: boolean) => {
     setIsSearching(searching);
-  };
+  }, []);
 
   const handleReelClick = (reel: Reel) => {
     if (isSearching && searchResults.length > 0) {

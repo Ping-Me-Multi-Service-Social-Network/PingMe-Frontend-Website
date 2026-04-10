@@ -13,8 +13,8 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
 interface SearchBarProps {
-  onSearchResults: (reels: Reel[]) => void
-  onSearchChange: (isSearching: boolean) => void
+  onSearchResults?: (reels: Reel[]) => void
+  onSearchChange?: (isSearching: boolean) => void
   onReelClick?: (reel: Reel) => void
   triggerSearch?: string  // External trigger to set query
 }
@@ -39,8 +39,8 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
       if (!searchQuery.trim()) {
         setResults([])
         setIsOpen(false)
-        onSearchResults([])
-        onSearchChange(false)
+        onSearchResults?.([])
+        onSearchChange?.(false)
         return
       }
 
@@ -69,8 +69,8 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
 
         setResults(filteredResults)
         setIsOpen(true)
-        onSearchResults(filteredResults)
-        onSearchChange(true)
+        onSearchResults?.(filteredResults)
+        onSearchChange?.(true)
       } catch (err) {
         setError(getErrorMessage(err))
         setResults([])
@@ -119,8 +119,8 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
       setResults([])
       setIsOpen(false)
       setIsLoading(false)
-      onSearchResults([])
-      onSearchChange(false)
+      onSearchResults?.([])
+      onSearchChange?.(false)
       return
     }
 
@@ -155,8 +155,8 @@ export function SearchBar({ onSearchResults, onSearchChange, onReelClick, trigge
     setResults([])
     setIsOpen(false)
     setShowHistory(false)
-    onSearchResults([])
-    onSearchChange(false)
+    onSearchResults?.([])
+    onSearchChange?.(false)
   }
 
   const handleHistoryClick = (historyQuery: string) => {

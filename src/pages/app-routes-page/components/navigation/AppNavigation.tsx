@@ -136,7 +136,7 @@ export default function AppNavigation() {
           role="button"
           tabIndex={0}
           aria-label={t("nav.closeMenu")}
-          className="lg:hidden fixed inset-0 bg-black/50 z-60 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
           onKeyDown={handleOverlayKeyDown}
         />
@@ -148,7 +148,7 @@ export default function AppNavigation() {
           h-screen bg-purple-700 
           flex flex-col items-center py-4 shadow-xl
           transition-transform duration-300 ease-in-out
-          z-70
+          z-50
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           w-16
         `}

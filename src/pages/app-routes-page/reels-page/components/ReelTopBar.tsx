@@ -31,8 +31,8 @@ export function ReelsTopBar({
 
         <div className="reels-search-wrapper">
           <SearchBar
-            onSearchResults={onSearchResults || (() => {})}
-            onSearchChange={onSearchChange || (() => {})}
+            onSearchResults={onSearchResults}
+            onSearchChange={onSearchChange}
             onReelClick={onReelClick}
             triggerSearch={triggerSearch}
           />
