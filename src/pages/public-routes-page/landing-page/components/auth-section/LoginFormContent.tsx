@@ -36,8 +36,17 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
     setIsLoading(true);
     const payload: DefaultLoginRequest = { email, password, turnstileToken };
     try {
-      await dispatch(login(payload));
+      const resultAction = await dispatch(login(payload));
+      if (login.rejected.match(resultAction)) {
+        if (resultAction.payload === "REQUIRE_ACTIVATION") {
+          toast.warning("Tài khoản chưa được kích hoạt. Bạn cần nhập OTP để làm điều này.");
+          navigate("/auth/verify-otp", {
+            state: { email, type: "ACCOUNT_ACTIVATION", fromPublic: true },
+          });
+        }
+      }
     } catch (error) {
+      // Fallback cho runtime error
       toast.error(getErrorMessage(error, t("auth.login.fail")));
     } finally {
       setIsLoading(false);

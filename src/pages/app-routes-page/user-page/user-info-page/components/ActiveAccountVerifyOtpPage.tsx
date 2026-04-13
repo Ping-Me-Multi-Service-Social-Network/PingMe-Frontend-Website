@@ -1,5 +1,4 @@
 import { verifyOtpApi } from "@/services/authentication/authOtpApi";
-import { activateAccountApi } from "@/services/user/currentUserProfileApi"; // [NEW] Import API active
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,16 +53,16 @@ const ActiveAccountVerifyOtpPage: React.FC = () => {
         // --- LOGIC RIÊNG CHO KÍCH HOẠT TÀI KHOẢN ---
         if (otpType === "ACCOUNT_ACTIVATION") {
           try {
-            // 2. Gọi API Activate
-            await activateAccountApi();
+            toast.success(t("userInfo.verifyOtp.activationSuccess") || "Xác thực tài khoản thành công!");
 
-            toast.success(t("userInfo.verifyOtp.activationSuccess"));
-
-            // 3. Cập nhật lại thông tin user trong Redux để nút Active biến mất
-            await dispatch(getCurrentUserSession());
-
-            // 4. Quay về trang Profile
-            navigate("/app/profile/user-info");
+            if (location.state?.fromPublic) {
+              navigate("/");
+            } else {
+              // Cập nhật lại thông tin user trong Redux để nút Active biến mất
+              await dispatch(getCurrentUserSession());
+              // Quay về trang Profile
+              navigate("/app/profile/user-info");
+            }
           } catch (error_) {
             toast.error(
               getErrorMessage(
