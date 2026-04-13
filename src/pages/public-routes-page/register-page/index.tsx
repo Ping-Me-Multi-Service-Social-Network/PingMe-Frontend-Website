@@ -62,7 +62,9 @@ export default function RegisterPage() {
         dob: dob?.toLocaleDateString("en-CA"),
       });
       toast.success(t("auth.register.success"));
-      navigate("/");
+      navigate("/auth/verify-otp", {
+        state: { email: formData.email, type: "ACCOUNT_ACTIVATION", fromPublic: true },
+      });
     } catch (err) {
       toast.error(getErrorMessage(err, t("auth.register.fail")));
     } finally {

@@ -24,6 +24,11 @@ export const login = createAsyncThunk<
     toast.success(i18n.t("auth.login.success", { ns: "landing" }));
     return res.data.data;
   } catch (err: unknown) {
+    const errObj = err as any;
+    if (errObj?.response?.data?.errorMessage === "REQUIRE_ACTIVATION") {
+      return thunkAPI.rejectWithValue("REQUIRE_ACTIVATION");
+    }
+
     const message = getErrorMessage(
       err,
       i18n.t("auth.login.fail", { ns: "landing" }),
