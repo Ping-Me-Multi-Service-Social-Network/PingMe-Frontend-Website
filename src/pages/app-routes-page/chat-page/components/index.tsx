@@ -34,6 +34,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     hasMoreMessages,
     handleLoadMore,
     addMessage,
+    removeMessageLocally,
   } = useMessages(selectedChat.roomId);
 
   const isCurrentUserMessage = useCallback(
@@ -136,6 +137,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
             hasMoreMessages={hasMoreMessages}
             onLoadMore={handleLoadMore}
             isCurrentUserMessage={isCurrentUserMessage}
+            onDeleteForMeClick={removeMessageLocally}
           />
         </div>
 

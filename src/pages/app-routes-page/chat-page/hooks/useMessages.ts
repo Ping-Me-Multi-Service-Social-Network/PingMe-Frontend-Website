@@ -11,9 +11,11 @@ import {
   setCurrentRoom,
   selectMessages,
   selectRecalledMessageIds,
+  messageDeletedLocal,
 } from "@/features/websocket/chat";
 import { useTranslation } from "react-i18next";
 import { addUniqueMessage } from "../utils/addUniqueMessage";
+
 
 interface UseMessagesReturn {
   messages: MessageResponse[];
@@ -22,6 +24,7 @@ interface UseMessagesReturn {
   hasMoreMessages: boolean;
   handleLoadMore: (beforeMessageId?: string) => void;
   addMessage: (message: MessageResponse) => void;
+  removeMessageLocally: (messageId: string) => void;
 }
 
 export function useMessages(roomId: number): UseMessagesReturn {
@@ -131,6 +134,11 @@ export function useMessages(roomId: number): UseMessagesReturn {
     setHistoryMessages((prev) => addUniqueMessage(prev, message));
   }, []);
 
+  const removeMessageLocally = useCallback((messageId: string) => {
+    setHistoryMessages((prev) => prev.filter((m) => m.id !== messageId));
+    dispatch(messageDeletedLocal(messageId));
+  }, [dispatch]);
+
   return {
     messages,
     isLoadingMessages,
@@ -138,5 +146,6 @@ export function useMessages(roomId: number): UseMessagesReturn {
     hasMoreMessages,
     handleLoadMore,
     addMessage,
+    removeMessageLocally,
   };
 }

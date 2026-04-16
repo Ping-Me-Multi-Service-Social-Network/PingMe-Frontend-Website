@@ -127,6 +127,12 @@ export const recallMessageApi = (messageId: string) => {
   );
 };
 
+export const deleteMessageForMeApi = (messageId: string) => {
+  return axiosClient.delete<ApiResponse<{ id: string }>>(
+    `/core-service/messages/${messageId}/delete-for-me`
+  );
+};
+
 export const markAsReadApi = (data: MarkReadRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/read", data);
 };

@@ -21,6 +21,7 @@ interface ChatBoxContentProps {
   hasMoreMessages: boolean;
   onLoadMore: (beforeId?: string) => void;
   isCurrentUserMessage: (senderId: number) => boolean;
+  onDeleteForMeClick: (messageId: string) => void;
 }
 
 export const ChatBoxContent = memo(({
@@ -31,6 +32,7 @@ export const ChatBoxContent = memo(({
   hasMoreMessages,
   onLoadMore,
   isCurrentUserMessage,
+  onDeleteForMeClick,
 }: ChatBoxContentProps) => {
   const { t } = useTranslation("chat");
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
@@ -149,6 +151,7 @@ export const ChatBoxContent = memo(({
                   message={message}
                   theme={theme}
                   onForwardClick={(id) => setForwardMessageId(id)}
+                  onDeleteForMe={onDeleteForMeClick}
                 />
               ) : (
                 <ReceivedMessageBubble
@@ -166,6 +169,7 @@ export const ChatBoxContent = memo(({
                   roomType={selectedChat.roomType}
                   theme={theme}
                   onForwardClick={(id) => setForwardMessageId(id)}
+                  onDeleteForMe={onDeleteForMeClick}
                 />
               )}
             </div>

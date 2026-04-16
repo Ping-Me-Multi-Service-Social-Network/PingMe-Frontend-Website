@@ -80,6 +80,10 @@ const chatSlice = createSlice({
       }
     },
 
+    messageDeletedLocal(state, action: PayloadAction<string>) {
+      state.messages = state.messages.filter((m) => m.id !== action.payload);
+    },
+
     readStateChanged(state, action: PayloadAction<ReadStateChangedEvent>) {
       // Update read states for messages in current room
       // This depends on your business logic for read states
@@ -116,7 +120,6 @@ const chatSlice = createSlice({
           state.typingUsers[roomId].push(typingUser);
         }
       } else {
-        // Remove user from typing list
         if (existingIdx >= 0) {
           state.typingUsers[roomId].splice(existingIdx, 1);
         }
@@ -137,6 +140,7 @@ export const {
   clearMessages,
   messageCreated,
   messageRecalled,
+  messageDeletedLocal,
   readStateChanged,
   userTyping,
   clearRoomTyping,

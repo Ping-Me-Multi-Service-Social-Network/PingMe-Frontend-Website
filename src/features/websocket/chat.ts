@@ -17,6 +17,7 @@ export {
   clearMessages,
   messageCreated,
   messageRecalled,
+  messageDeletedLocal,
   readStateChanged,
   userTyping,
   clearRoomTyping,

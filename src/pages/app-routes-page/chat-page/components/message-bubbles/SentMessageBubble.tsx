@@ -6,7 +6,7 @@ import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { MoreHorizontal, RotateCcw, Forward } from "lucide-react";
+import { MoreHorizontal, RotateCcw, Forward, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { recallMessageApi } from "@/services/chat";
+import { recallMessageApi, deleteMessageForMeApi } from "@/services/chat";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -27,6 +27,7 @@ interface SentMessageBubbleProps {
   onMessageRecalled?: (messageId: string) => void;
   theme: ChatTheme;
   onForwardClick?: (messageId: string) => void;
+  onDeleteForMe?: (messageId: string) => void;
 }
 
 const SentMessageBubble = memo(function SentMessageBubble({
@@ -34,6 +35,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
   onMessageRecalled,
   theme,
   onForwardClick,
+  onDeleteForMe,
 }: SentMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -57,6 +59,16 @@ const SentMessageBubble = memo(function SentMessageBubble({
       onMessageRecalled?.(message.id);
     } catch {
       toast.error(t("bubbles.messages.recallError"));
+    }
+  };
+
+  const handleDeleteForMe = async () => {
+    try {
+      await deleteMessageForMeApi(message.id);
+      toast.success(t("bubbles.messages.deleteForMeSuccess", "Message deleted for you"));
+      onDeleteForMe?.(message.id);
+    } catch {
+      toast.error(t("bubbles.messages.deleteForMeError", "Could not delete message"));
     }
   };
 
@@ -171,6 +183,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.recallBtn")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleDeleteForMe}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.deleteForMeBtn", "Delete for me")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

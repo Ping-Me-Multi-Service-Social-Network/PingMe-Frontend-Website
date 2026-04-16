@@ -6,7 +6,7 @@ import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { RotateCcw, Forward, MoreHorizontal } from "lucide-react";
+import { RotateCcw, Forward, MoreHorizontal, Trash2 } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
@@ -20,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
+import { deleteMessageForMeApi } from "@/services/chat";
+import { toast } from "sonner";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -28,6 +30,7 @@ interface ReceivedMessageBubbleProps {
   roomType?: "DIRECT" | "GROUP";
   theme: ChatTheme;
   onForwardClick?: (messageId: string) => void;
+  onDeleteForMe?: (messageId: string) => void;
 }
 
 const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
@@ -37,6 +40,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   roomType,
   theme,
   onForwardClick,
+  onDeleteForMe,
 }: ReceivedMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -44,6 +48,16 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER"; 
+
+  const handleDeleteForMe = async () => {
+    try {
+      await deleteMessageForMeApi(message.id);
+      toast.success(t("bubbles.messages.deleteForMeSuccess", "Message deleted for you"));
+      onDeleteForMe?.(message.id);
+    } catch {
+      toast.error(t("bubbles.messages.deleteForMeError", "Could not delete message"));
+    }
+  };
 
   const renderMessageContent = () => {
     if (!message.isActive) {
@@ -167,6 +181,13 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                 >
                   <Forward className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.forwardBtn", "Forward")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleDeleteForMe}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.deleteForMeBtn", "Delete for me")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
