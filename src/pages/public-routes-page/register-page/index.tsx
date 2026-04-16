@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useMemo, memo } from "react";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { m, AnimatePresence } from "framer-motion";
 import { useAppSelector } from "@/features/hooks";
@@ -32,7 +32,7 @@ const EMPTY_FORM: RegisterRequest = {
   turnstileToken: "",
 };
 
-export default function RegisterPage() {
+const RegisterPage = memo(function RegisterPage() {
   const navigate = useNavigate();
   const { t } = useTranslation("landing");
   const { isLogin } = useAppSelector((state) => state.auth);
@@ -43,9 +43,14 @@ export default function RegisterPage() {
   const [turnstileKey, setTurnstileKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (isLogin) navigate("/app/chat", { replace: true });
-  }, [isLogin, navigate]);
+  // [H3 fix] Memoize — chỉ tạo lại khi ngôn ngữ thay đổi
+  const STEPS = useMemo(() => [
+    t("auth.register.steps.step1"),
+    t("auth.register.steps.step2"),
+    t("auth.register.steps.step3"),
+  ], [t]);
+
+  if (isLogin) return <Navigate to="/app/chat" replace />;
 
   const update = (field: string, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -75,12 +80,7 @@ export default function RegisterPage() {
     }
   };
 
-  // [H3 fix] Memoize — chỉ tạo lại khi ngôn ngữ thay đổi
-  const STEPS = useMemo(() => [
-    t("auth.register.steps.step1"),
-    t("auth.register.steps.step2"),
-    t("auth.register.steps.step3"),
-  ], [t]);
+
 
   return (
     <div
@@ -89,7 +89,7 @@ export default function RegisterPage() {
     >
         {/* ── Left Visual Panel ── */}
         <m.aside
-          className="hidden md:flex md:w-[42%] lg:w-[45%] flex-shrink-0 flex-col justify-between p-10 lg:p-14 relative overflow-hidden"
+          className="hidden md:flex md:w-[42%] lg:w-[45%] shrink-0 flex-col justify-between p-10 lg:p-14 relative overflow-hidden"
           style={{
             background: "linear-gradient(145deg, oklch(0.25 0.18 292) 0%, oklch(0.18 0.14 320) 100%)",
           }}
@@ -106,9 +106,9 @@ export default function RegisterPage() {
           />
           {/* Glow blobs */}
           <div className="absolute top-[-15%] right-[-10%] w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, oklch(0.65 0.22 280 / 0.35) 0%, transparent 70%)", filter: "blur(60px)" }} />
+            style={{ background: "radial-gradient(circle, oklch(0.65 0.22 280 / 0.35) 0%, transparent 70%)", filter: "blur(10px)" }} />
           <div className="absolute bottom-[-10%] left-[-5%] w-[350px] h-[350px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, oklch(0.55 0.2 340 / 0.3) 0%, transparent 70%)", filter: "blur(80px)" }} />
+            style={{ background: "radial-gradient(circle, oklch(0.55 0.2 340 / 0.3) 0%, transparent 70%)", filter: "blur(10px)" }} />
 
           {/* Floating bubbles */}
           {BUBBLES.map((b) => (
@@ -185,13 +185,13 @@ export default function RegisterPage() {
         {/* ── Right Form Panel ── */}
         <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
           {/* Top bar */}
-          <div className="flex items-center justify-between px-6 pt-6 md:px-10 md:pt-8 flex-shrink-0">
+          <div className="flex items-center justify-between px-6 pt-6 md:px-10 md:pt-8 shrink-0">
             <div className="flex md:hidden items-center gap-2.5">
               <img src="/icons/logo.webp" alt="PingMe" loading="eager" decoding="async" className="w-8 h-8 rounded-xl border border-black/5" />
               <span className="text-xl font-black tracking-tight" style={{ color: "oklch(0.12 0.03 292)" }}>PingMe</span>
             </div>
             <div className="hidden md:block" />
-            <LanguageSwitcher className="!bg-white/80 !border-zinc-200 !text-zinc-800 hover:!bg-white !shadow-sm backdrop-blur-md" />
+            <LanguageSwitcher className="bg-white/80! border-zinc-200! text-zinc-800! hover:bg-white! shadow-sm! backdrop-blur-md" />
           </div>
 
           {/* Form area */}
@@ -226,10 +226,10 @@ export default function RegisterPage() {
                       <button
                         type="button"
                         onClick={() => i < step && setStep(i)}
-                        className="flex items-center gap-2.5 flex-shrink-0"
+                        className="flex items-center gap-2.5 shrink-0"
                       >
                         <m.div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 border-2 transition-all"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 border-2 transition-all"
                           animate={{
                             background: stepBg,
                             borderColor: stepBorder,
@@ -312,4 +312,6 @@ export default function RegisterPage() {
         </div>
       </div>
   );
-}
+});
+
+export default RegisterPage;

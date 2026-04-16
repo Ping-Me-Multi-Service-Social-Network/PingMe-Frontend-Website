@@ -12,6 +12,10 @@ import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { RoomResponse } from "@/types/chat/room";
+import { useAppSelector } from "@/features/hooks";
+import { getRoomDisplayName, getRoomAvatar } from "@/pages/app-routes-page/chat-page/utils/getRoomInfo.ts";
+import { Users, User } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { getCurrentUserRoomsApi, forwardMessageApi, bulkForwardMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
@@ -28,6 +32,7 @@ export function ForwardMessageDialog({ isOpen, onClose, sourceMessageId }: Forwa
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [selectedRoomIds, setSelectedRoomIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userSession = useAppSelector((state) => state.auth.userSession);
 
   useEffect(() => {
     if (isOpen) {
@@ -109,29 +114,51 @@ export function ForwardMessageDialog({ isOpen, onClose, sourceMessageId }: Forwa
                 No recent chats available.
               </p>
             ) : (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 {rooms.map((room) => {
                   const isChecked = selectedRoomIds.includes(room.roomId);
-                  const roomName = room.name ?? "Chat";
+                  const roomName = getRoomDisplayName(room, userSession);
+                  const avatarImg = getRoomAvatar(room, userSession) || "/placeholder.svg";
+                  const isGroup = room.roomType === "GROUP";
+
                   return (
                     <div
                       key={room.roomId}
-                      className="flex items-center space-x-3 p-2 hover:bg-muted/50 rounded-md cursor-pointer transition-colors"
+                      className={cn(
+                        "flex items-center space-x-3 p-2.5 rounded-lg border cursor-pointer transition-all",
+                        isChecked 
+                          ? "bg-primary/5 border-primary/30 shadow-sm" 
+                          : "border-transparent hover:bg-muted/80"
+                      )}
                       onClick={() => handleToggleRoom(room.roomId)}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         readOnly
-                        className="pointer-events-none h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="pointer-events-none h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                       />
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={room.roomImgUrl || "/placeholder.svg"} />
-                        <UserAvatarFallback name={roomName} />
-                      </Avatar>
-                      <span className="text-sm flex-1 truncate font-medium">
-                        {roomName}
-                      </span>
+                      <div className="relative shrink-0">
+                        <Avatar className="h-10 w-10 border shadow-sm">
+                          <AvatarImage src={avatarImg} className="object-cover" />
+                          <UserAvatarFallback name={roomName} />
+                        </Avatar>
+                        <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-[2px] border shadow-sm">
+                          {isGroup ? (
+                            <Users className="w-3.5 h-3.5 text-blue-500" />
+                          ) : (
+                            <User className="w-3.5 h-3.5 text-emerald-500" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <span className="text-sm font-semibold text-foreground truncate">
+                          {roomName}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">
+                          {isGroup ? "Group" : "Direct"}
+                        </span>
+                      </div>
                     </div>
                   );
                 })}
