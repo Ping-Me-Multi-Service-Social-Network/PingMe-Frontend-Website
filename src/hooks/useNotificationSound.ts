@@ -64,6 +64,7 @@ export function useNotificationSound({
   const isTabVisibleRef = useRef(!document.hidden);
   const unreadCountRef = useRef(0);
   const originalTitleRef = useRef(document.title);
+  const seenMessageIdsRef = useRef<Set<string>>(new Set());
 
   // Track tab visibility via Page Visibility API
   useEffect(() => {
@@ -93,16 +94,21 @@ export function useNotificationSound({
   });
 
   const handleIncomingMessage = useCallback(
-    (event: import("@/features/websocket/chat").MessageCreatedEventPayload) => {
+    (event: import("@/features/websocket/chat").RoomUpdatedEventPayload) => {
       if (!enabled) return;
 
-      const message = event.messageResponse;
+      const lastMessage = event.roomResponse?.lastMessage;
+      if (!lastMessage) return;
+
+      // Don't duplicate ting for the same message
+      if (seenMessageIdsRef.current.has(lastMessage.messageId)) return;
+      seenMessageIdsRef.current.add(lastMessage.messageId);
 
       // Don't ting for our own messages
-      if (currentUserId && message.senderId === currentUserId) return;
+      if (currentUserId && lastMessage.senderId === currentUserId) return;
 
       // Don't ting for system messages
-      if (message.type === "SYSTEM") return;
+      if (lastMessage.messageType === "SYSTEM") return;
 
       // Only ting when tab is NOT visible
       if (!isTabVisibleRef.current) {
@@ -120,7 +126,7 @@ export function useNotificationSound({
   useEffect(() => {
     if (!enabled) return;
 
-    const unsub = SocketManager.on("MESSAGE_CREATED", handleIncomingMessage);
+    const unsub = SocketManager.on("ROOM_UPDATED", handleIncomingMessage);
     return unsub;
   }, [enabled, handleIncomingMessage]);
 }
