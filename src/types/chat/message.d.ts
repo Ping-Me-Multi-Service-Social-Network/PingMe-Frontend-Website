@@ -7,6 +7,7 @@ export interface MessageResponse {
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
   createdAt: string;
   isActive: boolean;
+  fileFormat?: string | null;
   isForwarded?: boolean;
   forwardMetadata?: {
     sourceMessageId: string;

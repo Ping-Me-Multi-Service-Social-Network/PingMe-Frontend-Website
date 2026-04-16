@@ -5,6 +5,7 @@ import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
+import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import { MoreHorizontal, RotateCcw, Forward } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -81,7 +82,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
         contentNode = <MessageVideo src={message.content} />;
         break;
       case "FILE": {
-        const fileName = message.content.split("/").pop() || "file";
+        const fileName = getDisplayFileName(message.content, message.fileFormat);
         contentNode = (
           <MessageFile
             src={message.content}
