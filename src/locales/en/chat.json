@@ -128,7 +128,9 @@
             "forwarded": "Forwarded",
             "deleteForMeBtn": "Delete for me",
             "deleteForMeSuccess": "Message deleted for you",
-            "deleteForMeError": "Could not delete message"
+            "deleteForMeError": "Could not delete message",
+            "editBtn": "Edit",
+            "edited": "Edited"
         },
         "weather": {
             "error": "Cannot display weather information",

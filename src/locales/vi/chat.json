@@ -128,7 +128,9 @@
             "forwarded": "Đã chuyển tiếp",
             "deleteForMeBtn": "Xóa phía tôi",
             "deleteForMeSuccess": "Đã xóa tin nhắn ở phía bạn",
-            "deleteForMeError": "Không thể xóa tin nhắn"
+            "deleteForMeError": "Không thể xóa tin nhắn",
+            "editBtn": "Chỉnh sửa",
+            "edited": "Đã chỉnh sửa"
         },
         "weather": {
             "error": "Không thể hiển thị thông tin thời tiết",
