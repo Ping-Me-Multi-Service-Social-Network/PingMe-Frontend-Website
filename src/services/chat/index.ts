@@ -114,6 +114,18 @@ export const sendFileMessageApi = (data: FormData) => {
   );
 };
 
+export const sendMultipleImageMessageApi = (data: FormData) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>(
+    "/core-service/messages/files/images",
+    data,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+};
+
 export const sendWeatherMessage = (data: SendWeatherMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
     "/core-service/messages/weather",

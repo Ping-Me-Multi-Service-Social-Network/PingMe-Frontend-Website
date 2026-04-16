@@ -1,6 +1,7 @@
 import type React from "react";
 import { getTheme } from "../../utils/chatThemes.ts";
 import type { RoomResponse } from "@/types/chat/room";
+import type { MessageResponse } from "@/types/chat/message";
 
 import { useReducer, useRef, useEffect, useCallback } from "react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
@@ -16,6 +17,7 @@ import {
   ChatInputArea,
   RecordingState,
 } from "./chat-input-components";
+import { X, Reply } from "lucide-react";
 
 interface FilePreview {
   file: File;
@@ -27,8 +29,13 @@ interface ChatInputProps {
   selectedChat: RoomResponse;
   onSendMessage: (msg: string) => void;
   onSendFile: (file: File, type: "IMAGE" | "VIDEO" | "FILE") => Promise<void>;
+  onSendMultipleImages: (files: File[]) => Promise<void>;
   onSendWeather: (lat: number, lon: number) => Promise<void>;
   disabled?: boolean;
+  droppedFiles?: File[];
+  onDroppedFilesProcessed?: () => void;
+  replyMessage?: MessageResponse | null;
+  onCancelReply?: () => void;
 }
 
 // State declaration for useReducer
@@ -103,8 +110,13 @@ export function ChatBoxInput({
   selectedChat,
   onSendMessage,
   onSendFile,
+  onSendMultipleImages,
   onSendWeather,
   disabled = false,
+  droppedFiles,
+  onDroppedFilesProcessed,
+  replyMessage,
+  onCancelReply,
 }: ChatInputProps) {
   const theme = getTheme(selectedChat.theme);
   const { t } = useTranslation("chat");
@@ -171,6 +183,32 @@ export function ChatBoxInput({
     }
   };
 
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const newFiles: FilePreview[] = [];
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.indexOf('image') !== -1) {
+            const blob = item.getAsFile();
+            if (blob) {
+                const fileType = getFileType(blob);
+                const previewUrl = URL.createObjectURL(blob);
+                newFiles.push({
+                    file: blob,
+                    type: fileType,
+                    previewUrl,
+                });
+            }
+        }
+    }
+
+    if (newFiles.length > 0) {
+        dispatch({ type: "ADD_SELECTED_FILES", payload: newFiles });
+    }
+  }, []);
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
@@ -221,7 +259,14 @@ export function ChatBoxInput({
 
     try {
       if (selectedFiles.length > 0) {
-        for (const filePreview of selectedFiles) {
+        const imageFiles = selectedFiles.filter((f) => f.type === "IMAGE").map((f) => f.file);
+        const otherFiles = selectedFiles.filter((f) => f.type !== "IMAGE");
+
+        if (imageFiles.length > 0) {
+          await onSendMultipleImages(imageFiles);
+        }
+
+        for (const filePreview of otherFiles) {
           await onSendFile(filePreview.file, filePreview.type);
         }
         dispatch({ type: "CLEAR_FILES" });
@@ -254,6 +299,27 @@ export function ChatBoxInput({
     }
     return "FILE";
   };
+
+  useEffect(() => {
+    if (droppedFiles && droppedFiles.length > 0) {
+      const newFiles: FilePreview[] = [];
+      droppedFiles.forEach((file) => {
+        const fileType = getFileType(file);
+        const previewUrl =
+          fileType === "IMAGE" || fileType === "VIDEO"
+            ? URL.createObjectURL(file)
+            : undefined;
+
+        newFiles.push({
+          file,
+          type: fileType,
+          previewUrl,
+        });
+      });
+      dispatch({ type: "ADD_SELECTED_FILES", payload: newFiles });
+      onDroppedFilesProcessed?.();
+    }
+  }, [droppedFiles, onDroppedFilesProcessed]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -330,7 +396,7 @@ export function ChatBoxInput({
   };
 
   return (
-    <div className="border-t bg-white">
+    <div className={`border-t ${theme.content.background || "bg-white"}`}>
       {/* Toolbar: Image, File, Weather, Mic */}
       <ChatInputToolbar
         theme={theme}
@@ -354,6 +420,33 @@ export function ChatBoxInput({
         isSending={isSending}
         onRemoveFile={removeFile}
       />
+
+      {replyMessage && (
+        <div className="bg-gray-50 border-t border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-xs font-semibold flex items-center text-primary">
+              <Reply className="w-3 h-3 mr-1" />
+              {t("input.replyTo", "Replying to someone")}
+            </span>
+            <span className="text-sm text-gray-600 truncate mt-0.5">
+              {!replyMessage.isActive ? t("bubbles.messages.recalled") :
+               replyMessage.type === "TEXT" ? replyMessage.content : 
+               replyMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
+               replyMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
+               replyMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
+               replyMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+               "Message"}
+            </span>
+          </div>
+          <button 
+            type="button" 
+            onClick={onCancelReply}
+            className="p-1 rounded-full text-gray-500 hover:bg-gray-200 ml-2"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <div className="p-4 relative">
         {showEmojiPicker && (
@@ -407,6 +500,7 @@ export function ChatBoxInput({
             isSending={isSending}
             onInputChange={handleInputChange}
             onKeyPress={handleKeyPress}
+            onPaste={handlePaste}
             onToggleEmojiPicker={toggleEmojiPicker}
             onSend={handleSend}
           />

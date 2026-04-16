@@ -6,7 +6,7 @@ import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { MoreHorizontal, RotateCcw, Forward, Trash2 } from "lucide-react";
+import { MoreHorizontal, RotateCcw, Forward, Trash2, Reply } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -28,6 +28,7 @@ interface SentMessageBubbleProps {
   theme: ChatTheme;
   onForwardClick?: (messageId: string) => void;
   onDeleteForMe?: (messageId: string) => void;
+  onReplyClick?: () => void;
 }
 
 const SentMessageBubble = memo(function SentMessageBubble({
@@ -36,6 +37,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
   theme,
   onForwardClick,
   onDeleteForMe,
+  onReplyClick,
 }: SentMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -88,7 +90,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
     let contentNode = null;
     switch (message.type) {
       case "IMAGE":
-        contentNode = <MessageImage src={message.content} alt="Sent image" />;
+        contentNode = <MessageImage src={message.content} mediaUrls={message.mediaUrls} alt="Sent image" />;
         break;
       case "VIDEO":
         contentNode = <MessageVideo src={message.content} />;
@@ -137,6 +139,32 @@ const SentMessageBubble = memo(function SentMessageBubble({
 
     return (
       <>
+        {message.repliedMessage && (
+          <div 
+            className="flex items-center text-[11px] opacity-70 mb-1 border-l-2 border-primary/50 pl-2 cursor-pointer hover:opacity-100 transition-opacity"
+            onClick={() => {
+              const el = document.getElementById(`message-${message.repliedMessage?.id}`);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('bg-primary/10', 'transition-colors', 'duration-500');
+                setTimeout(() => el.classList.remove('bg-primary/10'), 1500);
+              }
+            }}
+          >
+            <div className="flex flex-col">
+              <span className="font-semibold text-primary">{t("bubbles.messages.replyTo", "Replying to someone")}</span>
+              <span className="truncate max-w-[150px]">
+                {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
+                 message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
+                 message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
+                 message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
+                 message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
+                 message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+                 "Message"}
+              </span>
+            </div>
+          </div>
+        )}
         {message.isForwarded && (
           <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
             <Forward className="h-3 w-3 mr-1" />
@@ -156,7 +184,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
       transition={{ type: "spring", stiffness: 450, damping: 25 }}
       className="msg-row msg-row--sent group mb-4"
     >
-      <div className="msg-bubble-wrapper relative">
+      <div className="msg-bubble-wrapper relative" id={`message-${message.id}`}>
         <AnimatePresence>
           {message.isActive && (
             <DropdownMenu>
@@ -170,6 +198,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onClick={onReplyClick}
+                  className="cursor-pointer"
+                >
+                  <Reply className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.replyBtn", "Reply")}
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onForwardClick?.(message.id)}
                   className="cursor-pointer"

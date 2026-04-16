@@ -1,7 +1,8 @@
-import { Download, FileText } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getFileIconConfig } from "../../utils/getFileIconConfig.ts";
 
 interface MessageFileProps {
   src: string;
@@ -41,12 +42,14 @@ export default function MessageFile({
     ? "text-blue-700 dark:text-blue-300"
     : "text-gray-600 dark:text-gray-400";
 
+  const { icon: FileIcon, bgColor: iconBgColor } = getFileIconConfig(fileName);
+
   return (
     <div
       className={`flex items-center gap-3 p-4 ${bgColor} rounded-lg max-w-md shadow-md`}
     >
-      <div className="flex-shrink-0 w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-        <FileText className="w-6 h-6 text-white" />
+      <div className={`shrink-0 w-12 h-12 ${iconBgColor} rounded-lg flex items-center justify-center`}>
+        <FileIcon className="w-6 h-6 text-white" />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -60,7 +63,7 @@ export default function MessageFile({
         </p>
       </div>
 
-      <div className="flex gap-2 flex-shrink-0">
+      <div className="flex gap-2 shrink-0">
         <Button
           size="icon"
           variant="ghost"

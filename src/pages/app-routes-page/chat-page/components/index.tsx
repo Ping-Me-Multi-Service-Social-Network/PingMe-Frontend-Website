@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import {
   sendMessageApi,
   sendFileMessageApi,
   sendWeatherMessage,
+  sendMultipleImageMessageApi,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
@@ -16,6 +17,7 @@ import ConversationSidebar from "./conversation-sidebar";
 import { useTranslation } from "react-i18next";
 import { useMessages } from "../hooks/useMessages";
 import { motion, AnimatePresence } from "framer-motion";
+import { Upload } from "lucide-react";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -36,6 +38,11 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     addMessage,
     removeMessageLocally,
   } = useMessages(selectedChat.roomId);
+
+  const [isDragActive, setIsDragActive] = useState(false);
+  const dragCounter = useRef(0);
+  const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
+  const [replyMessage, setReplyMessage] = useState<MessageResponse | null>(null);
 
   const isCurrentUserMessage = useCallback(
     (senderId: number) => {
@@ -58,11 +65,13 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           clientMsgId: crypto.randomUUID(),
           type: "TEXT" as const,
           roomId: selectedChat.roomId,
+          repliedMessageId: replyMessage?.id || null,
         };
 
         const response = await sendMessageApi(messageData);
         const sentMessage = response.data.data as MessageResponse;
         addMessage(sentMessage);
+        setReplyMessage(null);
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -80,6 +89,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
         clientMsgId: crypto.randomUUID(),
         type: type,
         roomId: selectedChat.roomId,
+        repliedMessageId: replyMessage?.id || null,
       };
 
       formData.append(
@@ -93,6 +103,38 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
       const response = await sendFileMessageApi(formData);
       const sentMessage = response.data.data as MessageResponse;
       addMessage(sentMessage);
+      setReplyMessage(null);
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("box.sendFileError")));
+    }
+  };
+
+  const handleSendMultipleImages = async (files: File[]) => {
+    try {
+      const formData = new FormData();
+      const messageRequest = {
+        content: "image",
+        clientMsgId: crypto.randomUUID(),
+        type: "IMAGE",
+        roomId: selectedChat.roomId,
+        repliedMessageId: replyMessage?.id || null,
+      };
+
+      formData.append(
+        "message",
+        new Blob([JSON.stringify(messageRequest)], {
+          type: "application/json",
+        })
+      );
+      
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      const response = await sendMultipleImageMessageApi(formData);
+      const sentMessage = response.data.data as MessageResponse;
+      addMessage(sentMessage);
+      setReplyMessage(null);
     } catch (err) {
       toast.error(getErrorMessage(err, t("box.sendFileError")));
     }
@@ -115,8 +157,61 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     }
   };
 
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      if (e.dataTransfer.items[0].kind === 'file') {
+        setIsDragActive(true);
+      }
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current -= 1;
+    if (dragCounter.current === 0) {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setIsDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setDroppedFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
   return (
-    <div className="chat-box overflow-hidden">
+    <div 
+      className="chat-box overflow-hidden relative"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <AnimatePresence>
+        {isDragActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center pointer-events-none"
+          >
+            <div className="bg-white p-8 rounded-2xl flex flex-col items-center gap-4 text-purple-600 shadow-2xl scale-110">
+              <Upload className="w-16 h-16 animate-bounce" />
+              <p className="text-xl font-bold">{t("bubbles.file.dropToUpload", "Thả file vào đây để gửi")}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <motion.div 
         layout
         className="chat-box__main shrink-0 w-full min-h-0"
@@ -138,6 +233,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
             onLoadMore={handleLoadMore}
             isCurrentUserMessage={isCurrentUserMessage}
             onDeleteForMeClick={removeMessageLocally}
+            onReplyClick={(msg) => setReplyMessage(msg)}
           />
         </div>
 
@@ -145,8 +241,13 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           selectedChat={selectedChat}
           onSendMessage={handleSendMessage}
           onSendFile={handleSendFile}
+          onSendMultipleImages={handleSendMultipleImages}
           onSendWeather={handleSendWeather}
           disabled={isLoadingMessages}
+          droppedFiles={droppedFiles}
+          onDroppedFilesProcessed={() => setDroppedFiles([])}
+          replyMessage={replyMessage}
+          onCancelReply={() => setReplyMessage(null)}
         />
       </motion.div>
       <AnimatePresence>

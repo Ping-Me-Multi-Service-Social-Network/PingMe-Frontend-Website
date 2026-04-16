@@ -6,7 +6,7 @@ import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { RotateCcw, Forward, MoreHorizontal, Trash2 } from "lucide-react";
+import { RotateCcw, Forward, MoreHorizontal, Trash2, Reply } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
@@ -31,6 +31,7 @@ interface ReceivedMessageBubbleProps {
   theme: ChatTheme;
   onForwardClick?: (messageId: string) => void;
   onDeleteForMe?: (messageId: string) => void;
+  onReplyClick?: () => void;
 }
 
 const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
@@ -41,6 +42,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   theme,
   onForwardClick,
   onDeleteForMe,
+  onReplyClick,
 }: ReceivedMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -76,7 +78,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     let contentNode = null;
     switch (message.type) {
       case "IMAGE":
-        contentNode = <MessageImage src={message.content} alt="Received image" />;
+        contentNode = <MessageImage src={message.content} mediaUrls={message.mediaUrls} alt="Received image" />;
         break;
       case "VIDEO":
         contentNode = <MessageVideo src={message.content} />;
@@ -125,6 +127,32 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
 
     return (
       <>
+        {message.repliedMessage && (
+          <div 
+            className="flex items-center text-[11px] opacity-70 mb-1 border-l-2 border-primary/50 pl-2 cursor-pointer hover:opacity-100 transition-opacity"
+            onClick={() => {
+              const el = document.getElementById(`message-${message.repliedMessage?.id}`);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('bg-primary/10', 'transition-colors', 'duration-500');
+                setTimeout(() => el.classList.remove('bg-primary/10'), 1500);
+              }
+            }}
+          >
+            <div className="flex flex-col">
+              <span className="font-semibold text-primary">{t("bubbles.messages.replyTo", "Replying to someone")}</span>
+              <span className="truncate max-w-[150px]">
+                {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
+                 message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
+                 message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
+                 message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
+                 message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
+                 message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+                 "Message"}
+              </span>
+            </div>
+          </div>
+        )}
         {message.isForwarded && (
           <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
             <Forward className="h-3 w-3 mr-1" />
@@ -155,7 +183,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         <UserAvatarFallback name={senderName} size="md" />
       </Avatar>
 
-      <div className="msg-bubble-wrapper min-w-0 relative">
+      <div className="msg-bubble-wrapper min-w-0 relative" id={`message-${message.id}`}>
         {roomType === "GROUP" && senderName && (
           <div className="text-xs font-semibold text-muted-foreground mb-1 ml-1 truncate max-w-[200px]">
             {senderName}
@@ -175,6 +203,13 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={onReplyClick}
+                  className="cursor-pointer"
+                >
+                  <Reply className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.replyBtn", "Reply")}
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onForwardClick?.(message.id)}
                   className="cursor-pointer"

@@ -22,6 +22,7 @@ interface ChatBoxContentProps {
   onLoadMore: (beforeId?: string) => void;
   isCurrentUserMessage: (senderId: number) => boolean;
   onDeleteForMeClick: (messageId: string) => void;
+  onReplyClick?: (message: MessageResponse) => void;
 }
 
 export const ChatBoxContent = memo(({
@@ -33,6 +34,7 @@ export const ChatBoxContent = memo(({
   onLoadMore,
   isCurrentUserMessage,
   onDeleteForMeClick,
+  onReplyClick,
 }: ChatBoxContentProps) => {
   const { t } = useTranslation("chat");
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
@@ -113,14 +115,16 @@ export const ChatBoxContent = memo(({
   }
 
   return (
-    <div className="relative h-full flex flex-col overflow-hidden">
+    <div className={`relative h-full flex flex-col overflow-hidden ${theme.content.background}`}>
       {/* Background image layer */}
       {theme.backgroundImage && (
         <div
-          className="absolute inset-0 opacity-40 z-0 pointer-events-none mix-blend-overlay"
+          className="absolute inset-0 opacity-40 z-0 pointer-events-none"
           style={{
             backgroundImage: `url(${theme.backgroundImage})`,
             backgroundPosition: "center",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat"
           }}
         />
       )}
@@ -152,6 +156,7 @@ export const ChatBoxContent = memo(({
                   theme={theme}
                   onForwardClick={(id) => setForwardMessageId(id)}
                   onDeleteForMe={onDeleteForMeClick}
+                  onReplyClick={() => onReplyClick?.(message)}
                 />
               ) : (
                 <ReceivedMessageBubble
@@ -170,6 +175,7 @@ export const ChatBoxContent = memo(({
                   theme={theme}
                   onForwardClick={(id) => setForwardMessageId(id)}
                   onDeleteForMe={onDeleteForMeClick}
+                  onReplyClick={() => onReplyClick?.(message)}
                 />
               )}
             </div>

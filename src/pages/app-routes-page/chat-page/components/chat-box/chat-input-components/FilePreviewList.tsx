@@ -1,5 +1,5 @@
-
-import { X, FileText, Video } from "lucide-react";
+import { X, Video } from "lucide-react";
+import { getFileIconConfig } from "../../../utils/getFileIconConfig";
 
 interface FilePreview {
   file: File;
@@ -33,7 +33,10 @@ export function FilePreviewList({
   return (
     <div className="p-3 border-b bg-gray-50">
       <div className="flex flex-wrap gap-2">
-        {selectedFiles.map((filePreview, index) => (
+        {selectedFiles.map((filePreview, index) => {
+          const { icon: FileIcon, textColor } = getFileIconConfig(filePreview.file.name);
+
+          return (
           <div key={getFilePreviewKey(filePreview)} className="relative group">
             {filePreview.type === "IMAGE" && filePreview.previewUrl ? (
               <div
@@ -75,7 +78,7 @@ export function FilePreviewList({
               <div
                 className={`relative w-20 h-20 rounded-lg border-2 ${theme.input.attachmentBorder} bg-white flex flex-col items-center justify-center p-2`}
               >
-                <FileText className="w-6 h-6 text-purple-600 mb-1" />
+                <FileIcon className={`w-6 h-6 ${textColor} mb-1`} />
                 <span className="text-xs text-gray-600 truncate w-full text-center">
                   {filePreview.file.name.length > 10
                     ? filePreview.file.name.substring(0, 10) + "..."
@@ -91,7 +94,8 @@ export function FilePreviewList({
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

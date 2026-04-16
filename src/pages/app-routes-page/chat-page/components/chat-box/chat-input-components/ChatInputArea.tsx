@@ -15,6 +15,7 @@ interface ChatInputAreaProps {
   onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onToggleEmojiPicker: () => void;
   onSend: () => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
 }
 
 export function ChatInputArea({
@@ -27,6 +28,7 @@ export function ChatInputArea({
   onKeyPress,
   onToggleEmojiPicker,
   onSend,
+  onPaste,
 }: ChatInputAreaProps) {
   const { t } = useTranslation("chat");
 
@@ -39,6 +41,7 @@ export function ChatInputArea({
           placeholder={t("input.placeholder")}
           className={`w-full ${theme.input.borderColor} rounded-lg h-12 pl-4 pr-24 transition-all duration-200`}
           onKeyPress={onKeyPress}
+          onPaste={onPaste}
           disabled={disabled || isSending}
         />
 

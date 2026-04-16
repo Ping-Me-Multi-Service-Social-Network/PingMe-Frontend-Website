@@ -8,11 +8,21 @@ export interface MessageResponse {
   createdAt: string;
   isActive: boolean;
   fileFormat?: string | null;
+  mediaUrls?: string[] | null;
   isForwarded?: boolean;
   forwardMetadata?: {
     sourceMessageId: string;
     sourceRoomId: number;
     sourceSenderId: number;
+  } | null;
+  repliedMessage?: {
+    id: string;
+    senderId: number;
+    content: string | null;
+    type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
+    isActive: boolean;
+    fileFormat?: string | null;
+    mediaUrls?: string[] | null;
   } | null;
 }
 
@@ -31,6 +41,7 @@ export interface SendMessageRequest {
   clientMsgId: string;
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE";
   roomId: number;
+  repliedMessageId?: string | null;
 }
 
 export interface SendWeatherMessageRequest {
