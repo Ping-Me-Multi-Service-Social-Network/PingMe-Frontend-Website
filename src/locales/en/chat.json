@@ -26,7 +26,8 @@
         "weatherSentSuccess": "Weather info sent",
         "weatherSentError": "Failed to send weather info",
         "locationError": "Unable to get your location. Please allow location access.",
-        "locationNotSupported": "Browser does not support geolocation"
+        "locationNotSupported": "Browser does not support geolocation",
+        "replyTo": "Replying to:"
     },
     "preview": {
         "noMessages": "No messages yet",
@@ -108,6 +109,13 @@
             "unsupported": "Your browser does not support the video tag."
         },
         "messages": {
+            "replyTo": "Replying to:",
+            "replyBtn": "Reply",
+            "image": "Image",
+            "video": "Video",
+            "file": "File",
+            "weather": "Weather",
+            "you": "You",
             "recalled": "Message has been recalled",
             "recallErrorTime": "Cannot recall messages older than 24 hours",
             "recallSuccess": "Message recalled successfully",

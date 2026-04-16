@@ -26,7 +26,8 @@
         "weatherSentSuccess": "Đã gửi thông tin thời tiết",
         "weatherSentError": "Không thể gửi thông tin thời tiết",
         "locationError": "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí.",
-        "locationNotSupported": "Trình duyệt không hỗ trợ định vị"
+        "locationNotSupported": "Trình duyệt không hỗ trợ định vị",
+        "replyTo": "Đang trả lời:"
     },
     "preview": {
         "noMessages": "Chưa có tin nhắn",
@@ -108,6 +109,13 @@
             "unsupported": "Trình duyệt của bạn không hỗ trợ video."
         },
         "messages": {
+            "replyTo": "Đang trả lời:",
+            "replyBtn": "Trả lời",
+            "image": "Hình ảnh",
+            "video": "Video",
+            "file": "Tệp tin",
+            "weather": "Thời tiết",
+            "you": "Bạn",
             "recalled": "Tin nhắn đã được thu hồi",
             "recallErrorTime": "Không thể thu hồi tin nhắn quá 24 giờ",
             "recallSuccess": "Đã thu hồi tin nhắn",
