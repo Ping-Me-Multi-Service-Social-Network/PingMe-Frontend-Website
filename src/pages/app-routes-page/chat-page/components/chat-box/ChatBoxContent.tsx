@@ -23,6 +23,7 @@ interface ChatBoxContentProps {
   isCurrentUserMessage: (senderId: number) => boolean;
   onDeleteForMeClick: (messageId: string) => void;
   onReplyClick?: (message: MessageResponse) => void;
+  onEditClick?: (message: MessageResponse) => void;
 }
 
 export const ChatBoxContent = memo(({
@@ -35,6 +36,7 @@ export const ChatBoxContent = memo(({
   isCurrentUserMessage,
   onDeleteForMeClick,
   onReplyClick,
+  onEditClick,
 }: ChatBoxContentProps) => {
   const { t } = useTranslation("chat");
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
@@ -163,6 +165,7 @@ export const ChatBoxContent = memo(({
                   onForwardClick={(id) => setForwardMessageId(id)}
                   onDeleteForMe={onDeleteForMeClick}
                   onReplyClick={() => onReplyClick?.(message)}
+                  onEditClick={() => onEditClick?.(message)}
                   repliedSenderName={getRepliedSenderName(message.repliedMessage?.senderId)}
                 />
               ) : (

@@ -8,6 +8,7 @@ import {
   sendFileMessageApi,
   sendWeatherMessage,
   sendMultipleImageMessageApi,
+  editMessageApi,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
@@ -43,6 +44,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const dragCounter = useRef(0);
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const [replyMessage, setReplyMessage] = useState<MessageResponse | null>(null);
+  const [editingMessage, setEditingMessage] = useState<MessageResponse | null>(null);
 
   const isCurrentUserMessage = useCallback(
     (senderId: number) => {
@@ -60,6 +62,16 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const handleSendMessage = async (msgText: string) => {
     if (msgText.trim()) {
       try {
+        if (editingMessage) {
+          const response = await editMessageApi(editingMessage.id, { content: msgText.trim() });
+          // Note: local state update could be done here or handled via websocket.
+          // Since the slice has messageUpdated via websocket, we could wait for it.
+          // But doing optimistic update is better:
+          addMessage(response.data.data as MessageResponse); // addMessage actually overwrites or adds in useMessages? Wait, we can let websocket handle it.
+          setEditingMessage(null);
+          return;
+        }
+
         const messageData = {
           content: msgText.trim(),
           clientMsgId: crypto.randomUUID(),
@@ -233,7 +245,8 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
             onLoadMore={handleLoadMore}
             isCurrentUserMessage={isCurrentUserMessage}
             onDeleteForMeClick={removeMessageLocally}
-            onReplyClick={(msg) => setReplyMessage(msg)}
+            onReplyClick={(msg) => { setReplyMessage(msg); setEditingMessage(null); }}
+            onEditClick={(msg) => { setEditingMessage(msg); setReplyMessage(null); }}
           />
         </div>
 
@@ -248,6 +261,8 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           onDroppedFilesProcessed={() => setDroppedFiles([])}
           replyMessage={replyMessage}
           onCancelReply={() => setReplyMessage(null)}
+          editingMessage={editingMessage}
+          onCancelEdit={() => setEditingMessage(null)}
         />
       </motion.div>
       <AnimatePresence>

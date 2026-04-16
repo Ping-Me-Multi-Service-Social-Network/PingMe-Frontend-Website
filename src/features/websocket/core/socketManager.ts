@@ -24,12 +24,14 @@ function isJwtExpired(token: string | null): boolean {
 }
 import {
   messageCreated,
+  messageUpdated,
   messageRecalled,
   readStateChanged,
   userTyping,
 } from "@/features/websocket/chat";
 import type {
   MessageCreatedEventPayload,
+  MessageUpdatedEventPayload,
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
   RoomCreatedEventPayload,
@@ -59,6 +61,7 @@ export interface SocketEventMap {
   
   // Chat events
   MESSAGE_CREATED: MessageCreatedEventPayload;
+  MESSAGE_UPDATED: MessageUpdatedEventPayload;
   MESSAGE_RECALLED: MessageRecalledEventPayload;
   READ_STATE_CHANGED: ReadStateChangedEvent;
   USER_TYPING: TypingSignalPayload;
@@ -478,7 +481,7 @@ class SocketManagerClass {
     this.roomMsgSub = this.client.subscribe(dest, (msg: IMessage) => {
       try {
         const ev = this.parsePayload<
-          MessageCreatedEventPayload | MessageRecalledEventPayload
+          MessageCreatedEventPayload | MessageUpdatedEventPayload | MessageRecalledEventPayload
         >(msg, "message event");
         if (!ev) return;
 
@@ -486,6 +489,10 @@ class SocketManagerClass {
           case "MESSAGE_CREATED":
             this.options?.dispatch(messageCreated(ev as MessageCreatedEventPayload));
             this.emit("MESSAGE_CREATED", ev as MessageCreatedEventPayload);
+            break;
+          case "MESSAGE_UPDATED":
+            this.options?.dispatch(messageUpdated(ev as MessageUpdatedEventPayload));
+            this.emit("MESSAGE_UPDATED", ev as MessageUpdatedEventPayload);
             break;
           case "MESSAGE_RECALLED":
             this.options?.dispatch(messageRecalled(ev as MessageRecalledEventPayload));

@@ -9,6 +9,7 @@ import type { RoomResponse } from "@/types/chat/room";
 
 export type ChatEventType =
   | "MESSAGE_CREATED"
+  | "MESSAGE_UPDATED"
   | "MESSAGE_RECALLED"
   | "READ_STATE_CHANGED"
   | "ROOM_CREATED"
@@ -19,6 +20,11 @@ export type ChatEventType =
 
 export interface MessageCreatedEventPayload {
   chatEventType: "MESSAGE_CREATED";
+  messageResponse: MessageResponse;
+}
+
+export interface MessageUpdatedEventPayload {
+  chatEventType: "MESSAGE_UPDATED";
   messageResponse: MessageResponse;
 }
 
@@ -83,6 +89,7 @@ export interface TypingSignalPayload {
 export interface ChatEventHandlers {
   // Message events
   onMessageCreated?: (ev: MessageCreatedEventPayload) => void;
+  onMessageUpdated?: (ev: MessageUpdatedEventPayload) => void;
   onMessageRecalled?: (ev: MessageRecalledEventPayload) => void;
 
   // Room events

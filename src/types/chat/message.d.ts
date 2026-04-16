@@ -7,6 +7,8 @@ export interface MessageResponse {
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
   createdAt: string;
   isActive: boolean;
+  isEdited?: boolean;
+  editedAt?: string | null;
   fileFormat?: string | null;
   mediaUrls?: string[] | null;
   isForwarded?: boolean;

@@ -6,7 +6,7 @@ import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { MoreHorizontal, RotateCcw, Forward, Trash2, Reply } from "lucide-react";
+import { MoreHorizontal, RotateCcw, Forward, Trash2, Reply, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -29,6 +29,7 @@ interface SentMessageBubbleProps {
   onForwardClick?: (messageId: string) => void;
   onDeleteForMe?: (messageId: string) => void;
   onReplyClick?: () => void;
+  onEditClick?: () => void;
   repliedSenderName?: string;
 }
 
@@ -39,6 +40,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
   onForwardClick,
   onDeleteForMe,
   onReplyClick,
+  onEditClick,
   repliedSenderName,
 }: SentMessageBubbleProps) {
   const { t } = useTranslation("chat");
@@ -132,9 +134,17 @@ const SentMessageBubble = memo(function SentMessageBubble({
       case "TEXT":
       default:
         contentNode = (
-          <p className="text-sm leading-relaxed">
-            {message.content}
-          </p>
+          <div className="flex flex-col relative">
+            <p className="text-sm leading-relaxed" style={{ whiteSpace: "pre-wrap" }}>
+              {message.content}
+            </p>
+            {message.isEdited && (
+              <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center" title={message.editedAt ? new Date(message.editedAt).toLocaleString() : undefined}>
+                <Edit2 className="w-2.5 h-2.5 mr-1" />
+                {t("bubbles.messages.edited", "Edited")}
+              </span>
+            )}
+          </div>
         );
         break;
     }
@@ -214,6 +224,15 @@ const SentMessageBubble = memo(function SentMessageBubble({
                   <Forward className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.forwardBtn", "Forward")}
                 </DropdownMenuItem>
+                {message.type === "TEXT" && (
+                  <DropdownMenuItem
+                    onClick={onEditClick}
+                    className="cursor-pointer"
+                  >
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    {t("bubbles.messages.editBtn", "Edit")}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={handleRecallMessage}
                   className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

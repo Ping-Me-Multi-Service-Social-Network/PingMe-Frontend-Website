@@ -139,6 +139,13 @@ export const recallMessageApi = (messageId: string) => {
   );
 };
 
+export const editMessageApi = (messageId: string, data: { content: string }) => {
+  return axiosClient.patch<ApiResponse<MessageResponse>>(
+    `/core-service/messages/${messageId}`,
+    data
+  );
+};
+
 export const deleteMessageForMeApi = (messageId: string) => {
   return axiosClient.delete<ApiResponse<{ id: string }>>(
     `/core-service/messages/${messageId}/delete-for-me`

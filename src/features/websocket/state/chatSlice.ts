@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MessageResponse } from "@/types/chat/message";
 import type {
   MessageCreatedEventPayload,
+  MessageUpdatedEventPayload,
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
   TypingSignalPayload,
@@ -24,6 +25,7 @@ export interface ChatState {
   currentRoomId: number | null;
   messages: MessageResponse[];
   recalledMessageIds: string[];
+  editedMessages: Record<string, Partial<MessageResponse>>;
 
   typingUsers: Record<number, TypingUser[]>;
 }
@@ -32,6 +34,7 @@ const initialState: ChatState = {
   currentRoomId: null,
   messages: [],
   recalledMessageIds: [],
+  editedMessages: {},
   typingUsers: {},
 };
 
@@ -46,11 +49,13 @@ const chatSlice = createSlice({
       state.currentRoomId = action.payload;
       state.messages = [];
       state.recalledMessageIds = [];
+      state.editedMessages = {};
     },
 
     clearMessages(state) {
       state.messages = [];
       state.recalledMessageIds = [];
+      state.editedMessages = {};
     },
 
     messageCreated(state, action: PayloadAction<MessageCreatedEventPayload>) {
@@ -64,6 +69,26 @@ const chatSlice = createSlice({
         );
         if (!isDuplicate) {
           state.messages.push(message);
+        }
+      }
+    },
+
+    messageUpdated(state, action: PayloadAction<MessageUpdatedEventPayload>) {
+      const message = action.payload.messageResponse;
+      if (state.currentRoomId === message.roomId) {
+        // We store the updated message metadata to be applied on both history and redux messages
+        state.editedMessages[message.id] = {
+          content: message.content,
+          isEdited: message.isEdited,
+          editedAt: message.editedAt,
+        };
+
+        // Also update local list if it exists
+        const idx = state.messages.findIndex((m) => m.id === message.id);
+        if (idx !== -1) {
+          state.messages[idx].content = message.content;
+          state.messages[idx].isEdited = message.isEdited;
+          state.messages[idx].editedAt = message.editedAt;
         }
       }
     },
@@ -139,6 +164,7 @@ export const {
   setCurrentRoom,
   clearMessages,
   messageCreated,
+  messageUpdated,
   messageRecalled,
   messageDeletedLocal,
   readStateChanged,
@@ -156,5 +182,7 @@ export const selectCurrentRoomId = (state: RootState) =>
 export const selectMessages = (state: RootState) => state.chat.messages;
 export const selectRecalledMessageIds = (state: RootState) =>
   state.chat.recalledMessageIds;
+export const selectEditedMessages = (state: RootState) =>
+  state.chat.editedMessages;
 export const selectTypingUsers = (roomId: number) => (state: RootState) =>
   state.chat.typingUsers[roomId] || [];

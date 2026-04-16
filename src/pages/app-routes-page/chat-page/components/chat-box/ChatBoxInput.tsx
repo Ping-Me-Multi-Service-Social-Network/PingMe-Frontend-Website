@@ -17,7 +17,7 @@ import {
   ChatInputArea,
   RecordingState,
 } from "./chat-input-components";
-import { X, Reply } from "lucide-react";
+import { X, Reply, Edit2 } from "lucide-react";
 
 interface FilePreview {
   file: File;
@@ -36,6 +36,8 @@ interface ChatInputProps {
   onDroppedFilesProcessed?: () => void;
   replyMessage?: MessageResponse | null;
   onCancelReply?: () => void;
+  editingMessage?: MessageResponse | null;
+  onCancelEdit?: () => void;
 }
 
 // State declaration for useReducer
@@ -117,6 +119,8 @@ export function ChatBoxInput({
   onDroppedFilesProcessed,
   replyMessage,
   onCancelReply,
+  editingMessage,
+  onCancelEdit,
 }: ChatInputProps) {
   const theme = getTheme(selectedChat.theme);
   const { t } = useTranslation("chat");
@@ -162,6 +166,14 @@ export function ChatBoxInput({
   useEffect(() => {
     latestMessageRef.current = newMessage;
   }, [newMessage]);
+
+  useEffect(() => {
+    if (editingMessage) {
+      dispatch({ type: "SET_MESSAGE", payload: editingMessage.content });
+      // clear files if editing? Actually, usually you just don't edit files but we can clear them.
+      dispatch({ type: "CLEAR_FILES" });
+    }
+  }, [editingMessage]);
 
   const handleEmojiSelect = useCallback(
     (emojiData: EmojiClickData) => {
@@ -443,6 +455,30 @@ export function ChatBoxInput({
             type="button" 
             onClick={onCancelReply}
             className="p-1 rounded-full text-gray-500 hover:bg-gray-200 ml-2"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {editingMessage && (
+        <div className="bg-purple-50 border-t border-b border-purple-200 px-4 py-2 flex items-center justify-between">
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-xs font-semibold flex items-center text-purple-600">
+              <Edit2 className="w-3 h-3 mr-1" />
+              {t("bubbles.messages.editBtn", "Edit message")}
+            </span>
+            <span className="text-sm text-gray-600 truncate mt-0.5">
+              {editingMessage.content}
+            </span>
+          </div>
+          <button 
+            type="button" 
+            onClick={() => {
+              dispatch({ type: "SET_MESSAGE", payload: "" });
+              onCancelEdit?.();
+            }}
+            className="p-1 rounded-full text-purple-500 hover:bg-purple-200 ml-2"
           >
             <X className="w-4 h-4" />
           </button>

@@ -11,6 +11,7 @@ import {
   setCurrentRoom,
   selectMessages,
   selectRecalledMessageIds,
+  selectEditedMessages,
   messageDeletedLocal,
 } from "@/features/websocket/chat";
 import { useTranslation } from "react-i18next";
@@ -31,6 +32,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
   const dispatch = useAppDispatch();
   const reduxMessages = useAppSelector(selectMessages);
   const recalledMessageIds = useAppSelector(selectRecalledMessageIds);
+  const editedMessages = useAppSelector(selectEditedMessages);
   const { t } = useTranslation("chat");
 
   // Local state for history messages (fetched via API)
@@ -102,9 +104,13 @@ export function useMessages(roomId: number): UseMessagesReturn {
   // History = loaded from API, Redux = from WebSocket
   const messages = useMemo(() => {
     const recalledIds = new Set(recalledMessageIds);
-    const updatedHistory = historyMessages.map((m) =>
-      recalledIds.has(m.id) ? { ...m, isActive: false } : m
-    );
+    const updatedHistory = historyMessages.map((m) => {
+      let updated = m;
+      if (editedMessages[m.id]) {
+        updated = { ...updated, ...editedMessages[m.id] };
+      }
+      return recalledIds.has(m.id) ? { ...updated, isActive: false } : updated;
+    });
 
     if (reduxMessages.length === 0) return updatedHistory;
 
@@ -124,7 +130,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
     const merged = [...updatedHistory, ...newFromRedux];
     merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     return merged;
-  }, [historyMessages, reduxMessages, recalledMessageIds]);
+  }, [historyMessages, reduxMessages, recalledMessageIds, editedMessages]);
 
   /**
    * Optimistic add for sent messages (API response).

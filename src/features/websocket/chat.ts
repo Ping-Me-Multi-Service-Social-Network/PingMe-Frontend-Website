@@ -2,6 +2,7 @@ export type {
   ChatEventType,
   ChatEventHandlers,
   MessageCreatedEventPayload,
+  MessageUpdatedEventPayload,
   MessageRecalledEventPayload,
   ReadStateChangedEvent,
   RoomCreatedEventPayload,
@@ -16,6 +17,7 @@ export {
   setCurrentRoom,
   clearMessages,
   messageCreated,
+  messageUpdated,
   messageRecalled,
   messageDeletedLocal,
   readStateChanged,
@@ -24,6 +26,7 @@ export {
   selectCurrentRoomId,
   selectMessages,
   selectRecalledMessageIds,
+  selectEditedMessages,
   selectTypingUsers,
 } from "./state/chatSlice";
 

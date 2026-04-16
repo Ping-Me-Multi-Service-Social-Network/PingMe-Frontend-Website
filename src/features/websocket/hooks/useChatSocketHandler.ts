@@ -3,6 +3,7 @@ import { useAppDispatch } from "@/features/hooks";
 import { SocketManager } from "../core/socketManager";
 import type {
   MessageCreatedEventPayload,
+  MessageUpdatedEventPayload,
   RoomUpdatedEventPayload,
 
   RoomCreatedEventPayload,
@@ -119,6 +120,30 @@ export const useChatSocketHandler = ({
     [setRooms]
   );
 
+  const handleMessageUpdated = useCallback(
+    (event: MessageUpdatedEventPayload) => {
+      const message = event.messageResponse;
+      setRooms((prev) => {
+        const targetRoom = prev.find((r) => r.roomId === message.roomId);
+        if (!targetRoom) return prev;
+
+        if (targetRoom.lastMessage?.messageId === message.id) {
+          const updatedRoom = {
+            ...targetRoom,
+            lastMessage: {
+              ...targetRoom.lastMessage,
+              preview: message.content,
+            },
+          };
+          const otherRooms = prev.filter((r) => r.roomId !== message.roomId);
+          return [updatedRoom, ...otherRooms];
+        }
+        return prev;
+      });
+    },
+    [setRooms]
+  );
+
   const handleRoomUpdated = useCallback(
     (event: RoomUpdatedEventPayload) => {
       upsertRoom(event.roomResponse);
@@ -181,6 +206,7 @@ export const useChatSocketHandler = ({
   useEffect(() => {
     const unsubs = [
       SocketManager.on("MESSAGE_CREATED", handleNewMessage),
+      SocketManager.on("MESSAGE_UPDATED", handleMessageUpdated),
       SocketManager.on("ROOM_UPDATED", handleRoomUpdated),
       SocketManager.on("MESSAGE_RECALLED", handleRecallMessage),
       SocketManager.on("ROOM_CREATED", handleRoomCreated),
@@ -194,6 +220,7 @@ export const useChatSocketHandler = ({
     };
   }, [
     handleNewMessage,
+    handleMessageUpdated,
     handleRecallMessage,
     handleRoomCreated,
     handleMemberAdded,
