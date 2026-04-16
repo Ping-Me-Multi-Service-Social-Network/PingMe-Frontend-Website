@@ -131,28 +131,28 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       <>
         {message.repliedMessage && (
           <div 
-            className="flex items-center text-[11px] opacity-70 mb-1 border-l-2 border-primary/50 pl-2 cursor-pointer hover:opacity-100 transition-opacity"
+            className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/30 bg-black/5 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/10 transition-colors"
             onClick={() => {
               const el = document.getElementById(`message-${message.repliedMessage?.id}`);
               if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('bg-primary/10', 'transition-colors', 'duration-500');
-                setTimeout(() => el.classList.remove('bg-primary/10'), 1500);
+                el.classList.add('bg-primary/20', 'transition-colors', 'duration-500');
+                setTimeout(() => el.classList.remove('bg-primary/20'), 1500);
               }
             }}
           >
-            <div className="flex flex-col">
-              <span className="font-semibold text-primary">{t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}</span>
-              <span className="truncate max-w-[150px]">
-                {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
-                 message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
-                 message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-                 message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-                 message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
-                 message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
-                 "Message"}
-              </span>
-            </div>
+            <span className="font-bold opacity-100 mb-0.5">
+              {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
+            </span>
+            <span className="truncate max-w-[200px] opacity-90 text-[11px]">
+              {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
+               message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
+               message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
+               message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
+               message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
+               message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+               "Message"}
+            </span>
           </div>
         )}
         {message.isForwarded && (
