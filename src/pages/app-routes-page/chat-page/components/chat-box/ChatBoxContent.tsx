@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { selectTypingUsers } from "@/features/websocket/chat";
 import { selectUser } from "@/features/auth/authSlice";
 import { useTranslation } from "react-i18next";
+import { ForwardMessageDialog } from "./ForwardMessageDialog.tsx";
 
 interface ChatBoxContentProps {
   selectedChat: RoomResponse;
@@ -34,6 +35,7 @@ export const ChatBoxContent = memo(({
   const { t } = useTranslation("chat");
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   const [prevRoomId, setPrevRoomId] = useState(selectedChat.roomId);
+  const [forwardMessageId, setForwardMessageId] = useState<string | null>(null);
 
   if (selectedChat.roomId !== prevRoomId) {
     setPrevRoomId(selectedChat.roomId);
@@ -146,6 +148,7 @@ export const ChatBoxContent = memo(({
                 <SentMessageBubble
                   message={message}
                   theme={theme}
+                  onForwardClick={(id) => setForwardMessageId(id)}
                 />
               ) : (
                 <ReceivedMessageBubble
@@ -162,6 +165,7 @@ export const ChatBoxContent = memo(({
                   }
                   roomType={selectedChat.roomType}
                   theme={theme}
+                  onForwardClick={(id) => setForwardMessageId(id)}
                 />
               )}
             </div>
@@ -189,6 +193,11 @@ export const ChatBoxContent = memo(({
         </div>
         <div ref={messagesEndRef} />
       </div>
+      <ForwardMessageDialog
+        isOpen={forwardMessageId !== null}
+        onClose={() => setForwardMessageId(null)}
+        sourceMessageId={forwardMessageId}
+      />
     </div>
   );
 });

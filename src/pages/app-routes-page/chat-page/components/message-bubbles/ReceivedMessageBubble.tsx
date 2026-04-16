@@ -5,13 +5,20 @@ import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Forward, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
 import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.tsx";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -19,6 +26,7 @@ interface ReceivedMessageBubbleProps {
   senderAvatar?: string;
   roomType?: "DIRECT" | "GROUP";
   theme: ChatTheme;
+  onForwardClick?: (messageId: string) => void;
 }
 
 const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
@@ -27,6 +35,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   senderAvatar,
   roomType,
   theme,
+  onForwardClick,
 }: ReceivedMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -49,25 +58,29 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       );
     }
 
+    let contentNode = null;
     switch (message.type) {
       case "IMAGE":
-        return <MessageImage src={message.content} alt="Received image" />;
+        contentNode = <MessageImage src={message.content} alt="Received image" />;
+        break;
       case "VIDEO":
-        return <MessageVideo src={message.content} />;
+        contentNode = <MessageVideo src={message.content} />;
+        break;
       case "FILE": {
         const fileName = message.content.split("/").pop() || "file";
-        return (
+        contentNode = (
           <MessageFile
             src={message.content}
             fileName={fileName}
             isSent={false}
           />
         );
+        break;
       }
       case "WEATHER": {
         try {
           const weatherData: WeatherResponse = JSON.parse(message.content);
-          return (
+          contentNode = (
             <WeatherMessageBubble
               weather={weatherData}
               createdAt={message.createdAt}
@@ -77,21 +90,35 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
           );
         } catch (error) {
           console.error("Failed to parse weather data:", error);
-          return (
+          contentNode = (
             <p className="text-sm text-red-500">
               {t("bubbles.weather.error")}
             </p>
           );
         }
+        break;
       }
       case "TEXT":
       default:
-        return (
+        contentNode = (
           <p className="text-sm leading-relaxed">
             {message.content}
           </p>
         );
+        break;
     }
+
+    return (
+      <>
+        {message.isForwarded && (
+          <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
+            <Forward className="h-3 w-3 mr-1" />
+            {t("bubbles.messages.forwarded", "Forwarded")}
+          </div>
+        )}
+        {contentNode}
+      </>
+    );
   };
 
 
@@ -101,7 +128,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
       transition={{ type: "spring", stiffness: 450, damping: 25 }}
-      className="msg-row msg-row--received group mb-4 flex items-start"
+      className="msg-row msg-row--received group mb-4 flex items-start relative"
     >
       <Avatar
         className={`w-10 h-10 mr-3 mt-1 shrink-0 ring-2 ${theme.messages.avatarRing}`}
@@ -113,12 +140,37 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         <UserAvatarFallback name={senderName} size="md" />
       </Avatar>
 
-      <div className="msg-bubble-wrapper min-w-0">
+      <div className="msg-bubble-wrapper min-w-0 relative">
         {roomType === "GROUP" && senderName && (
           <div className="text-xs font-semibold text-muted-foreground mb-1 ml-1 truncate max-w-[200px]">
             {senderName}
           </div>
         )}
+
+        <AnimatePresence>
+          {message.isActive && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-muted-foreground hover:bg-black/5"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => onForwardClick?.(message.id)}
+                  className="cursor-pointer"
+                >
+                  <Forward className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.forwardBtn", "Forward")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </AnimatePresence>
 
         <motion.div transition={{ type: "spring", stiffness: 400, damping: 30 }}>
             {isWeatherMessage && message.isActive ? (

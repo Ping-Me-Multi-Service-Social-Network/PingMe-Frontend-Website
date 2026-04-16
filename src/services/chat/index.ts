@@ -11,6 +11,8 @@ import type {
   MessageResponse,
   SendMessageRequest,
   SendWeatherMessageRequest,
+  ForwardMessageRequest,
+  BulkForwardMessageRequest,
 } from "@/types/chat/message";
 import type {
   AddGroupMembersRequest,
@@ -145,3 +147,12 @@ export const getHistoryMessagesApi = (
     `/core-service/messages/history?${params.toString()}`
   );
 };
+
+export const forwardMessageApi = (data: ForwardMessageRequest) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/forward", data);
+};
+
+export const bulkForwardMessageApi = (data: BulkForwardMessageRequest) => {
+  return axiosClient.post<ApiResponse<MessageResponse[]>>("/core-service/messages/forward/bulk", data);
+};
+

@@ -5,7 +5,7 @@ import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
-import { MoreHorizontal, RotateCcw } from "lucide-react";
+import { MoreHorizontal, RotateCcw, Forward } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -25,12 +25,14 @@ interface SentMessageBubbleProps {
   message: MessageResponse;
   onMessageRecalled?: (messageId: string) => void;
   theme: ChatTheme;
+  onForwardClick?: (messageId: string) => void;
 }
 
 const SentMessageBubble = memo(function SentMessageBubble({
   message,
   onMessageRecalled,
   theme,
+  onForwardClick,
 }: SentMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -70,25 +72,29 @@ const SentMessageBubble = memo(function SentMessageBubble({
       );
     }
 
+    let contentNode = null;
     switch (message.type) {
       case "IMAGE":
-        return <MessageImage src={message.content} alt="Sent image" />;
+        contentNode = <MessageImage src={message.content} alt="Sent image" />;
+        break;
       case "VIDEO":
-        return <MessageVideo src={message.content} />;
+        contentNode = <MessageVideo src={message.content} />;
+        break;
       case "FILE": {
         const fileName = message.content.split("/").pop() || "file";
-        return (
+        contentNode = (
           <MessageFile
             src={message.content}
             fileName={fileName}
             isSent={true}
           />
         );
+        break;
       }
       case "WEATHER": {
         try {
           const weatherData: WeatherResponse = JSON.parse(message.content);
-          return (
+          contentNode = (
             <WeatherMessageBubble
               weather={weatherData}
               createdAt={message.createdAt}
@@ -98,21 +104,35 @@ const SentMessageBubble = memo(function SentMessageBubble({
           );
         } catch (error) {
           console.error("Failed to parse weather data:", error);
-          return (
+          contentNode = (
             <p className="text-sm text-red-500">
               {t("bubbles.weather.error")}
             </p>
           );
         }
+        break;
       }
       case "TEXT":
       default:
-        return (
+        contentNode = (
           <p className="text-sm leading-relaxed">
             {message.content}
           </p>
         );
+        break;
     }
+
+    return (
+      <>
+        {message.isForwarded && (
+          <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
+            <Forward className="h-3 w-3 mr-1" />
+            {t("bubbles.messages.forwarded", "Forwarded")}
+          </div>
+        )}
+        {contentNode}
+      </>
+    );
   };
 
   return (
@@ -137,6 +157,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onClick={() => onForwardClick?.(message.id)}
+                  className="cursor-pointer"
+                >
+                  <Forward className="mr-2 h-4 w-4" />
+                  {t("bubbles.messages.forwardBtn", "Forward")}
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleRecallMessage}
                   className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

@@ -7,6 +7,12 @@ export interface MessageResponse {
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
   createdAt: string;
   isActive: boolean;
+  isForwarded?: boolean;
+  forwardMetadata?: {
+    sourceMessageId: string;
+    sourceRoomId: number;
+    sourceSenderId: number;
+  } | null;
 }
 
 export interface MessageRecalledResponse {
@@ -45,3 +51,16 @@ export interface MarkReadRequest {
   lastReadMessageId: string;
   roomId: number;
 }
+
+export interface ForwardMessageRequest {
+  sourceMessageId: string;
+  clientMsgId: string;
+  targetRoomId: number;
+}
+
+export interface BulkForwardMessageRequest {
+  sourceMessageId: string;
+  clientMsgId: string;
+  targetRoomIds: number[];
+}
+
