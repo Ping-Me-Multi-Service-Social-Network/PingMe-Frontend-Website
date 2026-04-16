@@ -33,6 +33,15 @@ export default function ReelsPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchTrigger, setSearchTrigger] = useState<string>("");
 
+  const [globalMuted, setGlobalMuted] = useState(() => {
+    return localStorage.getItem("pingme_reels_muted") === "true";
+  });
+
+  const handleMuteToggle = useCallback((muted: boolean) => {
+    setGlobalMuted(muted);
+    localStorage.setItem("pingme_reels_muted", String(muted));
+  }, []);
+
   const fetchReels = useCallback(
     async (page: number, size: number, append = false) => {
       try {
@@ -177,6 +186,8 @@ export default function ReelsPage() {
                 <ReelDetailView
                   reel={r}
                   isActive={i === currentIndex}
+                  globalMuted={globalMuted}
+                  onMuteToggle={handleMuteToggle}
                   onUpdate={handleReelUpdate}
                   onDelete={handleReelDeleted}
                   onEdit={handleReelEdit}

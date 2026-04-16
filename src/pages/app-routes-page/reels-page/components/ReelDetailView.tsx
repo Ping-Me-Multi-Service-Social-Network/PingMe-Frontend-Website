@@ -36,13 +36,22 @@ export default function ReelDetailView({
   isActive,
   togglePlaySignal,
   onHashtagClick,
-}: ReelDetailViewProps & { isActive?: boolean; togglePlaySignal?: number }) {
+  globalMuted,
+  onMuteToggle,
+}: ReelDetailViewProps & {
+  isActive?: boolean;
+  togglePlaySignal?: number;
+  globalMuted?: boolean;
+  onMuteToggle?: (muted: boolean) => void;
+}) {
   const { t, i18n } = useTranslation("reels");
   const currentUserId = useAppSelector((state) => state.auth.userSession.id);
 
   // Video states
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [localMuted, setLocalMuted] = useState(false);
+  const isMuted = globalMuted !== undefined ? globalMuted : localMuted;
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -194,9 +203,15 @@ export default function ReelDetailView({
   }, [clickTimeout, handlePlayPause]);
 
   const handleMuteToggle = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
+    const newMuted = !isMuted;
+    if (videoRef.current) {
+      videoRef.current.muted = newMuted;
+    }
+    if (onMuteToggle) {
+      onMuteToggle(newMuted);
+    } else {
+      setLocalMuted(newMuted);
+    }
   };
 
   const handleSpeedChange = () => {
@@ -271,6 +286,12 @@ export default function ReelDetailView({
     }
   }, [togglePlaySignal, isActive]);
 
+  useEffect(() => {
+    if (videoRef.current && globalMuted !== undefined) {
+      videoRef.current.muted = globalMuted;
+    }
+  }, [globalMuted]);
+
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
@@ -290,6 +311,7 @@ export default function ReelDetailView({
             onClick={handleVideoClick}
             controlsList="nodownload"
             loop
+            muted={isMuted}
             onTimeUpdate={(e) =>
               setCurrentTime((e.target as HTMLVideoElement).currentTime)
             }
