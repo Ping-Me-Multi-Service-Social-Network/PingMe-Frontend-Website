@@ -60,6 +60,12 @@ export const ChatBoxContent = memo(({
     return u.userId !== currentUser?.id && u.isTyping;
   });
 
+  const getRepliedSenderName = (senderId?: number) => {
+    if (!senderId) return "";
+    if (senderId === currentUser?.id) return t("bubbles.messages.you", "You");
+    return selectedChat.participants.find((p) => p.userId === senderId)?.name || "User";
+  };
+
   useEffect(() => {
     if (messagesEndRef.current && shouldScrollToBottom && !isLoadingMore) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -157,6 +163,7 @@ export const ChatBoxContent = memo(({
                   onForwardClick={(id) => setForwardMessageId(id)}
                   onDeleteForMe={onDeleteForMeClick}
                   onReplyClick={() => onReplyClick?.(message)}
+                  repliedSenderName={getRepliedSenderName(message.repliedMessage?.senderId)}
                 />
               ) : (
                 <ReceivedMessageBubble
@@ -176,6 +183,7 @@ export const ChatBoxContent = memo(({
                   onForwardClick={(id) => setForwardMessageId(id)}
                   onDeleteForMe={onDeleteForMeClick}
                   onReplyClick={() => onReplyClick?.(message)}
+                  repliedSenderName={getRepliedSenderName(message.repliedMessage?.senderId)}
                 />
               )}
             </div>

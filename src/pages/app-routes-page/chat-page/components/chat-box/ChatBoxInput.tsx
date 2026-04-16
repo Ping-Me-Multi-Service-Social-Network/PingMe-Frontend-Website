@@ -2,7 +2,7 @@ import type React from "react";
 import { getTheme } from "../../utils/chatThemes.ts";
 import type { RoomResponse } from "@/types/chat/room";
 import type { MessageResponse } from "@/types/chat/message";
-
+import { useAppSelector } from "@/features/hooks.ts";
 import { useReducer, useRef, useEffect, useCallback } from "react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
@@ -120,6 +120,7 @@ export function ChatBoxInput({
 }: ChatInputProps) {
   const theme = getTheme(selectedChat.theme);
   const { t } = useTranslation("chat");
+  const { userSession } = useAppSelector((state) => state.auth);
 
   const [state, dispatch] = useReducer(chatInputReducer, initialState);
   const {
@@ -426,7 +427,7 @@ export function ChatBoxInput({
           <div className="flex flex-col min-w-0 flex-1">
             <span className="text-xs font-semibold flex items-center text-primary">
               <Reply className="w-3 h-3 mr-1" />
-              {t("input.replyTo", "Replying to someone")}
+              {t("input.replyTo", "Replying to")} {replyMessage.senderId === userSession?.id ? t("bubbles.messages.you", "You") : selectedChat.participants.find(p => p.userId === replyMessage.senderId)?.name || "User"}
             </span>
             <span className="text-sm text-gray-600 truncate mt-0.5">
               {!replyMessage.isActive ? t("bubbles.messages.recalled") :

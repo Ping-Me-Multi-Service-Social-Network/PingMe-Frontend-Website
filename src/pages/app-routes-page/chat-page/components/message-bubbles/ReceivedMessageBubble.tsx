@@ -32,6 +32,7 @@ interface ReceivedMessageBubbleProps {
   onForwardClick?: (messageId: string) => void;
   onDeleteForMe?: (messageId: string) => void;
   onReplyClick?: () => void;
+  repliedSenderName?: string;
 }
 
 const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
@@ -43,6 +44,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   onForwardClick,
   onDeleteForMe,
   onReplyClick,
+  repliedSenderName,
 }: ReceivedMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -140,7 +142,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
             }}
           >
             <div className="flex flex-col">
-              <span className="font-semibold text-primary">{t("bubbles.messages.replyTo", "Replying to someone")}</span>
+              <span className="font-semibold text-primary">{t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}</span>
               <span className="truncate max-w-[150px]">
                 {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
                  message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
