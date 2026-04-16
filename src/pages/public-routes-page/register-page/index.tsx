@@ -40,6 +40,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState<RegisterRequest>(EMPTY_FORM);
   const [dob, setDob] = useState<Date>();
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileKey, setTurnstileKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -67,6 +68,8 @@ export default function RegisterPage() {
       });
     } catch (err) {
       toast.error(getErrorMessage(err, t("auth.register.fail")));
+      setTurnstileToken("");
+      setTurnstileKey((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -289,6 +292,7 @@ export default function RegisterPage() {
                   {step === 2 && (
                     <Step3Verify
                       t={t} isLoading={isLoading} turnstileToken={turnstileToken}
+                      turnstileKey={turnstileKey}
                       onTurnstileSuccess={setTurnstileToken}
                       onBack={prevStep} onSubmit={handleSubmit}
                     />

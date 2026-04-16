@@ -27,6 +27,7 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileKey, setTurnstileKey] = useState(0);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -48,6 +49,8 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
     } catch (error) {
       // Fallback cho runtime error
       toast.error(getErrorMessage(error, t("auth.login.fail")));
+      setTurnstileToken("");
+      setTurnstileKey((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +121,7 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
         {/* Turnstile */}
         <Field delay={0.15}>
           <TurnstileField
+            key={turnstileKey}
             onSuccess={(token) => setTurnstileToken(token)}
             onError={() => setTurnstileToken("")}
             onExpire={() => setTurnstileToken("")}

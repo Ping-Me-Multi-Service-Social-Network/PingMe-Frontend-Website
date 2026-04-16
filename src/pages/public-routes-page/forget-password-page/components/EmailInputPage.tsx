@@ -13,6 +13,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 const EmailInputPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileKey, setTurnstileKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation("landing");
@@ -45,9 +46,13 @@ const EmailInputPage: React.FC = () => {
         navigate("/forgot-password/verify-otp", { state: { email: email } });
       } else {
         toast.error(resData.errorMessage || t("forgotPassword.emailStep.fail"));
+        setTurnstileToken("");
+        setTurnstileKey((prev) => prev + 1);
       }
     } catch (error) {
       toast.error(getErrorMessage(error, t("forgotPassword.emailStep.fail")));
+      setTurnstileToken("");
+      setTurnstileKey((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +96,7 @@ const EmailInputPage: React.FC = () => {
 
         <div className="flex justify-center my-2">
           <Turnstile
+            key={turnstileKey}
             siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             onSuccess={(token) => setTurnstileToken(token)}
             onError={() => setTurnstileToken("")}

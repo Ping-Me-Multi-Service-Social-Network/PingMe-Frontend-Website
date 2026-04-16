@@ -6,13 +6,14 @@ interface Props {
   t: (key: string) => string;
   isLoading: boolean;
   turnstileToken: string;
+  turnstileKey: number;
   onTurnstileSuccess: (token: string) => void;
   onBack: () => void;
   onSubmit: () => void;
 }
 
 export default function Step3Verify({
-  t, isLoading, turnstileToken, onTurnstileSuccess, onBack, onSubmit,
+  t, isLoading, turnstileToken, turnstileKey, onTurnstileSuccess, onBack, onSubmit,
 }: Readonly<Props>) {
   return (
     <div className="space-y-5">
@@ -45,6 +46,7 @@ export default function Step3Verify({
         {/* Turnstile */}
         <Field delay={0.08}>
           <TurnstileField
+            key={turnstileKey}
             onSuccess={onTurnstileSuccess}
             onError={() => onTurnstileSuccess("")}
             onExpire={() => onTurnstileSuccess("")}
