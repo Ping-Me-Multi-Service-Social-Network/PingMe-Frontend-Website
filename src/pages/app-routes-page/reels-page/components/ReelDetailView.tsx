@@ -50,7 +50,7 @@ export default function ReelDetailView({
   // Video states
   const [isPlaying, setIsPlaying] = useState(true);
   const [localMuted, setLocalMuted] = useState(false);
-  const isMuted = globalMuted !== undefined ? globalMuted : localMuted;
+  const isMuted = globalMuted ?? localMuted;
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
