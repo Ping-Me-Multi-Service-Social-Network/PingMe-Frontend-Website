@@ -14,6 +14,7 @@ import {
 } from "@/pages/app-routes-page/chat-page/utils/getRoomInfo.ts";
 import { motion } from "framer-motion";
 import { memo } from "react";
+import { User, Users } from "lucide-react";
 
 interface ChatCardProps {
   room: RoomResponse;
@@ -70,11 +71,18 @@ export const ChatCard = memo(function ChatCard({
       </div>
 
       <div className="chat-card__body overflow-hidden">
-        <div className="chat-card__top-row">
-          <h3 className={`chat-card__name transition-colors duration-200 ${isSelected ? "text-primary" : "text-foreground"}`}>
-            {getRoomDisplayName(room, userSession)}
-          </h3>
-          <span className={`chat-card__time transition-colors duration-200 ${isSelected ? "text-primary/70 font-semibold" : "text-muted-foreground"}`}>
+        <div className="chat-card__top-row flex items-center justify-between">
+          <div className="flex items-center gap-1.5 overflow-hidden flex-1 pr-2">
+            {room.roomType === "GROUP" ? (
+              <Users className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            ) : (
+              <User className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            )}
+            <h3 className={`chat-card__name truncate m-0 transition-colors duration-200 ${isSelected ? "text-primary" : "text-foreground"}`}>
+              {getRoomDisplayName(room, userSession)}
+            </h3>
+          </div>
+          <span className={`chat-card__time shrink-0 transition-colors duration-200 ${isSelected ? "text-primary/70 font-semibold" : "text-muted-foreground"}`}>
             {room.lastMessage
               ? new Date(room.lastMessage.createdAt).toLocaleTimeString(
                   "vi-VN",
