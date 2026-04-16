@@ -45,6 +45,8 @@ export default function LoginFormContent({ t }: Readonly<LoginFormContentProps>)
             state: { email, type: "ACCOUNT_ACTIVATION", fromPublic: true },
           });
         }
+        setTurnstileToken("");
+        setTurnstileKey((prev) => prev + 1);
       }
     } catch (error) {
       // Fallback cho runtime error

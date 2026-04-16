@@ -112,7 +112,12 @@
             "recallErrorTime": "Cannot recall messages older than 24 hours",
             "recallSuccess": "Message recalled successfully",
             "recallError": "Failed to recall message",
-            "recallBtn": "Recall message"
+            "recallBtn": "Recall message",
+            "forwardBtn": "Forward",
+            "forwarded": "Forwarded",
+            "deleteForMeBtn": "Delete for me",
+            "deleteForMeSuccess": "Message deleted for you",
+            "deleteForMeError": "Could not delete message"
         },
         "weather": {
             "error": "Cannot display weather information",

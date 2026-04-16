@@ -112,7 +112,12 @@
             "recallErrorTime": "Không thể thu hồi tin nhắn quá 24 giờ",
             "recallSuccess": "Đã thu hồi tin nhắn",
             "recallError": "Không thể thu hồi tin nhắn",
-            "recallBtn": "Thu hồi tin nhắn"
+            "recallBtn": "Thu hồi tin nhắn",
+            "forwardBtn": "Chuyển tiếp",
+            "forwarded": "Đã chuyển tiếp",
+            "deleteForMeBtn": "Xóa phía tôi",
+            "deleteForMeSuccess": "Đã xóa tin nhắn ở phía bạn",
+            "deleteForMeError": "Không thể xóa tin nhắn"
         },
         "weather": {
             "error": "Không thể hiển thị thông tin thời tiết",
