@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/pages/commons/ProtectedRoute";
 import { LazyElement } from "@/components/custom/LazyElement";
 import ActiveAccountVerifyOtpPage from "@/pages/app-routes-page/user-page/user-info-page/components/ActiveAccountVerifyOtpPage";
+import { GlobalErrorBoundary } from "@/components/custom/GlobalErrorBoundary";
 
 // ===========================================================
 // PUBLIC PAGES
@@ -121,6 +122,7 @@ export const router = createBrowserRouter([
   // ===========================================================
   {
     path: "/",
+    errorElement: <GlobalErrorBoundary />,
     element: (
       <LazyElement>
         <LandingPage />
@@ -129,6 +131,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/register",
+    errorElement: <GlobalErrorBoundary />,
     element: (
       <LazyElement>
         <RegisterPage />
@@ -146,6 +149,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/auth/verify-otp",
+    errorElement: <GlobalErrorBoundary />,
     element: (
       <LazyElement>
         <ActiveAccountVerifyOtpPage />
@@ -154,6 +158,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "forgot-password",
+    errorElement: <GlobalErrorBoundary />,
     element: (
       <LazyElement>
         <ForgetPasswordPage />
@@ -195,6 +200,7 @@ export const router = createBrowserRouter([
   // ===========================================================
   {
     path: "app",
+    errorElement: <GlobalErrorBoundary />,
     element: (
       <ProtectedRoute>
         <LazyElement>
