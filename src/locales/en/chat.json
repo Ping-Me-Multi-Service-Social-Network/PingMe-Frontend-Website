@@ -27,7 +27,10 @@
         "weatherSentError": "Failed to send weather info",
         "locationError": "Unable to get your location. Please allow location access.",
         "locationNotSupported": "Browser does not support geolocation",
-        "replyTo": "Replying to:"
+        "replyTo": "Replying to:",
+        "recording": "Recording...",
+        "cancelRecord": "Cancel recording",
+        "stopRecord": "Stop & send"
     },
     "preview": {
         "noMessages": "No messages yet",

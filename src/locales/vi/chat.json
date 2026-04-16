@@ -27,7 +27,10 @@
         "weatherSentError": "Không thể gửi thông tin thời tiết",
         "locationError": "Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí.",
         "locationNotSupported": "Trình duyệt không hỗ trợ định vị",
-        "replyTo": "Đang trả lời:"
+        "replyTo": "Đang trả lời:",
+        "recording": "Đang ghi âm...",
+        "cancelRecord": "Hủy ghi âm",
+        "stopRecord": "Dừng & gửi"
     },
     "preview": {
         "noMessages": "Chưa có tin nhắn",
