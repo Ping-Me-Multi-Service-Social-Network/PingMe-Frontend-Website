@@ -13,8 +13,6 @@ import {
   Palette,
   UserCog,
   User,
-  Phone,
-  Video,
   Camera,
 } from "lucide-react";
 import { useState } from "react";
