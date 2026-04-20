@@ -2,15 +2,22 @@
     "button": {
         "video": "Video Call",
         "audio": "Voice Call",
+        "group": "Group {{type}} call",
         "offline": "{{name}} is currently offline",
         "active": "Call in progress",
         "startVideoError": "Could not start video call",
-        "startAudioError": "Could not start voice call"
+        "startAudioError": "Could not start voice call",
+        "joinOngoing": "Join call",
+        "joinError": "Could not join the call"
     },
     "notification": {
         "videoTitle": "Incoming video call",
         "audioTitle": "Incoming voice call",
+        "groupVideoTitle": "Incoming group video call",
+        "groupAudioTitle": "Incoming group voice call",
         "incoming": "is calling you...",
+        "groupParticipants": "{{name}} and {{count}} others",
+        "groupSize": "{{count}} participants in this call",
         "reject": "Reject",
         "answer": "Answer",
         "callerUnknown": "User"
@@ -22,6 +29,7 @@
         "rejected": "Call rejected",
         "rejectedByUser": "You rejected the call",
         "ended": "Call ended",
+        "leaving": "Leaving call...",
         "error": "Error: {{message}}"
     },
     "zego": {
