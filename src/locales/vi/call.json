@@ -2,15 +2,22 @@
     "button": {
         "video": "Gọi video",
         "audio": "Gọi thoại",
+        "group": "Gọi nhóm {{type}}",
         "offline": "{{name}} hiện đang ngoại tuyến",
         "active": "Cuộc gọi đang diễn ra",
         "startVideoError": "Không thể bắt đầu cuộc gọi video",
-        "startAudioError": "Không thể bắt đầu cuộc gọi thoại"
+        "startAudioError": "Không thể bắt đầu cuộc gọi thoại",
+        "joinOngoing": "Tham gia cuộc gọi",
+        "joinError": "Không thể tham gia cuộc gọi"
     },
     "notification": {
         "videoTitle": "Cuộc gọi video đến",
         "audioTitle": "Cuộc gọi thoại đến",
+        "groupVideoTitle": "Cuộc gọi video nhóm đến",
+        "groupAudioTitle": "Cuộc gọi thoại nhóm đến",
         "incoming": "đang gọi bạn...",
+        "groupParticipants": "{{name}} và {{count}} người khác",
+        "groupSize": "{{count}} người tham gia cuộc gọi này",
         "reject": "Từ chối",
         "answer": "Trả lời",
         "callerUnknown": "Người dùng"
@@ -22,6 +29,7 @@
         "rejected": "Cuộc gọi bị từ chối",
         "rejectedByUser": "Bạn đã từ chối cuộc gọi",
         "ended": "Cuộc gọi kết thúc",
+        "leaving": "Đang rời cuộc gọi...",
         "error": "Lỗi: {{message}}"
     },
     "zego": {

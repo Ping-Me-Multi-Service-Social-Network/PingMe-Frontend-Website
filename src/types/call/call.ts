@@ -1,46 +1,57 @@
 export type CallStatus =
   | "idle"
-  | "calling" // Outgoing call ringing
-  | "ringing" // Incoming call notification
-  | "connected" // In active call
-  | "rejected" // Call was rejected
-  | "ended" // Call ended normally
-  | "error"; // Error state
+  | "calling"
+  | "ringing"
+  | "connected"
+  | "rejected"
+  | "ended"
+  | "error";
 
 export type CallType = "AUDIO" | "VIDEO";
+
+export type SignalingType = "INVITE" | "ACCEPT" | "REJECT" | "LEAVE" | "HANGUP" | "SESSION_ENDED";
 
 export interface CallState {
   status: CallStatus;
   callType: CallType;
-  callerId?: number; // Who initiated the call
-  targetUserId?: number; // Who is being called
-  roomId?: number; // Room context
-  isInitiator: boolean; // Is current user initiating?
+  callSessionId?: string;
+  callerId?: number;
+  callerName?: string;
+  targetUserId?: number;
+  roomId?: number;
+  isInitiator: boolean;
+  isGroup: boolean;
+  activeParticipantCount: number;
   startTime?: Date;
   endTime?: Date;
-  rejectReason?: string; // "REJECTED_BY_USER" | "REJECTED_BY_TARGET" | "NO_ANSWER"
+  rejectReason?: string;
   error?: string;
 }
 
-export interface SignalingPayload {
-  type: "INVITE" | "ACCEPT" | "REJECT" | "HANGUP";
-  senderId: number; // Backend always includes this
-  roomId: number;
-  payload?: {
-    callType?: CallType;
-    targetUserId?: number;
-    reason?: string;
-  };
+// Payload đính kèm trong request FE → BE
+export interface SignalingRequestPayload {
+  callType?: CallType;
+  reason?: string;
 }
 
+// Request gửi lên BE
 export interface SignalingRequest {
   roomId: number;
-  type: "INVITE" | "ACCEPT" | "REJECT" | "HANGUP";
+  type: SignalingType;
+  callSessionId?: string;
+  payload?: SignalingRequestPayload;
+}
+
+// Response nhận từ BE qua WebSocket (khớp với SignalingResponse Java)
+export interface SignalingResponse {
+  type: SignalingType;
+  senderId: number;
+  senderName: string;
+  roomId: number;
+  callSessionId: string;
+  activeParticipantCount: number;
   payload?: {
     callType?: CallType;
-    targetUserId?: number;
     reason?: string;
   };
 }
-
-export type SignalingResponse = SignalingPayload;

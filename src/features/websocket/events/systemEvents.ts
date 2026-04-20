@@ -22,12 +22,14 @@ export interface UserStatusPayload {
 }
 
 export interface SignalingPayload {
-  type: "INVITE" | "ACCEPT" | "REJECT" | "HANGUP";
+  type: "INVITE" | "ACCEPT" | "REJECT" | "LEAVE" | "HANGUP" | "SESSION_ENDED";
   senderId: number;
+  senderName: string;
   roomId: number;
+  callSessionId: string;
+  activeParticipantCount: number;
   payload?: {
     callType?: "AUDIO" | "VIDEO";
-    targetUserId?: number;
     reason?: string;
   };
 }

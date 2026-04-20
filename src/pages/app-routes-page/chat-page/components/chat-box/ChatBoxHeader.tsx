@@ -61,12 +61,18 @@ const ChatBoxHeader = ({
       </div>
 
       <div className="chat-box-header__actions">
-        {selectedChat.roomType === "DIRECT" && otherParticipant && (
+        {selectedChat.roomType === "DIRECT" && otherParticipant ? (
           <CallButton
             targetUserId={otherParticipant.userId}
             roomId={selectedChat.roomId}
             isTargetOnline={otherParticipant.status === "ONLINE"}
             targetName={otherParticipant.name}
+            variant="header"
+            theme={theme}
+          />
+        ) : selectedChat.roomType === "GROUP" && (
+          <CallButton
+            roomId={selectedChat.roomId}
             variant="header"
             theme={theme}
           />

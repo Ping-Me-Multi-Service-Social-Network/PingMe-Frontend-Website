@@ -7,8 +7,8 @@ interface ZegoCallUIProps {
   currentUserId: string;
   currentUserName: string;
   callType: CallType;
+  isGroup?: boolean;
   onEndCall: () => void;
-  // Bỏ prop callStatus đi, không cần nữa
 }
 
 function ZegoCallUIInternal({
@@ -16,6 +16,7 @@ function ZegoCallUIInternal({
   currentUserId,
   currentUserName,
   callType,
+  isGroup = false,
   onEndCall,
 }: ZegoCallUIProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,13 +27,10 @@ function ZegoCallUIInternal({
   const appID = Number(import.meta.env.VITE_ZEGO_APP_ID);
   const serverSecret = import.meta.env.VITE_ZEGO_SERVER_SECRET;
 
-  // 1. INIT EFFECT
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !appID || !serverSecret || isInitializedRef.current)
-      return;
+    if (!container || !appID || !serverSecret || isInitializedRef.current) return;
 
-    console.log("[ZegoCallUI] Initializing...");
     isInitializedRef.current = true;
 
     const initZego = async () => {
@@ -48,62 +46,55 @@ function ZegoCallUIInternal({
         const zp = ZegoUIKitPrebuilt.create(kitToken);
         zpRef.current = zp;
 
+        // Group call: dùng VideoConference cho cả audio và video (hỗ trợ N-N)
+        // 1-1 call: VideoConference cho video, OneONoneCall cho audio
+        const scenario = isGroup || callType === "VIDEO"
+          ? ZegoUIKitPrebuilt.VideoConference
+          : ZegoUIKitPrebuilt.OneONoneCall;
+
         zp.joinRoom({
-          container: container,
-          scenario: {
-            mode:
-              callType === "VIDEO"
-                ? ZegoUIKitPrebuilt.VideoConference
-                : ZegoUIKitPrebuilt.OneONoneCall,
-          },
+          container,
+          scenario: { mode: scenario },
           showPreJoinView: false,
           turnOnCameraWhenJoining: callType === "VIDEO",
           turnOnMicrophoneWhenJoining: true,
-          showScreenSharingButton: false,
-          showUserList: false,
+          showScreenSharingButton: true,
+          showUserList: isGroup,
+          showLayoutButton: isGroup,
 
           onLeaveRoom: () => {
-            console.log("[ZegoCallUI] Left room (User action)");
+            // Người dùng chủ động rời → kết thúc về phía mình
             onEndCall();
           },
 
           onUserLeave: () => {
-            console.log("[ZegoCallUI] Remote user left -> Auto End");
-            onEndCall();
+            // 1-1: đối phương rời → kết thúc ngay
+            // Group: người khác rời → KHÔNG kết thúc, CallProvider xử lý qua signal LEAVE
+            if (!isGroup) {
+              onEndCall();
+            }
           },
         });
       } catch (err: unknown) {
-        console.error("[ZegoCallUI] Crash:", err);
-        setError("Failed to initialize");
+        console.error("[ZegoCallUI] Init error:", err);
+        setError("Không thể khởi tạo cuộc gọi");
         isInitializedRef.current = false;
       }
     };
 
     initZego();
 
-    // CLEANUP (Giữ nguyên logic cleanup an toàn này)
     return () => {
-      console.log("[ZegoCallUI] Unmounting - Force Destroy");
-
-      // Chặn init lại
       isInitializedRef.current = true;
 
       const zp = zpRef.current;
       zpRef.current = null;
 
       if (zp) {
-        // Xóa nội dung DOM ngay lập tức để giao diện biến mất
-        if (containerRef.current) {
-          // containerRef.current.innerHTML = ""; // Có thể comment dòng này nếu gây lỗi
-        }
-
-        // Destroy Zego sau 1 tích tắc
         setTimeout(() => {
           try {
             zp.destroy();
-            console.log("[ZegoCallUI] Destroyed");
           } catch (e) {
-            // Kệ lỗi destroy
             console.warn("[ZegoCallUI] Destroy error:", e);
           }
         }, 0);
@@ -112,12 +103,21 @@ function ZegoCallUIInternal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- XÓA BỎ useEffect lắng nghe callStatus Ở ĐÂY ---
-
-  if (error)
+  if (error) {
     return (
-      <div className="fixed inset-0 bg-black text-white p-10">{error}</div>
+      <div className="fixed inset-0 bg-black text-white flex items-center justify-center z-[9999]">
+        <div className="text-center">
+          <p className="text-lg mb-4">{error}</p>
+          <button
+            onClick={onEndCall}
+            className="px-6 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
     );
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
@@ -126,10 +126,10 @@ function ZegoCallUIInternal({
   );
 }
 
-// React.memo đơn giản hơn
 export const ZegoCallUI = React.memo(ZegoCallUIInternal, (prev, next) => {
-  // Chỉ render lại nếu Room hoặc User đổi (gần như không bao giờ đổi trong 1 cuộc gọi)
   return (
-    prev.roomId === next.roomId && prev.currentUserId === next.currentUserId
+    prev.roomId === next.roomId &&
+    prev.currentUserId === next.currentUserId &&
+    prev.isGroup === next.isGroup
   );
 });
