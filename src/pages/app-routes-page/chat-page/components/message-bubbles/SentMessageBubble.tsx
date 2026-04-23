@@ -14,7 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { recallMessageApi, deleteMessageForMeApi } from "@/services/chat";
+import { Pin } from "lucide-react";
+import { recallMessageApi, deleteMessageForMeApi, pinMessageApi, unpinMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -75,6 +76,24 @@ const SentMessageBubble = memo(function SentMessageBubble({
       onDeleteForMe?.(message.id);
     } catch {
       toast.error(t("bubbles.messages.deleteForMeError", "Could not delete message"));
+    }
+  };
+
+  const handlePin = async () => {
+    try {
+      await pinMessageApi(message.id);
+      toast.success(t("bubbles.messages.pinSuccess", "Message pinned"));
+    } catch {
+      toast.error(t("bubbles.messages.pinError", "Could not pin message"));
+    }
+  };
+
+  const handleUnpin = async () => {
+    try {
+      await unpinMessageApi(message.id);
+      toast.success(t("bubbles.messages.unpinSuccess", "Message unpinned"));
+    } catch {
+      toast.error(t("bubbles.messages.unpinError", "Could not unpin message"));
     }
   };
 
@@ -142,6 +161,11 @@ const SentMessageBubble = memo(function SentMessageBubble({
               <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center" title={message.editedAt ? new Date(message.editedAt).toLocaleString() : undefined}>
                 <Edit2 className="w-2.5 h-2.5 mr-1" />
                 {t("bubbles.messages.edited", "Edited")}
+              </span>
+            )}
+            {message.isPinned && (
+              <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center text-orange-500">
+                <Pin className="w-2.5 h-2.5 mr-1 fill-current" />
               </span>
             )}
           </div>
@@ -231,6 +255,15 @@ const SentMessageBubble = memo(function SentMessageBubble({
                   >
                     <Edit2 className="mr-2 h-4 w-4" />
                     {t("bubbles.messages.editBtn", "Edit")}
+                  </DropdownMenuItem>
+                )}
+                {message.type !== "SYSTEM" && (
+                  <DropdownMenuItem
+                    onClick={message.isPinned ? handleUnpin : handlePin}
+                    className="cursor-pointer"
+                  >
+                    <Pin className="mr-2 h-4 w-4" />
+                    {message.isPinned ? t("bubbles.messages.unpinBtn", "Unpin message") : t("bubbles.messages.pinBtn", "Pin message")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem

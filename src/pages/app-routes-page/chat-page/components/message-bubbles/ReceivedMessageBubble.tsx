@@ -6,7 +6,7 @@ import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { RotateCcw, Forward, MoreHorizontal, Trash2, Reply } from "lucide-react";
+import { RotateCcw, Forward, MoreHorizontal, Trash2, Reply, Pin } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { deleteMessageForMeApi } from "@/services/chat";
+import { deleteMessageForMeApi, pinMessageApi, unpinMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 
 interface ReceivedMessageBubbleProps {
@@ -60,6 +60,24 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       onDeleteForMe?.(message.id);
     } catch {
       toast.error(t("bubbles.messages.deleteForMeError", "Could not delete message"));
+    }
+  };
+
+  const handlePin = async () => {
+    try {
+      await pinMessageApi(message.id);
+      toast.success(t("bubbles.messages.pinSuccess", "Message pinned"));
+    } catch {
+      toast.error(t("bubbles.messages.pinError", "Could not pin message"));
+    }
+  };
+
+  const handleUnpin = async () => {
+    try {
+      await unpinMessageApi(message.id);
+      toast.success(t("bubbles.messages.unpinSuccess", "Message unpinned"));
+    } catch {
+      toast.error(t("bubbles.messages.unpinError", "Could not unpin message"));
     }
   };
 
@@ -120,9 +138,16 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       case "TEXT":
       default:
         contentNode = (
-          <p className="text-sm leading-relaxed">
-            {message.content}
-          </p>
+          <div className="flex flex-col relative">
+            <p className="text-sm leading-relaxed">
+              {message.content}
+            </p>
+            {message.isPinned && (
+              <span className="text-[10px] opacity-60 mt-1 self-start leading-none inline-flex items-center text-orange-500">
+                <Pin className="w-2.5 h-2.5 mr-1 fill-current" />
+              </span>
+            )}
+          </div>
         );
         break;
     }
@@ -219,6 +244,15 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                   <Forward className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.forwardBtn", "Forward")}
                 </DropdownMenuItem>
+                {message.type !== "SYSTEM" && (
+                  <DropdownMenuItem
+                    onClick={message.isPinned ? handleUnpin : handlePin}
+                    className="cursor-pointer"
+                  >
+                    <Pin className="mr-2 h-4 w-4" />
+                    {message.isPinned ? t("bubbles.messages.unpinBtn", "Unpin message") : t("bubbles.messages.pinBtn", "Pin message")}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={handleDeleteForMe}
                   className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

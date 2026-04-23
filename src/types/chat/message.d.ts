@@ -7,6 +7,9 @@ export interface MessageResponse {
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
   createdAt: string;
   isActive: boolean;
+  isPinned?: boolean;
+  pinnedAt?: string | null;
+  pinnedByUserId?: number | null;
   isEdited?: boolean;
   editedAt?: string | null;
   fileFormat?: string | null;

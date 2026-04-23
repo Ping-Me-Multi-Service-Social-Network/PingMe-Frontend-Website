@@ -14,6 +14,7 @@ import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
 import { ChatBoxContent } from "./chat-box/ChatBoxContent.tsx";
 import ChatBoxHeader from "./chat-box/ChatBoxHeader.tsx";
+import ChatPinnedMessages from "./chat-box/ChatPinnedMessages.tsx";
 import ConversationSidebar from "./conversation-sidebar";
 import { useTranslation } from "react-i18next";
 import { useMessages } from "../hooks/useMessages";
@@ -234,6 +235,8 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           selectedChat={selectedChat}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
+        
+        <ChatPinnedMessages roomId={selectedChat.roomId} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
           <ChatBoxContent

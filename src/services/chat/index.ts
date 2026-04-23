@@ -181,3 +181,15 @@ export const bulkForwardMessageApi = (data: BulkForwardMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse[]>>("/core-service/messages/forward/bulk", data);
 };
 
+export const pinMessageApi = (messageId: string) => {
+  return axiosClient.patch<ApiResponse<MessageResponse>>(`/core-service/messages/${messageId}/pin`);
+};
+
+export const unpinMessageApi = (messageId: string) => {
+  return axiosClient.patch<ApiResponse<MessageResponse>>(`/core-service/messages/${messageId}/unpin`);
+};
+
+export const getPinnedMessagesApi = (roomId: number) => {
+  return axiosClient.get<ApiResponse<MessageResponse[]>>(`/core-service/messages/pinned?roomId=${roomId}`);
+};
+

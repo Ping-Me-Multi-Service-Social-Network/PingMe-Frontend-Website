@@ -81,6 +81,9 @@ const chatSlice = createSlice({
           content: message.content,
           isEdited: message.isEdited,
           editedAt: message.editedAt,
+          isPinned: message.isPinned,
+          pinnedAt: message.pinnedAt,
+          pinnedByUserId: message.pinnedByUserId,
         };
 
         // Also update local list if it exists
@@ -89,6 +92,9 @@ const chatSlice = createSlice({
           state.messages[idx].content = message.content;
           state.messages[idx].isEdited = message.isEdited;
           state.messages[idx].editedAt = message.editedAt;
+          state.messages[idx].isPinned = message.isPinned;
+          state.messages[idx].pinnedAt = message.pinnedAt;
+          state.messages[idx].pinnedByUserId = message.pinnedByUserId;
         }
       }
     },

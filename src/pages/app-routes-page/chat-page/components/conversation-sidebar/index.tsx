@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button.tsx";
 import {
   X,
   Users,
-  FileImage,
   Palette,
-  UserCog,
-  User,
   Camera,
 } from "lucide-react";
 import { useState } from "react";
@@ -147,23 +144,6 @@ const ConversationSidebar = ({
           )}
 
           <div className="conv-sidebar__quick-actions">
-            {selectedChat.roomType === "DIRECT" && (
-              <div className="conv-sidebar__quick-action">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled
-                  className={`h-12 w-12 rounded-full bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-                  title={t("sidebar.profile")}
-                >
-                  <User className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-                </Button>
-                <span className={`text-xs ${theme.sidebar.textSecondary}`}>
-                  {t("sidebar.profile")}
-                </span>
-              </div>
-            )}
-
             {selectedChat.roomType === "DIRECT" && otherParticipant ? (
               <CallButton
                 variant="sidebar"
@@ -214,18 +194,6 @@ const ConversationSidebar = ({
             </Button>
           </motion.div>
 
-          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
-            <Button
-              variant="outline"
-              disabled
-              className={`w-full justify-start gap-3 h-14 bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-            >
-              <FileImage className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              <span className={`font-medium ${theme.sidebar.textSecondary}`}>
-                {t("sidebar.media")}
-              </span>
-            </Button>
-          </motion.div>
 
           <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
             <Button
@@ -240,18 +208,6 @@ const ConversationSidebar = ({
             </Button>
           </motion.div>
 
-          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
-            <Button
-              variant="outline"
-              disabled
-              className={`w-full justify-start gap-3 h-14 bg-transparent opacity-50 cursor-not-allowed ${theme.sidebar.buttonBorder}`}
-            >
-              <UserCog className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              <span className={`font-medium ${theme.sidebar.textSecondary}`}>
-                {t("sidebar.nickname")}
-              </span>
-            </Button>
-          </motion.div>
         </motion.div>
       </div>
 
