@@ -9,6 +9,7 @@ import {
   sendWeatherMessage,
   sendMultipleImageMessageApi,
   editMessageApi,
+  createPollMessageApi,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
@@ -170,6 +171,27 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     }
   };
 
+  const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
+    try {
+      const pollRequest = {
+        roomId: selectedChat.roomId,
+        clientMsgId: crypto.randomUUID(),
+        question,
+        options,
+        allowMultiple,
+        repliedMessageId: replyMessage?.id || null,
+      };
+
+      const response = await createPollMessageApi(pollRequest);
+      const sentMessage = response.data.data as MessageResponse;
+      addMessage(sentMessage);
+      setReplyMessage(null);
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("box.createPollError", "Failed to create poll")));
+      throw err; // Re-throw to handle in UI
+    }
+  };
+
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     dragCounter.current += 1;
@@ -259,6 +281,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           onSendFile={handleSendFile}
           onSendMultipleImages={handleSendMultipleImages}
           onSendWeather={handleSendWeather}
+          onCreatePoll={handleCreatePoll}
           disabled={isLoadingMessages}
           droppedFiles={droppedFiles}
           onDroppedFilesProcessed={() => setDroppedFiles([])}

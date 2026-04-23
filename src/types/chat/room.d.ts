@@ -29,7 +29,7 @@ export interface LastMessage {
   messageId: string;
   senderId: number;
   preview: string;
-  messageType: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "WEATHER" | "SYSTEM";
+  messageType: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "WEATHER" | "SYSTEM" | "POLL";
   createdAt: string;
 }
 

@@ -4,6 +4,7 @@ import MessageImage from "./MessageImage.tsx";
 import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
+import { MessagePoll } from "./MessagePoll.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import { RotateCcw, Forward, MoreHorizontal, Trash2, Reply, Pin } from "lucide-react";
@@ -33,6 +34,7 @@ interface ReceivedMessageBubbleProps {
   onDeleteForMe?: (messageId: string) => void;
   onReplyClick?: () => void;
   repliedSenderName?: string;
+  currentUserId: number;
 }
 
 const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
@@ -45,6 +47,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   onDeleteForMe,
   onReplyClick,
   repliedSenderName,
+  currentUserId,
 }: ReceivedMessageBubbleProps) {
   const { t } = useTranslation("chat");
   const isMediaMessage =
@@ -135,6 +138,9 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         }
         break;
       }
+      case "POLL":
+        contentNode = <MessagePoll message={message} currentUserId={currentUserId} />;
+        break;
       case "TEXT":
       default:
         contentNode = (
@@ -171,6 +177,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
                message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
                message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+               message.repliedMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${message.repliedMessage.poll?.question || ''}` : 
                "Message"}
             </span>
           </div>
@@ -232,13 +239,15 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                   <Reply className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.replyBtn", "Reply")}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onForwardClick?.(message.id)}
-                  className="cursor-pointer"
-                >
-                  <Forward className="mr-2 h-4 w-4" />
-                  {t("bubbles.messages.forwardBtn", "Forward")}
-                </DropdownMenuItem>
+                {message.type !== "POLL" && (
+                  <DropdownMenuItem
+                    onClick={() => onForwardClick?.(message.id)}
+                    className="cursor-pointer"
+                  >
+                    <Forward className="mr-2 h-4 w-4" />
+                    {t("bubbles.messages.forwardBtn", "Forward")}
+                  </DropdownMenuItem>
+                )}
                 {message.type !== "SYSTEM" && (
                   <DropdownMenuItem
                     onClick={message.isPinned ? handleUnpin : handlePin}

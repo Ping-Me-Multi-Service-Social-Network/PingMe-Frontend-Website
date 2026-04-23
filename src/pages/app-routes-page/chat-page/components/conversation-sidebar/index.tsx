@@ -23,6 +23,12 @@ import UpdateGroupImageModal from "./update-group-image-modal.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { Edit2 } from "lucide-react";
+import {
+  canRenameGroup,
+  canChangeGroupAvatar,
+  canChangeTheme,
+} from "../../utils/groupPermissions.ts";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -41,6 +47,7 @@ const ConversationSidebar = ({
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
   const { t } = useTranslation("chat");
+  const currentUserId = userSession?.id || 0;
 
   const theme = getTheme(selectedChat.theme);
 
@@ -59,9 +66,7 @@ const ConversationSidebar = ({
     return (
       <div className={`conv-sidebar ${theme.sidebar.background}`}>
         <MemberList
-          participants={selectedChat.participants}
-          roomType={selectedChat.roomType}
-          roomId={selectedChat.roomId}
+          room={selectedChat}
           onBack={() => setCurrentView("main")}
         />
       </div>
@@ -129,7 +134,7 @@ const ConversationSidebar = ({
                   : selectedChat.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {selectedChat.roomType === "GROUP" && (
+            {selectedChat.roomType === "GROUP" && canChangeGroupAvatar(selectedChat, currentUserId) && (
               <Button
                 size="icon"
                 variant="ghost"
@@ -142,12 +147,22 @@ const ConversationSidebar = ({
           </div>
 
           {selectedChat.roomType === "GROUP" ? (
-            <div className="relative w-full max-w-xs group text-center">
+            <div className="relative w-full max-w-xs group text-center flex items-center justify-center">
               <h4
-                className={`conv-sidebar__profile-name truncate px-10 ${theme.sidebar.textPrimary}`}
+                className={`conv-sidebar__profile-name truncate max-w-[80%] ${theme.sidebar.textPrimary}`}
               >
                 {selectedChat.name}
               </h4>
+              {canRenameGroup(selectedChat, currentUserId) && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className={`h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity ${theme.header.iconHoverBg}`}
+                  onClick={() => setIsRenameModalOpen(true)}
+                >
+                  <Edit2 className={`h-3.5 w-3.5 ${theme.header.iconColor}`} />
+                </Button>
+              )}
             </div>
           ) : (
             <h4
@@ -222,18 +237,20 @@ const ConversationSidebar = ({
             </Button>
           </motion.div>
 
-          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
-            <Button
-              variant="outline"
-              className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
-              onClick={() => setIsThemeModalOpen(true)}
-            >
-              <Palette className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-                {t("sidebar.theme")}
-              </span>
-            </Button>
-          </motion.div>
+          {canChangeTheme(selectedChat, currentUserId) && (
+            <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
+              <Button
+                variant="outline"
+                className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+                onClick={() => setIsThemeModalOpen(true)}
+              >
+                <Palette className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+                <span className={`font-medium ${theme.sidebar.textPrimary}`}>
+                  {t("sidebar.theme")}
+                </span>
+              </Button>
+            </motion.div>
+          )}
 
         </motion.div>
       </div>

@@ -36,9 +36,10 @@ const ThemeSelectionModal = ({
       setSelectedTheme(themeKey);
       toast.success(t("modals.theme.success"));
       onClose();
-    } catch (error) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
       console.error("Error changing theme:", error);
-      toast.error(t("modals.theme.error"));
+      toast.error(error.response?.data?.message || t("modals.theme.error"));
     } finally {
       setIsLoading(false);
     }

@@ -187,6 +187,7 @@ export const ChatBoxContent = memo(({
                   onDeleteForMe={onDeleteForMeClick}
                   onReplyClick={() => onReplyClick?.(message)}
                   repliedSenderName={getRepliedSenderName(message.repliedMessage?.senderId)}
+                  currentUserId={currentUser?.id!}
                 />
               )}
             </div>

@@ -1,4 +1,4 @@
-import type { RoomParticipantResponse } from "@/types/chat/room";
+import type { RoomResponse, RoomParticipantResponse } from "@/types/chat/room";
 import {
   Avatar,
   AvatarFallback,
@@ -15,58 +15,39 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog.tsx";
 import { removeGroupMemberApi, changeMemberRole } from "@/services/chat";
 import { toast } from "sonner";
 import { useAppSelector } from "@/features/hooks.ts";
 import { useTranslation } from "react-i18next";
-
-const canAddMembers = (
-  currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null
-): boolean => {
-  return currentUserRole === "OWNER" || currentUserRole === "ADMIN";
-};
-
-const canManageMember = (
-  currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null,
-  targetRole: "OWNER" | "ADMIN" | "MEMBER",
-  isCurrentUser: boolean
-): boolean => {
-  if (isCurrentUser) return false;
-  if (currentUserRole === "MEMBER") return false;
-  if (currentUserRole === "ADMIN") return targetRole === "MEMBER";
-  if (currentUserRole === "OWNER") return true;
-  return false;
-};
-
-const canChangeRole = (
-  currentUserRole: "OWNER" | "ADMIN" | "MEMBER" | null,
-  targetRole: "OWNER" | "ADMIN" | "MEMBER"
-): boolean => {
-  return (
-    currentUserRole === "OWNER" &&
-    (targetRole === "ADMIN" || targetRole === "MEMBER")
-  );
-};
+import {
+  canAddMembers,
+  canRemoveMember,
+  getAvailableRoleActions,
+} from "../../utils/groupPermissions.ts";
 
 interface MemberListProps {
-  participants: RoomParticipantResponse[];
-  roomType: "DIRECT" | "GROUP";
-  roomId: number;
+  room: RoomResponse;
   onBack: () => void;
 }
 
 const MemberList = ({
-  participants,
-  roomType,
-  roomId,
+  room,
   onBack,
 }: MemberListProps) => {
+  const { participants, roomType, roomId } = room;
   const { userSession } = useAppSelector((state) => state.auth);
+  const currentUserId = userSession?.id || 0;
   const [searchQuery, setSearchQuery] = useState("");
+  const [transferTarget, setTransferTarget] = useState<RoomParticipantResponse | null>(null);
   const { t } = useTranslation("chat");
-
-  const currentUserRole =
-    participants.find((p) => p.userId === userSession?.id)?.role || null;
 
   // Sort participants: OWNER first, then ADMIN, then MEMBER
   const sortedParticipants = [...participants].sort((a, b) => {
@@ -89,28 +70,31 @@ const MemberList = ({
     try {
       await removeGroupMemberApi(roomId, userId);
       toast.success(t("memberList.messages.removedSuccess", { name }));
-    } catch {
-      toast.error(t("memberList.messages.removedError"));
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("memberList.messages.removedError"));
     }
   };
 
   const handleChangeRole = async (
     userId: number,
     name: string,
-    currentRole: "ADMIN" | "MEMBER"
+    newRole: "ADMIN" | "MEMBER" | "OWNER"
   ) => {
-    const newRole = currentRole === "ADMIN" ? "MEMBER" : "ADMIN";
     try {
       await changeMemberRole(roomId, userId, newRole);
-      const isAddingAdmin = newRole === "ADMIN";
-
-      if (isAddingAdmin) {
+      
+      if (newRole === "ADMIN") {
         toast.success(t("memberList.messages.addedAdminSuccess", { name }));
-      } else {
+      } else if (newRole === "MEMBER") {
         toast.success(t("memberList.messages.removedAdminSuccess", { name }));
+      } else if (newRole === "OWNER") {
+        toast.success(t("memberList.messages.ownershipTransferred", "Ownership transferred to {name}", { name }));
+        setTransferTarget(null);
       }
-    } catch {
-      toast.error(t("memberList.messages.roleChangeError"));
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("memberList.messages.roleChangeError"));
     }
   };
 
@@ -125,7 +109,7 @@ const MemberList = ({
 
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-4">
-          {roomType === "GROUP" && canAddMembers(currentUserRole) && (
+          {roomType === "GROUP" && canAddMembers(room, currentUserId) && (
             <GroupMemberModal
               mode="add"
               currentMembers={participants}
@@ -162,12 +146,9 @@ const MemberList = ({
           <div className="space-y-1">
             {filteredParticipants.map((participant) => {
               const roleDescription = getRoleDescription(participant.role);
-              const isCurrentUser = participant.userId === userSession?.id;
-              const showActions = canManageMember(
-                currentUserRole,
-                participant.role,
-                isCurrentUser
-              );
+              const actions = getAvailableRoleActions(room, currentUserId, participant);
+              const canRemove = canRemoveMember(room, currentUserId, participant);
+              const showActions = roomType === "GROUP" && (actions.length > 0 || canRemove);
 
               return (
                 <div
@@ -194,7 +175,7 @@ const MemberList = ({
                     )}
                   </div>
 
-                  {roomType === "GROUP" && showActions && (
+                  {showActions && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -206,47 +187,37 @@ const MemberList = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {canChangeRole(currentUserRole, participant.role) && (
-                          <>
-                            {participant.role === "ADMIN" && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleChangeRole(
-                                    participant.userId,
-                                    participant.name,
-                                    "ADMIN"
-                                  )
-                                }
-                              >
-                                {t("memberList.actions.removeAdmin")}
-                              </DropdownMenuItem>
-                            )}
-                            {participant.role === "MEMBER" && (
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  handleChangeRole(
-                                    participant.userId,
-                                    participant.name,
-                                    "MEMBER"
-                                  )
-                                }
-                              >
-                                {t("memberList.actions.addAdmin")}
-                              </DropdownMenuItem>
-                            )}
-                          </>
+                        {actions.map((action) => (
+                          <DropdownMenuItem
+                            key={action.role}
+                            onClick={() => {
+                              if (action.role === "OWNER") {
+                                setTransferTarget(participant);
+                              } else {
+                                handleChangeRole(
+                                  participant.userId,
+                                  participant.name,
+                                  action.role
+                                );
+                              }
+                            }}
+                          >
+                            {t(action.labelKey, action.labelKey.split('.').pop()?.replace(/([A-Z])/g, ' $1').trim() || action.labelKey)}
+                          </DropdownMenuItem>
+                        ))}
+                        {canRemove && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleRemoveMember(
+                                participant.userId,
+                                participant.name
+                              )
+                            }
+                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                          >
+                            {t("memberList.actions.removeFromGroup")}
+                          </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleRemoveMember(
-                              participant.userId,
-                              participant.name
-                            )
-                          }
-                          className="text-red-600 focus:text-red-600"
-                        >
-                          {t("memberList.actions.removeFromGroup")}
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
@@ -256,6 +227,32 @@ const MemberList = ({
           </div>
         </div>
       </div>
+      {/* Transfer Ownership Confirmation Dialog */}
+      <Dialog open={!!transferTarget} onOpenChange={(open) => !open && setTransferTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("modals.transferOwnership.title", "Transfer Ownership")}</DialogTitle>
+            <DialogDescription>
+              {t("modals.transferOwnership.description", "Are you sure you want to transfer ownership of this group to {name}? You will become an Admin after transferring.", { name: transferTarget?.name })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferTarget(null)}>
+              {t("common:cancel", "Cancel")}
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (transferTarget) {
+                  handleChangeRole(transferTarget.userId, transferTarget.name, "OWNER");
+                }
+              }}
+            >
+              {t("modals.transferOwnership.confirm", "Confirm Transfer")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

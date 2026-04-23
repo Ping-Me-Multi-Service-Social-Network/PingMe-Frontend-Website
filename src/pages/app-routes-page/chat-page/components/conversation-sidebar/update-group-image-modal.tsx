@@ -62,8 +62,9 @@ const UpdateGroupImageModal = ({
       await updateGroupImage(roomId, selectedFile);
       toast.success(selectedFile ? t("modals.updateImage.updateSuccess") : t("modals.updateImage.removeSuccess"));
       onClose();
-    } catch (error) {
-      toast.error(t("modals.updateImage.updateError"));
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("modals.updateImage.updateError"));
       console.error("Failed to update group image:", error);
     } finally {
       setIsLoading(false);

@@ -21,6 +21,7 @@ const getMessagePreview = (msg: MessageResponse) => {
   if (msg.type === "VIDEO") return <span className="flex items-center gap-1 text-purple-500"><Video className="w-3 h-3" /> Video</span>;
   if (msg.type === "FILE") return <span className="flex items-center gap-1 text-orange-500"><File className="w-3 h-3" /> File</span>;
   if (msg.type === "WEATHER") return <span className="flex items-center gap-1 text-sky-500"><CloudRain className="w-3 h-3" /> Weather</span>;
+  if (msg.type === "POLL") return <span className="flex items-center gap-1 font-medium">[Poll] {msg.poll?.question}</span>;
   return msg.content || "";
 };
 
@@ -173,7 +174,7 @@ const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMe
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
-                <div className="text-sm text-gray-600 line-clamp-3 break-words">
+                <div className="text-sm text-gray-600 line-clamp-3 wrap-break-word">
                   {getMessagePreview(msg)}
                 </div>
               </div>

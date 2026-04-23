@@ -4,6 +4,7 @@ import MessageImage from "./MessageImage.tsx";
 import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
+import { MessagePoll } from "./MessagePoll.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import { MoreHorizontal, RotateCcw, Forward, Trash2, Reply, Edit2 } from "lucide-react";
@@ -150,6 +151,9 @@ const SentMessageBubble = memo(function SentMessageBubble({
         }
         break;
       }
+      case "POLL":
+        contentNode = <MessagePoll message={message} currentUserId={message.senderId} />;
+        break;
       case "TEXT":
       default:
         contentNode = (
@@ -192,6 +196,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
                message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
                message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
                message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+               message.repliedMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${message.repliedMessage.poll?.question || ''}` : 
                "Message"}
             </span>
           </div>
@@ -236,13 +241,15 @@ const SentMessageBubble = memo(function SentMessageBubble({
                   <Reply className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.replyBtn", "Reply")}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onForwardClick?.(message.id)}
-                  className="cursor-pointer"
-                >
-                  <Forward className="mr-2 h-4 w-4" />
-                  {t("bubbles.messages.forwardBtn", "Forward")}
-                </DropdownMenuItem>
+                {message.type !== "POLL" && (
+                  <DropdownMenuItem
+                    onClick={() => onForwardClick?.(message.id)}
+                    className="cursor-pointer"
+                  >
+                    <Forward className="mr-2 h-4 w-4" />
+                    {t("bubbles.messages.forwardBtn", "Forward")}
+                  </DropdownMenuItem>
+                )}
                 {message.type === "TEXT" && (
                   <DropdownMenuItem
                     onClick={onEditClick}

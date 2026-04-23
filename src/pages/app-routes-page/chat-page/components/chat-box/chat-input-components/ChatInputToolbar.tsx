@@ -1,5 +1,5 @@
 import type React from "react";
-import { ImagePlus, Paperclip, CloudSun, Mic } from "lucide-react";
+import { ImagePlus, Paperclip, CloudSun, Mic, BarChart2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface ChatInputToolbarProps {
@@ -13,6 +13,7 @@ interface ChatInputToolbarProps {
   onFileClick: () => void;
   onWeatherClick: () => void;
   onRecordingClick: () => void;
+  onPollClick: () => void;
   imageInputRef: React.RefObject<HTMLInputElement | null>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -29,6 +30,7 @@ export function ChatInputToolbar({
   onFileClick,
   onWeatherClick,
   onRecordingClick,
+  onPollClick,
   imageInputRef,
   fileInputRef,
   handleImageChange,
@@ -76,6 +78,15 @@ export function ChatInputToolbar({
         title={t("input.sendWeatherTitle")}
       >
         <CloudSun />
+      </button>
+
+      <button
+        className="chat-input-toolbar__btn"
+        onClick={onPollClick}
+        disabled={disabled || isSending || isRecording || isTranscribing}
+        title={t("input.createPollTitle", "Create Poll")}
+      >
+        <BarChart2 />
       </button>
 
       {/* Mic button in toolbar */}

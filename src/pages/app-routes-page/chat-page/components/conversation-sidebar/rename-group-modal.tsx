@@ -46,8 +46,9 @@ const RenameGroupModal = ({
       await renameGroup(roomId, newGroupName.trim());
       toast.success(t("modals.renameGroup.success"));
       onClose();
-    } catch (error) {
-      toast.error(t("modals.renameGroup.error"));
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || t("modals.renameGroup.error"));
       console.error("Error renaming group:", error);
     } finally {
       setIsLoading(false);

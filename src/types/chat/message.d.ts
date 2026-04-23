@@ -4,7 +4,7 @@ export interface MessageResponse {
   clientMsgId: string;
   senderId: number;
   content: string;
-  type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
+  type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER" | "POLL";
   createdAt: string;
   isActive: boolean;
   isPinned?: boolean;
@@ -24,11 +24,29 @@ export interface MessageResponse {
     id: string;
     senderId: number;
     content: string | null;
-    type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER";
+    type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER" | "POLL";
     isActive: boolean;
     fileFormat?: string | null;
     mediaUrls?: string[] | null;
+    poll?: PollResponse | null;
   } | null;
+  poll?: PollResponse | null;
+}
+
+export interface PollOptionResponse {
+  id: string;
+  text: string;
+  voteCount: number;
+  voterIds: number[];
+}
+
+export interface PollResponse {
+  question: string;
+  allowMultiple: boolean;
+  expiresAt?: string | null;
+  expired: boolean;
+  totalVotes: number;
+  options: PollOptionResponse[];
 }
 
 export interface MessageRecalledResponse {
@@ -81,3 +99,16 @@ export interface BulkForwardMessageRequest {
   targetRoomIds: number[];
 }
 
+export interface CreatePollMessageRequest {
+  roomId: number;
+  clientMsgId: string;
+  question: string;
+  options: string[];
+  allowMultiple?: boolean;
+  expiresAt?: string | null;
+  repliedMessageId?: string | null;
+}
+
+export interface VotePollRequest {
+  optionIds: string[];
+}

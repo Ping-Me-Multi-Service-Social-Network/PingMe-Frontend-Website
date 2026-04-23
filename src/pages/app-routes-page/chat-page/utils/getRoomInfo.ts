@@ -62,6 +62,9 @@ export const getLastMessagePreview = (
     case "WEATHER":
       messageContent = i18n.t("chat:preview.weather");
       break;
+    case "POLL":
+      messageContent = `[${i18n.t("chat:input.createPollTitle", "Poll")}] ${room.lastMessage.preview}`;
+      break;
     case "TEXT":
     default:
       messageContent = room.lastMessage.preview;

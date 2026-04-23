@@ -16,6 +16,7 @@ import {
   FilePreviewList,
   ChatInputArea,
   RecordingState,
+  CreatePollModal,
 } from "./chat-input-components";
 import { X, Reply, Edit2 } from "lucide-react";
 
@@ -31,6 +32,7 @@ interface ChatInputProps {
   onSendFile: (file: File, type: "IMAGE" | "VIDEO" | "FILE") => Promise<void>;
   onSendMultipleImages: (files: File[]) => Promise<void>;
   onSendWeather: (lat: number, lon: number) => Promise<void>;
+  onCreatePoll: (question: string, options: string[], allowMultiple: boolean) => Promise<void>;
   disabled?: boolean;
   droppedFiles?: File[];
   onDroppedFilesProcessed?: () => void;
@@ -47,6 +49,7 @@ interface ChatInputState {
   isSending: boolean;
   newMessage: string;
   isTyping: boolean;
+  showPollModal: boolean;
 }
 
 type ChatInputAction =
@@ -58,7 +61,8 @@ type ChatInputAction =
   | { type: "CLEAR_FILES" }
   | { type: "SET_SENDING"; payload: boolean }
   | { type: "SET_MESSAGE"; payload: string }
-  | { type: "SET_TYPING"; payload: boolean };
+  | { type: "SET_TYPING"; payload: boolean }
+  | { type: "SET_POLL_MODAL"; payload: boolean };
 
 const chatInputReducer = (
   state: ChatInputState,
@@ -95,6 +99,8 @@ const chatInputReducer = (
       return { ...state, newMessage: action.payload };
     case "SET_TYPING":
       return { ...state, isTyping: action.payload };
+    case "SET_POLL_MODAL":
+      return { ...state, showPollModal: action.payload };
     default:
       return state;
   }
@@ -106,6 +112,7 @@ const initialState: ChatInputState = {
   isSending: false,
   newMessage: "",
   isTyping: false,
+  showPollModal: false,
 };
 
 export function ChatBoxInput({
@@ -114,6 +121,7 @@ export function ChatBoxInput({
   onSendFile,
   onSendMultipleImages,
   onSendWeather,
+  onCreatePoll,
   disabled = false,
   droppedFiles,
   onDroppedFilesProcessed,
@@ -133,6 +141,7 @@ export function ChatBoxInput({
     isSending,
     newMessage,
     isTyping,
+    showPollModal,
   } = state;
 
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -408,6 +417,22 @@ export function ChatBoxInput({
     }
   };
 
+  const handlePollClick = () => {
+    dispatch({ type: "SET_POLL_MODAL", payload: true });
+  };
+
+  const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
+    try {
+      dispatch({ type: "SET_SENDING", payload: true });
+      await onCreatePoll(question, options, allowMultiple);
+      dispatch({ type: "SET_POLL_MODAL", payload: false });
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("input.createPollError", "Failed to create poll")));
+    } finally {
+      dispatch({ type: "SET_SENDING", payload: false });
+    }
+  };
+
   return (
     <div className={`border-t ${theme.content.background || "bg-white"}`}>
       {/* Toolbar: Image, File, Weather, Mic */}
@@ -421,6 +446,7 @@ export function ChatBoxInput({
         onFileClick={handleFileClick}
         onWeatherClick={handleWeatherClick}
         onRecordingClick={startRecording}
+        onPollClick={handlePollClick}
         imageInputRef={imageInputRef}
         fileInputRef={fileInputRef}
         handleImageChange={handleImageChange}
@@ -448,6 +474,7 @@ export function ChatBoxInput({
                replyMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
                replyMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
                replyMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
+               replyMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}` : 
                "Message"}
             </span>
           </div>
@@ -543,6 +570,12 @@ export function ChatBoxInput({
           />
         )}
       </div>
+
+      <CreatePollModal 
+        isOpen={showPollModal} 
+        onClose={() => dispatch({ type: "SET_POLL_MODAL", payload: false })}
+        onSubmit={handleCreatePoll}
+      />
 
       {/* Inline keyframes for recording animations */}
       <style>{`

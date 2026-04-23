@@ -139,6 +139,7 @@ export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMess
       case "VIDEO": return <span className="flex items-center gap-1"><Video className="w-3 h-3" /> {t("bubbles.messages.video", "Video")}</span>;
       case "FILE": return <span className="flex items-center gap-1"><File className="w-3 h-3" /> {t("bubbles.messages.file", "File")}</span>;
       case "WEATHER": return <span className="flex items-center gap-1"><CloudRain className="w-3 h-3" /> {t("bubbles.messages.weather", "Weather")}</span>;
+      case "POLL": return <span className="flex items-center gap-1">[{t("input.createPollTitle", "Poll")}] {message.poll?.question}</span>;
       default: return message.content;
     }
   };

@@ -13,6 +13,8 @@ import type {
   SendWeatherMessageRequest,
   ForwardMessageRequest,
   BulkForwardMessageRequest,
+  CreatePollMessageRequest,
+  VotePollRequest,
 } from "@/types/chat/message";
 import type {
   AddGroupMembersRequest,
@@ -51,7 +53,7 @@ export const removeGroupMemberApi = (roomId: number, targetUserId: number) => {
 export const changeMemberRole = (
   roomId: number,
   targetUserId: number,
-  role: "ADMIN" | "MEMBER"
+  role: "ADMIN" | "MEMBER" | "OWNER"
 ) => {
   return axiosClient.put<ApiResponse<RoomResponse>>(
     `/core-service/rooms/group/${roomId}/members/${targetUserId}/role?newRole=${role}`
@@ -193,3 +195,10 @@ export const getPinnedMessagesApi = (roomId: number) => {
   return axiosClient.get<ApiResponse<MessageResponse[]>>(`/core-service/messages/pinned?roomId=${roomId}`);
 };
 
+export const createPollMessageApi = (data: CreatePollMessageRequest) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/polls", data);
+};
+
+export const votePollApi = (messageId: string, data: VotePollRequest) => {
+  return axiosClient.patch<ApiResponse<MessageResponse>>(`/core-service/messages/${messageId}/poll/vote`, data);
+};
