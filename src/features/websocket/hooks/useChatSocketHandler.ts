@@ -10,6 +10,7 @@ import type {
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
+  RoomDeletedEventPayload,
 } from "../events/chatEvents";
 import { messageCreated } from "../state/chatSlice";
 import type { RoomResponse } from "@/types/chat/room";
@@ -202,6 +203,14 @@ export const useChatSocketHandler = ({
     [upsertRoom, dispatchSystemMessage]
   );
 
+  const handleRoomDeleted = useCallback(
+    (event: RoomDeletedEventPayload) => {
+      setRooms((prev) => prev.filter((r) => r.roomId !== event.roomId));
+      setSelectedChat((prev) => (prev?.roomId === event.roomId ? null : prev));
+    },
+    [setRooms, setSelectedChat]
+  );
+
   // --- Socket Listeners ---
   useEffect(() => {
     const unsubs = [
@@ -213,6 +222,7 @@ export const useChatSocketHandler = ({
       SocketManager.on("ROOM_MEMBER_ADDED", handleMemberAdded),
       SocketManager.on("ROOM_MEMBER_REMOVED", handleMemberRemoved),
       SocketManager.on("ROOM_MEMBER_ROLE_CHANGED", handleMemberRoleChanged),
+      SocketManager.on("ROOM_DELETED", handleRoomDeleted),
     ];
 
     return () => {
@@ -227,5 +237,6 @@ export const useChatSocketHandler = ({
     handleMemberRemoved,
     handleMemberRoleChanged,
     handleRoomUpdated,
+    handleRoomDeleted,
   ]);
 };

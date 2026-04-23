@@ -114,6 +114,29 @@
             "title": "Chuyển quyền Trưởng nhóm",
             "description": "Bạn có chắc chắn muốn chuyển quyền trưởng nhóm cho {{name}} không? Bạn sẽ trở thành Phó nhóm sau khi chuyển.",
             "confirm": "Xác nhận chuyển"
+        },
+        "leaveGroup": {
+            "title": "Thoát nhóm",
+            "desc": "Bạn có chắc muốn thoát khỏi nhóm này?",
+            "descOwner": "Bạn là trưởng nhóm. Vui lòng chọn trưởng nhóm mới trước khi thoát nhóm.",
+            "selectNewOwner": "Chọn trưởng nhóm mới",
+            "transferWarning": "Bạn sẽ rời nhóm. Người được chọn sẽ trở thành trưởng nhóm mới.",
+            "cancel": "Hủy",
+            "confirm": "Thoát nhóm",
+            "processing": "Đang xử lý...",
+            "requireNewOwner": "Vui lòng chọn trưởng nhóm mới",
+            "success": "Đã thoát nhóm",
+            "transferSuccess": "Đã chuyển trưởng nhóm và thoát nhóm",
+            "error": "Không thể thoát nhóm"
+        },
+        "dissolveGroup": {
+            "title": "Giải tán nhóm",
+            "desc": "Bạn có chắc muốn giải tán nhóm này? Tất cả thành viên sẽ không còn truy cập được cuộc trò chuyện.",
+            "cancel": "Hủy",
+            "confirm": "Giải tán",
+            "processing": "Đang xử lý...",
+            "success": "Đã giải tán nhóm",
+            "error": "Không thể giải tán nhóm"
         }
     },
     "bubbles": {

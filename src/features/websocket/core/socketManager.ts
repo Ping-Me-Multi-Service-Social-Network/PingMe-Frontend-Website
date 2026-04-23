@@ -39,6 +39,7 @@ import type {
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
+  RoomDeletedEventPayload,
   TypingSignalPayload,
 } from "@/features/websocket/chat";
 
@@ -71,6 +72,7 @@ export interface SocketEventMap {
   ROOM_MEMBER_ADDED: RoomMemberAddedEventPayload;
   ROOM_MEMBER_REMOVED: RoomMemberRemovedEventPayload;
   ROOM_MEMBER_ROLE_CHANGED: RoomMemberRoleChangedEventPayload;
+  ROOM_DELETED: RoomDeletedEventPayload;
 }
 
 // =================================================================
@@ -410,6 +412,9 @@ class SocketManagerClass {
             case "MEMBER_ROLE_CHANGED":
               this.emit("ROOM_MEMBER_ROLE_CHANGED", ev);
               break;
+            case "ROOM_DELETED":
+              this.emit("ROOM_DELETED", ev);
+              break;
             default:
               console.warn("[PingMe] Unknown chat event:", ev);
           }
@@ -579,3 +584,4 @@ class SocketManagerClass {
 }
 
 export const SocketManager = new SocketManagerClass();
+

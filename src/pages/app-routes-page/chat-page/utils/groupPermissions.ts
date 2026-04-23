@@ -77,3 +77,13 @@ export const getAvailableRoleActions = (
 
   return actions;
 };
+
+export const canLeaveGroup = (room: RoomResponse, currentUserId: number): boolean => {
+  if (room.roomType !== "GROUP") return false;
+  return !!getMyParticipant(room, currentUserId);
+};
+
+export const canDissolveGroup = (room: RoomResponse, currentUserId: number): boolean => {
+  if (room.roomType !== "GROUP") return false;
+  return getMyRoomRole(room, currentUserId) === "OWNER";
+};

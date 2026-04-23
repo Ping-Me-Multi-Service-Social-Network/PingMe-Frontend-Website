@@ -21,6 +21,9 @@ import type {
   CreateGroupRoomRequest,
   CreateOrGetDirectRoomRequest,
   RoomResponse,
+  LeaveGroupRequest,
+  LeaveGroupResponse,
+  DissolveGroupResponse,
 } from "@/types/chat/room";
 
 // ==================================================================================
@@ -57,6 +60,19 @@ export const changeMemberRole = (
 ) => {
   return axiosClient.put<ApiResponse<RoomResponse>>(
     `/core-service/rooms/group/${roomId}/members/${targetUserId}/role?newRole=${role}`
+  );
+};
+
+export const leaveGroupApi = (roomId: number, data: LeaveGroupRequest = {}) => {
+  return axiosClient.delete<ApiResponse<LeaveGroupResponse>>(
+    `/core-service/rooms/group/${roomId}/leave`,
+    { data }
+  );
+};
+
+export const dissolveGroupApi = (roomId: number) => {
+  return axiosClient.delete<ApiResponse<DissolveGroupResponse>>(
+    `/core-service/rooms/group/${roomId}`
   );
 };
 

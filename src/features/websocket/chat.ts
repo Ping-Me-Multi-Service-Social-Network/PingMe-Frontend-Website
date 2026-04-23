@@ -10,6 +10,7 @@ export type {
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
   RoomMemberRoleChangedEventPayload,
+  RoomDeletedEventPayload,
   TypingSignalPayload,
 } from "./events/chatEvents";
 

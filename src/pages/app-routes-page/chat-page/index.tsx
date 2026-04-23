@@ -38,19 +38,21 @@ export default function MessagesPage() {
         if (!append) setIsFetchingRooms(true);
         else setRoomsPagination((prev) => ({ ...prev, isLoadingMore: true }));
 
-        const res = (await getCurrentUserRoomsApi({ page, size })).data.data;
+        const response = await getCurrentUserRoomsApi({ page, size });
+        const res = response.data?.data;
+        const content = res?.content || [];
 
         setRooms((prev) => {
           if (append) {
-            return [...prev, ...res.content];
+            return [...prev, ...content];
           }
-          return res.content;
+          return content;
         });
 
         setRoomsPagination({
-          currentPage: res.page,
-          totalPages: res.totalPages,
-          hasMore: res.hasMore,
+          currentPage: res?.page || 0,
+          totalPages: res?.totalPages || 0,
+          hasMore: res?.hasMore || false,
           isLoadingMore: false,
         });
       } catch (err) {
@@ -86,6 +88,19 @@ export default function MessagesPage() {
 
   const [selectedChat, setSelectedChat] = useState<RoomResponse | null>(null);
   const selectedRoomIdRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleRoomLeftOrDissolved = (e: CustomEvent<number>) => {
+      const roomId = e.detail;
+      setRooms((prev) => prev.filter((r) => r.roomId !== roomId));
+      setSelectedChat((prev) => (prev?.roomId === roomId ? null : prev));
+    };
+
+    window.addEventListener("ROOM_LEFT_OR_DISSOLVED", handleRoomLeftOrDissolved as EventListener);
+    return () => {
+      window.removeEventListener("ROOM_LEFT_OR_DISSOLVED", handleRoomLeftOrDissolved as EventListener);
+    };
+  }, []);
 
   const handleSetSelectedChat = (room: RoomResponse) => {
     setSelectedChat(room);

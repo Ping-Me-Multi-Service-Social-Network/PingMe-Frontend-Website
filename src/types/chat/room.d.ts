@@ -50,3 +50,20 @@ export interface AddGroupMembersRequest {
   roomId: number;
   memberIds: number[];
 }
+
+export interface LeaveGroupRequest {
+  newOwnerId?: number | null;
+}
+
+export interface LeaveGroupResponse {
+  roomId: number;
+  leftUserId: number;
+  newOwnerId?: number | null;
+  dissolved: boolean;
+}
+
+export interface DissolveGroupResponse {
+  roomId: number;
+  dissolvedByUserId: number;
+  dissolved: boolean;
+}

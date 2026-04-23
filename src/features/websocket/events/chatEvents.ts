@@ -16,7 +16,14 @@ export type ChatEventType =
   | "ROOM_UPDATED"
   | "MEMBER_ADDED"
   | "MEMBER_REMOVED"
-  | "MEMBER_ROLE_CHANGED";
+  | "MEMBER_ROLE_CHANGED"
+  | "ROOM_DELETED";
+
+export interface RoomDeletedEventPayload {
+  chatEventType: "ROOM_DELETED";
+  roomId: number;
+  actorUserId: number;
+}
 
 export interface MessageCreatedEventPayload {
   chatEventType: "MESSAGE_CREATED";
@@ -95,6 +102,7 @@ export interface ChatEventHandlers {
   // Room events
   onRoomCreated?: (ev: RoomCreatedEventPayload) => void;
   onRoomUpdated?: (ev: RoomUpdatedEventPayload) => void;
+  onRoomDeleted?: (ev: RoomDeletedEventPayload) => void;
 
   // Member events
   onMemberAdded?: (ev: RoomMemberAddedEventPayload) => void;

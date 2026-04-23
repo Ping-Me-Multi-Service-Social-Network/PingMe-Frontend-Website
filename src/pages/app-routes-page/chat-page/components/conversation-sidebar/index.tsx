@@ -23,12 +23,16 @@ import UpdateGroupImageModal from "./update-group-image-modal.tsx";
 import { getTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Edit2 } from "lucide-react";
+import { Edit2, LogOut, Trash2 } from "lucide-react";
 import {
   canRenameGroup,
   canChangeGroupAvatar,
   canChangeTheme,
+  canLeaveGroup,
+  canDissolveGroup,
 } from "../../utils/groupPermissions.ts";
+import LeaveGroupModal from "./leave-group-modal.tsx";
+import DissolveGroupModal from "./dissolve-group-modal.tsx";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -46,6 +50,8 @@ const ConversationSidebar = ({
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isDissolveModalOpen, setIsDissolveModalOpen] = useState(false);
   const { t } = useTranslation("chat");
   const currentUserId = userSession?.id || 0;
 
@@ -252,16 +258,72 @@ const ConversationSidebar = ({
             </motion.div>
           )}
 
+          {/* Danger Zone */}
+          {selectedChat.roomType === "GROUP" && (
+            <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }} className="pt-6">
+              <div className={`text-xs font-semibold uppercase tracking-wider mb-3 px-2 ${theme.sidebar.textSecondary}`}>
+                Danger Zone
+              </div>
+              <div className="space-y-2">
+                {canLeaveGroup(selectedChat, currentUserId) && (
+                  <Button
+                    variant="outline"
+                    className={`w-full justify-start gap-3 h-12 bg-transparent text-red-500 hover:text-red-600 hover:bg-red-50/10 ${theme.sidebar.buttonBorder}`}
+                    onClick={() => setIsLeaveModalOpen(true)}
+                  >
+                    <LogOut className="h-5 w-5 text-red-500" />
+                    <span className="font-medium">
+                      {t("modals.leaveGroup.title", "Thoát nhóm")}
+                    </span>
+                  </Button>
+                )}
+
+                {canDissolveGroup(selectedChat, currentUserId) && (
+                  <Button
+                    variant="destructive"
+                    className="w-full justify-start gap-3 h-12 bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => setIsDissolveModalOpen(true)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                    <span className="font-medium">
+                      {t("modals.dissolveGroup.title", "Giải tán nhóm")}
+                    </span>
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          )}
+
         </motion.div>
       </div>
 
-      {/* Rename Group Modal */}
-      <RenameGroupModal
-        isOpen={isRenameModalOpen}
-        onClose={() => setIsRenameModalOpen(false)}
-        roomId={selectedChat.roomId}
-        currentName={selectedChat.name || ""}
-      />
+      {selectedChat.roomType === "GROUP" && (
+        <>
+          <RenameGroupModal
+            isOpen={isRenameModalOpen}
+            onClose={() => setIsRenameModalOpen(false)}
+            roomId={selectedChat.roomId}
+            currentName={selectedChat.name || ""}
+          />
+          <UpdateGroupImageModal
+            isOpen={isUpdateImageModalOpen}
+            onClose={() => setIsUpdateImageModalOpen(false)}
+            roomId={selectedChat.roomId}
+            currentImageUrl={selectedChat.roomImgUrl}
+            groupName={selectedChat.name || ""}
+          />
+          <LeaveGroupModal
+            isOpen={isLeaveModalOpen}
+            onClose={() => setIsLeaveModalOpen(false)}
+            selectedChat={selectedChat}
+          />
+          <DissolveGroupModal
+            isOpen={isDissolveModalOpen}
+            onClose={() => setIsDissolveModalOpen(false)}
+            roomId={selectedChat.roomId}
+          />
+        </>
+      )}
 
       {/* Theme Selection Modal */}
       <ThemeSelectionModal
@@ -269,15 +331,6 @@ const ConversationSidebar = ({
         onClose={() => setIsThemeModalOpen(false)}
         roomId={selectedChat.roomId}
         currentTheme={selectedChat.theme}
-      />
-
-      {/* Update Group Image Modal */}
-      <UpdateGroupImageModal
-        isOpen={isUpdateImageModalOpen}
-        onClose={() => setIsUpdateImageModalOpen(false)}
-        roomId={selectedChat.roomId}
-        currentImageUrl={selectedChat.roomImgUrl}
-        groupName={selectedChat.name || ""}
       />
     </div>
   );

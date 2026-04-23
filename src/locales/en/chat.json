@@ -114,6 +114,29 @@
             "title": "Transfer Ownership",
             "description": "Are you sure you want to transfer ownership of this group to {{name}}? You will become an Admin after transferring.",
             "confirm": "Confirm Transfer"
+        },
+        "leaveGroup": {
+            "title": "Leave Group",
+            "desc": "Are you sure you want to leave this group?",
+            "descOwner": "You are the group owner. Please select a new owner before leaving.",
+            "selectNewOwner": "Select New Owner",
+            "transferWarning": "You will leave the group. The selected member will become the new owner.",
+            "cancel": "Cancel",
+            "confirm": "Leave Group",
+            "processing": "Processing...",
+            "requireNewOwner": "Please select a new owner",
+            "success": "Left group successfully",
+            "transferSuccess": "Ownership transferred and left group successfully",
+            "error": "Failed to leave group"
+        },
+        "dissolveGroup": {
+            "title": "Dissolve Group",
+            "desc": "Are you sure you want to dissolve this group? All members will lose access to the conversation.",
+            "cancel": "Cancel",
+            "confirm": "Dissolve",
+            "processing": "Processing...",
+            "success": "Group dissolved successfully",
+            "error": "Failed to dissolve group"
         }
     },
     "bubbles": {
