@@ -70,7 +70,8 @@
             "removedError": "Cannot remove member from group",
             "addedAdminSuccess": "{{name}} is now an admin",
             "removedAdminSuccess": "{{name}} is no longer an admin",
-            "roleChangeError": "Failed to change member role"
+            "roleChangeError": "Failed to change member role",
+            "ownershipTransferred": "Ownership transferred to {{name}}"
         }
     },
     "modals": {
@@ -103,6 +104,16 @@
             "cancel": "Cancel",
             "confirm": "Confirm",
             "processing": "Processing..."
+        },
+        "groupMembers": {
+            "promoteToAdmin": "Promote to Admin",
+            "demoteToMember": "Demote to Member",
+            "transferOwnership": "Transfer Ownership"
+        },
+        "transferOwnership": {
+            "title": "Transfer Ownership",
+            "description": "Are you sure you want to transfer ownership of this group to {{name}}? You will become an Admin after transferring.",
+            "confirm": "Confirm Transfer"
         }
     },
     "bubbles": {

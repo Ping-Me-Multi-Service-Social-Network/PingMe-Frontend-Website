@@ -70,7 +70,8 @@
             "removedError": "Không thể xóa thành viên khỏi nhóm",
             "addedAdminSuccess": "{{name}} đã được thêm quyền phó nhóm",
             "removedAdminSuccess": "{{name}} đã được gỡ quyền phó nhóm",
-            "roleChangeError": "Không thể thay đổi quyền thành viên"
+            "roleChangeError": "Không thể thay đổi quyền thành viên",
+            "ownershipTransferred": "Đã chuyển quyền trưởng nhóm cho {{name}}"
         }
     },
     "modals": {
@@ -103,6 +104,16 @@
             "cancel": "Hủy",
             "confirm": "Xác nhận",
             "processing": "Đang xử lý..."
+        },
+        "groupMembers": {
+            "promoteToAdmin": "Thêm làm Phó nhóm",
+            "demoteToMember": "Gỡ quyền Phó nhóm",
+            "transferOwnership": "Chuyển quyền Trưởng nhóm"
+        },
+        "transferOwnership": {
+            "title": "Chuyển quyền Trưởng nhóm",
+            "description": "Bạn có chắc chắn muốn chuyển quyền trưởng nhóm cho {{name}} không? Bạn sẽ trở thành Phó nhóm sau khi chuyển.",
+            "confirm": "Xác nhận chuyển"
         }
     },
     "bubbles": {
