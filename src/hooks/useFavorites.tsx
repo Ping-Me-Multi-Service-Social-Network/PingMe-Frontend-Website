@@ -26,7 +26,7 @@ interface FavoriteContextType {
 const FavoriteContext = createContext<FavoriteContextType | null>(null);
 
 // ── Provider ──────────────────────────────────────────────────────────────────
-export function FavoriteProvider({ children }: { children: ReactNode }) {
+export function FavoriteProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 

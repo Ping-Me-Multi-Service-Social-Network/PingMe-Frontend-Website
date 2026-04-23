@@ -76,7 +76,7 @@ export function createAxiosInstance(baseURL: string): {
 
                     const retryAfterHeader = error.response?.headers?.["retry-after"];
                     const delay = retryAfterHeader
-                        ? parseInt(retryAfterHeader, 10) * 1000
+                        ? Number.parseInt(retryAfterHeader, 10) * 1000
                         : Math.min(1000 * Math.pow(2, retryCount), 5000);
 
                     console.warn(
