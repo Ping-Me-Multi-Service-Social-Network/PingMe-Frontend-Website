@@ -4,6 +4,7 @@ import MusicSearchBar from "../search/MusicSearchBar.tsx";
 import MusicLeftSidebar from "./MusicLeftSidebar.tsx";
 import MusicRightPanel from "./MusicRightPanel.tsx";
 import { useAudio } from "@/hooks/useAudio.tsx";
+import { FavoriteProvider } from "@/hooks/useFavorites.tsx";
 import type { Song } from "@/types/music/song";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 import { Home, PanelLeftOpen, PanelRightOpen } from "lucide-react";
@@ -117,6 +118,7 @@ export default function MusicLayout() {
     }
 
     return (
+        <FavoriteProvider>
         <div
             className="flex flex-col h-screen bg-[#07070a] text-zinc-100 select-none relative w-full overflow-hidden"
             style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}
@@ -253,5 +255,6 @@ export default function MusicLayout() {
             {/* ── BOTTOM PLAYER ── */}
             <InlineMusicPlayer />
         </div>
+        </FavoriteProvider>
     );
 }

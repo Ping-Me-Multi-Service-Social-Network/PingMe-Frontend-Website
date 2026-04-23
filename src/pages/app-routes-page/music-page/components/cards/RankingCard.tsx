@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { TopSongPlayCounter } from "@/types/music";
 import { Music2 } from "lucide-react";
-import { getRankingErrorMessage, logError } from "@/utils/errorHandler";
 import { useTranslation } from "react-i18next";
 
 interface RankingCardProps {
@@ -12,8 +10,9 @@ interface RankingCardProps {
     gradientVia: string;
     hoverFrom: string;
     hoverTo: string;
-    fetchData: () => Promise<TopSongPlayCounter[]>;
+    songs: TopSongPlayCounter[];
     tabType: "today" | "week" | "month";
+    loading?: boolean;
 }
 
 export default function RankingCard({
@@ -23,47 +22,14 @@ export default function RankingCard({
     gradientVia,
     hoverFrom,
     hoverTo,
-    fetchData,
-    tabType
+    songs = [],
+    tabType,
+    loading = false,
 }: Readonly<RankingCardProps>) {
     const navigate = useNavigate();
-    const [songs, setSongs] = useState<TopSongPlayCounter[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation("music");
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadSongs = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const data = await fetchData();
-
-                if (isMounted) {
-                    setSongs(data.slice(0, 4)); // Get top 4 songs
-                }
-            } catch (err: unknown) {
-                console.error("Error fetching ranking data:", err);
-                if (isMounted) {
-                    logError(`RankingCard - ${title}`, err);
-                    const errorMessage = getRankingErrorMessage(err);
-                    setError(errorMessage);
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        loadSongs();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [title, fetchData]); // Re-fetch if title changes (component type changes)
+    const displaySongs = songs.slice(0, 4);
 
     const renderSongsContent = () => {
         if (loading) {
@@ -82,30 +48,7 @@ export default function RankingCard({
             );
         }
 
-        if (error) {
-            return (
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 p-2 bg-yellow-900/20 rounded">
-                        <span className="text-yellow-400 text-xs">⚠️</span>
-                        <p className="text-yellow-400/90 text-xs flex-1">{error}</p>
-                    </div>
-                    {[1, 2, 3, 4].map((i) => (
-                        <div
-                            key={`error-${title}-${i}`}
-                            className="flex items-center gap-3 p-2 rounded-lg bg-black/10 opacity-30"
-                        >
-                            <span className="text-gray-600 font-bold text-sm w-5">{i}</span>
-                            <div className="w-10 h-10 rounded bg-gray-800/50"></div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-gray-600 text-sm">—</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-
-        if (songs.length === 0) {
+        if (displaySongs.length === 0) {
             return (
                 <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
@@ -126,10 +69,10 @@ export default function RankingCard({
         }
 
         // Always render 4 slots, fill empty ones with placeholders
-        const displayItems = [...songs];
-        while (displayItems.length < 4) {
-            displayItems.push({
-                songId: -displayItems.length,
+        const items = [...displaySongs];
+        while (items.length < 4) {
+            items.push({
+                songId: -items.length,
                 title: "",
                 playCount: 0,
                 imgUrl: "",
@@ -138,7 +81,7 @@ export default function RankingCard({
 
         return (
             <div className="space-y-2">
-                {displayItems.map((song, index) => {
+                {items.map((song, index) => {
                     if (!song.title) {
                         // Empty placeholder
                         return (

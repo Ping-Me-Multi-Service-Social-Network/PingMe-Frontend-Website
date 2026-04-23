@@ -130,6 +130,24 @@ export interface GenreRequest {
 }
 
 // ============================================================================
+// DASHBOARD RESPONSE (aggregated endpoint)
+// ============================================================================
+
+export interface RankingData {
+  today: TopSongPlayCounter[];
+  week: TopSongPlayCounter[];
+  month: TopSongPlayCounter[];
+}
+
+export interface MusicDashboardResponse {
+  topSongs: SongResponseWithAllAlbum[];
+  popularAlbums: AlbumResponse[];
+  popularArtists: ArtistResponse[];
+  genres: GenreResponse[];
+  rankings: RankingData;
+}
+
+// ============================================================================
 // RE-EXPORTS FROM SPECIALIZED FILES
 // ============================================================================
 

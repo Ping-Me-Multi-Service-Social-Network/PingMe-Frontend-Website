@@ -13,6 +13,7 @@ export interface AxiosInterceptorOptions {
 
 interface RetryableRequest extends InternalAxiosRequestConfig {
     _retry?: boolean;
+    _retryCount?: number;
 }
 
 /**
@@ -64,6 +65,30 @@ export function createAxiosInstance(baseURL: string): {
 
             // 1. Phân tích lỗi
             const status = error.response?.status;
+
+            // ── Handle 429 Too Many Requests ── auto retry with backoff
+            if (status === 429 && originalRequest) {
+                const retryCount = originalRequest._retryCount || 0;
+                const MAX_RETRIES = 3;
+
+                if (retryCount < MAX_RETRIES) {
+                    originalRequest._retryCount = retryCount + 1;
+
+                    const retryAfterHeader = error.response?.headers?.["retry-after"];
+                    const delay = retryAfterHeader
+                        ? Number.parseInt(retryAfterHeader, 10) * 1000
+                        : Math.min(1000 * Math.pow(2, retryCount), 5000);
+
+                    console.warn(
+                        `[Axios] 429 Rate Limited — retry ${retryCount + 1}/${MAX_RETRIES} after ${delay}ms`,
+                    );
+
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    return client(originalRequest);
+                }
+            }
+
+            // ── Handle 401 Unauthorized ──
             const isUnauthorized = status === 401;
 
             if (!isUnauthorized || !originalRequest || originalRequest._retry) {

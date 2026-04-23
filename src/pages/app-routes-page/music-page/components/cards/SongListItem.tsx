@@ -1,11 +1,9 @@
 import type { Song } from "@/types/music/song";
 import type { SongResponseWithAllAlbum } from "@/types/music";
 import { Play, Pause, Music2, MoreVertical, Heart } from "lucide-react";
-import { useState, useEffect } from "react";
-import { favoriteApi } from "@/services/music/favoriteApi";
-import { toast } from "sonner";
+import { useState } from "react";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
-import { dispatchFavoriteEvent } from "@/hooks/useFavoriteEvents";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useTranslation } from "react-i18next";
 import { useSongPlayState } from "@/hooks/usePlayState";
 
@@ -165,11 +163,10 @@ function RightActions({
             type="button"
             aria-label={labelFavorite}
             onClick={onToggleFavorite}
-            className={`transition-colors ${
-              isFavorite
+            className={`transition-colors ${isFavorite
                 ? "text-purple-500 hover:text-purple-400"
                 : "text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
           </button>
@@ -178,9 +175,8 @@ function RightActions({
 
       {/* Duration */}
       <div
-        className={`w-16 text-sm text-center font-medium ${
-          isCurrent ? "text-purple-400" : "text-gray-400"
-        }`}
+        className={`w-16 text-sm text-center font-medium ${isCurrent ? "text-purple-400" : "text-gray-400"
+          }`}
       >
         {duration}
       </div>
@@ -226,36 +222,6 @@ function RightActions({
   );
 }
 
-// ─── useFavorite hook ─────────────────────────────────────────────────────────
-function useFavorite(songId: number) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    favoriteApi
-      .isFavorite(songId)
-      .then(setIsFavorite)
-      .catch((err) => console.error("Error checking favorite status:", err));
-
-    const onAdded = (e: Event) => {
-      if ((e as CustomEvent<{ songId: number }>).detail.songId === songId)
-        setIsFavorite(true);
-    };
-    const onRemoved = (e: Event) => {
-      if ((e as CustomEvent<{ songId: number }>).detail.songId === songId)
-        setIsFavorite(false);
-    };
-
-    globalThis.addEventListener("favorite-added", onAdded);
-    globalThis.addEventListener("favorite-removed", onRemoved);
-    return () => {
-      globalThis.removeEventListener("favorite-added", onAdded);
-      globalThis.removeEventListener("favorite-removed", onRemoved);
-    };
-  }, [songId]);
-
-  return { isFavorite, setIsFavorite };
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -278,27 +244,12 @@ export default function SongListItem({
     () => onPlay(song),
   );
 
-  const { isFavorite, setIsFavorite } = useFavorite(song.id);
+  const { isFavorite: checkFavorite, toggleFavorite } = useFavorites();
+  const isFavorite = checkFavorite(song.id);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const action = isFavorite
-      ? favoriteApi.removeFavorite
-      : favoriteApi.addFavorite;
-    const successMsg = isFavorite
-      ? t("cards.favoriteRemoved")
-      : t("cards.favoriteAdded");
-    const eventType = isFavorite ? "favorite-removed" : "favorite-added";
-
-    try {
-      await action(song.id);
-      setIsFavorite(!isFavorite);
-      toast.success(successMsg);
-      dispatchFavoriteEvent(eventType, song.id);
-    } catch (err) {
-      console.error("Error toggling favorite:", err);
-      toast.error(t("cards.error"));
-    }
+    await toggleFavorite(song.id);
   };
 
   const rowClass = isCurrent
@@ -320,9 +271,9 @@ export default function SongListItem({
           isSongPlaying
             ? t("cards.pauseSong", { title: song.title })
             : t("cards.playSong", {
-                title: song.title,
-                artist: song.mainArtist?.name ?? unknownArtist,
-              })
+              title: song.title,
+              artist: song.mainArtist?.name ?? unknownArtist,
+            })
         }
         onClick={handlePlayPause}
         className="absolute inset-0 w-full h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 cursor-pointer z-0"
@@ -357,9 +308,8 @@ export default function SongListItem({
         {/* Song info */}
         <div className="flex-1 min-w-0">
           <h3
-            className={`font-semibold truncate text-sm transition-colors ${
-              isCurrent ? "text-purple-300" : "text-white group-hover:text-purple-300"
-            }`}
+            className={`font-semibold truncate text-sm transition-colors ${isCurrent ? "text-purple-300" : "text-white group-hover:text-purple-300"
+              }`}
           >
             {song.title}
           </h3>

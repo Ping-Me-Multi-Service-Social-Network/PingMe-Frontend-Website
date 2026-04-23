@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useAudio, useAudioTime } from "@/hooks/useAudio.tsx";
 import {
     Play,
@@ -14,9 +14,9 @@ import {
     MoreVertical,
 } from "lucide-react";
 import type { Song } from "@/types/music/song";
-import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/dialogs/PlaylistDropdown";
-import { toast } from "sonner";
+import { useFavorites } from "@/hooks/useFavorites";
+
 
 function formatTime(seconds: number) {
     if (!seconds || Number.isNaN(seconds)) return "0:00";
@@ -59,7 +59,8 @@ const InlineMusicPlayer: React.FC = () => {
     } = useAudio();
     const { currentTime, duration } = useAudioTime();
 
-    const [isFavorite, setIsFavorite] = useState(false);
+    const { isFavorite: checkFavorite, toggleFavorite } = useFavorites();
+    const isFavorite = currentSong ? checkFavorite(currentSong.id) : false;
     const [isHoveringProgress, setIsHoveringProgress] = useState(false);
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
 
@@ -81,56 +82,9 @@ const InlineMusicPlayer: React.FC = () => {
     const PlayPauseIcon = isPlaying ? Pause : Play;
     const VolumeIcon = volume > 0 ? Volume2 : VolumeX;
 
-    useEffect(() => {
-        const checkFavorite = async () => {
-            if (currentSong?.id) {
-                try {
-                    const result = await favoriteApi.isFavorite(currentSong.id);
-                    setIsFavorite(result);
-                } catch {
-                    setIsFavorite(false);
-                }
-            } else {
-                setIsFavorite(false);
-            }
-        };
-        checkFavorite();
-    }, [currentSong]);
-
-    useEffect(() => {
-        const handleFavoriteAdded = (event: Event) => {
-            const customEvent = event as CustomEvent<{ songId: number }>;
-            if (currentSong?.id === customEvent.detail.songId) setIsFavorite(true);
-        };
-        const handleFavoriteRemoved = (event: Event) => {
-            const customEvent = event as CustomEvent<{ songId: number }>;
-            if (currentSong?.id === customEvent.detail.songId) setIsFavorite(false);
-        };
-        globalThis.addEventListener("favorite-added", handleFavoriteAdded);
-        globalThis.addEventListener("favorite-removed", handleFavoriteRemoved);
-        return () => {
-            globalThis.removeEventListener("favorite-added", handleFavoriteAdded);
-            globalThis.removeEventListener("favorite-removed", handleFavoriteRemoved);
-        };
-    }, [currentSong]);
-
     const handleToggleFavorite = async () => {
         if (!currentSong) return;
-        try {
-            if (isFavorite) {
-                await favoriteApi.removeFavorite(currentSong.id);
-                setIsFavorite(false);
-                toast.success("Đã xóa khỏi yêu thích");
-                globalThis.dispatchEvent(new CustomEvent("favorite-removed", { detail: { songId: currentSong.id } }));
-            } else {
-                await favoriteApi.addFavorite(currentSong.id);
-                setIsFavorite(true);
-                toast.success("Đã thêm vào yêu thích");
-                globalThis.dispatchEvent(new CustomEvent("favorite-added", { detail: { songId: currentSong.id } }));
-            }
-        } catch (err) {
-            console.error("Error toggling favorite:", err);
-        }
+        await toggleFavorite(currentSong.id);
     };
 
     const handleClickNext = useCallback(() => {
@@ -206,8 +160,8 @@ const InlineMusicPlayer: React.FC = () => {
             </div>
 
             {/* Player Content */}
-            <div 
-                className="flex h-full w-full px-4 items-center relative" 
+            <div
+                className="flex h-full w-full px-4 items-center relative"
                 style={{ height: "85px" }}
             >
                 {/* Left: Song Info */}

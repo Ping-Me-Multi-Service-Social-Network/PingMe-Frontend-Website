@@ -23,7 +23,7 @@ const PersistLoader = () => (
   <AppLoader type="pulse" message="Restoring session..." />
 );
 
-const MOBILE_BLOCK_MEDIA_QUERY = "(max-width: 1023px)";
+const MOBILE_BLOCK_MEDIA_QUERY = "(max-width: 720px)";
 
 function useIsUnsupportedViewport() {
   const [isUnsupportedViewport, setIsUnsupportedViewport] =

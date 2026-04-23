@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 
 type RankingTab = "today" | "week" | "month";
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default function RankingsPage() {
     const navigate = useNavigate();
     const { playSong } = useAudio();
@@ -31,31 +33,31 @@ export default function RankingsPage() {
         }
     }, [tabParam]);
 
+    const fetchRankings = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const today = await songApi.getTopSongsToday(50).catch(() => []);
+            await delay(300);
+            const week = await songApi.getTopSongsThisWeek(50).catch(() => []);
+            await delay(300);
+            const month = await songApi.getTopSongsThisMonth(50).catch(() => []);
+
+            console.log("Rankings data:", { today, week, month });
+            setTodaySongs(today);
+            setWeekSongs(week);
+            setMonthSongs(month);
+        } catch (err: unknown) {
+            logError('RankingsPage', err);
+            const errorMessage = getRankingErrorMessage(err);
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchRankings = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const [today, week, month] = await Promise.all([
-                    songApi.getTopSongsToday(50).catch(() => []),
-                    songApi.getTopSongsThisWeek(50).catch(() => []),
-                    songApi.getTopSongsThisMonth(50).catch(() => []),
-                ]);
-
-                console.log("Rankings data:", { today, week, month });
-                setTodaySongs(today);
-                setWeekSongs(week);
-                setMonthSongs(month);
-            } catch (err: unknown) {
-                logError('RankingsPage', err);
-                const errorMessage = getRankingErrorMessage(err);
-                setError(errorMessage);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchRankings();
     }, []);
 
