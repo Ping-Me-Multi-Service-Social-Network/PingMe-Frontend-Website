@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SectionHeader from "@/pages/app-routes-page/music-page/components/shared/SectionHeader.tsx";
 import ScrollRow from "@/pages/app-routes-page/music-page/components/shared/ScrollRow.tsx";
@@ -8,12 +8,7 @@ import AlbumCard from "@/pages/app-routes-page/music-page/components/cards/Album
 import ArtistCard from "@/pages/app-routes-page/music-page/components/cards/ArtistCard.tsx";
 import SongListItem from "@/pages/app-routes-page/music-page/components/cards/SongListItem.tsx";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
-import {
-  fetchMusicData,
-  fetchTodaySongs,
-  fetchWeekSongs,
-  fetchMonthSongs,
-} from "@/features/music/musicSlice";
+import { fetchDashboard } from "@/features/music/musicSlice";
 import { useAudio } from "@/hooks/useAudio";
 import type { Song } from "@/types/music/song";
 import type { Genre } from "@/types/music/genre";
@@ -29,8 +24,12 @@ export default function HomePage() {
     popularAlbums: albums,
     popularArtists: artists,
     topSongs,
+    rankingsToday,
+    rankingsWeek,
+    rankingsMonth,
     lastFetched,
     cacheExpiry,
+    loading,
   } = useAppSelector((state) => state.music);
 
   const { t } = useTranslation("music");
@@ -39,13 +38,15 @@ export default function HomePage() {
     const now = Date.now();
     const isExpired = !cacheExpiry || now > cacheExpiry;
     if (!lastFetched || isExpired) {
-      dispatch(fetchMusicData(8));
+      dispatch(fetchDashboard({
+        topSongsLimit: 10,
+        albumLimit: 5,
+        artistLimit: 10,
+        genreLimit: 10,
+        rankingLimit: 10,
+      }));
     }
   }, [dispatch, lastFetched, cacheExpiry]);
-
-  const fetchTodaySongsData = useCallback(() => dispatch(fetchTodaySongs()).unwrap(), [dispatch]);
-  const fetchWeekSongsData  = useCallback(() => dispatch(fetchWeekSongs()).unwrap(),  [dispatch]);
-  const fetchMonthSongsData = useCallback(() => dispatch(fetchMonthSongs()).unwrap(), [dispatch]);
 
   const handleSongPlay = (song: Song) => {
     playSong(song, { type: "all", id: "home" });
@@ -79,8 +80,9 @@ export default function HomePage() {
                 gradientVia="via-red-900/40"
                 hoverFrom="from-pink-600/20"
                 hoverTo="to-red-700/20"
-                fetchData={fetchTodaySongsData}
+                songs={rankingsToday}
                 tabType="today"
+                loading={loading}
               />
             </div>
             <div className="shrink-0 w-72">
@@ -91,8 +93,9 @@ export default function HomePage() {
                 gradientVia="via-violet-900/40"
                 hoverFrom="from-purple-600/20"
                 hoverTo="to-violet-700/20"
-                fetchData={fetchWeekSongsData}
+                songs={rankingsWeek}
                 tabType="week"
+                loading={loading}
               />
             </div>
             <div className="shrink-0 w-72">
@@ -103,8 +106,9 @@ export default function HomePage() {
                 gradientVia="via-blue-900/40"
                 hoverFrom="from-indigo-600/20"
                 hoverTo="to-blue-700/20"
-                fetchData={fetchMonthSongsData}
+                songs={rankingsMonth}
                 tabType="month"
+                loading={loading}
               />
             </div>
           </ScrollRow>

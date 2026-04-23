@@ -37,11 +37,13 @@ export default function RankingsPage() {
                 setLoading(true);
                 setError(null);
 
-                const [today, week, month] = await Promise.all([
-                    songApi.getTopSongsToday(50).catch(() => []),
-                    songApi.getTopSongsThisWeek(50).catch(() => []),
-                    songApi.getTopSongsThisMonth(50).catch(() => []),
-                ]);
+                const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+                const today = await songApi.getTopSongsToday(50).catch(() => []);
+                await delay(300);
+                const week = await songApi.getTopSongsThisWeek(50).catch(() => []);
+                await delay(300);
+                const month = await songApi.getTopSongsThisMonth(50).catch(() => []);
 
                 console.log("Rankings data:", { today, week, month });
                 setTodaySongs(today);

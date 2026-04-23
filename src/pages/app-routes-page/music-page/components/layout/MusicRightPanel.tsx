@@ -1,14 +1,9 @@
 import { useAudio, useAudioTime } from "@/hooks/useAudio.tsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Heart, MoreVertical, Music2, Disc3, User2, Clock3, Radio } from "lucide-react";
-import { favoriteApi } from "@/services/music/favoriteApi.ts";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
-import {
-    useFavoriteEventListener,
-    dispatchFavoriteEvent
-} from "@/hooks/useFavoriteEvents";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { useFavorites } from "@/hooks/useFavorites";
 
 function formatDuration(seconds: number): string {
     if (!seconds || Number.isNaN(seconds)) return "0:00";
@@ -21,7 +16,8 @@ export default function MusicRightPanel() {
     const { currentSong, isPlaying } = useAudio();
     const { duration } = useAudioTime();
     const { t } = useTranslation("music");
-    const [isFavorite, setIsFavorite] = useState(false);
+    const { isFavorite: checkFavorite, toggleFavorite } = useFavorites();
+    const isFavorite = currentSong ? checkFavorite(currentSong.id) : false;
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -31,50 +27,9 @@ export default function MusicRightPanel() {
         setIsImageLoaded(false);
     }
 
-    // Check favorite status
-    useEffect(() => {
-        const checkFavorite = async () => {
-            if (currentSong?.id) {
-                try {
-                    const result = await favoriteApi.isFavorite(currentSong.id);
-                    setIsFavorite(result);
-                } catch {
-                    setIsFavorite(false);
-                }
-            } else {
-                setIsFavorite(false);
-            }
-        };
-        checkFavorite();
-    }, [currentSong]);
-
-    // Listen for favorite events
-    useFavoriteEventListener(
-        (songId) => {
-            if (currentSong?.id === songId) setIsFavorite(true);
-        },
-        (songId) => {
-            if (currentSong?.id === songId) setIsFavorite(false);
-        }
-    );
-
     const handleToggleFavorite = async () => {
         if (!currentSong) return;
-        try {
-            if (isFavorite) {
-                await favoriteApi.removeFavorite(currentSong.id);
-                setIsFavorite(false);
-                dispatchFavoriteEvent("favorite-removed", currentSong.id);
-                toast.success("Đã xóa khỏi yêu thích");
-            } else {
-                await favoriteApi.addFavorite(currentSong.id);
-                setIsFavorite(true);
-                dispatchFavoriteEvent("favorite-added", currentSong.id);
-                toast.success("Đã thêm vào yêu thích");
-            }
-        } catch (err) {
-            console.error("Error toggling favorite:", err);
-        }
+        await toggleFavorite(currentSong.id);
     };
 
     let favBtnClass = "w-8 h-8 rounded-full flex items-center justify-center transition-all text-zinc-500 hover:text-white hover:bg-zinc-700/50";

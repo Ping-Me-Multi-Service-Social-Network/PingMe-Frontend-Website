@@ -37,18 +37,19 @@ export default function AlbumsPage() {
                 // Fetch top song for each album (first 10 albums)
                 const albumsData = allAlbums?.data || [];
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
-                await Promise.all(
-                    albumsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (album) => {
-                        try {
-                            const songs = await searchService.getSongsByAlbum(album.id);
-                            if (songs.length > 0) {
-                                songsMap.set(album.id, [songs[0]]);
-                            }
-                        } catch (err) {
-                            console.error(`Error fetching songs for album ${album.id}:`, err);
+                const previewAlbums = albumsData.slice(0, TOP_ARTISTS_FOR_PREVIEW);
+                for (const album of previewAlbums) {
+                    try {
+                        const songs = await searchService.getSongsByAlbum(album.id);
+                        if (songs.length > 0) {
+                            songsMap.set(album.id, [songs[0]]);
                         }
-                    })
-                );
+                    } catch (err) {
+                        console.error(`Error fetching songs for album ${album.id}:`, err);
+                    }
+                    // Delay between requests to avoid rate limiting
+                    await new Promise((r) => setTimeout(r, 150));
+                }
                 setAlbumSongs(songsMap);
                 setError(null);
             } catch (err) {

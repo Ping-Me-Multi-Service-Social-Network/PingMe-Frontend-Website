@@ -56,6 +56,9 @@ export function parseApiError(error: unknown): ErrorResponse {
     case 404:
       userMessage = "Không tìm thấy tài nguyên được yêu cầu.";
       break;
+    case 429:
+      userMessage = "Quá nhiều yêu cầu. Vui lòng đợi một lát rồi thử lại.";
+      break;
     case 500:
       userMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
       isServerError = true;

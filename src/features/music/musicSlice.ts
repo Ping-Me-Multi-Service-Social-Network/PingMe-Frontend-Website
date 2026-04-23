@@ -8,10 +8,12 @@ import { albumApi } from "@/services/music/albumApi";
 import { artistApi } from "@/services/music/artistApi";
 import { genreApi } from "@/services/music/genreApi";
 import { searchService } from "@/services/music/searchService";
+import { dashboardApi, type DashboardParams } from "@/services/music/dashboardApi";
 import type {
   SongResponseWithAllAlbum,
   ArtistResponse,
   AlbumResponse,
+  TopSongPlayCounter,
 } from "@/types/music";
 import type { Genre } from "@/types/music/genre";
 import {
@@ -29,6 +31,11 @@ interface MusicState {
   popularAlbums: AlbumResponse[];
   popularArtists: ArtistResponse[];
   allGenres: Genre[];
+
+  // Rankings cache (from dashboard endpoint)
+  rankingsToday: TopSongPlayCounter[];
+  rankingsWeek: TopSongPlayCounter[];
+  rankingsMonth: TopSongPlayCounter[];
 
   // Pages cache with CacheData type
   allArtists: CacheData<ArtistResponse[]>;
@@ -51,6 +58,9 @@ const initialState: MusicState = {
   popularAlbums: [],
   popularArtists: [],
   allGenres: [],
+  rankingsToday: [],
+  rankingsWeek: [],
+  rankingsMonth: [],
   allArtists: { data: [], lastFetched: null },
   allAlbums: { data: [], lastFetched: null },
   songsByGenre: {},
@@ -62,16 +72,29 @@ const initialState: MusicState = {
   error: null,
 };
 
-// Async thunks
+// Helper: delay between sequential requests to avoid rate limiting
+const apiDelay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// ── Dashboard thunk: single request for all home data ──
+export const fetchDashboard = createAsyncThunk(
+  "music/fetchDashboard",
+  async (params?: DashboardParams) => {
+    return await dashboardApi.getHomeDashboard(params);
+  },
+);
+
+// ── Legacy thunks (kept for pages that need individual endpoints) ──
 export const fetchMusicData = createAsyncThunk(
   "music/fetchAll",
   async (limit: number = 5) => {
-    const [songs, albums, artists, genres] = await Promise.all([
-      songApi.getTopSongs(limit),
-      albumApi.getPopularAlbums(limit),
-      artistApi.getPopularArtists(limit),
-      genreApi.getAllGenres(),
-    ]);
+    // Sequential fetch with delays to respect gateway rate limiter
+    const songs = await songApi.getTopSongs(limit);
+    await apiDelay(150);
+    const albums = await albumApi.getPopularAlbums(limit);
+    await apiDelay(150);
+    const artists = await artistApi.getPopularArtists(limit);
+    await apiDelay(150);
+    const genres = await genreApi.getAllGenres();
     
     return { songs, albums, artists, genres };
   },
@@ -217,7 +240,30 @@ const musicSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Main page data
+      // ── Dashboard (single request for home page) ──
+      .addCase(fetchDashboard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        const d = action.payload;
+        state.topSongs = d.topSongs || [];
+        state.popularAlbums = d.popularAlbums || [];
+        state.popularArtists = d.popularArtists || [];
+        state.allGenres = d.genres || [];
+        state.rankingsToday = d.rankings?.today || [];
+        state.rankingsWeek = d.rankings?.week || [];
+        state.rankingsMonth = d.rankings?.month || [];
+        state.lastFetched = Date.now();
+        state.cacheExpiry = Date.now() + CACHE_DURATION;
+        state.loading = false;
+      })
+      .addCase(fetchDashboard.rejected, (state, action) => {
+        state.error = action.error.message || "Failed to fetch dashboard data";
+        state.loading = false;
+      })
+
+      // ── Legacy: fetchMusicData (fallback) ──
       .addCase(fetchMusicData.pending, (state) => {
         state.loading = true;
         state.error = null;

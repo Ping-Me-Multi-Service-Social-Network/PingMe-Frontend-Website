@@ -36,18 +36,19 @@ export default function ArtistsPage() {
                 // Fetch trending song for each artist (top 1 song)
                 const artistsData = allArtists?.data || [];
                 const songsMap = new Map<number, SongResponseWithAllAlbum[]>();
-                await Promise.all(
-                    artistsData.slice(0, TOP_ARTISTS_FOR_PREVIEW).map(async (artist: ArtistResponse) => {
-                        try {
-                            const songs = await searchService.getSongsByArtist(artist.id);
-                            if (songs.length > 0) {
-                                songsMap.set(artist.id, [songs[0]]);
-                            }
-                        } catch (err) {
-                            console.error(`Error fetching songs for artist ${artist.id}:`, err);
+                const previewArtists = artistsData.slice(0, TOP_ARTISTS_FOR_PREVIEW);
+                for (const artist of previewArtists) {
+                    try {
+                        const songs = await searchService.getSongsByArtist(artist.id);
+                        if (songs.length > 0) {
+                            songsMap.set(artist.id, [songs[0]]);
                         }
-                    })
-                );
+                    } catch (err) {
+                        console.error(`Error fetching songs for artist ${artist.id}:`, err);
+                    }
+                    // Delay between requests to avoid rate limiting
+                    await new Promise((r) => setTimeout(r, 150));
+                }
                 setArtistSongs(songsMap);
                 setError(null);
             } catch (err) {
