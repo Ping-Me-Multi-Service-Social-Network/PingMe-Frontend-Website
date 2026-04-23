@@ -236,7 +236,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
         
-        <ChatPinnedMessages roomId={selectedChat.roomId} />
+        <ChatPinnedMessages roomId={selectedChat.roomId} participants={selectedChat.participants} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
           <ChatBoxContent

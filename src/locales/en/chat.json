@@ -48,7 +48,8 @@
         "members": "Chat Members",
         "media": "Media & Files",
         "theme": "Theme",
-        "nickname": "Nickname"
+        "nickname": "Nickname",
+        "pinnedMessages": "Pinned Messages"
     },
     "memberList": {
         "title": "Members",
@@ -130,7 +131,16 @@
             "deleteForMeSuccess": "Message deleted for you",
             "deleteForMeError": "Could not delete message",
             "editBtn": "Edit",
-            "edited": "Edited"
+            "edited": "Edited",
+            "pinnedMsg": "Pinned message",
+            "pinnedCount": "{{count}} pinned messages",
+            "pinBtn": "Pin message",
+            "unpinBtn": "Unpin",
+            "pinSuccess": "Message pinned",
+            "pinError": "Could not pin message",
+            "unpinSuccess": "Message unpinned",
+            "unpinError": "Could not unpin message",
+            "messageNotLoaded": "Message not loaded"
         },
         "weather": {
             "error": "Cannot display weather information",

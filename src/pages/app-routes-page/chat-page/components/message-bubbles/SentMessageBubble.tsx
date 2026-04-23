@@ -163,11 +163,6 @@ const SentMessageBubble = memo(function SentMessageBubble({
                 {t("bubbles.messages.edited", "Edited")}
               </span>
             )}
-            {message.isPinned && (
-              <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center text-orange-500">
-                <Pin className="w-2.5 h-2.5 mr-1 fill-current" />
-              </span>
-            )}
           </div>
         );
         break;
@@ -310,7 +305,12 @@ const SentMessageBubble = memo(function SentMessageBubble({
           )}
         </motion.div>
 
-        <div className="msg-time msg-time--sent mr-1">
+        <div className="msg-time msg-time--sent mr-1 flex items-center justify-end gap-1">
+          {message.isPinned && (
+            <span title={t("bubbles.messages.pinnedMsg", "Pinned message")}>
+              <Pin className="w-3 h-3 text-orange-500 fill-current" />
+            </span>
+          )}
           {formatMessageTime(message.createdAt)}
         </div>
       </div>

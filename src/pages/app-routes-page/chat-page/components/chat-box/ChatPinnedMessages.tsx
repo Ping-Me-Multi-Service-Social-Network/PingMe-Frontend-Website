@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { getPinnedMessagesApi, unpinMessageApi } from "@/services/chat";
 import type { MessageResponse } from "@/types/chat/message";
 import { Pin, ChevronDown, ChevronUp, X, Image as ImageIcon, File, Video, CloudRain } from "lucide-react";
@@ -11,9 +11,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatPinnedMessagesProps {
   roomId: number;
+  participants: { userId: number; name: string }[];
 }
 
-export const ChatPinnedMessages = memo(({ roomId }: ChatPinnedMessagesProps) => {
+export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMessagesProps) => {
   const { t } = useTranslation("chat");
   const [pinnedMessages, setPinnedMessages] = useState<MessageResponse[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -26,23 +27,25 @@ export const ChatPinnedMessages = memo(({ roomId }: ChatPinnedMessagesProps) => 
   const reduxMessages = useAppSelector(selectMessages);
   const editedMessages = useAppSelector(selectEditedMessages);
 
-  useEffect(() => {
-    const fetchPinnedMessages = async () => {
-      try {
-        const res = await getPinnedMessagesApi(roomId);
-        setPinnedMessages(res.data.data);
-        setIsOpen(false);
-      } catch (err) {
-        console.error("Failed to fetch pinned messages:", err);
-      }
-    };
-
-    fetchPinnedMessages();
+  const fetchPinnedMessages = useCallback(async () => {
+    try {
+      const res = await getPinnedMessagesApi(roomId);
+      setPinnedMessages(res.data.data);
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Failed to fetch pinned messages:", err);
+    }
   }, [roomId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchPinnedMessages();
+  }, [fetchPinnedMessages]);
 
   // Sync pinned messages with Redux updates (MESSAGE_UPDATED)
   useEffect(() => {
     let hasChanges = false;
+    let needsRefetch = false;
     const updatedPinned = [...pinnedMessagesRef.current];
 
     // Check if any pinned message was unpinned or recalled or edited
@@ -61,6 +64,8 @@ export const ChatPinnedMessages = memo(({ roomId }: ChatPinnedMessagesProps) => 
         if (fullMsg && existingIdx === -1) {
           updatedPinned.unshift(fullMsg); // prepend newly pinned
           hasChanges = true;
+        } else if (existingIdx === -1) {
+          needsRefetch = true;
         } else if (existingIdx !== -1) {
           updatedPinned[existingIdx] = { ...updatedPinned[existingIdx], ...editedMsg } as MessageResponse;
           hasChanges = true;
@@ -85,7 +90,10 @@ export const ChatPinnedMessages = memo(({ roomId }: ChatPinnedMessagesProps) => 
         }
     }
 
-    if (hasChanges) {
+    if (needsRefetch) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      fetchPinnedMessages();
+    } else if (hasChanges) {
       // Sort by pinnedAt desc
       updatedPinned.sort((a, b) => {
         const timeA = new Date(a.pinnedAt || a.createdAt).getTime();
@@ -94,7 +102,7 @@ export const ChatPinnedMessages = memo(({ roomId }: ChatPinnedMessagesProps) => 
       });
       setPinnedMessages(updatedPinned);
     }
-  }, [editedMessages, reduxMessages]);
+  }, [editedMessages, reduxMessages, fetchPinnedMessages]);
 
 
   const handleUnpin = async (e: React.MouseEvent, messageId: string) => {
@@ -178,7 +186,7 @@ export const ChatPinnedMessages = memo(({ roomId }: ChatPinnedMessagesProps) => 
                 >
                   <div className="flex-1 min-w-0 flex flex-col">
                      <span className="text-xs font-medium text-foreground mb-0.5 truncate">
-                        {msg.senderId ? t("bubbles.messages.pinnedMsg", "Pinned message") : "Pinned message"}
+                        {msg.senderId ? (participants.find(p => p.userId === msg.senderId)?.name || t("bubbles.messages.pinnedMsg", "Pinned message")) : "Pinned message"}
                      </span>
                      <span className="text-xs text-muted-foreground truncate">
                         {getMessagePreview(msg)}

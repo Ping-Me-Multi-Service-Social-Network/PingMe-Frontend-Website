@@ -48,7 +48,8 @@
         "members": "Thành viên phòng chat",
         "media": "File phương tiện & File",
         "theme": "Chủ đề",
-        "nickname": "Biệt danh"
+        "nickname": "Biệt danh",
+        "pinnedMessages": "Tin nhắn đã ghim"
     },
     "memberList": {
         "title": "Thành viên",
@@ -130,7 +131,16 @@
             "deleteForMeSuccess": "Đã xóa tin nhắn ở phía bạn",
             "deleteForMeError": "Không thể xóa tin nhắn",
             "editBtn": "Chỉnh sửa",
-            "edited": "Đã chỉnh sửa"
+            "edited": "Đã chỉnh sửa",
+            "pinnedMsg": "Tin nhắn đã ghim",
+            "pinnedCount": "{{count}} tin nhắn đã ghim",
+            "pinBtn": "Ghim tin nhắn",
+            "unpinBtn": "Bỏ ghim",
+            "pinSuccess": "Đã ghim tin nhắn",
+            "pinError": "Không thể ghim tin nhắn",
+            "unpinSuccess": "Đã bỏ ghim tin nhắn",
+            "unpinError": "Không thể bỏ ghim tin nhắn",
+            "messageNotLoaded": "Tin nhắn chưa được tải"
         },
         "weather": {
             "error": "Không thể hiển thị thông tin thời tiết",

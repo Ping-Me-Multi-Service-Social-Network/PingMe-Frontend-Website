@@ -299,55 +299,7 @@ export const chatThemes: Record<string, ChatTheme> = {
       textSecondary: "text-gray-500",
     },
   },
-  DARK: {
-    name: "Tối",
-    backgroundImage: "/chat-themes/dark-starry-night-sky-galaxy-pattern.webp",
-    header: {
-      bgStyle: { background: "oklch(0.2 0.02 292)" },
-      textColor: "text-white",
-      avatarRing: "ring-gray-600",
-      iconColor: "text-gray-300",
-      iconHoverBg: "hover:bg-gray-700",
-    },
-    content: {
-      background: "bg-gray-900",
-      systemMessageBg: "bg-gray-700",
-      systemMessageText: "text-gray-200",
-    },
-    messages: {
-      sentBubbleStyle: { background: "oklch(0.35 0.04 292)", color: "white" },
-      sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.22 0.02 292)", color: "oklch(0.9 0.01 292)" },
-      receivedBubbleText: "text-gray-100",
-      receivedBubbleBorder: "border-gray-700",
-      avatarRing: "ring-gray-700",
-    },
-    input: {
-      borderColor: "border-gray-600 focus:border-gray-500 focus:ring-gray-500",
-      toolbarBgStyle: { background: "oklch(0.2 0.02 292)" },
-      sendBtnStyle: { background: "oklch(0.4 0.04 292)" },
-      sendBtnHoverFilter: "brightness(1.2)",
-      buttonText: "text-white",
-      iconColor: "text-gray-400",
-      iconHoverColor: "hover:text-gray-200",
-      iconHoverBg: "hover:bg-gray-700",
-      attachmentBorder: "border-gray-600",
-    },
-    sidebar: {
-      background: "bg-gray-900",
-      headerBg: "bg-gray-800",
-      headerText: "text-white",
-      borderColor: "border-gray-700",
-      cardBg: "bg-gray-800",
-      cardBorder: "border-gray-700",
-      cardHoverBg: "hover:bg-gray-700",
-      buttonBorder: "border-gray-600",
-      buttonHoverBg: "hover:bg-gray-700",
-      iconColor: "text-gray-300",
-      textPrimary: "text-white",
-      textSecondary: "text-gray-400",
-    },
-  },
+
 };
 
 export const getTheme = (themeName?: string | null): ChatTheme => {

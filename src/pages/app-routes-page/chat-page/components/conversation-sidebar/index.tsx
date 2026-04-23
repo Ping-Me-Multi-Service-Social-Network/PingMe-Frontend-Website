@@ -11,9 +11,11 @@ import {
   Users,
   Palette,
   Camera,
+  Pin,
 } from "lucide-react";
 import { useState } from "react";
 import MemberList from "./member-list.tsx";
+import SidebarPinnedMessages from "./sidebar-pinned-messages.tsx";
 import RenameGroupModal from "./rename-group-modal.tsx";
 import { CallButton } from "@/components/call/CallButton";
 import ThemeSelectionModal from "./theme-selection-modal.tsx";
@@ -34,7 +36,7 @@ const ConversationSidebar = ({
   onClose,
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
-  const [currentView, setCurrentView] = useState<"main" | "members">("main");
+  const [currentView, setCurrentView] = useState<"main" | "members" | "pinned">("main");
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
@@ -59,6 +61,18 @@ const ConversationSidebar = ({
         <MemberList
           participants={selectedChat.participants}
           roomType={selectedChat.roomType}
+          roomId={selectedChat.roomId}
+          onBack={() => setCurrentView("main")}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === "pinned") {
+    return (
+      <div className={`conv-sidebar ${theme.sidebar.background}`}>
+        <SidebarPinnedMessages
+          participants={selectedChat.participants}
           roomId={selectedChat.roomId}
           onBack={() => setCurrentView("main")}
         />
@@ -194,6 +208,19 @@ const ConversationSidebar = ({
             </Button>
           </motion.div>
 
+
+          <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
+            <Button
+              variant="outline"
+              className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+              onClick={() => setCurrentView("pinned")}
+            >
+              <Pin className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
+              <span className={`font-medium ${theme.sidebar.textPrimary}`}>
+                {t("sidebar.pinnedMessages", "Pinned Messages")}
+              </span>
+            </Button>
+          </motion.div>
 
           <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
             <Button
