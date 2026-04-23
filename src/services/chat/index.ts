@@ -90,11 +90,18 @@ export const changeTheme = (roomId: number, theme: string) => {
 
 export const updateGroupImage = (roomId: number, roomImage: File | null) => {
   const formDataToSend = new FormData();
-  if (roomImage) formDataToSend.append("file", roomImage);
+  if (roomImage) {
+    formDataToSend.append("file", roomImage);
+  }
 
   return axiosClient.put<ApiResponse<RoomResponse>>(
     `/core-service/rooms/group/${roomId}/image`,
-    formDataToSend
+    formDataToSend,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
 };
 
