@@ -112,3 +112,10 @@ export interface CreatePollMessageRequest {
 export interface VotePollRequest {
   optionIds: string[];
 }
+
+export interface GroupMessageSummaryResponse {
+  roomId: number;
+  summarizedMessageCount: number;
+  summary: string;
+  generatedAt: string;
+}

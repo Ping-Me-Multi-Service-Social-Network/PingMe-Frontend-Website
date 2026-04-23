@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from "react";
-import type { MessageResponse } from "@/types/chat/message";
+import { useState, useCallback, useEffect, useRef } from "react";
+import type { GroupMessageSummaryResponse, MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
@@ -10,6 +10,7 @@ import {
   sendMultipleImageMessageApi,
   editMessageApi,
   createPollMessageApi,
+  getGroupMessageSummaryApi,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
@@ -20,7 +21,7 @@ import ConversationSidebar from "./conversation-sidebar";
 import { useTranslation } from "react-i18next";
 import { useMessages } from "../hooks/useMessages";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload } from "lucide-react";
+import { Sparkles, Upload, X } from "lucide-react";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -47,6 +48,10 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const [replyMessage, setReplyMessage] = useState<MessageResponse | null>(null);
   const [editingMessage, setEditingMessage] = useState<MessageResponse | null>(null);
+  const [groupSummary, setGroupSummary] = useState<GroupMessageSummaryResponse | null>(null);
+  const [groupSummaryRoomId, setGroupSummaryRoomId] = useState<number | null>(null);
+  const [isLoadingGroupSummary, setIsLoadingGroupSummary] = useState(false);
+  const [dismissedSummaryRoomId, setDismissedSummaryRoomId] = useState<number | null>(null);
 
   const isCurrentUserMessage = useCallback(
     (senderId: number) => {
@@ -192,6 +197,42 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     }
   };
 
+  useEffect(() => {
+    let active = true;
+
+    if (selectedChat.roomType !== "GROUP") {
+      return () => {
+        active = false;
+      };
+    }
+
+    queueMicrotask(() => {
+      if (!active) return;
+      setIsLoadingGroupSummary(true);
+      setDismissedSummaryRoomId(null);
+    });
+
+    getGroupMessageSummaryApi(selectedChat.roomId)
+      .then((response) => {
+        if (!active) return;
+        setGroupSummary(response.data?.data ?? null);
+        setGroupSummaryRoomId(selectedChat.roomId);
+      })
+      .catch(() => {
+        if (!active) return;
+        setGroupSummary(null);
+        setGroupSummaryRoomId(selectedChat.roomId);
+      })
+      .finally(() => {
+        if (!active) return;
+        setIsLoadingGroupSummary(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedChat.roomId, selectedChat.roomType]);
+
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     dragCounter.current += 1;
@@ -257,6 +298,35 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           selectedChat={selectedChat}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
+
+        {selectedChat.roomType === "GROUP" &&
+          groupSummaryRoomId === selectedChat.roomId &&
+          dismissedSummaryRoomId !== selectedChat.roomId &&
+          (isLoadingGroupSummary || groupSummary?.summary) && (
+          <div className="mx-4 mt-3 mb-1 rounded-xl border border-fuchsia-200 bg-fuchsia-50 px-3 py-2.5">
+            <div className="flex items-center gap-1.5 text-fuchsia-700 mb-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <p className="text-xs font-semibold flex-1">Tóm tắt AI (20 tin nhắn gần nhất)</p>
+              <button
+                type="button"
+                onClick={() => setDismissedSummaryRoomId(selectedChat.roomId)}
+                className="w-5 h-5 rounded-full bg-fuchsia-100 hover:bg-fuchsia-200 flex items-center justify-center transition-colors"
+              >
+                <X className="w-3 h-3 text-fuchsia-700" />
+              </button>
+            </div>
+            {isLoadingGroupSummary ? (
+              <div className="flex items-center gap-2 text-zinc-500">
+                <div className="w-3.5 h-3.5 border-2 border-fuchsia-300 border-t-fuchsia-600 rounded-full animate-spin" />
+                <p className="text-xs">AI đang tóm tắt cuộc trò chuyện...</p>
+              </div>
+            ) : (
+              <p className="text-[13px] leading-5 text-zinc-700 whitespace-pre-line">
+                {groupSummary?.summary}
+              </p>
+            )}
+          </div>
+        )}
         
         <ChatPinnedMessages roomId={selectedChat.roomId} participants={selectedChat.participants} />
 
