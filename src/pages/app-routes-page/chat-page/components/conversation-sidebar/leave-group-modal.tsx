@@ -31,12 +31,13 @@ const LeaveGroupModal = ({ isOpen, onClose, selectedChat }: LeaveGroupModalProps
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNewOwnerId, setSelectedNewOwnerId] = useState<number | null>(null);
 
-  const role = getMyRoomRole(selectedChat, currentUserId);
-  const isOwner = role === "OWNER";
-
   const eligibleMembers = useMemo(() => {
     return selectedChat.participants.filter((p) => p.userId !== currentUserId);
   }, [selectedChat.participants, currentUserId]);
+
+  const role = getMyRoomRole(selectedChat, currentUserId);
+  const isOwner = role === "OWNER";
+  const isOwnerAlone = isOwner && eligibleMembers.length === 0;
 
   const handleLeave = async () => {
     if (isOwner && eligibleMembers.length > 0 && !selectedNewOwnerId) {
@@ -51,6 +52,8 @@ const LeaveGroupModal = ({ isOpen, onClose, selectedChat }: LeaveGroupModalProps
       });
       if (isOwner && eligibleMembers.length > 0) {
         toast.success(t("modals.leaveGroup.transferSuccess", "Đã chuyển trưởng nhóm và thoát nhóm"));
+      } else if (isOwnerAlone) {
+        toast.success(t("modals.leaveGroup.ownerAloneDissolve", "Nhóm không còn thành viên, đã tự giải tán"));
       } else {
         toast.success(t("modals.leaveGroup.success", "Đã thoát nhóm"));
       }
@@ -80,6 +83,8 @@ const LeaveGroupModal = ({ isOpen, onClose, selectedChat }: LeaveGroupModalProps
           <DialogDescription>
             {isOwner && eligibleMembers.length > 0
               ? t("modals.leaveGroup.descOwner", "Bạn là trưởng nhóm. Vui lòng chọn trưởng nhóm mới trước khi thoát nhóm.")
+              : isOwnerAlone
+                ? t("modals.leaveGroup.descOwnerAlone", "Bạn là thành viên cuối cùng. Khi rời nhóm, nhóm sẽ tự giải tán.")
               : t("modals.leaveGroup.desc", "Bạn có chắc muốn thoát khỏi nhóm này?")}
           </DialogDescription>
         </DialogHeader>
