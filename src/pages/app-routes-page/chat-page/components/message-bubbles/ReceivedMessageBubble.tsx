@@ -203,7 +203,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       className="msg-row msg-row--received group mb-4 flex items-start relative"
     >
       <Avatar
-        className={`w-10 h-10 mr-3 mt-1 shrink-0 ring-2 ${theme.messages.avatarRing}`}
+        className={`w-9 h-9 mr-2 mt-1 shrink-0 ring-2 ${theme.messages.avatarRing}`}
       >
         <AvatarImage
           src={senderAvatar || "/placeholder.svg"}
@@ -276,7 +276,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
             <div>{renderMessageContent()}</div>
             ) : (
             <div
-                className={`msg-bubble msg-bubble--received ${!message.isActive ? "bg-muted text-muted-foreground border border-border shadow-none" : theme.messages.receivedBubbleText} border ${message.isActive ? theme.messages.receivedBubbleBorder : ""}`}
+                className={`msg-bubble msg-bubble--received ${!message.isActive ? "bg-muted text-muted-foreground shadow-none" : theme.messages.receivedBubbleText} ${message.isActive ? theme.messages.receivedBubbleBorder : ""}`}
                 style={message.isActive ? theme.messages.receivedBubbleStyle : {}}
             >
                 <AnimatePresence mode="popLayout">

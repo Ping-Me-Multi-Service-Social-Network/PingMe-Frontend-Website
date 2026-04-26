@@ -147,6 +147,7 @@ export function ChatBoxInput({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef(newMessage);
 
   // Voice recording via hook
@@ -171,6 +172,26 @@ export function ChatBoxInput({
     dispatch({ type: "SET_EMOJI_PICKER", payload: false });
     await startRec();
   }, [startRec]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Check if click is outside picker AND not on a toggle button
+      if (
+        emojiPickerRef.current && 
+        !emojiPickerRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest('.emoji-toggle-btn')
+      ) {
+        dispatch({ type: "SET_EMOJI_PICKER", payload: false });
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   useEffect(() => {
     latestMessageRef.current = newMessage;
@@ -198,14 +219,14 @@ export function ChatBoxInput({
     dispatch({ type: "TOGGLE_EMOJI_PICKER" });
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
 
@@ -232,7 +253,7 @@ export function ChatBoxInput({
   }, []);
 
   const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = e.target.value;
       dispatch({ type: "SET_MESSAGE", payload: value });
 
@@ -434,10 +455,8 @@ export function ChatBoxInput({
   };
 
   return (
-    <div className={`border-t ${theme.content.background || "bg-white"}`}>
-      {/* Toolbar: Image, File, Weather, Mic */}
+    <div className="chat-box-input flex flex-col bg-white border-t border-gray-100">
       <ChatInputToolbar
-        theme={theme}
         disabled={disabled}
         isSending={isSending}
         isRecording={isRecording}
@@ -445,8 +464,9 @@ export function ChatBoxInput({
         onImageClick={handleImageClick}
         onFileClick={handleFileClick}
         onWeatherClick={handleWeatherClick}
-        onRecordingClick={startRecording}
         onPollClick={handlePollClick}
+        onRecordingClick={startRecording}
+        onToggleEmojiPicker={toggleEmojiPicker}
         imageInputRef={imageInputRef}
         fileInputRef={fileInputRef}
         handleImageChange={handleImageChange}
@@ -514,7 +534,10 @@ export function ChatBoxInput({
 
       <div className="p-4 relative">
         {showEmojiPicker && (
-          <div className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl rounded-lg overflow-hidden">
+          <div 
+            ref={emojiPickerRef}
+            className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl rounded-lg overflow-hidden"
+          >
             <EmojiPicker
               onEmojiClick={handleEmojiSelect}
               autoFocusSearch={false}
@@ -557,16 +580,16 @@ export function ChatBoxInput({
         {/* ===== NORMAL INPUT STATE ===== */}
         {!isRecording && !isTranscribing && (
           <ChatInputArea
-            theme={theme}
             newMessage={newMessage}
             hasFiles={selectedFiles.length > 0}
             disabled={disabled}
             isSending={isSending}
             onInputChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             onToggleEmojiPicker={toggleEmojiPicker}
             onSend={handleSend}
+            targetName={selectedChat?.name || ""}
           />
         )}
       </div>

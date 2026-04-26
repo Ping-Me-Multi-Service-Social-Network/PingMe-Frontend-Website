@@ -1,9 +1,11 @@
+import type { CSSProperties } from "react";
+
 export interface ChatTheme {
   name: string;
   backgroundImage?: string;
   header: {
     /** CSS style object for background */
-    bgStyle: React.CSSProperties;
+    bgStyle: CSSProperties;
     textColor: string;
     avatarRing: string;
     iconColor: string;
@@ -16,10 +18,10 @@ export interface ChatTheme {
   };
   messages: {
     /** CSS style object for sent bubble */
-    sentBubbleStyle: React.CSSProperties;
+    sentBubbleStyle: CSSProperties;
     sentBubbleText: string;
     /** CSS style object for received bubble */
-    receivedBubbleStyle: React.CSSProperties;
+    receivedBubbleStyle: CSSProperties;
     receivedBubbleText: string;
     receivedBubbleBorder: string;
     avatarRing: string;
@@ -27,9 +29,9 @@ export interface ChatTheme {
   input: {
     borderColor: string;
     /** CSS style object for toolbar background */
-    toolbarBgStyle: React.CSSProperties;
+    toolbarBgStyle: CSSProperties;
     /** CSS style object for send button */
-    sendBtnStyle: React.CSSProperties;
+    sendBtnStyle: CSSProperties;
     sendBtnHoverFilter: string;
     buttonText: string;
     iconColor: string;
@@ -53,40 +55,85 @@ export interface ChatTheme {
   };
 }
 
-export const chatThemes: Record<string, ChatTheme> = {
-  DEFAULT: {
-    name: "Mặc định (Tím)",
-    backgroundImage: "",
+/**
+ * Helper to create a theme with common patterns to reduce code duplication
+ */
+const createTheme = (params: {
+  name: string;
+  backgroundImage?: string;
+  color: string;
+  h1: number;
+  h2: number;
+  sentL: number;
+  sentC?: number;
+  buttonL?: number;
+  buttonC?: number;
+  hInput?: number;
+  toolbarC?: number;
+  receivedBg?: string;
+  receivedShadow?: string;
+  receivedBorder?: string;
+  receivedRing?: string;
+  systemBg?: string;
+  systemText?: string;
+  headerC1?: number;
+  headerC2?: number;
+}): ChatTheme => {
+  const {
+    name,
+    backgroundImage = "",
+    color,
+    h1,
+    h2,
+    sentL,
+    sentC = 0.18,
+    buttonL = sentL,
+    buttonC = sentC,
+    hInput = h1,
+    toolbarC = 0.03,
+    receivedBg = `oklch(0.96 0.04 ${h1})`,
+    receivedShadow = "none",
+    receivedBorder = `border-${color}-100/50`,
+    receivedRing = `ring-${color}-100`,
+    systemBg = `bg-${color}-100`,
+    systemText = `text-${color}-700`,
+    headerC1 = 0.04,
+    headerC2 = 0.05,
+  } = params;
+
+  return {
+    name,
+    backgroundImage,
     header: {
-      bgStyle: { background: "linear-gradient(to right, oklch(0.95 0.04 292), oklch(0.95 0.03 282))" },
+      bgStyle: { background: `linear-gradient(to right, oklch(0.95 ${headerC1} ${h1}), oklch(0.95 ${headerC2} ${h2}))` },
       textColor: "text-gray-900",
-      avatarRing: "ring-purple-200",
-      iconColor: "text-purple-600",
-      iconHoverBg: "hover:bg-purple-100",
+      avatarRing: `ring-${color}-200`,
+      iconColor: `text-${color}-600`,
+      iconHoverBg: `hover:bg-${color}-100`,
     },
     content: {
       background: "bg-white",
-      systemMessageBg: "bg-gray-100",
-      systemMessageText: "text-gray-600",
+      systemMessageBg: systemBg,
+      systemMessageText: systemText,
     },
     messages: {
-      sentBubbleStyle: { background: "oklch(0.45 0.2 292)", color: "white" },
+      sentBubbleStyle: { background: `oklch(${sentL} ${sentC} ${h1})`, color: "white" },
       sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.95 0.04 292)" },
+      receivedBubbleStyle: { background: receivedBg, boxShadow: receivedShadow },
       receivedBubbleText: "text-foreground",
-      receivedBubbleBorder: "border-purple-100/50",
-      avatarRing: "ring-purple-100",
+      receivedBubbleBorder: receivedBorder,
+      avatarRing: receivedRing,
     },
     input: {
-      borderColor: "border-gray-300 focus:border-purple-500 focus:ring-purple-500",
-      toolbarBgStyle: { background: "oklch(0.97 0.02 292)" },
-      sendBtnStyle: { background: "oklch(0.45 0.2 292)" },
+      borderColor: `border-gray-300 focus:border-${color}-500 focus:ring-${color}-500`,
+      toolbarBgStyle: { background: `oklch(0.97 ${toolbarC} ${hInput})` },
+      sendBtnStyle: { background: `oklch(${buttonL} ${buttonC} ${h1})` },
       sendBtnHoverFilter: "brightness(1.1)",
       buttonText: "text-white",
       iconColor: "text-gray-600",
-      iconHoverColor: "hover:text-purple-600",
-      iconHoverBg: "hover:bg-purple-100",
-      attachmentBorder: "border-purple-200",
+      iconHoverColor: `hover:text-${color}-600`,
+      iconHoverBg: `hover:bg-${color}-100`,
+      attachmentBorder: `border-${color}-200`,
     },
     sidebar: {
       background: "bg-gray-50",
@@ -95,211 +142,73 @@ export const chatThemes: Record<string, ChatTheme> = {
       borderColor: "border-gray-200",
       cardBg: "bg-white",
       cardBorder: "border-gray-200",
-      cardHoverBg: "hover:bg-purple-50",
+      cardHoverBg: `hover:bg-${color}-50`,
       buttonBorder: "border-gray-200",
-      buttonHoverBg: "hover:bg-purple-50",
-      iconColor: "text-purple-600",
+      buttonHoverBg: `hover:bg-${color}-50`,
+      iconColor: `text-${color}-600`,
       textPrimary: "text-gray-900",
       textSecondary: "text-gray-500",
     },
-  },
-  OCEAN: {
+  };
+};
+
+export const chatThemes: Record<string, ChatTheme> = {
+  DEFAULT: createTheme({
+    name: "Mặc định (Tím)",
+    color: "purple",
+    h1: 292,
+    h2: 282,
+    sentL: 0.55,
+    sentC: 0.2,
+    buttonL: 0.45,
+    headerC2: 0.03,
+    systemBg: "bg-gray-200/50",
+    systemText: "text-gray-500",
+    receivedBg: "white",
+    receivedShadow: "0 1px 2px rgba(0,0,0,0.05)",
+    receivedBorder: "border-transparent",
+    receivedRing: "ring-transparent",
+    toolbarC: 0.02,
+  }),
+  OCEAN: createTheme({
     name: "Đại dương (Xanh dương)",
     backgroundImage: "/chat-themes/ocean-waves-underwater-blue-cyan-pattern.webp",
-    header: {
-      bgStyle: { background: "linear-gradient(to right, oklch(0.95 0.04 285), oklch(0.95 0.04 195))" },
-      textColor: "text-gray-900",
-      avatarRing: "ring-blue-200",
-      iconColor: "text-blue-600",
-      iconHoverBg: "hover:bg-blue-100",
-    },
-    content: {
-      background: "bg-white",
-      systemMessageBg: "bg-blue-100",
-      systemMessageText: "text-blue-700",
-    },
-    messages: {
-      sentBubbleStyle: { background: "oklch(0.5 0.18 285)", color: "white" },
-      sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.95 0.04 285)" },
-      receivedBubbleText: "text-foreground",
-      receivedBubbleBorder: "border-blue-100/50",
-      avatarRing: "ring-blue-100",
-    },
-    input: {
-      borderColor: "border-gray-300 focus:border-blue-500 focus:ring-blue-500",
-      toolbarBgStyle: { background: "oklch(0.97 0.02 285)" },
-      sendBtnStyle: { background: "oklch(0.5 0.18 285)" },
-      sendBtnHoverFilter: "brightness(1.1)",
-      buttonText: "text-white",
-      iconColor: "text-gray-600",
-      iconHoverColor: "hover:text-blue-600",
-      iconHoverBg: "hover:bg-blue-100",
-      attachmentBorder: "border-blue-200",
-    },
-    sidebar: {
-      background: "bg-gray-50",
-      headerBg: "bg-white",
-      headerText: "text-gray-900",
-      borderColor: "border-gray-200",
-      cardBg: "bg-white",
-      cardBorder: "border-gray-200",
-      cardHoverBg: "hover:bg-blue-50",
-      buttonBorder: "border-gray-200",
-      buttonHoverBg: "hover:bg-blue-50",
-      iconColor: "text-blue-600",
-      textPrimary: "text-gray-900",
-      textSecondary: "text-gray-500",
-    },
-  },
-  SUNSET: {
+    color: "blue",
+    h1: 285,
+    h2: 195,
+    sentL: 0.5,
+    receivedBg: "oklch(0.95 0.04 285)",
+    toolbarC: 0.02,
+    headerC2: 0.04,
+  }),
+  SUNSET: createTheme({
     name: "Hoàng hôn (Cam)",
     backgroundImage: "/chat-themes/sunset-sky-orange-red-gradient-clouds.webp",
-    header: {
-      bgStyle: { background: "linear-gradient(to right, oklch(0.95 0.06 55), oklch(0.95 0.05 30))" },
-      textColor: "text-gray-900",
-      avatarRing: "ring-orange-200",
-      iconColor: "text-orange-600",
-      iconHoverBg: "hover:bg-orange-100",
-    },
-    content: {
-      background: "bg-white",
-      systemMessageBg: "bg-orange-100",
-      systemMessageText: "text-orange-700",
-    },
-    messages: {
-      sentBubbleStyle: { background: "oklch(0.6 0.18 55)", color: "white" },
-      sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.96 0.04 55)" },
-      receivedBubbleText: "text-foreground",
-      receivedBubbleBorder: "border-orange-100/50",
-      avatarRing: "ring-orange-100",
-    },
-    input: {
-      borderColor: "border-gray-300 focus:border-orange-500 focus:ring-orange-500",
-      toolbarBgStyle: { background: "oklch(0.97 0.03 55)" },
-      sendBtnStyle: { background: "oklch(0.6 0.18 55)" },
-      sendBtnHoverFilter: "brightness(1.1)",
-      buttonText: "text-white",
-      iconColor: "text-gray-600",
-      iconHoverColor: "hover:text-orange-600",
-      iconHoverBg: "hover:bg-orange-100",
-      attachmentBorder: "border-orange-200",
-    },
-    sidebar: {
-      background: "bg-gray-50",
-      headerBg: "bg-white",
-      headerText: "text-gray-900",
-      borderColor: "border-gray-200",
-      cardBg: "bg-white",
-      cardBorder: "border-gray-200",
-      cardHoverBg: "hover:bg-orange-50",
-      buttonBorder: "border-gray-200",
-      buttonHoverBg: "hover:bg-orange-50",
-      iconColor: "text-orange-600",
-      textPrimary: "text-gray-900",
-      textSecondary: "text-gray-500",
-    },
-  },
-  FOREST: {
+    color: "orange",
+    h1: 55,
+    h2: 30,
+    sentL: 0.6,
+    headerC1: 0.06,
+  }),
+  FOREST: createTheme({
     name: "Rừng xanh",
     backgroundImage: "/chat-themes/forest-trees-green-nature-leaves-pattern.webp",
-    header: {
-      bgStyle: { background: "linear-gradient(to right, oklch(0.95 0.06 145), oklch(0.95 0.05 165))" },
-      textColor: "text-gray-900",
-      avatarRing: "ring-green-200",
-      iconColor: "text-green-600",
-      iconHoverBg: "hover:bg-green-100",
-    },
-    content: {
-      background: "bg-white",
-      systemMessageBg: "bg-green-100",
-      systemMessageText: "text-green-700",
-    },
-    messages: {
-      sentBubbleStyle: { background: "oklch(0.55 0.18 145)", color: "white" },
-      sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.96 0.04 145)" },
-      receivedBubbleText: "text-foreground",
-      receivedBubbleBorder: "border-green-100/50",
-      avatarRing: "ring-green-100",
-    },
-    input: {
-      borderColor: "border-gray-300 focus:border-green-500 focus:ring-green-500",
-      toolbarBgStyle: { background: "oklch(0.97 0.03 145)" },
-      sendBtnStyle: { background: "oklch(0.55 0.18 145)" },
-      sendBtnHoverFilter: "brightness(1.1)",
-      buttonText: "text-white",
-      iconColor: "text-gray-600",
-      iconHoverColor: "hover:text-green-600",
-      iconHoverBg: "hover:bg-green-100",
-      attachmentBorder: "border-green-200",
-    },
-    sidebar: {
-      background: "bg-gray-50",
-      headerBg: "bg-white",
-      headerText: "text-gray-900",
-      borderColor: "border-gray-200",
-      cardBg: "bg-white",
-      cardBorder: "border-gray-200",
-      cardHoverBg: "hover:bg-green-50",
-      buttonBorder: "border-gray-200",
-      buttonHoverBg: "hover:bg-green-50",
-      iconColor: "text-green-600",
-      textPrimary: "text-gray-900",
-      textSecondary: "text-gray-500",
-    },
-  },
-  ROSE: {
+    color: "green",
+    h1: 145,
+    h2: 165,
+    sentL: 0.55,
+    headerC1: 0.06,
+  }),
+  ROSE: createTheme({
     name: "Hồng pastel",
     backgroundImage: "/chat-themes/pink-rose-petals-soft-pastel-floral-pattern.webp",
-    header: {
-      bgStyle: { background: "linear-gradient(to right, oklch(0.95 0.06 350), oklch(0.95 0.05 10))" },
-      textColor: "text-gray-900",
-      avatarRing: "ring-pink-200",
-      iconColor: "text-pink-600",
-      iconHoverBg: "hover:bg-pink-100",
-    },
-    content: {
-      background: "bg-white",
-      systemMessageBg: "bg-pink-100",
-      systemMessageText: "text-pink-700",
-    },
-    messages: {
-      sentBubbleStyle: { background: "oklch(0.6 0.2 350)", color: "white" },
-      sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.96 0.04 350)" },
-      receivedBubbleText: "text-foreground",
-      receivedBubbleBorder: "border-pink-100/50",
-      avatarRing: "ring-pink-100",
-    },
-    input: {
-      borderColor: "border-gray-300 focus:border-pink-500 focus:ring-pink-500",
-      toolbarBgStyle: { background: "oklch(0.97 0.03 350)" },
-      sendBtnStyle: { background: "oklch(0.6 0.2 350)" },
-      sendBtnHoverFilter: "brightness(1.1)",
-      buttonText: "text-white",
-      iconColor: "text-gray-600",
-      iconHoverColor: "hover:text-pink-600",
-      iconHoverBg: "hover:bg-pink-100",
-      attachmentBorder: "border-pink-200",
-    },
-    sidebar: {
-      background: "bg-gray-50",
-      headerBg: "bg-white",
-      headerText: "text-gray-900",
-      borderColor: "border-gray-200",
-      cardBg: "bg-white",
-      cardBorder: "border-gray-200",
-      cardHoverBg: "hover:bg-pink-50",
-      buttonBorder: "border-gray-200",
-      buttonHoverBg: "hover:bg-pink-50",
-      iconColor: "text-pink-600",
-      textPrimary: "text-gray-900",
-      textSecondary: "text-gray-500",
-    },
-  },
-
+    color: "pink",
+    h1: 350,
+    h2: 10,
+    sentL: 0.6,
+    sentC: 0.2,
+    headerC1: 0.06,
+  }),
 };
 
 export const getTheme = (themeName?: string | null): ChatTheme => {

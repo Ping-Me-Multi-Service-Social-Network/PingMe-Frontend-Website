@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
-import { Search } from "lucide-react";
+import { Search, UserPlus, Users } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -24,25 +24,28 @@ export function ChatActionBar({
 
   return (
     <TooltipProvider>
-      <div className="p-4">
-        <div className="flex items-center justify-center gap-3">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="lg" className="h-10 w-10 p-0">
-                <Search className="w-6 h-6" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{t("actionBar.search")}</p>
-            </TooltipContent>
-          </Tooltip>
+      <div className="px-4 py-3 flex items-center gap-2">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            placeholder={t("actionBar.search", "Tìm kiếm")}
+            className="w-full h-9 pl-9 pr-4 bg-muted/50 border-none rounded-md text-sm focus:ring-1 focus:ring-primary/30 outline-none transition-all"
+          />
+        </div>
 
+        <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <div>
+              <div className="flex">
                 <UserLookupModal
                   onFriendAdded={onFriendAdded}
                   setSelectedChat={setSelectedChat}
+                  trigger={
+                    <Button variant="ghost" size="icon" className="h-9 w-9 p-0 hover:bg-muted">
+                      <UserPlus className="w-5 h-5 text-[#001233]" strokeWidth={1.5} />
+                    </Button>
+                  }
                 />
               </div>
             </TooltipTrigger>
@@ -53,10 +56,15 @@ export function ChatActionBar({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <div>
+              <div className="flex">
                 <GroupMemberModal
                   mode="create"
                   onGroupCreated={setSelectedChat}
+                  triggerButton={
+                    <Button variant="ghost" size="icon" className="h-9 w-9 p-0 hover:bg-muted">
+                      <Users className="w-5 h-5 text-[#001233]" strokeWidth={1.5} />
+                    </Button>
+                  }
                 />
               </div>
             </TooltipTrigger>

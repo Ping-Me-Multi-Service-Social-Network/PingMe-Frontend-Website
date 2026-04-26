@@ -12,6 +12,9 @@ import {
   Palette,
   Camera,
   Pin,
+  Bell,
+  Settings,
+  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import MemberList from "./member-list.tsx";
@@ -24,6 +27,7 @@ import { getTheme } from "../../utils/chatThemes.ts";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Edit2, LogOut, Trash2 } from "lucide-react";
+import GroupManagement from "./group-management.tsx";
 import {
   canRenameGroup,
   canChangeGroupAvatar,
@@ -33,6 +37,7 @@ import {
 } from "../../utils/groupPermissions.ts";
 import LeaveGroupModal from "./leave-group-modal.tsx";
 import DissolveGroupModal from "./dissolve-group-modal.tsx";
+import { GroupMemberModal } from "@/pages/app-routes-page/components/chat-shared-components/GroupMemberModal.tsx";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
@@ -46,7 +51,7 @@ const ConversationSidebar = ({
   onClose,
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
-  const [currentView, setCurrentView] = useState<"main" | "members" | "pinned">("main");
+  const [currentView, setCurrentView] = useState<"main" | "members" | "pinned" | "management">("main");
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
@@ -91,6 +96,17 @@ const ConversationSidebar = ({
     );
   }
 
+  if (currentView === "management") {
+    return (
+      <div className={`conv-sidebar ${theme.sidebar.background}`}>
+        <GroupManagement
+          room={selectedChat}
+          onBack={() => setCurrentView("main")}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`conv-sidebar ${theme.sidebar.background} ${theme.sidebar.borderColor}`}
@@ -111,7 +127,7 @@ const ConversationSidebar = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto conv-sidebar__content">
         {/* User/Room Info */}
         <div
           className={`conv-sidebar__profile ${theme.sidebar.cardBg} ${theme.sidebar.borderColor}`}
@@ -153,22 +169,24 @@ const ConversationSidebar = ({
           </div>
 
           {selectedChat.roomType === "GROUP" ? (
-            <div className="relative w-full max-w-xs group text-center flex items-center justify-center">
-              <h4
-                className={`conv-sidebar__profile-name truncate max-w-[80%] ${theme.sidebar.textPrimary}`}
-              >
-                {selectedChat.name}
-              </h4>
-              {canRenameGroup(selectedChat, currentUserId) && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className={`h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity ${theme.header.iconHoverBg}`}
-                  onClick={() => setIsRenameModalOpen(true)}
+            <div className="relative group w-full flex items-center justify-center">
+              <div className="relative">
+                <h4
+                  className={`conv-sidebar__profile-name truncate max-w-[180px] text-center ${theme.sidebar.textPrimary}`}
                 >
-                  <Edit2 className={`h-3.5 w-3.5 ${theme.header.iconColor}`} />
-                </Button>
-              )}
+                  {selectedChat.name}
+                </h4>
+                {canRenameGroup(selectedChat, currentUserId) && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className={`absolute -right-8 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity ${theme.header.iconHoverBg}`}
+                    onClick={() => setIsRenameModalOpen(true)}
+                  >
+                    <Edit2 className={`h-4 w-4 ${theme.header.iconColor}`} />
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <h4
@@ -178,7 +196,64 @@ const ConversationSidebar = ({
             </h4>
           )}
 
-          <div className="conv-sidebar__quick-actions">
+          <div className={`grid ${selectedChat.roomType === "GROUP" ? "grid-cols-4" : "grid-cols-3"} gap-2 w-full mt-4`}>
+            <div className="flex flex-col items-center gap-1">
+              <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full bg-muted/50 hover:bg-muted">
+                <Bell className="h-5 w-5 text-foreground/70" />
+              </Button>
+              <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">{t("sidebar.mute")}</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full bg-muted/50 hover:bg-muted">
+                <Pin className="h-5 w-5 text-foreground/70" />
+              </Button>
+              <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">{t("sidebar.pin")}</span>
+            </div>
+
+            {selectedChat.roomType === "GROUP" ? (
+              <>
+                <div className="flex flex-col items-center gap-1">
+                  <GroupMemberModal
+                    mode="add"
+                    roomId={selectedChat.roomId}
+                    currentMembers={selectedChat.participants}
+                    triggerButton={
+                      <div className="h-10 w-10 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors">
+                        <UserPlus className="h-5 w-5 text-foreground/70" />
+                      </div>
+                    }
+                  />
+                  <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">{t("sidebar.addMember")}</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Button 
+                    variant="secondary" 
+                    size="icon" 
+                    className="h-10 w-10 rounded-full bg-muted/50 hover:bg-muted"
+                    onClick={() => setCurrentView("management")}
+                  >
+                    <Settings className="h-5 w-5 text-foreground/70" />
+                  </Button>
+                  <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">{t("sidebar.manageGroup")}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-1">
+                <GroupMemberModal
+                  mode="create"
+                  onGroupCreated={onClose}
+                  triggerButton={
+                    <div className="h-10 w-10 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors">
+                      <Users className="h-5 w-5 text-foreground/70" />
+                    </div>
+                  }
+                />
+                <span className="text-[10px] text-muted-foreground font-medium text-center leading-tight">{t("sidebar.createGroup")}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-center gap-6 mt-6 w-full">
             {selectedChat.roomType === "DIRECT" && otherParticipant ? (
               <CallButton
                 variant="sidebar"
@@ -216,42 +291,46 @@ const ConversationSidebar = ({
             }
           }}
         >
+          <div className="conv-sidebar__section-header">{t("sidebar.conversation")}</div>
           <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
             <Button
-              variant="outline"
-              className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+              variant="ghost"
+              className={`w-full justify-start gap-3 h-12 bg-transparent px-2 hover:bg-muted/50`}
               onClick={() => setCurrentView("members")}
             >
-              <Users className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-                {t("sidebar.members")}
+              <Users className={`h-4 w-4 text-muted-foreground`} />
+              <span className={`text-sm font-medium ${theme.sidebar.textPrimary}`}>
+                {selectedChat.roomType === "GROUP" 
+                  ? `${t("sidebar.members")} (${selectedChat.participants.length})` 
+                  : t("sidebar.profile")
+                }
               </span>
             </Button>
           </motion.div>
-
 
           <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
             <Button
-              variant="outline"
-              className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+              variant="ghost"
+              className={`w-full justify-start gap-3 h-12 bg-transparent px-2 hover:bg-muted/50`}
               onClick={() => setCurrentView("pinned")}
             >
-              <Pin className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-              <span className={`font-medium ${theme.sidebar.textPrimary}`}>
-                {t("sidebar.pinnedMessages", "Pinned Messages")}
+              <Pin className={`h-4 w-4 text-muted-foreground`} />
+              <span className={`text-sm font-medium ${theme.sidebar.textPrimary}`}>
+                {t("sidebar.pinnedMessages")}
               </span>
             </Button>
           </motion.div>
 
+          <div className="conv-sidebar__section-header">{t("sidebar.settings")}</div>
           {canChangeTheme(selectedChat, currentUserId) && (
             <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
               <Button
-                variant="outline"
-                className={`w-full justify-start gap-3 h-14 bg-transparent ${theme.sidebar.buttonBorder} ${theme.sidebar.buttonHoverBg}`}
+                variant="ghost"
+                className={`w-full justify-start gap-3 h-12 bg-transparent px-2 hover:bg-muted/50`}
                 onClick={() => setIsThemeModalOpen(true)}
               >
-                <Palette className={`h-5 w-5 ${theme.sidebar.iconColor}`} />
-                <span className={`font-medium ${theme.sidebar.textPrimary}`}>
+                <Palette className={`h-4 w-4 text-muted-foreground`} />
+                <span className={`text-sm font-medium ${theme.sidebar.textPrimary}`}>
                   {t("sidebar.theme")}
                 </span>
               </Button>

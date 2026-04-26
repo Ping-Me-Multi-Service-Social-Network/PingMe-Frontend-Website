@@ -41,11 +41,13 @@ import { markInviteAsSent, clearSentInvite } from "@/utils/inviteTracker";
 interface UserLookupModalProps {
   onFriendAdded?: () => void;
   setSelectedChat?: (room: RoomResponse) => void;
+  trigger?: React.ReactNode;
 }
 
 export function UserLookupModal({
   onFriendAdded,
   setSelectedChat,
+  trigger,
 }: UserLookupModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [emailSearch, setEmailSearch] = useState("");
@@ -183,9 +185,11 @@ export function UserLookupModal({
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="ghost" size="lg" className="h-10 w-10 p-0">
-          <UserPlus className="w-6 h-6" />
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="lg" className="h-10 w-10 p-0">
+            <UserPlus className="w-6 h-6" />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

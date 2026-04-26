@@ -291,7 +291,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
       <motion.div 
         layout
         className="chat-box__main shrink-0 w-full min-h-0"
-        animate={{ width: isSidebarOpen ? "calc(100% - 20rem)" : "100%" }}
+        animate={{ width: isSidebarOpen ? "calc(100% - 18rem)" : "100%" }}
         transition={{ type: "spring", stiffness: 350, damping: 30 }}
       >
         <ChatBoxHeader
@@ -365,7 +365,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
         {isSidebarOpen && (
           <motion.div
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: "20rem", opacity: 1 }}
+            animate={{ width: "18rem", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
             className="h-full border-l shrink-0 flex flex-col overflow-hidden"

@@ -1,4 +1,5 @@
 import i18n from "i18next";
+// Trigger reload
 import { initReactI18next } from "react-i18next";
 
 import profileVI from "./locales/vi/profile.json";

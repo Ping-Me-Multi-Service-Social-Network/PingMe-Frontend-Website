@@ -49,7 +49,29 @@
         "media": "Media & Files",
         "theme": "Theme",
         "nickname": "Nickname",
-        "pinnedMessages": "Pinned Messages"
+        "pinnedMessages": "Pinned Messages",
+        "mute": "Mute",
+        "pin": "Pin",
+        "createGroup": "Create Group",
+        "addMember": "Add Member",
+        "manageGroup": "Manage Group",
+        "conversation": "CONVERSATION",
+        "settings": "SETTINGS"
+    },
+    "management": {
+        "title": "Group Management",
+        "memberPermissions": "Allow members to:",
+        "changeNameAvatar": "Change group name & image",
+        "pinMessages": "Pin messages, notes, polls",
+        "createNotes": "Create notes, reminders",
+        "createPolls": "Create polls",
+        "sendMessages": "Send messages",
+        "approvalMode": "New member approval mode",
+        "highlightAdmins": "Highlight messages from admins",
+        "readRecentMessages": "Allow new members to read recent messages",
+        "useGroupLink": "Allow using group link to join",
+        "blockFromGroup": "Block from group",
+        "adminOnly": "Feature for admins only"
     },
     "memberList": {
         "title": "Members",
