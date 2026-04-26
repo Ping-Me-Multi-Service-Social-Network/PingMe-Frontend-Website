@@ -49,7 +49,29 @@
         "media": "File phương tiện & File",
         "theme": "Chủ đề",
         "nickname": "Biệt danh",
-        "pinnedMessages": "Tin nhắn đã ghim"
+        "pinnedMessages": "Tin nhắn đã ghim",
+        "mute": "Tắt thông báo",
+        "pin": "Ghim hội thoại",
+        "createGroup": "Tạo nhóm",
+        "addMember": "Thêm thành viên",
+        "manageGroup": "Quản lý nhóm",
+        "conversation": "HỘI THOẠI",
+        "settings": "CÀI ĐẶT"
+    },
+    "management": {
+        "title": "Quản lý nhóm",
+        "memberPermissions": "Cho phép các thành viên trong nhóm:",
+        "changeNameAvatar": "Thay đổi tên & ảnh đại diện của nhóm",
+        "pinMessages": "Ghim tin nhắn, ghi chú, bình chọn lên đầu hội thoại",
+        "createNotes": "Tạo mới ghi chú, nhắc hẹn",
+        "createPolls": "Tạo mới bình chọn",
+        "sendMessages": "Gửi tin nhắn",
+        "approvalMode": "Chế độ phê duyệt thành viên mới",
+        "highlightAdmins": "Đánh dấu tin nhắn từ trưởng/phó nhóm",
+        "readRecentMessages": "Cho phép thành viên mới đọc tin nhắn gần nhất",
+        "useGroupLink": "Cho phép dùng link tham gia nhóm",
+        "blockFromGroup": "Chặn khỏi nhóm",
+        "adminOnly": "Tính năng chỉ dành cho quản trị viên"
     },
     "memberList": {
         "title": "Thành viên",

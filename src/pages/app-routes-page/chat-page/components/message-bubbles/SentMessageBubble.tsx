@@ -294,7 +294,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
             <div>{renderMessageContent()}</div>
           ) : (
             <div
-              className={`msg-bubble msg-bubble--sent border ${!message.isActive ? "bg-muted text-muted-foreground border-border shadow-none" : theme.messages.sentBubbleText}`}
+              className={`msg-bubble msg-bubble--sent ${!message.isActive ? "bg-muted text-muted-foreground shadow-none" : theme.messages.sentBubbleText}`}
               style={message.isActive ? theme.messages.sentBubbleStyle : {}}
             >
               <AnimatePresence mode="popLayout">

@@ -53,10 +53,15 @@ const ChatBoxHeader = ({
             {displayName?.charAt(0) || "?"}
           </AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex flex-col">
           <h3 className={`chat-box-header__name ${theme.header.textColor}`}>
             {displayName}
           </h3>
+          <span className="chat-box-header__subtitle">
+            {selectedChat.roomType === "GROUP" 
+              ? `${selectedChat.participants.length} thành viên`
+              : otherParticipant?.status === "ONLINE" ? "Đang hoạt động" : "Truy cập 10 giờ trước" /* Placeholder for last seen */}
+          </span>
         </div>
       </div>
 

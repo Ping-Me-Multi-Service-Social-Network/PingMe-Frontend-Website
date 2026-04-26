@@ -66,16 +66,16 @@ export const chatThemes: Record<string, ChatTheme> = {
     },
     content: {
       background: "bg-white",
-      systemMessageBg: "bg-gray-100",
-      systemMessageText: "text-gray-600",
+      systemMessageBg: "bg-gray-200/50",
+      systemMessageText: "text-gray-500",
     },
     messages: {
-      sentBubbleStyle: { background: "oklch(0.45 0.2 292)", color: "white" },
+      sentBubbleStyle: { background: "oklch(0.55 0.2 292)", color: "white" },
       sentBubbleText: "text-white",
-      receivedBubbleStyle: { background: "oklch(0.95 0.04 292)" },
+      receivedBubbleStyle: { background: "white", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" },
       receivedBubbleText: "text-foreground",
-      receivedBubbleBorder: "border-purple-100/50",
-      avatarRing: "ring-purple-100",
+      receivedBubbleBorder: "border-transparent",
+      avatarRing: "ring-transparent",
     },
     input: {
       borderColor: "border-gray-300 focus:border-purple-500 focus:ring-purple-500",
