@@ -580,7 +580,6 @@ export function ChatBoxInput({
         {/* ===== NORMAL INPUT STATE ===== */}
         {!isRecording && !isTranscribing && (
           <ChatInputArea
-            theme={theme}
             newMessage={newMessage}
             hasFiles={selectedFiles.length > 0}
             disabled={disabled}

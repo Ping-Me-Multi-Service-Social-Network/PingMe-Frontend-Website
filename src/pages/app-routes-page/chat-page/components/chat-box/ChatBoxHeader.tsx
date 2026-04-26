@@ -38,12 +38,15 @@ const ChatBoxHeader = ({
       ? otherParticipant?.name
       : selectedChat.name;
 
+  const userStatus =
+    otherParticipant?.status === "ONLINE"
+      ? "Đang hoạt động"
+      : "Truy cập 10 giờ trước";
+
   const subtitle =
     selectedChat.roomType === "GROUP"
       ? `${selectedChat.participants.length} thành viên`
-      : otherParticipant?.status === "ONLINE"
-        ? "Đang hoạt động"
-        : "Truy cập 10 giờ trước";
+      : userStatus;
 
   return (
     <div
