@@ -38,6 +38,13 @@ const ChatBoxHeader = ({
       ? otherParticipant?.name
       : selectedChat.name;
 
+  const subtitle =
+    selectedChat.roomType === "GROUP"
+      ? `${selectedChat.participants.length} thành viên`
+      : otherParticipant?.status === "ONLINE"
+        ? "Đang hoạt động"
+        : "Truy cập 10 giờ trước";
+
   return (
     <div
       className={`chat-box-header`}
@@ -58,9 +65,7 @@ const ChatBoxHeader = ({
             {displayName}
           </h3>
           <span className="chat-box-header__subtitle">
-            {selectedChat.roomType === "GROUP" 
-              ? `${selectedChat.participants.length} thành viên`
-              : otherParticipant?.status === "ONLINE" ? "Đang hoạt động" : "Truy cập 10 giờ trước" /* Placeholder for last seen */}
+            {subtitle}
           </span>
         </div>
       </div>

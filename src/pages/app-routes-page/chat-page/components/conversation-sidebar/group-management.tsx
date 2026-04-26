@@ -10,46 +10,76 @@ interface GroupManagementProps {
   onBack: () => void;
 }
 
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="px-4 py-3 bg-gray-50/50 text-[13px] font-semibold text-purple-900 border-t border-b border-gray-100 mt-2 first:mt-0 first:border-t-0">
+    {title}
+  </div>
+);
+
+interface SettingRowProps {
+  label: string;
+  checked: boolean;
+  isAdmin: boolean;
+  type?: "checkbox" | "switch";
+  hasInfo?: boolean;
+}
+
+const SettingRow = ({
+  label,
+  checked,
+  isAdmin,
+  type = "checkbox",
+  hasInfo = false,
+}: SettingRowProps) => (
+  <div
+    className={`flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors ${
+      isAdmin ? "cursor-pointer" : "opacity-60 cursor-not-allowed"
+    }`}
+  >
+    <div className="flex items-center gap-2 flex-1 mr-4">
+      <span
+        className={`text-[14px] leading-tight ${
+          isAdmin ? "text-gray-800" : "text-gray-500"
+        }`}
+      >
+        {label}
+      </span>
+      {hasInfo && <Info className="w-4 h-4 text-gray-400 cursor-help" />}
+    </div>
+
+    {type === "checkbox" ? (
+      <div
+        className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+          checked ? "bg-purple-600 border-purple-600" : "bg-white border-gray-300"
+        }`}
+      >
+        {checked && (
+          <div className="w-2.5 h-1.5 border-l-2 border-b-2 border-white -rotate-45 mb-0.5" />
+        )}
+      </div>
+    ) : (
+      <div
+        className={`w-10 h-5 rounded-full relative transition-colors ${
+          checked ? "bg-purple-600" : "bg-gray-300"
+        }`}
+      >
+        <div
+          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${
+            checked ? "left-5.5" : "left-0.5"
+          }`}
+          style={{ left: checked ? "22px" : "2px" }}
+        />
+      </div>
+    )}
+  </div>
+);
+
 const GroupManagement = ({ room, onBack }: GroupManagementProps) => {
   const { t } = useTranslation("chat");
   const { userSession } = useAppSelector((state) => state.auth);
   const currentUserId = userSession?.id || 0;
   const isAdmin = canManageGroup(room, currentUserId);
 
-  const SectionHeader = ({ title }: { title: string }) => (
-    <div className="px-4 py-3 bg-gray-50/50 text-[13px] font-semibold text-purple-900 border-t border-b border-gray-100 mt-2 first:mt-0 first:border-t-0">
-      {title}
-    </div>
-  );
-
-  const SettingRow = ({ 
-    label, 
-    checked, 
-    type = "checkbox", 
-    hasInfo = false 
-  }: { 
-    label: string; 
-    checked: boolean; 
-    type?: "checkbox" | "switch";
-    hasInfo?: boolean;
-  }) => (
-    <div className={`flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors ${!isAdmin ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
-      <div className="flex items-center gap-2 flex-1 mr-4">
-        <span className={`text-[14px] leading-tight ${!isAdmin ? 'text-gray-500' : 'text-gray-800'}`}>{label}</span>
-        {hasInfo && <Info className="w-4 h-4 text-gray-400 cursor-help" />}
-      </div>
-      
-      {type === "checkbox" ? (
-        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${checked ? 'bg-purple-600 border-purple-600' : 'bg-white border-gray-300'}`}>
-          {checked && <div className="w-2.5 h-1.5 border-l-2 border-b-2 border-white -rotate-45 mb-0.5" />}
-        </div>
-      ) : (
-        <div className={`w-10 h-5 rounded-full relative transition-colors ${checked ? 'bg-purple-600' : 'bg-gray-300'}`}>
-          <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${checked ? 'left-5.5' : 'left-0.5'}`} style={{ left: checked ? '22px' : '2px' }} />
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="flex flex-col h-full bg-white animate-in slide-in-from-right duration-300">
@@ -71,21 +101,21 @@ const GroupManagement = ({ room, onBack }: GroupManagementProps) => {
         )}
 
         <SectionHeader title={t("management.memberPermissions")} />
-        <SettingRow label={t("management.changeNameAvatar")} checked={true} />
-        <SettingRow label={t("management.pinMessages")} checked={true} />
-        <SettingRow label={t("management.createNotes")} checked={true} />
-        <SettingRow label={t("management.createPolls")} checked={true} />
-        <SettingRow label={t("management.sendMessages")} checked={true} />
+        <SettingRow label={t("management.changeNameAvatar")} checked={true} isAdmin={isAdmin} />
+        <SettingRow label={t("management.pinMessages")} checked={true} isAdmin={isAdmin} />
+        <SettingRow label={t("management.createNotes")} checked={true} isAdmin={isAdmin} />
+        <SettingRow label={t("management.createPolls")} checked={true} isAdmin={isAdmin} />
+        <SettingRow label={t("management.sendMessages")} checked={true} isAdmin={isAdmin} />
 
         <div className="h-2 bg-gray-100" />
 
-        <SettingRow label={t("management.approvalMode")} checked={false} type="switch" hasInfo={true} />
+        <SettingRow label={t("management.approvalMode")} checked={false} type="switch" hasInfo={true} isAdmin={isAdmin} />
         <div className="mx-4 border-t border-gray-100" />
-        <SettingRow label={t("management.highlightAdmins")} checked={true} type="switch" hasInfo={true} />
+        <SettingRow label={t("management.highlightAdmins")} checked={true} type="switch" hasInfo={true} isAdmin={isAdmin} />
         <div className="mx-4 border-t border-gray-100" />
-        <SettingRow label={t("management.readRecentMessages")} checked={true} type="switch" hasInfo={true} />
+        <SettingRow label={t("management.readRecentMessages")} checked={true} type="switch" hasInfo={true} isAdmin={isAdmin} />
         <div className="mx-4 border-t border-gray-100" />
-        <SettingRow label={t("management.useGroupLink")} checked={true} type="switch" hasInfo={true} />
+        <SettingRow label={t("management.useGroupLink")} checked={true} type="switch" hasInfo={true} isAdmin={isAdmin} />
 
         {/* Group Link Box */}
         <div className="px-4 py-3">
