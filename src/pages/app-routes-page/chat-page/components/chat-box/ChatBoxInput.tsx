@@ -177,7 +177,7 @@ export function ChatBoxInput({
     const handleClickOutside = (event: MouseEvent) => {
       // Check if click is outside picker AND not on a toggle button
       if (
-        emojiPickerRef.current && 
+        emojiPickerRef.current &&
         !emojiPickerRef.current.contains(event.target as Node) &&
         !(event.target as HTMLElement).closest('.emoji-toggle-btn')
       ) {
@@ -232,23 +232,23 @@ export function ChatBoxInput({
 
     const newFiles: FilePreview[] = [];
     for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        if (item.type.indexOf('image') !== -1) {
-            const blob = item.getAsFile();
-            if (blob) {
-                const fileType = getFileType(blob);
-                const previewUrl = URL.createObjectURL(blob);
-                newFiles.push({
-                    file: blob,
-                    type: fileType,
-                    previewUrl,
-                });
-            }
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        const blob = item.getAsFile();
+        if (blob) {
+          const fileType = getFileType(blob);
+          const previewUrl = URL.createObjectURL(blob);
+          newFiles.push({
+            file: blob,
+            type: fileType,
+            previewUrl,
+          });
         }
+      }
     }
 
     if (newFiles.length > 0) {
-        dispatch({ type: "ADD_SELECTED_FILES", payload: newFiles });
+      dispatch({ type: "ADD_SELECTED_FILES", payload: newFiles });
     }
   }, []);
 
@@ -489,17 +489,17 @@ export function ChatBoxInput({
             </span>
             <span className="text-sm text-gray-600 truncate mt-0.5">
               {!replyMessage.isActive ? t("bubbles.messages.recalled") :
-               replyMessage.type === "TEXT" ? replyMessage.content : 
-               replyMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-               replyMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-               replyMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
-               replyMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
-               replyMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}` : 
-               "Message"}
+                replyMessage.type === "TEXT" ? replyMessage.content :
+                  replyMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
+                    replyMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
+                      replyMessage.type === "FILE" ? t("bubbles.messages.file", "File") :
+                        replyMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") :
+                          replyMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}` :
+                            "Message"}
             </span>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={onCancelReply}
             className="p-1 rounded-full text-gray-500 hover:bg-gray-200 ml-2"
           >
@@ -519,8 +519,8 @@ export function ChatBoxInput({
               {editingMessage.content}
             </span>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => {
               dispatch({ type: "SET_MESSAGE", payload: "" });
               onCancelEdit?.();
@@ -534,7 +534,7 @@ export function ChatBoxInput({
 
       <div className="p-4 relative">
         {showEmojiPicker && (
-          <div 
+          <div
             ref={emojiPickerRef}
             className="absolute bottom-full left-4 mb-2 z-50 shadow-2xl rounded-lg overflow-hidden"
           >
@@ -594,8 +594,8 @@ export function ChatBoxInput({
         )}
       </div>
 
-      <CreatePollModal 
-        isOpen={showPollModal} 
+      <CreatePollModal
+        isOpen={showPollModal}
         onClose={() => dispatch({ type: "SET_POLL_MODAL", payload: false })}
         onSubmit={handleCreatePoll}
       />

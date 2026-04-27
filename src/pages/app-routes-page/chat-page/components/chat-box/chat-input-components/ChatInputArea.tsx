@@ -20,6 +20,7 @@ const MAX_CHARS = 1000;
 
 export function ChatInputArea({
   newMessage,
+  hasFiles,
   disabled,
   isSending,
   targetName,
@@ -34,6 +35,20 @@ export function ChatInputArea({
   const isNearLimit = charCount > MAX_CHARS * 0.9;
   const isAtLimit = charCount >= MAX_CHARS;
 
+  // Extract logic for better readability
+  const placeholderText = targetName
+    ? `Nhập @, tin nhắn tới ${targetName}`
+    : t("input.placeholder");
+
+  let counterColorClass = "text-gray-400";
+  if (isAtLimit) {
+    counterColorClass = "text-red-500";
+  } else if (isNearLimit) {
+    counterColorClass = "text-orange-500";
+  }
+
+  const isSendDisabled = disabled || isSending || (charCount === 0 && !hasFiles);
+
   return (
     <div className="flex flex-col w-full bg-white">
       <div className="flex items-end gap-2 pl-4 pr-2 pb-1">
@@ -41,7 +56,7 @@ export function ChatInputArea({
           <textarea
             value={newMessage}
             onChange={onInputChange}
-            placeholder={targetName ? `Nhập @, tin nhắn tới ${targetName}` : t("input.placeholder")}
+            placeholder={placeholderText}
             className="w-full bg-transparent border-none !border-none focus:ring-0 focus:outline-none outline-none focus-visible:ring-0 resize-none py-2 pl-3 pr-14 text-[15px] max-h-[120px] overflow-y-auto"
             rows={1}
             maxLength={MAX_CHARS}
@@ -50,11 +65,9 @@ export function ChatInputArea({
             disabled={disabled || isSending}
             style={{ minHeight: '40px', border: 'none', outline: 'none', boxShadow: 'none', fontFamily: "'Inter', sans-serif" }}
           />
-          
+
           <div className="absolute bottom-1 right-2 pointer-events-none">
-            <span className={`text-[10px] font-medium transition-colors ${
-              isAtLimit ? "text-red-500" : isNearLimit ? "text-orange-500" : "text-gray-400"
-            }`}>
+            <span className={`text-[10px] font-medium transition-colors ${counterColorClass}`}>
               {charCount}/{MAX_CHARS}
             </span>
           </div>
@@ -75,7 +88,7 @@ export function ChatInputArea({
             variant="ghost"
             size="icon"
             onClick={onSend}
-            disabled={disabled || isSending || (charCount === 0)}
+            disabled={isSendDisabled}
             className="h-9 w-9 text-primary hover:text-primary/80 transition-colors"
           >
             <Send className="w-6 h-6" />
