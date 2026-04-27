@@ -23,12 +23,13 @@ interface ReceivedInvitationsComponentProps {
   onStatsUpdate: (
     updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse,
   ) => void;
+  searchQuery?: string;
 }
 
 export const ReceivedInvitationsComponent = (
   props: ReceivedInvitationsComponentProps,
 ) => {
-  const { onStatsUpdate } = props;
+  const { onStatsUpdate, searchQuery = "" } = props;
   const { t } = useTranslation("contacts");
   const { userSession } = useAppSelector((state) => state.auth);
 
@@ -36,6 +37,11 @@ export const ReceivedInvitationsComponent = (
   const [receivedInvitations, setReceivedInvitations] = useState<
     UserSummaryResponse[]
   >([]);
+
+  // Filter based on searchQuery
+  const filteredInvitations = receivedInvitations.filter((inv) =>
+    inv.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreInvitations, setHasMoreInvitations] = useState(true);
   const [processingInvitations, setProcessingInvitations] = useState<
@@ -231,18 +237,19 @@ export const ReceivedInvitationsComponent = (
       <ReceivedInvitationsHeader
         title={t("receivedInvitations.title")}
         countTitle={t("receivedInvitations.count")}
-        count={receivedInvitations.length}
+        count={filteredInvitations.length}
       />
 
       <ReceivedInvitationsList
         isLoading={isLoading}
-        receivedInvitations={receivedInvitations}
+        receivedInvitations={filteredInvitations}
         processingInvitations={processingInvitations}
         hasMoreInvitations={hasMoreInvitations}
         scrollContainerRef={scrollContainerRef}
         onAcceptInvitation={handleAcceptInvitation}
         onRejectInvitation={handleRejectInvitation}
         labels={listLabels}
+        searchQuery={searchQuery}
       />
     </div>
   );

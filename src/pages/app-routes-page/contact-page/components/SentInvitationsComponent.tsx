@@ -4,7 +4,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { Send, X, Clock } from "lucide-react";
+import { Send, X, Clock, Search } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
@@ -29,16 +29,22 @@ interface SentInvitationsComponentProps {
   onStatsUpdate: (
     updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse,
   ) => void;
+  searchQuery?: string;
 }
 
 export const SentInvitationsComponent = (props: SentInvitationsComponentProps) => {
-  const { onStatsUpdate } = props;
+  const { onStatsUpdate, searchQuery = "" } = props;
   const { t } = useTranslation("contacts");
   const { userSession } = useAppSelector((state) => state.auth);
 
   // State quản lý danh sách lời mời đã gửi và infinite scroll
   const [sentInvitations, setSentInvitations] = useState<UserSummaryResponse[]>(
     [],
+  );
+
+  // Filter based on searchQuery
+  const filteredInvitations = sentInvitations.filter((inv) =>
+    inv.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreInvitations, setHasMoreInvitations] = useState(true);
@@ -173,7 +179,7 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
               {t("sentInvitations.title")}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              <span className="tabular-nums font-medium">{sentInvitations.length}</span>{" "}
+              <span className="tabular-nums font-medium">{filteredInvitations.length}</span>{" "}
               {t("sentInvitations.count")}
             </p>
           </div>
@@ -198,10 +204,16 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
               description={t("sentInvitations.emptyDesc")}
             />
           </div>
+        ) : filteredInvitations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground animate-in fade-in zoom-in duration-300">
+            <Search className="w-12 h-12 mb-4 opacity-20" />
+            <p className="text-sm font-medium">Không tìm thấy kết quả</p>
+            <p className="text-xs">Hãy thử tìm kiếm với từ khóa khác</p>
+          </div>
         ) : (
           <div className="p-3 space-y-2">
             <AnimatePresence mode="popLayout">
-              {sentInvitations.map((invitation, index) => (
+              {filteredInvitations.map((invitation, index) => (
                 <InvitationUserCard
                   key={invitation.id}
                   invitation={invitation}

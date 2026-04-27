@@ -4,7 +4,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { Users, UserMinus } from "lucide-react";
+import { Users, UserMinus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Avatar,
@@ -35,14 +35,20 @@ interface FriendsListComponentProps {
   ) => void;
 
   statusPayload?: UserStatusPayload | null;
+  searchQuery?: string;
 }
 
 export const FriendsListComponent = (props: FriendsListComponentProps) => {
-  const { onStatsUpdate, statusPayload } = props;
+  const { onStatsUpdate, statusPayload, searchQuery = "" } = props;
   const { t } = useTranslation("contacts");
 
   // State quản lý danh sách bạn bè và infinite scroll
   const [friends, setFriends] = useState<UserSummaryResponse[]>([]);
+
+  // Filter friends based on searchQuery
+  const filteredFriends = friends.filter((friend) =>
+    friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreFriends, setHasMoreFriends] = useState(true);
 
@@ -213,10 +219,16 @@ export const FriendsListComponent = (props: FriendsListComponentProps) => {
               description={t("friendsList.emptyDesc")}
             />
           </div>
+        ) : filteredFriends.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground animate-in fade-in zoom-in duration-300">
+            <Search className="w-12 h-12 mb-4 opacity-20" />
+            <p className="text-sm font-medium">{t("friendsList.noSearchTitle", "Không tìm thấy kết quả")}</p>
+            <p className="text-xs">{t("friendsList.noSearchDesc", "Hãy thử tìm kiếm với từ khóa khác")}</p>
+          </div>
         ) : (
           <div className="p-3 space-y-1.5">
             <AnimatePresence mode="popLayout">
-              {friends.map((friend, index) => (
+              {filteredFriends.map((friend, index) => (
                 <motion.div
                   key={friend.id}
                   layout

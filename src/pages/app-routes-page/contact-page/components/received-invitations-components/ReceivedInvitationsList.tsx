@@ -1,5 +1,5 @@
 import type React from "react";
-import { Inbox } from "lucide-react";
+import { Inbox, Search } from "lucide-react";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
 import LoadingSpinner from "@/components/custom/LoadingSpinner.tsx";
 import { InvitationUserCard } from "../InvitationUserCard";
@@ -15,6 +15,7 @@ interface ReceivedInvitationsListProps {
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   onAcceptInvitation: (friendshipId: number) => void;
   onRejectInvitation: (friendshipId: number) => void;
+  searchQuery?: string;
   labels: {
     loading: string;
     emptyTitle: string;
@@ -34,6 +35,7 @@ export function ReceivedInvitationsList({
   scrollContainerRef,
   onAcceptInvitation,
   onRejectInvitation,
+  searchQuery = "",
   labels,
 }: ReceivedInvitationsListProps) {
   return (
@@ -46,13 +48,21 @@ export function ReceivedInvitationsList({
           </div>
         </div>
       ) : receivedInvitations.length === 0 ? (
-        <div className="h-64">
-          <EmptyState
-            icon={Inbox}
-            title={labels.emptyTitle}
-            description={labels.emptyDesc}
-          />
-        </div>
+        searchQuery ? (
+          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground animate-in fade-in zoom-in duration-300">
+            <Search className="w-12 h-12 mb-4 opacity-20" />
+            <p className="text-sm font-medium">Không tìm thấy kết quả</p>
+            <p className="text-xs">Hãy thử tìm kiếm với từ khóa khác</p>
+          </div>
+        ) : (
+          <div className="h-64">
+            <EmptyState
+              icon={Inbox}
+              title={labels.emptyTitle}
+              description={labels.emptyDesc}
+            />
+          </div>
+        )
       ) : (
         <div className="p-3 space-y-2">
           <AnimatePresence mode="popLayout">

@@ -27,6 +27,7 @@ export default function ContactsPage() {
     } as UserFriendshipStatsResponse);
 
   const [activeTab, setActiveTab] = useState("friends");
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusPayload, setStatusPayload] = useState<UserStatusPayload | null>(
     null,
   );
@@ -110,7 +111,10 @@ export default function ContactsPage() {
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <div className="w-80 bg-card border-r border-border flex flex-col shrink-0">
-        <ChatActionBar />
+        <ChatActionBar 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
         <ContactSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -134,6 +138,7 @@ export default function ContactsPage() {
               activeTab={activeTab}
               setUserFriendshipStats={setUserFriendshipStats}
               statusPayload={statusPayload}
+              searchQuery={searchQuery}
             />
           </motion.div>
         </AnimatePresence>

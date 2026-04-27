@@ -14,8 +14,8 @@ import { useTranslation } from "react-i18next";
 interface SharedTopBarProps {
   onFriendAdded?: () => void;
   setSelectedChat?: (room: RoomResponse) => void;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export function ChatActionBar({
@@ -33,8 +33,8 @@ export function ChatActionBar({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            value={searchQuery || ""}
+            onChange={(e) => onSearchChange?.(e.target.value)}
             placeholder={t("actionBar.search", "Tìm kiếm")}
             className="w-full h-9 pl-9 pr-4 bg-muted/50 border-none rounded-md text-sm focus:ring-1 focus:ring-primary/30 outline-none transition-all"
           />
