@@ -3,12 +3,8 @@ import {
   Smile, 
   ImagePlus, 
   Paperclip, 
-  Contact, 
-  Scan, 
-  Type, 
-  Zap, 
-  CreditCard, 
-  MoreHorizontal,
+  CloudSun,
+  Vote,
   Mic
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -86,38 +82,26 @@ export function ChatInputToolbar({
         <Paperclip className={iconSize} strokeWidth={1.5} />
       </Button>
 
-      <Button variant="ghost" size="icon" className={btnClass} title="Danh thiếp">
-        <Contact className={iconSize} strokeWidth={1.5} />
-      </Button>
-
-      <Button variant="ghost" size="icon" className={btnClass} title="Chụp màn hình">
-        <Scan className={iconSize} strokeWidth={1.5} />
-      </Button>
-
-      <Button variant="ghost" size="icon" className={btnClass} title="Định dạng văn bản">
-        <Type className={iconSize} strokeWidth={1.5} />
-      </Button>
-
       <Button 
         variant="ghost" 
         size="icon" 
         className={btnClass} 
-        title="Tin nhắn nhanh (Thời tiết)"
+        title={t("input.sendWeatherTitle", "Thời tiết")}
         onClick={onWeatherClick}
         disabled={disabled || isSending || isRecording || isTranscribing}
       >
-        <Zap className={iconSize} strokeWidth={1.5} />
+        <CloudSun className={iconSize} strokeWidth={1.5} />
       </Button>
 
       <Button 
         variant="ghost" 
         size="icon" 
         className={btnClass} 
-        title="Bình chọn"
+        title={t("input.createPollTitle", "Bình chọn")}
         onClick={onPollClick}
         disabled={disabled || isSending || isRecording || isTranscribing}
       >
-        <CreditCard className={iconSize} strokeWidth={1.5} />
+        <Vote className={iconSize} strokeWidth={1.5} />
       </Button>
 
       <Button 
@@ -129,10 +113,6 @@ export function ChatInputToolbar({
         disabled={disabled || isSending || isRecording || isTranscribing}
       >
         <Mic className={iconSize} strokeWidth={1.5} />
-      </Button>
-
-      <Button variant="ghost" size="icon" className={btnClass}>
-        <MoreHorizontal className={iconSize} strokeWidth={1.5} />
       </Button>
 
       <input

@@ -4,7 +4,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { Send, X, Clock } from "lucide-react";
+import { Send, X, Clock, Search } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { EmptyState } from "@/components/custom/EmptyState.tsx";
@@ -29,16 +29,22 @@ interface SentInvitationsComponentProps {
   onStatsUpdate: (
     updater: (prev: UserFriendshipStatsResponse) => UserFriendshipStatsResponse,
   ) => void;
+  searchQuery?: string;
 }
 
 export const SentInvitationsComponent = (props: SentInvitationsComponentProps) => {
-  const { onStatsUpdate } = props;
+  const { onStatsUpdate, searchQuery = "" } = props;
   const { t } = useTranslation("contacts");
   const { userSession } = useAppSelector((state) => state.auth);
 
   // State quản lý danh sách lời mời đã gửi và infinite scroll
   const [sentInvitations, setSentInvitations] = useState<UserSummaryResponse[]>(
     [],
+  );
+
+  // Filter based on searchQuery
+  const filteredInvitations = sentInvitations.filter((inv) =>
+    inv.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreInvitations, setHasMoreInvitations] = useState(true);
@@ -164,6 +170,106 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
     return () => container.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // Xác định trạng thái hiển thị
+  const isInitialLoading = isLoading && sentInvitations.length === 0;
+  const isListEmpty = sentInvitations.length === 0;
+  const isSearchEmpty = filteredInvitations.length === 0;
+
+  let content;
+
+  if (isInitialLoading) {
+    content = (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center gap-3 text-primary">
+          <LoadingSpinner className="w-6 h-6" />
+          <span className="text-sm font-medium">
+            {t("sentInvitations.loading")}
+          </span>
+        </div>
+      </div>
+    );
+  } else if (isListEmpty) {
+    content = (
+      <div className="h-64">
+        <EmptyState
+          icon={Send}
+          title={t("sentInvitations.emptyTitle")}
+          description={t("sentInvitations.emptyDesc")}
+        />
+      </div>
+    );
+  } else if (isSearchEmpty) {
+    content = (
+      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground animate-in fade-in zoom-in duration-300">
+        <Search className="w-12 h-12 mb-4 opacity-20" />
+        <p className="text-sm font-medium">Không tìm thấy kết quả</p>
+        <p className="text-xs">Hãy thử tìm kiếm với từ khóa khác</p>
+      </div>
+    );
+  } else {
+    content = (
+      <div className="p-3 space-y-2">
+        <AnimatePresence mode="popLayout">
+          {filteredInvitations.map((invitation, index) => (
+            <InvitationUserCard
+              key={invitation.id}
+              invitation={invitation}
+              index={index}
+              actions={
+                <>
+                  <Badge
+                    variant="outline"
+                    className="
+                      text-amber-600 border-amber-200 bg-amber-50
+                      dark:text-amber-400 dark:border-amber-800 dark:bg-amber-950/50
+                      text-[11px] font-medium h-6
+                    "
+                  >
+                    <Clock className="w-3 h-3 mr-1" />
+                    {t("sentInvitations.statusPending")}
+                  </Badge>
+
+                  {invitation.friendshipSummary && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleCancelInvitation(invitation.friendshipSummary!.id)
+                      }
+                      className="
+                        text-destructive hover:text-destructive hover:bg-destructive/10
+                        h-8 px-3 text-xs font-medium
+                        transition-colors duration-150
+                      "
+                    >
+                      <X className="w-3.5 h-3.5 mr-1.5" />
+                      {t("sentInvitations.btnCancel")}
+                    </Button>
+                  )}
+                </>
+              }
+            />
+          ))}
+        </AnimatePresence>
+
+        {isLoadingRef.current && hasMoreInvitations && (
+          <div className="flex justify-center py-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <LoadingSpinner className="w-4 h-4" />
+              <span className="text-xs">{t("common.loadingMore")}</span>
+            </div>
+          </div>
+        )}
+
+        {!hasMoreInvitations && sentInvitations.length > 0 && (
+          <div className="text-center py-4">
+            <p className="text-xs text-muted-foreground">{t("common.displayedAllInvitations")}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="px-6 py-5 border-b border-border">
@@ -173,7 +279,7 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
               {t("sentInvitations.title")}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              <span className="tabular-nums font-medium">{sentInvitations.length}</span>{" "}
+              <span className="tabular-nums font-medium">{filteredInvitations.length}</span>{" "}
               {t("sentInvitations.count")}
             </p>
           </div>
@@ -181,84 +287,7 @@ export const SentInvitationsComponent = (props: SentInvitationsComponentProps) =
       </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-        {isLoading && sentInvitations.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="flex items-center gap-3 text-primary">
-              <LoadingSpinner className="w-6 h-6" />
-              <span className="text-sm font-medium">
-                {t("sentInvitations.loading")}
-              </span>
-            </div>
-          </div>
-        ) : sentInvitations.length === 0 ? (
-          <div className="h-64">
-            <EmptyState
-              icon={Send}
-              title={t("sentInvitations.emptyTitle")}
-              description={t("sentInvitations.emptyDesc")}
-            />
-          </div>
-        ) : (
-          <div className="p-3 space-y-2">
-            <AnimatePresence mode="popLayout">
-              {sentInvitations.map((invitation, index) => (
-                <InvitationUserCard
-                  key={invitation.id}
-                  invitation={invitation}
-                  index={index}
-                  actions={
-                    <>
-                      <Badge
-                        variant="outline"
-                        className="
-                          text-amber-600 border-amber-200 bg-amber-50
-                          dark:text-amber-400 dark:border-amber-800 dark:bg-amber-950/50
-                          text-[11px] font-medium h-6
-                        "
-                      >
-                        <Clock className="w-3 h-3 mr-1" />
-                        {t("sentInvitations.statusPending")}
-                      </Badge>
-
-                      {invitation.friendshipSummary && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            handleCancelInvitation(invitation.friendshipSummary!.id)
-                          }
-                          className="
-                            text-destructive hover:text-destructive hover:bg-destructive/10
-                            h-8 px-3 text-xs font-medium
-                            transition-colors duration-150
-                          "
-                        >
-                          <X className="w-3.5 h-3.5 mr-1.5" />
-                          {t("sentInvitations.btnCancel")}
-                        </Button>
-                      )}
-                    </>
-                  }
-                />
-              ))}
-            </AnimatePresence>
-
-            {isLoadingRef.current && hasMoreInvitations && (
-              <div className="flex justify-center py-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <LoadingSpinner className="w-4 h-4" />
-                  <span className="text-xs">{t("common.loadingMore")}</span>
-                </div>
-              </div>
-            )}
-
-            {!hasMoreInvitations && sentInvitations.length > 0 && (
-              <div className="text-center py-4">
-                <p className="text-xs text-muted-foreground">{t("common.displayedAllInvitations")}</p>
-              </div>
-            )}
-          </div>
-        )}
+        {content}
       </div>
     </div>
   );

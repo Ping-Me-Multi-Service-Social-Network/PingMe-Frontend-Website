@@ -15,6 +15,7 @@ import { SocketManager } from "@/features/websocket";
 import { useTranslation } from "react-i18next";
 import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
+import { getRoomDisplayName } from "./utils/getRoomInfo";
 import "./chat.css";
 
 // Trigger part 3
@@ -124,15 +125,22 @@ export default function MessagesPage() {
           participants: room.participants.map((participant) =>
             participant.userId === Number(statusPayload.userId)
               ? {
-                  ...participant,
-                  status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
-                }
+                ...participant,
+                status: statusPayload.isOnline ? "ONLINE" : "OFFLINE",
+              }
               : participant,
           ),
         })),
       );
     });
   }, []);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredRooms = rooms.filter((room) => {
+    const displayName = getRoomDisplayName(room, userSession);
+    return displayName.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className="chat-shell">
@@ -141,6 +149,8 @@ export default function MessagesPage() {
           <ChatActionBar
             onFriendAdded={refetchRooms}
             setSelectedChat={handleSetSelectedChat}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
           />
         </div>
 
@@ -151,7 +161,7 @@ export default function MessagesPage() {
             </div>
           ) : (
             <>
-              {rooms.map((room, index) => (
+              {filteredRooms.map((room, index) => (
                 <ChatCard
                   key={room.roomId}
                   room={room}
@@ -161,6 +171,11 @@ export default function MessagesPage() {
                   index={index}
                 />
               ))}
+              {filteredRooms.length === 0 && !isFetchingRooms && searchQuery && (
+                <div className="p-8 text-center text-muted-foreground">
+                  {t("sidebar.noResults", "Không tìm thấy kết quả")}
+                </div>
+              )}
               {roomsPagination.isLoadingMore && (
                 <div className="p-4 text-center">
                   <div

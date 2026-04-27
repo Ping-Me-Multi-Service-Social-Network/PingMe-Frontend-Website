@@ -10,12 +10,14 @@ interface ActiveTabContentProps {
     React.SetStateAction<UserFriendshipStatsResponse>
   >;
   statusPayload: UserStatusPayload | null;
+  searchQuery: string;
 }
 
 export const ActiveTabContent = ({
   activeTab,
   setUserFriendshipStats,
   statusPayload,
+  searchQuery,
 }: ActiveTabContentProps) => {
   switch (activeTab) {
     case "friends":
@@ -23,23 +25,29 @@ export const ActiveTabContent = ({
         <FriendsListComponent
           onStatsUpdate={setUserFriendshipStats}
           statusPayload={statusPayload}
+          searchQuery={searchQuery}
         />
       );
     case "received-invitations":
       return (
         <ReceivedInvitationsComponent
           onStatsUpdate={setUserFriendshipStats}
+          searchQuery={searchQuery}
         />
       );
     case "sent-invitations":
       return (
-        <SentInvitationsComponent onStatsUpdate={setUserFriendshipStats} />
+        <SentInvitationsComponent 
+          onStatsUpdate={setUserFriendshipStats} 
+          searchQuery={searchQuery}
+        />
       );
     default:
       return (
         <FriendsListComponent
           onStatsUpdate={setUserFriendshipStats}
           statusPayload={statusPayload}
+          searchQuery={searchQuery}
         />
       );
   }
