@@ -22,6 +22,7 @@
     "input": {
         "placeholder": "Nhập tin nhắn...",
         "sendWeatherTitle": "Gửi thông tin thời tiết",
+        "createPollTitle": "Tạo bình chọn",
         "gettingLocation": "Đang lấy vị trí của bạn...",
         "weatherSentSuccess": "Đã gửi thông tin thời tiết",
         "weatherSentError": "Không thể gửi thông tin thời tiết",

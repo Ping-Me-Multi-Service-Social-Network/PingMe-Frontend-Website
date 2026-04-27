@@ -22,6 +22,7 @@
     "input": {
         "placeholder": "Type a message...",
         "sendWeatherTitle": "Send Weather",
+        "createPollTitle": "Create Poll",
         "gettingLocation": "Getting your location...",
         "weatherSentSuccess": "Weather info sent",
         "weatherSentError": "Failed to send weather info",
