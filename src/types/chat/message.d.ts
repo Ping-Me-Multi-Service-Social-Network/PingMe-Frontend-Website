@@ -15,6 +15,7 @@ export interface MessageResponse {
   fileFormat?: string | null;
   mediaUrls?: string[] | null;
   isForwarded?: boolean;
+  isEncryptedText?: boolean;
   forwardMetadata?: {
     sourceMessageId: string;
     sourceRoomId: number;

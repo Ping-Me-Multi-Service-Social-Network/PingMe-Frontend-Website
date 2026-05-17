@@ -88,8 +88,7 @@ const ConversationSidebar = ({
     return (
       <div className={`conv-sidebar ${theme.sidebar.background}`}>
         <SidebarPinnedMessages
-          participants={selectedChat.participants}
-          roomId={selectedChat.roomId}
+          room={selectedChat}
           onBack={() => setCurrentView("main")}
         />
       </div>

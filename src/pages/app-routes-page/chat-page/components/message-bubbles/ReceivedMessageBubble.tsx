@@ -239,7 +239,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                   <Reply className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.replyBtn", "Reply")}
                 </DropdownMenuItem>
-                {message.type !== "POLL" && (
+                {message.type !== "POLL" && !message.isEncryptedText && (
                   <DropdownMenuItem
                     onClick={() => onForwardClick?.(message.id)}
                     className="cursor-pointer"

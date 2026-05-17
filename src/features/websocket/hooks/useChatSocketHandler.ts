@@ -15,6 +15,10 @@ import type {
 import { messageCreated } from "../state/chatSlice";
 import type { RoomResponse } from "@/types/chat/room";
 import type { CurrentUserSessionResponse } from "@/types/authentication";
+import {
+  ENCRYPTED_TEXT_PREVIEW,
+  isEncryptedTextContent,
+} from "@/pages/app-routes-page/chat-page/utils/textMessageCrypto";
 
 interface UseChatSocketHandlerProps {
   setRooms: React.Dispatch<React.SetStateAction<RoomResponse[]>>;
@@ -100,13 +104,17 @@ export const useChatSocketHandler = ({
       setRooms((prev) => {
         const targetRoom = prev.find((r) => r.roomId === message.roomId);
         if (!targetRoom) return prev;
+        const preview =
+          message.type === "TEXT" && isEncryptedTextContent(message.content)
+            ? ENCRYPTED_TEXT_PREVIEW
+            : message.content;
 
         const updatedRoom = {
           ...targetRoom,
           lastMessage: {
             messageId: message.id,
             senderId: message.senderId,
-            preview: message.content,
+            preview,
             messageType: message.type === "SYSTEM" ? "TEXT" : message.type,
             createdAt: message.createdAt,
           },
@@ -129,11 +137,15 @@ export const useChatSocketHandler = ({
         if (!targetRoom) return prev;
 
         if (targetRoom.lastMessage?.messageId === message.id) {
+          const preview =
+            message.type === "TEXT" && isEncryptedTextContent(message.content)
+              ? ENCRYPTED_TEXT_PREVIEW
+              : message.content;
           const updatedRoom = {
             ...targetRoom,
             lastMessage: {
               ...targetRoom.lastMessage,
-              preview: message.content,
+              preview,
             },
           };
           const otherRooms = prev.filter((r) => r.roomId !== message.roomId);

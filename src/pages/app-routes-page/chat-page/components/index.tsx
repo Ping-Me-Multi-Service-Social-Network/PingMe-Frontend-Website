@@ -22,6 +22,10 @@ import { useTranslation } from "react-i18next";
 import { useMessages } from "../hooks/useMessages";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Upload, X } from "lucide-react";
+import {
+  encryptTextMessageContent,
+  MAX_ENCRYPTED_TEXT_CONTENT_LENGTH,
+} from "../utils/textMessageCrypto";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -41,7 +45,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     handleLoadMore,
     addMessage,
     removeMessageLocally,
-  } = useMessages(selectedChat.roomId);
+  } = useMessages(selectedChat);
 
   const [isDragActive, setIsDragActive] = useState(false);
   const dragCounter = useRef(0);
@@ -67,20 +71,29 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   // ---- Send Handlers ----
 
   const handleSendMessage = async (msgText: string) => {
-    if (msgText.trim()) {
+    const trimmedText = msgText.trim();
+
+    if (trimmedText) {
       try {
+        const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
+
+        if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
+          toast.error("Tin nhắn quá dài để mã hóa, vui lòng rút ngắn nội dung.");
+          return;
+        }
+
         if (editingMessage) {
-          const response = await editMessageApi(editingMessage.id, { content: msgText.trim() });
+          const response = await editMessageApi(editingMessage.id, { content: encryptedContent });
           // Note: local state update could be done here or handled via websocket.
           // Since the slice has messageUpdated via websocket, we could wait for it.
           // But doing optimistic update is better:
-          addMessage(response.data.data as MessageResponse); // addMessage actually overwrites or adds in useMessages? Wait, we can let websocket handle it.
+          addMessage(response.data.data as MessageResponse);
           setEditingMessage(null);
           return;
         }
 
         const messageData = {
-          content: msgText.trim(),
+          content: encryptedContent,
           clientMsgId: crypto.randomUUID(),
           type: "TEXT" as const,
           roomId: selectedChat.roomId,
@@ -88,8 +101,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
         };
 
         const response = await sendMessageApi(messageData);
-        const sentMessage = response.data.data as MessageResponse;
-        addMessage(sentMessage);
+        addMessage(response.data.data as MessageResponse);
         setReplyMessage(null);
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -328,7 +340,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           </div>
         )}
         
-        <ChatPinnedMessages roomId={selectedChat.roomId} participants={selectedChat.participants} />
+        <ChatPinnedMessages room={selectedChat} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
           <ChatBoxContent

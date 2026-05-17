@@ -16,6 +16,12 @@ import {
 } from "@/features/websocket/chat";
 import { useTranslation } from "react-i18next";
 import { addUniqueMessage } from "../utils/addUniqueMessage";
+import type { RoomResponse } from "@/types/chat/room";
+import {
+  decryptTextMessageForRoom,
+  decryptTextMessagesForRoom,
+  getRoomTextEncryptionMaterial,
+} from "../utils/textMessageCrypto";
 
 
 interface UseMessagesReturn {
@@ -28,7 +34,9 @@ interface UseMessagesReturn {
   removeMessageLocally: (messageId: string) => void;
 }
 
-export function useMessages(roomId: number): UseMessagesReturn {
+export function useMessages(room: RoomResponse): UseMessagesReturn {
+  const roomId = room.roomId;
+  const roomCryptoMaterial = useMemo(() => getRoomTextEncryptionMaterial(room), [room]);
   const dispatch = useAppDispatch();
   const reduxMessages = useAppSelector(selectMessages);
   const recalledMessageIds = useAppSelector(selectRecalledMessageIds);
@@ -37,9 +45,67 @@ export function useMessages(roomId: number): UseMessagesReturn {
 
   // Local state for history messages (fetched via API)
   const [historyMessages, setHistoryMessages] = useState<MessageResponse[]>([]);
+  const [liveMessages, setLiveMessages] = useState<MessageResponse[]>([]);
+  const [decryptedEditedMessages, setDecryptedEditedMessages] = useState<
+    Record<string, Partial<MessageResponse>>
+  >({});
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    decryptTextMessagesForRoom(reduxMessages, room).then((decrypted) => {
+      if (active) {
+        setLiveMessages(decrypted);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [reduxMessages, room, roomCryptoMaterial]);
+
+  useEffect(() => {
+    let active = true;
+
+    const decryptEditedMessages = async () => {
+      const entries = await Promise.all(
+        Object.entries(editedMessages).map(async ([id, patch]) => {
+          if (!patch.content) {
+            return [id, patch] as const;
+          }
+
+          const decrypted = await decryptTextMessageForRoom(
+            {
+              id,
+              roomId,
+              clientMsgId: "",
+              senderId: 0,
+              content: patch.content,
+              type: "TEXT",
+              createdAt: "",
+              isActive: true,
+            },
+            room,
+          );
+
+          return [id, { ...patch, content: decrypted.content }] as const;
+        }),
+      );
+
+      if (active) {
+        setDecryptedEditedMessages(Object.fromEntries(entries));
+      }
+    };
+
+    decryptEditedMessages();
+
+    return () => {
+      active = false;
+    };
+  }, [editedMessages, room, roomCryptoMaterial, roomId]);
 
   const fetchMessages = useCallback(
     async (beforeMessageId?: string, size = 20, append = false) => {
@@ -54,7 +120,10 @@ export function useMessages(roomId: number): UseMessagesReturn {
         );
 
         const historyResponse: HistoryMessageResponse = response.data.data;
-        const newMessages = historyResponse.messageResponses;
+        const newMessages = await decryptTextMessagesForRoom(
+          historyResponse.messageResponses,
+          room,
+        );
 
         if (append) {
           setHistoryMessages((prev) => {
@@ -76,7 +145,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
         setIsLoadingMore(false);
       }
     },
-    [roomId, t]
+    [roomId, room, roomCryptoMaterial, t]
   );
 
   // Set current room in Redux
@@ -106,13 +175,13 @@ export function useMessages(roomId: number): UseMessagesReturn {
     const recalledIds = new Set(recalledMessageIds);
     const updatedHistory = historyMessages.map((m) => {
       let updated = m;
-      if (editedMessages[m.id]) {
-        updated = { ...updated, ...editedMessages[m.id] };
+      if (decryptedEditedMessages[m.id]) {
+        updated = { ...updated, ...decryptedEditedMessages[m.id] };
       }
       return recalledIds.has(m.id) ? { ...updated, isActive: false } : updated;
     });
 
-    if (reduxMessages.length === 0) return updatedHistory;
+    if (liveMessages.length === 0) return updatedHistory;
 
     const historyIds = new Set(historyMessages.map((m) => m.id));
     const historyClientIds = new Set(
@@ -120,7 +189,7 @@ export function useMessages(roomId: number): UseMessagesReturn {
     );
 
     // Get new messages from Redux that are not in history
-    const newFromRedux = reduxMessages.filter(
+    const newFromRedux = liveMessages.filter(
       (m) => !historyIds.has(m.id) && !historyClientIds.has(m.clientMsgId)
     );
 
@@ -130,15 +199,20 @@ export function useMessages(roomId: number): UseMessagesReturn {
     const merged = [...updatedHistory, ...newFromRedux];
     merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     return merged;
-  }, [historyMessages, reduxMessages, recalledMessageIds, editedMessages]);
+  }, [historyMessages, liveMessages, recalledMessageIds, decryptedEditedMessages]);
 
   /**
    * Optimistic add for sent messages (API response).
    * Messages also arrive via WebSocket → Redux, so dedup is applied.
    */
   const addMessage = useCallback((message: MessageResponse) => {
-    setHistoryMessages((prev) => addUniqueMessage(prev, message));
-  }, []);
+    decryptTextMessageForRoom(message, room).then((decrypted) => {
+      setHistoryMessages((prev) => {
+        if (decrypted.roomId !== roomId) return prev;
+        return addUniqueMessage(prev, decrypted);
+      });
+    });
+  }, [room, roomCryptoMaterial, roomId]);
 
   const removeMessageLocally = useCallback((messageId: string) => {
     setHistoryMessages((prev) => prev.filter((m) => m.id !== messageId));

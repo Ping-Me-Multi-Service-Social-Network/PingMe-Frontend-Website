@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getPinnedMessagesApi, unpinMessageApi } from "@/services/chat";
 import type { MessageResponse } from "@/types/chat/message";
-import type { RoomParticipantResponse } from "@/types/chat/room";
+import type { RoomResponse } from "@/types/chat/room";
 import { ArrowLeft, Pin, X, Image as ImageIcon, File, Video, CloudRain } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useTranslation } from "react-i18next";
@@ -9,10 +9,14 @@ import { useAppSelector } from "@/features/hooks.ts";
 import { selectMessages, selectEditedMessages } from "@/features/websocket/state/chatSlice.ts";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import {
+  decryptTextMessageForRoom,
+  decryptTextMessagesForRoom,
+  getRoomTextEncryptionMaterial,
+} from "../../utils/textMessageCrypto";
 
 interface SidebarPinnedMessagesProps {
-  roomId: number;
-  participants: RoomParticipantResponse[];
+  room: RoomResponse;
   onBack: () => void;
 }
 
@@ -25,8 +29,11 @@ const getMessagePreview = (msg: MessageResponse) => {
   return msg.content || "";
 };
 
-const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMessagesProps) => {
+const SidebarPinnedMessages = ({ room, onBack }: SidebarPinnedMessagesProps) => {
   const { t } = useTranslation("chat");
+  const roomId = room.roomId;
+  const participants = room.participants;
+  const roomCryptoMaterial = getRoomTextEncryptionMaterial(room);
   const [pinnedMessages, setPinnedMessages] = useState<MessageResponse[]>([]);
   const pinnedMessagesRef = useRef<MessageResponse[]>([]);
 
@@ -41,11 +48,11 @@ const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMe
   const fetchPinnedMessages = useCallback(async () => {
     try {
       const res = await getPinnedMessagesApi(roomId);
-      setPinnedMessages(res.data.data);
+      setPinnedMessages(await decryptTextMessagesForRoom(res.data.data, room));
     } catch (err) {
       console.error("Failed to fetch pinned messages:", err);
     }
-  }, [roomId]);
+  }, [roomId, room, roomCryptoMaterial]);
 
   useEffect(() => {
     fetchPinnedMessages();
@@ -53,6 +60,9 @@ const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMe
 
   // Sync pinned messages with Redux updates (MESSAGE_UPDATED)
   useEffect(() => {
+    let active = true;
+
+    const syncPinnedMessages = async () => {
     let hasChanges = false;
     let needsRefetch = false;
     const updatedPinned = [...pinnedMessagesRef.current];
@@ -69,7 +79,7 @@ const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMe
       } else if (editedMsg.isPinned === true) {
         const fullMsg = reduxMessages.find(m => m.id === id);
         if (fullMsg && existingIdx === -1) {
-          updatedPinned.unshift(fullMsg);
+          updatedPinned.unshift(await decryptTextMessageForRoom(fullMsg, room));
           hasChanges = true;
         } else if (existingIdx === -1) {
           needsRefetch = true;
@@ -86,7 +96,7 @@ const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMe
     for (const msg of reduxMessages) {
         const existingIdx = updatedPinned.findIndex(m => m.id === msg.id);
         if (msg.isPinned && existingIdx === -1 && msg.isActive) {
-            updatedPinned.unshift(msg);
+            updatedPinned.unshift(await decryptTextMessageForRoom(msg, room));
             hasChanges = true;
         }
         if (!msg.isActive && existingIdx !== -1) {
@@ -104,9 +114,18 @@ const SidebarPinnedMessages = ({ roomId, participants, onBack }: SidebarPinnedMe
         const timeB = new Date(b.pinnedAt || b.createdAt).getTime();
         return timeB - timeA;
       });
-      setPinnedMessages(updatedPinned);
+      if (active) {
+        setPinnedMessages(await decryptTextMessagesForRoom(updatedPinned, room));
+      }
     }
-  }, [editedMessages, reduxMessages, fetchPinnedMessages]);
+    };
+
+    syncPinnedMessages();
+
+    return () => {
+      active = false;
+    };
+  }, [editedMessages, reduxMessages, fetchPinnedMessages, room, roomCryptoMaterial]);
 
   const handleUnpin = async (e: React.MouseEvent, messageId: string) => {
     e.stopPropagation();

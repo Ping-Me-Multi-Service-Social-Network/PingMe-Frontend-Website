@@ -28,7 +28,7 @@ interface FilePreview {
 
 interface ChatInputProps {
   selectedChat: RoomResponse;
-  onSendMessage: (msg: string) => void;
+  onSendMessage: (msg: string) => Promise<void> | void;
   onSendFile: (file: File, type: "IMAGE" | "VIDEO" | "FILE") => Promise<void>;
   onSendMultipleImages: (files: File[]) => Promise<void>;
   onSendWeather: (lat: number, lon: number) => Promise<void>;
@@ -316,7 +316,7 @@ export function ChatBoxInput({
       }
 
       if (newMessage.trim()) {
-        onSendMessage(newMessage);
+        await onSendMessage(newMessage);
         dispatch({ type: "SET_MESSAGE", payload: "" });
       }
 

@@ -2,20 +2,28 @@ import type React from "react";
 import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { getPinnedMessagesApi, unpinMessageApi } from "@/services/chat";
 import type { MessageResponse } from "@/types/chat/message";
+import type { RoomResponse } from "@/types/chat/room";
 import { Pin, ChevronDown, ChevronUp, X, Image as ImageIcon, File, Video, CloudRain } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/features/hooks.ts";
 import { selectMessages, selectEditedMessages } from "@/features/websocket/chat";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  decryptTextMessageForRoom,
+  decryptTextMessagesForRoom,
+  getRoomTextEncryptionMaterial,
+} from "../../utils/textMessageCrypto";
 
 interface ChatPinnedMessagesProps {
-  roomId: number;
-  participants: { userId: number; name: string }[];
+  room: RoomResponse;
 }
 
-export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMessagesProps) => {
+export const ChatPinnedMessages = memo(({ room }: ChatPinnedMessagesProps) => {
   const { t } = useTranslation("chat");
+  const roomId = room.roomId;
+  const participants = room.participants;
+  const roomCryptoMaterial = getRoomTextEncryptionMaterial(room);
   const [pinnedMessages, setPinnedMessages] = useState<MessageResponse[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   
@@ -30,12 +38,12 @@ export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMess
   const fetchPinnedMessages = useCallback(async () => {
     try {
       const res = await getPinnedMessagesApi(roomId);
-      setPinnedMessages(res.data.data);
+      setPinnedMessages(await decryptTextMessagesForRoom(res.data.data, room));
       setIsOpen(false);
     } catch (err) {
       console.error("Failed to fetch pinned messages:", err);
     }
-  }, [roomId]);
+  }, [roomId, room, roomCryptoMaterial]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,6 +52,9 @@ export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMess
 
   // Sync pinned messages with Redux updates (MESSAGE_UPDATED)
   useEffect(() => {
+    let active = true;
+
+    const syncPinnedMessages = async () => {
     let hasChanges = false;
     let needsRefetch = false;
     const updatedPinned = [...pinnedMessagesRef.current];
@@ -62,7 +73,7 @@ export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMess
         // Find it in redux messages to get full data
         const fullMsg = reduxMessages.find(m => m.id === id);
         if (fullMsg && existingIdx === -1) {
-          updatedPinned.unshift(fullMsg); // prepend newly pinned
+          updatedPinned.unshift(await decryptTextMessageForRoom(fullMsg, room)); // prepend newly pinned
           hasChanges = true;
         } else if (existingIdx === -1) {
           needsRefetch = true;
@@ -80,7 +91,7 @@ export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMess
     for (const msg of reduxMessages) {
         const existingIdx = updatedPinned.findIndex(m => m.id === msg.id);
         if (msg.isPinned && existingIdx === -1 && msg.isActive) {
-            updatedPinned.unshift(msg);
+            updatedPinned.unshift(await decryptTextMessageForRoom(msg, room));
             hasChanges = true;
         }
         // remove recalled messages
@@ -100,9 +111,18 @@ export const ChatPinnedMessages = memo(({ roomId, participants }: ChatPinnedMess
         const timeB = new Date(b.pinnedAt || b.createdAt).getTime();
         return timeB - timeA;
       });
-      setPinnedMessages(updatedPinned);
+      if (active) {
+        setPinnedMessages(await decryptTextMessagesForRoom(updatedPinned, room));
+      }
     }
-  }, [editedMessages, reduxMessages, fetchPinnedMessages]);
+    };
+
+    syncPinnedMessages();
+
+    return () => {
+      active = false;
+    };
+  }, [editedMessages, reduxMessages, fetchPinnedMessages, room, roomCryptoMaterial]);
 
 
   const handleUnpin = async (e: React.MouseEvent, messageId: string) => {
