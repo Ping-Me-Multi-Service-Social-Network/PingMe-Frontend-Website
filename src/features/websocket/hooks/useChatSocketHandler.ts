@@ -5,7 +5,6 @@ import type {
   MessageCreatedEventPayload,
   MessageUpdatedEventPayload,
   RoomUpdatedEventPayload,
-
   RoomCreatedEventPayload,
   RoomMemberAddedEventPayload,
   RoomMemberRemovedEventPayload,
@@ -18,6 +17,7 @@ import type { CurrentUserSessionResponse } from "@/types/authentication";
 import {
   ENCRYPTED_TEXT_PREVIEW,
   isEncryptedTextContent,
+  decryptTextMessageContent,
 } from "@/pages/app-routes-page/chat-page/utils/textMessageCrypto";
 
 interface UseChatSocketHandlerProps {
@@ -75,46 +75,49 @@ export const useChatSocketHandler = ({
         return prev;
       });
     },
-    [setRooms, setSelectedChat]
+    [setRooms, setSelectedChat],
   );
 
   /**
    * Dispatch a system message into Redux so the ChatBox picks it up reactively.
    */
   const dispatchSystemMessage = useCallback(
-    (systemMessage: import("@/types/chat/message").MessageResponse | undefined, roomId: number) => {
+    (
+      systemMessage: import("@/types/chat/message").MessageResponse | undefined,
+      roomId: number,
+    ) => {
       if (systemMessage && selectedRoomIdRef.current === roomId) {
         dispatch(
           messageCreated({
             chatEventType: "MESSAGE_CREATED",
             messageResponse: systemMessage,
-          })
+          }),
         );
       }
     },
-    [dispatch, selectedRoomIdRef]
+    [dispatch, selectedRoomIdRef],
   );
 
   // --- Handlers ---
   const handleNewMessage = useCallback(
     (event: MessageCreatedEventPayload) => {
       const message = event.messageResponse;
+      const isEncrypted =
+        message.type === "TEXT" && isEncryptedTextContent(message.content);
 
       // Update room list (move room to top, update lastMessage)
+      let roomForDecrypt: RoomResponse | undefined;
       setRooms((prev) => {
         const targetRoom = prev.find((r) => r.roomId === message.roomId);
         if (!targetRoom) return prev;
-        const preview =
-          message.type === "TEXT" && isEncryptedTextContent(message.content)
-            ? ENCRYPTED_TEXT_PREVIEW
-            : message.content;
+        if (isEncrypted) roomForDecrypt = targetRoom;
 
         const updatedRoom = {
           ...targetRoom,
           lastMessage: {
             messageId: message.id,
             senderId: message.senderId,
-            preview,
+            preview: isEncrypted ? ENCRYPTED_TEXT_PREVIEW : message.content,
             messageType: message.type === "SYSTEM" ? "TEXT" : message.type,
             createdAt: message.createdAt,
           },
@@ -123,29 +126,51 @@ export const useChatSocketHandler = ({
         return [updatedRoom, ...otherRooms];
       });
 
+      // Async decrypt to replace placeholder preview with real text
+      if (isEncrypted && roomForDecrypt) {
+        decryptTextMessageContent(message.content, roomForDecrypt)
+          .then((decrypted) => {
+            setRooms((prev) =>
+              prev.map((r) =>
+                r.roomId === message.roomId &&
+                r.lastMessage?.messageId === message.id
+                  ? {
+                      ...r,
+                      lastMessage: { ...r.lastMessage!, preview: decrypted },
+                    }
+                  : r,
+              ),
+            );
+          })
+          .catch(() => {
+            /* keep fallback preview */
+          });
+      }
+
       // Message is already added to Redux state.messages by chatSlice.messageCreated reducer
       // ChatBox picks it up via selectMessages → useMessages hook
     },
-    [setRooms]
+    [setRooms],
   );
 
   const handleMessageUpdated = useCallback(
     (event: MessageUpdatedEventPayload) => {
       const message = event.messageResponse;
+      const isEncrypted =
+        message.type === "TEXT" && isEncryptedTextContent(message.content);
+
+      let roomForDecrypt: RoomResponse | undefined;
       setRooms((prev) => {
         const targetRoom = prev.find((r) => r.roomId === message.roomId);
         if (!targetRoom) return prev;
 
         if (targetRoom.lastMessage?.messageId === message.id) {
-          const preview =
-            message.type === "TEXT" && isEncryptedTextContent(message.content)
-              ? ENCRYPTED_TEXT_PREVIEW
-              : message.content;
+          if (isEncrypted) roomForDecrypt = targetRoom;
           const updatedRoom = {
             ...targetRoom,
             lastMessage: {
               ...targetRoom.lastMessage,
-              preview,
+              preview: isEncrypted ? ENCRYPTED_TEXT_PREVIEW : message.content,
             },
           };
           const otherRooms = prev.filter((r) => r.roomId !== message.roomId);
@@ -153,8 +178,27 @@ export const useChatSocketHandler = ({
         }
         return prev;
       });
+
+      // Async decrypt for updated preview
+      if (isEncrypted && roomForDecrypt) {
+        decryptTextMessageContent(message.content, roomForDecrypt)
+          .then((decrypted) => {
+            setRooms((prev) =>
+              prev.map((r) =>
+                r.roomId === message.roomId &&
+                r.lastMessage?.messageId === message.id
+                  ? {
+                      ...r,
+                      lastMessage: { ...r.lastMessage!, preview: decrypted },
+                    }
+                  : r,
+              ),
+            );
+          })
+          .catch(() => {});
+      }
     },
-    [setRooms]
+    [setRooms],
   );
 
   const handleRoomUpdated = useCallback(
@@ -162,22 +206,19 @@ export const useChatSocketHandler = ({
       upsertRoom(event.roomResponse);
       dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
     },
-    [upsertRoom, dispatchSystemMessage]
+    [upsertRoom, dispatchSystemMessage],
   );
 
-  const handleRecallMessage = useCallback(
-    () => {
-      // Recall is handled reactively by chatSlice.messageRecalled reducer
-      // (sets isActive: false) → ChatBox picks it up via selectMessages
-    },
-    []
-  );
+  const handleRecallMessage = useCallback(() => {
+    // Recall is handled reactively by chatSlice.messageRecalled reducer
+    // (sets isActive: false) → ChatBox picks it up via selectMessages
+  }, []);
 
   const handleRoomCreated = useCallback(
     (event: RoomCreatedEventPayload) => {
       upsertRoom(event.roomResponse);
     },
-    [upsertRoom]
+    [upsertRoom],
   );
 
   const handleMemberAdded = useCallback(
@@ -185,7 +226,7 @@ export const useChatSocketHandler = ({
       upsertRoom(event.roomResponse);
       dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
     },
-    [upsertRoom, dispatchSystemMessage]
+    [upsertRoom, dispatchSystemMessage],
   );
 
   const handleMemberRemoved = useCallback(
@@ -194,17 +235,23 @@ export const useChatSocketHandler = ({
 
       if (isCurrentUserRemoved) {
         setRooms((prev) =>
-          prev.filter((r) => r.roomId !== event.roomResponse.roomId)
+          prev.filter((r) => r.roomId !== event.roomResponse.roomId),
         );
         setSelectedChat((prev) =>
-          prev?.roomId === event.roomResponse.roomId ? null : prev
+          prev?.roomId === event.roomResponse.roomId ? null : prev,
         );
       } else {
         upsertRoom(event.roomResponse);
         dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
       }
     },
-    [upsertRoom, userSession?.id, setRooms, setSelectedChat, dispatchSystemMessage]
+    [
+      upsertRoom,
+      userSession?.id,
+      setRooms,
+      setSelectedChat,
+      dispatchSystemMessage,
+    ],
   );
 
   const handleMemberRoleChanged = useCallback(
@@ -212,7 +259,7 @@ export const useChatSocketHandler = ({
       upsertRoom(event.roomResponse);
       dispatchSystemMessage(event.systemMessage, event.roomResponse.roomId);
     },
-    [upsertRoom, dispatchSystemMessage]
+    [upsertRoom, dispatchSystemMessage],
   );
 
   const handleRoomDeleted = useCallback(
@@ -220,7 +267,7 @@ export const useChatSocketHandler = ({
       setRooms((prev) => prev.filter((r) => r.roomId !== event.roomId));
       setSelectedChat((prev) => (prev?.roomId === event.roomId ? null : prev));
     },
-    [setRooms, setSelectedChat]
+    [setRooms, setSelectedChat],
   );
 
   // --- Socket Listeners ---

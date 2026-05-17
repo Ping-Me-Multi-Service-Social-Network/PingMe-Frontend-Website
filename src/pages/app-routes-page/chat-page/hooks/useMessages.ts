@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type {
   MessageResponse,
   HistoryMessageResponse,
@@ -42,6 +42,15 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
   const recalledMessageIds = useAppSelector(selectRecalledMessageIds);
   const editedMessages = useAppSelector(selectEditedMessages);
   const { t } = useTranslation("chat");
+
+  // Keep a ref to the latest room so callbacks don't need `room` in their deps.
+  // This prevents fetchMessages from being re-created on every room metadata update
+  // (e.g., ROOM_UPDATED events), which previously caused the initial-fetch effect
+  // to clear all messages and re-fetch from API — looking like a page refresh.
+  const roomRef = useRef(room);
+  useEffect(() => {
+    roomRef.current = room;
+  }, [room]);
 
   // Local state for history messages (fetched via API)
   const [historyMessages, setHistoryMessages] = useState<MessageResponse[]>([]);
@@ -88,7 +97,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
               createdAt: "",
               isActive: true,
             },
-            room,
+            roomRef.current,
           );
 
           return [id, { ...patch, content: decrypted.content }] as const;
@@ -105,7 +114,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     return () => {
       active = false;
     };
-  }, [editedMessages, room, roomCryptoMaterial, roomId]);
+  }, [editedMessages, roomCryptoMaterial, roomId]);
 
   const fetchMessages = useCallback(
     async (beforeMessageId?: string, size = 20, append = false) => {
@@ -122,7 +131,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
         const historyResponse: HistoryMessageResponse = response.data.data;
         const newMessages = await decryptTextMessagesForRoom(
           historyResponse.messageResponses,
-          room,
+          roomRef.current,
         );
 
         if (append) {
@@ -145,7 +154,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
         setIsLoadingMore(false);
       }
     },
-    [roomId, room, roomCryptoMaterial, t]
+    [roomId, t]
   );
 
   // Set current room in Redux
@@ -206,13 +215,21 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
    * Messages also arrive via WebSocket → Redux, so dedup is applied.
    */
   const addMessage = useCallback((message: MessageResponse) => {
-    decryptTextMessageForRoom(message, room).then((decrypted) => {
-      setHistoryMessages((prev) => {
-        if (decrypted.roomId !== roomId) return prev;
-        return addUniqueMessage(prev, decrypted);
+    decryptTextMessageForRoom(message, roomRef.current)
+      .then((decrypted) => {
+        setHistoryMessages((prev) => {
+          if (decrypted.roomId !== roomId) return prev;
+          return addUniqueMessage(prev, decrypted);
+        });
+      })
+      .catch(() => {
+        // Decrypt failed — add message as-is so it still appears in chat
+        setHistoryMessages((prev) => {
+          if (message.roomId !== roomId) return prev;
+          return addUniqueMessage(prev, message);
+        });
       });
-    });
-  }, [room, roomCryptoMaterial, roomId]);
+  }, [roomId]);
 
   const removeMessageLocally = useCallback((messageId: string) => {
     setHistoryMessages((prev) => prev.filter((m) => m.id !== messageId));

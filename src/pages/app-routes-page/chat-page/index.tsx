@@ -16,6 +16,10 @@ import { useTranslation } from "react-i18next";
 import { ChatIntroCarousel } from "./components/ChatIntroCarousel";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { getRoomDisplayName } from "./utils/getRoomInfo";
+import {
+  isEncryptedTextContent,
+  decryptTextMessageContent,
+} from "./utils/textMessageCrypto";
 import "./chat.css";
 
 // Trigger part 3
@@ -49,6 +53,38 @@ export default function MessagesPage() {
           }
           return content;
         });
+
+        // Async decrypt encrypted lastMessage previews for room list
+        const encryptedRooms = content.filter(
+          (r) =>
+            r.lastMessage?.messageType === "TEXT" &&
+            isEncryptedTextContent(r.lastMessage.preview),
+        );
+        if (encryptedRooms.length > 0) {
+          Promise.all(
+            encryptedRooms.map(async (r) => {
+              try {
+                const decrypted = await decryptTextMessageContent(r.lastMessage!.preview, r);
+                return { roomId: r.roomId, preview: decrypted };
+              } catch {
+                return null;
+              }
+            }),
+          ).then((results) => {
+            const updates = new Map(
+              results.filter(Boolean).map((r) => [r!.roomId, r!.preview]),
+            );
+            if (updates.size > 0) {
+              setRooms((prev) =>
+                prev.map((r) =>
+                  updates.has(r.roomId) && r.lastMessage
+                    ? { ...r, lastMessage: { ...r.lastMessage, preview: updates.get(r.roomId)! } }
+                    : r,
+                ),
+              );
+            }
+          });
+        }
 
         setRoomsPagination({
           currentPage: res?.page || 0,
