@@ -8,7 +8,7 @@ interface CoListeningBannerProps {
   visible: boolean;
 }
 
-export function CoListeningBanner({ visible }: CoListeningBannerProps) {
+export function CoListeningBanner({ visible }: Readonly<CoListeningBannerProps>) {
   if (!visible) return null;
 
   return (

@@ -1,6 +1,5 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/features/store";
-import { useDispatch } from "react-redux";
 import { clearError, joinSessionStart, leaveSession } from "@/features/music/musicSessionSlice";
 import { ListenerAvatarRow } from "./ListenerAvatarRow";
 import { CoListeningBanner } from "./CoListeningBanner";
@@ -23,7 +22,7 @@ export default function CoListeningSection() {
   const currentUserId = useSelector(
     (state: RootState) => state.auth.userSession?.id?.toString()
   );
-  
+
   // Trạng thái Redux
   const sessionState = useSelector((state: RootState) => state.musicSession.session);
   const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
@@ -40,7 +39,7 @@ export default function CoListeningSection() {
   useEffect(() => {
     const token = searchParams.get("token");
     const hostId = searchParams.get("join-session");
-    
+
     if (token && hostId) {
       // Auto-join session with token
       handleJoinWithToken(hostId, token);
@@ -112,7 +111,7 @@ export default function CoListeningSection() {
   };
 
   const handleLeaveSession = () => {
-    if (window.confirm("Bạn có chắc chắn muốn rời khỏi phòng nghe chung?")) {
+    if (globalThis.confirm("Bạn có chắc chắn muốn rời khỏi phòng nghe chung?")) {
       if (isHost && activeHostUserId) {
         MusicSocketManager.sendCommand(activeHostUserId, { command: "STOP_SESSION" });
       } else if (activeHostUserId) {
@@ -172,75 +171,75 @@ export default function CoListeningSection() {
 
   return (
     <>
-    <div className="flex flex-col h-full">
-      <div className="px-5 pb-4">
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-2 rounded mb-3 flex justify-between items-center">
-            <span>{error}</span>
-            <button onClick={dismissError} className="text-red-400 hover:text-red-300 px-1">✕</button>
-          </div>
-        )}
+      <div className="flex flex-col h-full">
+        <div className="px-5 pb-4">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-2 rounded mb-3 flex justify-between items-center">
+              <span>{error}</span>
+              <button onClick={dismissError} className="text-red-400 hover:text-red-300 px-1">✕</button>
+            </div>
+          )}
 
-        {sessionState?.isEndingAfterCurrentTrack && (
-          <CoListeningBanner visible={true} />
-        )}
+          {sessionState?.isEndingAfterCurrentTrack && (
+            <CoListeningBanner visible={true} />
+          )}
 
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-zinc-200">
-            {isHost ? "Phiên của bạn" : "Đang nghe cùng"}
-          </h3>
-          <div className="flex gap-2">
-            {isHost && (
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-zinc-200">
+              {isHost ? "Phiên của bạn" : "Đang nghe cùng"}
+            </h3>
+            <div className="flex gap-2">
+              {isHost && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowShareModal(true)}
+                  className="h-7 text-xs text-zinc-400 hover:text-green-400 hover:bg-green-900/20"
+                  title="Chia sẻ phiên nghe chung"
+                >
+                  <Share2 className="w-3 h-3" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowShareModal(true)}
-                className="h-7 text-xs text-zinc-400 hover:text-green-400 hover:bg-green-900/20"
-                title="Chia sẻ phiên nghe chung"
+                onClick={handleLeaveSession}
+                className="h-7 text-xs text-zinc-400 hover:text-white hover:bg-white/10"
               >
-                <Share2 className="w-3 h-3" />
+                <LogOut className="w-3 h-3 mr-1.5" />
+                Rời đi
               </Button>
+            </div>
+          </div>
+
+          {/* Danh sách người nghe */}
+          <div className="space-y-1">
+            {/* Host luôn hiện đầu tiên */}
+            {activeHostUserId && (
+              <ListenerAvatarRow
+                userId={activeHostUserId}
+                name={getUserInfo(activeHostUserId).name}
+                avatarUrl={getUserInfo(activeHostUserId).avatarUrl}
+                isHost={true}
+                isSelf={activeHostUserId === currentUserId}
+              />
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLeaveSession}
-              className="h-7 text-xs text-zinc-400 hover:text-white hover:bg-white/10"
-            >
-              <LogOut className="w-3 h-3 mr-1.5" />
-              Rời đi
-            </Button>
+
+            {/* Những người nghe khác */}
+            {sessionState?.activeListenerIds
+              ?.filter(id => id !== activeHostUserId)
+              .map(id => (
+                <ListenerAvatarRow
+                  key={id}
+                  userId={id}
+                  name={getUserInfo(id).name}
+                  avatarUrl={getUserInfo(id).avatarUrl}
+                  isSelf={id === currentUserId}
+                />
+              ))}
           </div>
         </div>
-
-        {/* Danh sách người nghe */}
-        <div className="space-y-1">
-          {/* Host luôn hiện đầu tiên */}
-          {activeHostUserId && (
-            <ListenerAvatarRow
-              userId={activeHostUserId}
-              name={getUserInfo(activeHostUserId).name}
-              avatarUrl={getUserInfo(activeHostUserId).avatarUrl}
-              isHost={true}
-              isSelf={activeHostUserId === currentUserId}
-            />
-          )}
-
-          {/* Những người nghe khác */}
-          {sessionState?.activeListenerIds
-            ?.filter(id => id !== activeHostUserId)
-            .map(id => (
-              <ListenerAvatarRow
-                key={id}
-                userId={id}
-                name={getUserInfo(id).name}
-                avatarUrl={getUserInfo(id).avatarUrl}
-                isSelf={id === currentUserId}
-              />
-            ))}
-        </div>
       </div>
-    </div>
       {activeHostUserId && (
         <SessionShareModal
           open={showShareModal}

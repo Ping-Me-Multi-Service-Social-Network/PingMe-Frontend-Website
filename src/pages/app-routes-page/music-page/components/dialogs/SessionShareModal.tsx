@@ -8,7 +8,6 @@ interface SessionShareModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sessionId: string;
-  hostUserId: string;
 }
 
 interface SessionTokenResponse {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/features/store";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
-import { leaveSession, joinSessionStart, clearError } from "@/features/music/musicSessionSlice";
+import { leaveSession, joinSessionStart, clearError, sessionStateReceived } from "@/features/music/musicSessionSlice";
 import type {
   MusicSessionCommandRequest,
   PlayPayload,
@@ -10,7 +10,6 @@ import type {
   StartSessionPayload,
 } from "@/types/music/musicSession";
 import { getMusicSessionStateApi } from "@/services/music/musicSessionApi";
-import { sessionStateReceived } from "@/features/music/musicSessionSlice";
 
 // =================================================================
 // Hook: useMusicSession
@@ -37,7 +36,7 @@ export function useMusicSession({
   sessionToken,
 }: UseMusicSessionOptions) {
   const dispatch = useDispatch<AppDispatch>();
-  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL as string;
+  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
   // Ref để tránh stale closure trong callback
   const onSessionEndedRef = useRef(onSessionEnded);
@@ -75,7 +74,7 @@ export function useMusicSession({
         if (res.data) {
           dispatch(sessionStateReceived(res.data));
         }
-        
+
         // Gửi lệnh để đăng ký vào phòng
         const isHostNow = String(hostUserId) === String(currentUserId);
         const command = isHostNow ? "START_SESSION" : "JOIN_SESSION";

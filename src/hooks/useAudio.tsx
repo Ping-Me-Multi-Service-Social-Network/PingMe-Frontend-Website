@@ -63,7 +63,7 @@ const trackAlbumPlayCount = (song: Song) => {
   if (!song.album) return;
   const albums = Array.isArray(song.album) ? song.album : [song.album];
   if (albums.length === 0) return;
-  
+
   for (const album of albums) {
     if (!album?.id) continue;
     albumApi.incrementPlayCount(album.id).catch((error) => {
@@ -101,7 +101,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
         );
         return;
       }
-      
+
       // Chặn nếu là Listener đang tự bấm đổi bài (không có cờ force)
       if (isListener && !options?.force) {
         console.warn("[PingMe] Listener cannot change song during co-listening");
@@ -182,13 +182,13 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     const trackId = String(session.currentTrackId);
     if (!currentSong || String(currentSong.id) !== trackId) {
       console.log("[MusicSync] Host changed song to:", trackId);
-      
+
       // Reset audio state safely
       if (audioRef.current) {
         try {
           audioRef.current.pause();
           audioRef.current.currentTime = 0; // ÉP BUỘC quay về 0 ngay lập tức
-          audioRef.current.load(); 
+          audioRef.current.load();
         } catch (e) {
           console.warn("[MusicSync] Error resetting audio:", e);
         }
@@ -213,7 +213,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   // 2. Sync Play/Pause
   useEffect(() => {
     if (!isListener || !session) return;
-    
+
     // Chỉ sync play/pause nếu đã khớp bài
     if (!currentSong || String(currentSong.id) !== String(session.currentTrackId)) return;
 
@@ -243,14 +243,14 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
         // Sử dụng startedAtEpochMs để tính toán
         // Nếu targetTime > 0 (Host đã phát một lúc) thì mới tính drift
         const elapsed = (Date.now() - session.startedAtEpochMs) / 1000;
-        
+
         // Nếu elapsed quá lớn hoặc âm (lệch đồng hồ), ta sẽ giới hạn nó
         // Hoặc nếu mới chuyển bài (positionMs == 0), ta ưu tiên phát từ đầu
         if (session.positionMs === 0 && Math.abs(elapsed) > 300) {
-           // Lệch đồng hồ quá nặng (> 5 phút), coi như mới bắt đầu
-           targetTime = 0;
+          // Lệch đồng hồ quá nặng (> 5 phút), coi như mới bắt đầu
+          targetTime = 0;
         } else {
-           targetTime += elapsed;
+          targetTime += elapsed;
         }
       }
 
@@ -260,7 +260,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       if (targetTime < 0) targetTime = 0;
 
       // Ngưỡng sai số 1 giây để khớp hơn
-      if (Math.abs(audio.currentTime - targetTime) > 2.0) {
+      if (Math.abs(audio.currentTime - targetTime) > 0.5) {
         console.log("[MusicSync] Seeking to:", targetTime);
         audio.currentTime = targetTime;
       }
@@ -273,13 +273,13 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     lastSyncedTrackIdRef.current = String(session.currentTrackId);
 
     const handleCanPlay = () => {
-        console.log("[MusicSync] Can play now, performing final sync");
-        syncPosition();
+      console.log("[MusicSync] Can play now, performing final sync");
+      syncPosition();
     };
 
     audio.addEventListener("canplay", handleCanPlay);
     return () => {
-        audio.removeEventListener("canplay", handleCanPlay);
+      audio.removeEventListener("canplay", handleCanPlay);
     };
 
   }, [isListener, session?.version, session?.currentTrackId, currentSong?.id]);

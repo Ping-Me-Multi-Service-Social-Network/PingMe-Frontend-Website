@@ -20,7 +20,7 @@ export function ListenerAvatarRow({
   avatarUrl,
   isHost = false,
   isSelf = false,
-}: ListenerAvatarRowProps) {
+}: Readonly<ListenerAvatarRowProps>) {
   return (
     <div
       className="flex items-center gap-3 py-2 px-1 rounded-lg transition-colors hover:bg-white/5"

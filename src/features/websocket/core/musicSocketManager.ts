@@ -6,7 +6,7 @@ import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
 import type {
   MusicSessionCommandRequest,
-  MusicSessionEventMessage,
+  MusicSessionEventType,
   MusicSessionState,
   MusicCommandError,
 } from "@/types/music/musicSession";
@@ -226,9 +226,31 @@ class MusicSocketManagerClass {
 
   /** Xử lý event từ topic session */
   private handleSessionMessage(msg: IMessage, hostUserId: string): void {
-    let envelope: MusicSessionEventMessage;
+    let envelope:
+      | {
+          eventType: "MUSIC_SESSION_STATE" | "MUSIC_PLAYBACK_CHANGED";
+          data: MusicSessionState;
+          serverTimeMs: number;
+        }
+      | {
+          eventType: "MUSIC_QUEUE_CHANGED" | "MUSIC_PRESENCE_CHANGED";
+          data: string[];
+          serverTimeMs: number;
+        }
+      | {
+          eventType: Exclude<
+            MusicSessionEventType,
+            | "MUSIC_SESSION_STATE"
+            | "MUSIC_PLAYBACK_CHANGED"
+            | "MUSIC_QUEUE_CHANGED"
+            | "MUSIC_PRESENCE_CHANGED"
+          >;
+          data: unknown;
+          serverTimeMs: number;
+        };
+
     try {
-      envelope = JSON.parse(msg.body) as MusicSessionEventMessage;
+      envelope = JSON.parse(msg.body) as typeof envelope;
     } catch (e) {
       console.error("[MusicWS] Failed to parse session message:", e);
       return;
@@ -240,19 +262,17 @@ class MusicSocketManagerClass {
       case "MUSIC_SESSION_STATE":
       case "MUSIC_PLAYBACK_CHANGED":
         // Cả hai event đều gửi kèm full state -> dispatch vào slice
-        this.options?.dispatch(
-          sessionStateReceived(envelope.data as MusicSessionState)
-        );
+        this.options?.dispatch(sessionStateReceived(envelope.data));
         break;
 
       case "MUSIC_QUEUE_CHANGED":
         // BE gửi state đầy đủ sau queue change
-        this.options?.dispatch(queueChanged(envelope.data as string[]));
+        this.options?.dispatch(queueChanged(envelope.data));
         break;
 
       case "MUSIC_PRESENCE_CHANGED":
         // data là string[] (danh sách activeListenerIds)
-        this.options?.dispatch(presenceChanged(envelope.data as string[]));
+        this.options?.dispatch(presenceChanged(envelope.data));
         break;
 
       case "MUSIC_SESSION_ENDED":

@@ -5,7 +5,7 @@ import { useMusicSession } from "@/hooks/useMusicSession";
 import { leaveSession } from "@/features/music/musicSessionSlice";
 import { useAudio } from "@/hooks/useAudio";
 
-export function CoListeningProvider({ children }: { children: React.ReactNode }) {
+export function CoListeningProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const dispatch = useDispatch();
 
   const currentUserId = useSelector(
