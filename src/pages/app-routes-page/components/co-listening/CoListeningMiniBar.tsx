@@ -6,7 +6,6 @@ import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAudio } from "@/hooks/useAudio";
 import { useLocation } from "react-router-dom";
-import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 
 // =================================================================
 // CoListeningMiniBarContent - Thanh floating điều khiển nghe chung
@@ -17,12 +16,6 @@ interface CoListeningMiniBarContentProps {
 }
 
 const CoListeningMiniBarContent: React.FC<CoListeningMiniBarContentProps> = ({ onClose }) => {
-  const activeHostUserId = useSelector(
-    (state: RootState) => state.musicSession.activeHostUserId
-  );
-  const currentUserId = useSelector(
-    (state: RootState) => state.auth.userSession?.id?.toString()
-  );
   const session = useSelector((state: RootState) => state.musicSession.session);
   const isHost = useSelector((state: RootState) => state.musicSession.isHost);
 
@@ -38,17 +31,7 @@ const CoListeningMiniBarContent: React.FC<CoListeningMiniBarContentProps> = ({ o
   };
 
   const handlePlayPause = () => {
-    if (!session || !activeHostUserId || !currentUserId || !isHost) return;
-    const positionMs = session.isPlaying
-      ? session.positionMs + Math.max(0, Date.now() - session.startedAtEpochMs)
-      : session.positionMs;
-    MusicSocketManager.sendCommand(activeHostUserId, {
-      command: session.isPlaying ? "PAUSE" : "PLAY",
-      payload: {
-        currentTrackId: session.currentTrackId,
-        positionMs,
-      },
-    });
+    if (!session || !isHost) return;
     togglePlayPause();
   };
 
