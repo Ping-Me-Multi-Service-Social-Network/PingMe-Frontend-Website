@@ -4,7 +4,7 @@ import type { Song } from "@/types/music/song";
 export type RepeatMode = "off" | "all" | "one";
 
 export interface PlaybackContext {
-  type: "album" | "artist" | "playlist" | "genre" | "all" | "favorite" | null;
+  type: "album" | "artist" | "playlist" | "genre" | "all" | "favorite" | "co-listening" | null;
   id: number | string | null;
 }
 

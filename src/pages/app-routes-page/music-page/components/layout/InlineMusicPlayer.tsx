@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useAudio, useAudioTime } from "@/hooks/useAudio.tsx";
 import {
     Play,
@@ -12,11 +13,14 @@ import {
     Repeat1,
     Heart,
     MoreVertical,
+    UsersRound,
 } from "lucide-react";
 import type { Song } from "@/types/music/song";
 import PlaylistDropdown from "@/pages/app-routes-page/music-page/components/dialogs/PlaylistDropdown";
 import { useFavorites } from "@/hooks/useFavorites";
-
+import type { RootState } from "@/features/store";
+import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
+import { joinSessionStart } from "@/features/music/musicSessionSlice";
 
 function formatTime(seconds: number) {
     if (!seconds || Number.isNaN(seconds)) return "0:00";
@@ -60,9 +64,20 @@ const InlineMusicPlayer: React.FC = () => {
     const { currentTime, duration } = useAudioTime();
 
     const { isFavorite: checkFavorite, toggleFavorite } = useFavorites();
+    const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
+    const isCoListeningHost = useSelector((state: RootState) => state.musicSession.isHost);
+    const currentUserId = useSelector((state: RootState) => state.auth.userSession?.id?.toString());
+    const dispatch = useDispatch();
+    const isListener = !!activeHostUserId && !isCoListeningHost;
+    
     const isFavorite = currentSong ? checkFavorite(currentSong.id) : false;
     const [isHoveringProgress, setIsHoveringProgress] = useState(false);
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
+
+    const handleToggleListenTogether = () => {
+        if (!currentUserId) return;
+        dispatch(joinSessionStart({ hostUserId: currentUserId, currentUserId }));
+    };
 
     const repeatConfig = REPEAT_CONFIG[repeatMode] || REPEAT_CONFIG.off;
     const RepeatIcon = repeatConfig.Icon;
@@ -72,13 +87,6 @@ const InlineMusicPlayer: React.FC = () => {
         : "";
 
     const progressValue = duration > 0 ? (currentTime / duration) * 100 : 0;
-    const progressBarWidth = `${progressValue}%`;
-    const thumbLeft = duration > 0 ? `calc(${progressValue}% - 6px)` : "-6px";
-
-    const favoriteButtonColor = isFavorite ? "text-pink-400" : "text-zinc-500 hover:text-white";
-    const favoriteButtonTitle = isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích";
-    const favoriteIconClass = isFavorite ? "fill-current" : "";
-
     const PlayPauseIcon = isPlaying ? Pause : Play;
     const VolumeIcon = volume > 0 ? Volume2 : VolumeX;
 
@@ -88,22 +96,48 @@ const InlineMusicPlayer: React.FC = () => {
     };
 
     const handleClickNext = useCallback(() => {
-        if (!currentSong || playlist.length === 0) return;
+        if (!currentSong || playlist.length === 0 || isListener) return;
         const currentIndex = playlist.findIndex((s: Song) => s.id === currentSong.id);
         const nextIndex = (currentIndex + 1) % playlist.length;
-        playSong(playlist[nextIndex], playbackContext);
-    }, [currentSong, playlist, playSong, playbackContext]);
+        const nextSong = playlist[nextIndex];
+        playSong(nextSong, playbackContext);
+    }, [activeHostUserId, currentSong, isCoListeningHost, isListener, playlist, playSong, playbackContext]);
 
     const handleClickPrevious = useCallback(() => {
-        if (!currentSong || playlist.length === 0) return;
+        if (!currentSong || playlist.length === 0 || isListener) return;
         const currentIndex = playlist.findIndex((s: Song) => s.id === currentSong.id);
         const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
-        playSong(playlist[prevIndex], playbackContext);
-    }, [currentSong, playlist, playSong, playbackContext]);
+        const previousSong = playlist[prevIndex];
+        playSong(previousSong, playbackContext);
+    }, [activeHostUserId, currentSong, isCoListeningHost, isListener, playlist, playSong, playbackContext]);
 
     const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (isListener) return;
         const newTime = Number.parseFloat(e.target.value);
         if (audioRef.current) audioRef.current.currentTime = newTime;
+        if (isCoListeningHost && activeHostUserId && currentSong) {
+            MusicSocketManager.sendCommand(activeHostUserId, {
+                command: "SEEK",
+                payload: {
+                    currentTrackId: currentSong.id.toString(),
+                    positionMs: Math.round(newTime * 1000),
+                },
+            });
+        }
+    };
+
+    const handlePlayPause = () => {
+        if (isListener) return;
+        if (isCoListeningHost && activeHostUserId && currentSong) {
+            MusicSocketManager.sendCommand(activeHostUserId, {
+                command: isPlaying ? "PAUSE" : "PLAY",
+                payload: {
+                    currentTrackId: currentSong.id.toString(),
+                    positionMs: Math.round((audioRef.current?.currentTime ?? currentTime) * 1000),
+                },
+            });
+        }
+        togglePlayPause();
     };
 
     const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,26 +149,12 @@ const InlineMusicPlayer: React.FC = () => {
     if (!currentSong) return null;
 
     return (
-        <div
-            className="sticky bottom-0 z-40 shrink-0 w-full"
-            style={{
-                background: "linear-gradient(180deg, #0d0d1a 0%, #09090f 100%)",
-                borderTop: "1px solid rgba(139,92,246,0.15)",
-                boxShadow: "0 -8px 32px rgba(0,0,0,0.5)",
-                height: "88px",
-            }}
-        >
-            {/* Progress bar — full width at very top */}
-            <div
-                className="relative group"
-                style={{ height: "3px", background: "rgba(255,255,255,0.06)" }}
-            >
-                <div
-                    className="absolute left-0 top-0 h-full transition-all duration-300"
-                    style={{
-                        width: progressBarWidth,
-                        background: "linear-gradient(90deg, #7c3aed, #a855f7)",
-                    }}
+        <div className="sticky bottom-0 z-40 shrink-0 w-full h-[88px] bg-gradient-to-b from-[#0d0d1a] to-[#09090f] border-t border-purple-500/15 shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
+            {/* Progress bar */}
+            <div className="relative group h-[3px] bg-white/5">
+                <div 
+                    className="absolute left-0 top-0 h-full bg-gradient-to-r from-purple-600 to-fuchsia-500 transition-all duration-300"
+                    style={{ width: `${progressValue}%` }}
                 />
                 <input
                     type="range"
@@ -142,104 +162,93 @@ const InlineMusicPlayer: React.FC = () => {
                     max={duration || 0}
                     value={currentTime || 0}
                     onChange={handleSeek}
+                    disabled={isListener}
                     onMouseEnter={() => setIsHoveringProgress(true)}
                     onMouseLeave={() => setIsHoveringProgress(false)}
-                    className="absolute inset-0 w-full opacity-0 cursor-pointer"
-                    style={{ height: "100%", zIndex: 1 }}
+                    className={`absolute inset-0 w-full opacity-0 z-10 ${isListener ? "cursor-not-allowed" : "cursor-pointer"}`}
                     aria-label="Progress"
                 />
-                {/* Thumb dot */}
-                {isHoveringProgress && (
-                    <div
-                        className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg pointer-events-none"
-                        style={{
-                            left: thumbLeft,
-                        }}
+                {isHoveringProgress && !isListener && (
+                    <div 
+                        className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg pointer-events-none transition-all"
+                        style={{ left: `calc(${progressValue}% - 6px)` }}
                     />
                 )}
             </div>
 
             {/* Player Content */}
-            <div
-                className="flex h-full w-full px-4 items-center relative"
-                style={{ height: "85px" }}
-            >
+            <div className="flex h-full w-full px-4 items-center relative">
                 {/* Left: Song Info */}
-                <div className="flex items-center gap-3 min-w-0 justify-start z-10">
+                <div className="flex items-center gap-3 min-w-0 flex-1 sm:flex-none">
                     <img
                         src={currentSong.coverImageUrl || "/abstract-album-cover.png"}
                         alt={currentSong.title}
-                        className="w-12 h-12 rounded-lg object-cover shadow-lg flex-shrink-0 hidden xs:block"
-                        style={{ border: "1px solid rgba(139,92,246,0.2)" }}
+                        className="w-12 h-12 rounded-lg object-cover shadow-lg shrink-0 border border-purple-500/20"
                     />
-                    <div className="flex-1 min-w-0 hidden sm:block max-w-[200px]">
+                    <div className="min-w-0 max-w-[150px] sm:max-w-[200px]">
                         <p className="text-sm font-semibold text-white truncate">{currentSong.title}</p>
-                        <p className="text-xs text-zinc-400 truncate">
-                            {currentSong.mainArtist?.name || "Unknown Artist"}
-                            {featuredArtistsText}
+                        <p className="text-[10px] sm:text-xs text-zinc-400 truncate">
+                            {currentSong.mainArtist?.name || "Unknown Artist"}{featuredArtistsText}
                         </p>
                     </div>
-                    {/* Favorite */}
                     <button
                         onClick={handleToggleFavorite}
-                        className={`w-8 h-8 rounded-full hidden sm:flex items-center justify-center transition-all flex-shrink-0 ${favoriteButtonColor}`}
-                        title={favoriteButtonTitle}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 ${isFavorite ? "text-pink-400" : "text-zinc-500 hover:text-white"}`}
                     >
-                        <Heart className={`w-4 h-4 ${favoriteIconClass}`} />
+                        <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
                     </button>
                 </div>
 
-                {/* CENTER AREA (Absolute Center for stability) */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col justify-center items-center gap-1.5 min-w-0 pointer-events-auto">
-                    {/* Playback Controls */}
-                    <div className="flex items-center justify-center gap-4">
-                        {/* Repeat */}
+                {/* Center: Controls */}
+                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-3 sm:gap-5">
                         <button
                             onClick={cycleRepeatMode}
-                            className={`transition-colors hidden sm:block ${repeatConfig.color}`}
+                            className={`transition-colors hidden xs:block ${repeatConfig.color}`}
                             title={repeatConfig.title}
                         >
                             <RepeatIcon className="w-4 h-4" />
                         </button>
 
-                        {/* Prev */}
                         <button
                             onClick={handleClickPrevious}
-                            className="text-zinc-400 hover:text-white transition-colors"
+                            disabled={isListener}
+                            className={`${isListener ? "text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-white"} transition-colors`}
+                            title={isListener ? "Chế độ người nghe" : "Bài trước"}
                         >
                             <SkipBack className="w-5 h-5" />
                         </button>
 
-                        {/* Play/Pause */}
                         <button
-                            onClick={togglePlayPause}
-                            className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 transition-transform shrink-0"
-                            style={{
-                                background: "linear-gradient(135deg, #7c3aed, #a855f7)",
-                                boxShadow: "0 0 20px rgba(168,85,247,0.4)",
-                            }}
+                            onClick={handlePlayPause}
+                            disabled={isListener}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shrink-0 
+                                ${isListener 
+                                    ? "bg-zinc-800/50 text-zinc-600 cursor-not-allowed" 
+                                    : "bg-gradient-to-br from-purple-600 to-fuchsia-600 hover:scale-105 shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white"
+                                }`}
                         >
-                            <PlayPauseIcon className={`w-5 h-5 text-white ${isPlaying ? "" : "ml-0.5"}`} />
+                            <PlayPauseIcon className={`w-5 h-5 ${isPlaying ? "" : "ml-0.5"}`} />
                         </button>
 
-                        {/* Next */}
                         <button
                             onClick={handleClickNext}
-                            className="text-zinc-400 hover:text-white transition-colors"
+                            disabled={isListener}
+                            className={`${isListener ? "text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-white"} transition-colors`}
+                            title={isListener ? "Chế độ người nghe" : "Bài tiếp theo"}
                         >
                             <SkipForward className="w-5 h-5" />
                         </button>
 
-                        {/* Playlist menu */}
                         {currentSong?.id && (
-                            <div className="hidden sm:block">
+                            <div className="hidden xs:block">
                                 <PlaylistDropdown
                                     songId={currentSong.id}
                                     open={showPlaylistMenu}
                                     onOpenChange={setShowPlaylistMenu}
                                     variant="full"
                                     trigger={
-                                        <button className="text-zinc-500 hover:text-white transition-colors flex items-center h-full">
+                                        <button className="text-zinc-500 hover:text-white transition-colors flex items-center">
                                             <MoreVertical className="w-4 h-4" />
                                         </button>
                                     }
@@ -248,36 +257,41 @@ const InlineMusicPlayer: React.FC = () => {
                         )}
                     </div>
 
-                    {/* Time */}
-                    <div className="flex items-center gap-2 text-[10px] sm:text-xs text-zinc-500 tabular-nums w-full justify-center">
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 tabular-nums">
                         <span>{formatTime(currentTime)}</span>
-                        <span className="hidden sm:inline">/</span>
+                        <span>/</span>
                         <span>{formatTime(duration)}</span>
                     </div>
                 </div>
 
-                {/* Right: Volume */}
-                <div className="ml-auto flex items-center gap-2 justify-end min-w-0 z-10">
+                {/* Right: Volume & Misc */}
+                <div className="hidden sm:flex items-center gap-3 ml-auto min-w-[150px] justify-end">
                     <button
-                        onClick={toggleMute}
-                        className="text-zinc-400 hover:text-white transition-colors"
+                        onClick={handleToggleListenTogether}
+                        className={`transition-colors ${activeHostUserId ? "text-purple-400" : "text-zinc-400 hover:text-purple-400"}`}
+                        title="Nghe chung"
                     >
-                        <VolumeIcon className="w-4 h-4" />
+                        <UsersRound className="w-4 h-4" />
                     </button>
-                    <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={volume}
-                        onChange={handleVolumeChange}
-                        className="w-20 h-1 rounded-lg cursor-pointer"
-                        style={{
-                            accentColor: "#a855f7",
-                            background: `linear-gradient(to right, #a855f7 ${volume * 100}%, rgba(255,255,255,0.1) ${volume * 100}%)`,
-                        }}
-                    />
-                    <span className="text-xs text-zinc-500 w-8 text-right">{Math.round(volume * 100)}%</span>
+                    
+                    <div className="flex items-center gap-2 group">
+                        <button onClick={toggleMute} className="text-zinc-400 hover:text-white transition-colors">
+                            <VolumeIcon className="w-4 h-4" />
+                        </button>
+                        <input
+                            type="range"
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            value={volume}
+                            onChange={handleVolumeChange}
+                            className="w-20 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                            style={{
+                                background: `linear-gradient(to right, #a855f7 ${volume * 100}%, #27272a ${volume * 100}%)`,
+                            }}
+                        />
+                    </div>
+                    <span className="text-[10px] text-zinc-500 w-6 tabular-nums">{Math.round(volume * 100)}</span>
                 </div>
             </div>
         </div>

@@ -15,7 +15,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function RankingsPage() {
     const navigate = useNavigate();
-    const { playSong } = useAudio();
+    const { playSong, setPlaylist } = useAudio();
     const [searchParams] = useSearchParams();
     const tabParam = searchParams.get("tab") as RankingTab | null;
     const [activeTab, setActiveTab] = useState<RankingTab>(tabParam || "today");
@@ -102,18 +102,20 @@ export default function RankingsPage() {
 
     const handleSongPlay = async (topSong: TopSongPlayCounter) => {
         try {
-            // Fetch full song details to play
-            const songDetails = await songApi.getSongById(topSong.songId);
+            const playableSongs = await songApi.getSongsByIds(
+                getCurrentSongs().map((item) => item.songId)
+            );
+            const songDetails = playableSongs.find(song => song.id === topSong.songId);
 
             if (!songDetails) {
                 console.error('[PingMe] No song data returned from API');
                 return;
             }
 
-            playSong(songDetails);
-
-            // Set playlist to current tab's songs (will need to fetch each one)
-            // For now, just play the single song
+            if (playableSongs.length > 0) {
+                setPlaylist(playableSongs);
+            }
+            playSong(songDetails, { type: "all", id: `ranking-${activeTab}` });
         } catch (err) {
             console.error("Error fetching song details:", err);
         }

@@ -243,22 +243,18 @@ export default function PlaylistDetailPage() {
 
     const handlePlaySong = async (playlistSong: PlaylistSongDto) => {
         try {
-            const songDetails = await songApi.getSongById(playlistSong.songId);
+            const allSongs = playlistDetail
+                ? await songApi.getSongsByIds(playlistDetail.items.map(item => item.songId))
+                : [];
+            const songDetails = allSongs.find(song => song.id === playlistSong.songId);
 
             if (!songDetails) {
                 console.error('[PingMe] No song data returned from API');
                 return;
             }
 
+            setAudioPlaylist(allSongs);
             playSong(songDetails, { type: "playlist", id: playlistDetail?.id || 0 });
-
-            // Set playlist to all songs in order
-            if (playlistDetail) {
-                const allSongs = await Promise.all(
-                    playlistDetail.items.map(item => songApi.getSongById(item.songId))
-                );
-                setAudioPlaylist(allSongs.filter(Boolean));
-            }
         } catch (err) {
             console.error("Error playing song:", err);
         }
@@ -268,8 +264,8 @@ export default function PlaylistDetailPage() {
         if (!playlistDetail || playlistDetail.items.length === 0) return;
 
         try {
-            const allSongs = await Promise.all(
-                playlistDetail.items.map(item => songApi.getSongById(item.songId))
+            const allSongs = await songApi.getSongsByIds(
+                playlistDetail.items.map(item => item.songId)
             );
 
             if (allSongs.length === 0) {

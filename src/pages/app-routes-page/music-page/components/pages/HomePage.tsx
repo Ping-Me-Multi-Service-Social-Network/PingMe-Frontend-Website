@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 export default function HomePage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { playSong } = useAudio();
+  const { playSong, setPlaylist } = useAudio();
   const {
     allGenres: genres,
     popularAlbums: albums,
@@ -49,6 +49,7 @@ export default function HomePage() {
   }, [dispatch, lastFetched, cacheExpiry]);
 
   const handleSongPlay = (song: Song) => {
+    setPlaylist(topSongs);
     playSong(song, { type: "all", id: "home" });
   };
 
