@@ -89,7 +89,7 @@ export default function AppPageLayout() {
               {!isChatPage && <Outlet />}
             </div>
 
-            {!isMusicPage && <DraggableMiniPlayer />}
+            <DraggableMiniPlayer />
             <CoListeningMiniBar />
           </div>
           </CoListeningProvider>

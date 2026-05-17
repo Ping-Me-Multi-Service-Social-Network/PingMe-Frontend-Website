@@ -20,8 +20,13 @@ import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { RootState } from "@/features/store";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
+import { useLocation } from "react-router-dom";
 
-const MiniPlayerContent: React.FC = () => {
+interface MiniPlayerContentProps {
+  onClose: () => void;
+}
+
+const MiniPlayerContent: React.FC<MiniPlayerContentProps> = ({ onClose }) => {
   const {
     currentSong,
     playlist,
@@ -33,8 +38,6 @@ const MiniPlayerContent: React.FC = () => {
     setVolume,
     repeatMode,
     cycleRepeatMode,
-    setCurrentSong,
-    setIsPlaying,
     playbackContext
   } = useAudio();
   const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
@@ -83,17 +86,6 @@ const MiniPlayerContent: React.FC = () => {
     playSong(previousSong, playbackContext);
   };
 
-  const handleClose = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    if (isCoListeningHost && activeHostUserId) {
-      MusicSocketManager.sendCommand(activeHostUserId, { command: "STOP_SESSION" });
-    }
-    setIsPlaying(false);
-    setCurrentSong(null);
-  };
-
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = Number.parseFloat(e.target.value);
     setVolume(newVolume);
@@ -116,9 +108,10 @@ const MiniPlayerContent: React.FC = () => {
     >
       {/* Close button */}
       <button
-        onClick={handleClose}
+        onClick={onClose}
         className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors z-10"
         onPointerDown={(e) => e.stopPropagation()}
+        title="Ẩn trình phát mini"
       >
         <X className="w-4 h-4" />
       </button>
@@ -235,7 +228,10 @@ const MiniPlayerContent: React.FC = () => {
 const DraggableMiniPlayer: React.FC = () => {
   const { currentSong } = useAudio();
   const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
-  const isHost = useSelector((state: RootState) => state.musicSession.isHost);
+  const location = useLocation();
+  const isMusicPage = location.pathname.startsWith("/app/music");
+  const wasMusicPageRef = React.useRef(isMusicPage);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   const [position, setPosition] = useState({
     x: globalThis.innerWidth - 320,
@@ -250,9 +246,23 @@ const DraggableMiniPlayer: React.FC = () => {
     }));
   };
 
-  // Nếu đang nghe chung với tư cách là Listener -> Ẩn mini player thường này đi
-  // (Listener sẽ dùng CoListeningMiniBar)
-  if (!currentSong || (activeHostUserId && !isHost)) return null;
+  React.useEffect(() => {
+    setIsDismissed(false);
+  }, [currentSong?.id]);
+
+  React.useEffect(() => {
+    if (wasMusicPageRef.current && !isMusicPage) {
+      setIsDismissed(false);
+    }
+    wasMusicPageRef.current = isMusicPage;
+  }, [isMusicPage]);
+
+  React.useEffect(() => {
+    setIsDismissed(false);
+  }, [activeHostUserId]);
+
+  // Khi đang có phiên nghe chung ngoài trang music, chỉ hiển thị CoListeningMiniBar.
+  if (!currentSong || isMusicPage || activeHostUserId || isDismissed) return null;
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
@@ -265,7 +275,7 @@ const DraggableMiniPlayer: React.FC = () => {
           zIndex: 9999,
         }}
       >
-        <MiniPlayerContent />
+        <MiniPlayerContent onClose={() => setIsDismissed(true)} />
       </div>
     </DndContext>
   );
