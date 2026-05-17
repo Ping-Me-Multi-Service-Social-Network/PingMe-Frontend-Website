@@ -140,6 +140,7 @@ class MusicSocketManagerClass {
     this.sessionSub = null;
     this.errorSub = null;
     this.currentHostUserId = null;
+    this.commandQueue = [];
 
     this.client?.deactivate();
     this.client = null;

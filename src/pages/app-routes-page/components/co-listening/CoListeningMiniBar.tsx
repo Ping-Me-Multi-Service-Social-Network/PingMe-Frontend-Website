@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "@/features/store";
 import { UsersRound, Play, Pause, X, Music2 } from "lucide-react";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAudio } from "@/hooks/useAudio";
-import { leaveSession } from "@/features/music/musicSessionSlice";
 import { useLocation } from "react-router-dom";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 
@@ -13,8 +12,11 @@ import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager
 // CoListeningMiniBarContent - Thanh floating điều khiển nghe chung
 // =================================================================
 
-const CoListeningMiniBarContent: React.FC = () => {
-  const dispatch = useDispatch();
+interface CoListeningMiniBarContentProps {
+  onClose: () => void;
+}
+
+const CoListeningMiniBarContent: React.FC<CoListeningMiniBarContentProps> = ({ onClose }) => {
   const activeHostUserId = useSelector(
     (state: RootState) => state.musicSession.activeHostUserId
   );
@@ -50,15 +52,6 @@ const CoListeningMiniBarContent: React.FC = () => {
     togglePlayPause();
   };
 
-  const handleLeave = () => {
-    if (globalThis.confirm("Bạn có chắc chắn muốn rời khỏi phòng nghe chung?")) {
-      if (isHost && activeHostUserId) {
-        MusicSocketManager.sendCommand(activeHostUserId, { command: "STOP_SESSION" });
-      }
-      dispatch(leaveSession());
-    }
-  };
-
   if (!session) return null;
 
   return (
@@ -84,10 +77,10 @@ const CoListeningMiniBarContent: React.FC = () => {
           </span>
         </div>
         <button
-          onClick={handleLeave}
+          onClick={onClose}
           className="text-white/60 hover:text-white transition-colors"
           onPointerDown={(e) => e.stopPropagation()}
-          title="Rời khỏi"
+          title="Ẩn thanh nghe chung"
         >
           <X className="w-4 h-4" />
         </button>
@@ -140,6 +133,8 @@ export const CoListeningMiniBar: React.FC = () => {
   );
   const location = useLocation();
   const isMusicPage = location.pathname.startsWith("/app/music");
+  const wasMusicPageRef = React.useRef(isMusicPage);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   const [position, setPosition] = useState({
     x: globalThis.innerWidth - 300,
@@ -154,9 +149,20 @@ export const CoListeningMiniBar: React.FC = () => {
     }));
   };
 
+  React.useEffect(() => {
+    setIsDismissed(false);
+  }, [activeHostUserId]);
+
+  React.useEffect(() => {
+    if (wasMusicPageRef.current && !isMusicPage) {
+      setIsDismissed(false);
+    }
+    wasMusicPageRef.current = isMusicPage;
+  }, [isMusicPage]);
+
   // Chỉ hiện khi có session VÀ KHÔNG Ở TRANG MUSIC
   // (Trong trang music đã có section ở Right Panel)
-  if (!activeHostUserId || isMusicPage) return null;
+  if (!activeHostUserId || isMusicPage || isDismissed) return null;
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
@@ -169,7 +175,7 @@ export const CoListeningMiniBar: React.FC = () => {
           zIndex: 9999,
         }}
       >
-        <CoListeningMiniBarContent />
+        <CoListeningMiniBarContent onClose={() => setIsDismissed(true)} />
       </div>
     </DndContext>
   );

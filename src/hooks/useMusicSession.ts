@@ -93,7 +93,7 @@ export function useMusicSession({
       // Khi component unmount -> thông báo rời phòng và disconnect
       // Chỉ gửi LEAVE_SESSION nếu mình là Listener, Host sẽ quản lý session qua lệnh STOP_SESSION
       const isHostNow = String(hostUserId) === String(currentUserId);
-      if (hostUserId && !isHostNow) {
+      if (hostUserId && !isHostNow && MusicSocketManager.isConnected()) {
         MusicSocketManager.sendCommand(hostUserId, { command: "LEAVE_SESSION" });
       }
       MusicSocketManager.disconnect();
