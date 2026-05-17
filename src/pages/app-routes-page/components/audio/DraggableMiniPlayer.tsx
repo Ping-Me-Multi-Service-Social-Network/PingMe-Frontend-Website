@@ -19,7 +19,6 @@ import type { Song } from "@/types/music/song";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { RootState } from "@/features/store";
-import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 import { useLocation } from "react-router-dom";
 
 interface MiniPlayerContentProps {
@@ -33,15 +32,12 @@ const MiniPlayerContent: React.FC<MiniPlayerContentProps> = ({ onClose }) => {
     playSong,
     isPlaying,
     togglePlayPause,
-    audioRef,
     volume,
     setVolume,
     repeatMode,
     cycleRepeatMode,
     playbackContext
   } = useAudio();
-  const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
-  const isCoListeningHost = useSelector((state: RootState) => state.musicSession.isHost);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: "mini-player",
@@ -53,15 +49,6 @@ const MiniPlayerContent: React.FC<MiniPlayerContentProps> = ({ onClose }) => {
   };
 
   const handlePlayPause = () => {
-    if (isCoListeningHost && activeHostUserId && currentSong) {
-      MusicSocketManager.sendCommand(activeHostUserId, {
-        command: isPlaying ? "PAUSE" : "PLAY",
-        payload: {
-          currentTrackId: currentSong.id.toString(),
-          positionMs: Math.round((audioRef.current?.currentTime ?? 0) * 1000),
-        },
-      });
-    }
     togglePlayPause();
   };
 

@@ -124,8 +124,19 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
   const togglePlayPause = useCallback(() => {
     if (isListener) return;
+
+    if (isHost && activeHostUserId && currentSong) {
+      MusicSocketManager.sendCommand(activeHostUserId, {
+        command: isPlaying ? "PAUSE" : "PLAY",
+        payload: {
+          currentTrackId: currentSong.id.toString(),
+          positionMs: Math.round((audioRef.current?.currentTime ?? 0) * 1000),
+        },
+      });
+    }
+
     dispatch(togglePlayPauseAction());
-  }, [dispatch, isListener]);
+  }, [activeHostUserId, currentSong, dispatch, isHost, isListener, isPlaying]);
 
   const seekTo = useCallback((time: number) => {
     if (isListener) return;

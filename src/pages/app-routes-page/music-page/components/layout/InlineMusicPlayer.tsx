@@ -288,15 +288,6 @@ const InlineMusicPlayer: React.FC = () => {
 
     const handlePlayPause = () => {
         if (isListener) return;
-        if (isCoListeningHost && activeHostUserId && currentSong) {
-            MusicSocketManager.sendCommand(activeHostUserId, {
-                command: isPlaying ? "PAUSE" : "PLAY",
-                payload: {
-                    currentTrackId: currentSong.id.toString(),
-                    positionMs: Math.round((audioRef.current?.currentTime ?? currentTime) * 1000),
-                },
-            });
-        }
         togglePlayPause();
     };
 
