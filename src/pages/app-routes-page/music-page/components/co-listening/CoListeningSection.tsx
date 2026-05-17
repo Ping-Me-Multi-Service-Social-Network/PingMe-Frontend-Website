@@ -13,6 +13,20 @@ import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager
 import { lookupByIdApi } from "@/services/user/userLookupApi";
 import type { UserSummarySimpleResponse } from "@/types/common/userSummarySimpleResponse";
 
+// Helper function to fetch missing user profiles, keeping function nesting clean
+async function fetchUserProfiles(ids: string[]): Promise<(UserSummarySimpleResponse | null)[]> {
+  return Promise.all(
+    ids.map(async (id) => {
+      try {
+        const res = await lookupByIdApi(Number(id));
+        return res.data?.data ?? null;
+      } catch {
+        return null;
+      }
+    })
+  );
+}
+
 // =================================================================
 // CoListeningSection - Nội dung tab "Nghe chung" trong Right Panel
 // =================================================================
@@ -56,22 +70,17 @@ export default function CoListeningSection() {
 
     let cancelled = false;
 
-    Promise.all(
-      missingIds.map((id) =>
-        lookupByIdApi(Number(id))
-          .then((res) => res.data?.data)
-          .catch(() => null)
-      )
-    ).then((profiles) => {
+    fetchUserProfiles(missingIds).then((profiles) => {
       if (cancelled) return;
+
+      const validProfiles = profiles.filter((p): p is UserSummarySimpleResponse => p !== null);
+      if (validProfiles.length === 0) return;
 
       setUsersById((prev) => {
         const next = { ...prev };
-        profiles.forEach((profile) => {
-          if (profile) {
-            next[String(profile.id)] = profile;
-          }
-        });
+        for (const profile of validProfiles) {
+          next[String(profile.id)] = profile;
+        }
         return next;
       });
     });
@@ -245,7 +254,6 @@ export default function CoListeningSection() {
           open={showShareModal}
           onOpenChange={setShowShareModal}
           sessionId={activeHostUserId}
-          hostUserId={activeHostUserId}
         />
       )}
     </>

@@ -127,9 +127,10 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
             <>
               {/* Share Link */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-zinc-300">Share Link</label>
+                <label htmlFor="share-link-input" className="block text-sm font-medium text-zinc-300">Share Link</label>
                 <div className="flex gap-2">
                   <input
+                    id="share-link-input"
                     type="text"
                     value={shareData.shareLink}
                     readOnly
@@ -148,9 +149,10 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
 
               {/* Token */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-zinc-300">Token</label>
+                <label htmlFor="token-input" className="block text-sm font-medium text-zinc-300">Token</label>
                 <div className="flex gap-2">
                   <input
+                    id="token-input"
                     type="password"
                     value={shareData.token}
                     readOnly
@@ -169,7 +171,7 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
 
               {/* Quick Share Options */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-zinc-300">Share Via</label>
+                <span className="block text-sm font-medium text-zinc-300">Share Via</span>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"

@@ -352,6 +352,39 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
 
 
+    const handlePlaylistNext = (current: Song) => {
+      const currentIndex = playlist.findIndex((song) => song.id === current.id);
+      if (currentIndex < 0) {
+        dispatch(setIsPlaying(false));
+        return;
+      }
+
+      if (repeatMode === "off" && currentIndex === playlist.length - 1) {
+        dispatch(setIsPlaying(false));
+        return;
+      }
+
+      const nextIndex = (currentIndex + 1) % playlist.length;
+      const nextSong = playlist[nextIndex];
+
+      if (!nextSong?.songUrl || nextSong.songUrl.trim() === "") {
+        dispatch(setIsPlaying(false));
+        return;
+      }
+
+      // Gửi lệnh cho Listener nếu mình là Host và tự động chuyển bài
+      if (isHost && activeHostUserId) {
+        MusicSocketManager.sendCommand(activeHostUserId, {
+          command: "PLAY",
+          payload: { currentTrackId: nextSong.id.toString(), positionMs: 0 },
+        });
+      }
+
+      playCountTrackedRef.current.delete(nextSong.id);
+      albumPlayCountTrackedRef.current.delete(nextSong.id);
+      dispatch(playSongAction({ song: nextSong, context: playbackContext }));
+    };
+
     const handleEnded = () => {
       // Logic đặc biệt cho nghe chung: Nếu host đã thoát (EndingAfterCurrentTrack = true)
       // thì khi hết bài này, listener cũng tự động rời phòng.
@@ -367,41 +400,9 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       if (repeatMode === "one") {
         return;
       }
+
       if (currentSong && playlist.length > 0) {
-        const currentIndex = playlist.findIndex(
-          (song) => song.id === currentSong.id
-        );
-
-        if (currentIndex < 0) {
-          dispatch(setIsPlaying(false));
-          return;
-        }
-
-        if (repeatMode === "off" && currentIndex === playlist.length - 1) {
-          // Stop playback at the end of the playlist when repeat is off
-          dispatch(setIsPlaying(false));
-          return;
-        }
-
-        const nextIndex = (currentIndex + 1) % playlist.length;
-        const nextSong = playlist[nextIndex];
-
-        if (!nextSong?.songUrl || nextSong.songUrl.trim() === "") {
-          dispatch(setIsPlaying(false));
-          return;
-        }
-
-        // Gửi lệnh cho Listener nếu mình là Host và tự động chuyển bài
-        if (isHost && activeHostUserId) {
-          MusicSocketManager.sendCommand(activeHostUserId, {
-            command: "PLAY",
-            payload: { currentTrackId: nextSong.id.toString(), positionMs: 0 },
-          });
-        }
-
-        playCountTrackedRef.current.delete(nextSong.id);
-        albumPlayCountTrackedRef.current.delete(nextSong.id);
-        dispatch(playSongAction({ song: nextSong, context: playbackContext })); // This sets isPlaying=true
+        handlePlaylistNext(currentSong);
       } else {
         dispatch(setIsPlaying(false));
       }

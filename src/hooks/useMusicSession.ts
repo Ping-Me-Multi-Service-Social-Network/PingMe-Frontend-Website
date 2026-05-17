@@ -191,7 +191,7 @@ export function useMusicSession({
   // =================================================================
 
   const getCalculatedPositionMs = useCallback((): number => {
-    if (!session || !session.isPlaying) {
+    if (!session?.isPlaying) {
       return session?.positionMs ?? 0;
     }
     // Tính thời gian đã trôi qua kể từ lúc server bắt đầu phát
