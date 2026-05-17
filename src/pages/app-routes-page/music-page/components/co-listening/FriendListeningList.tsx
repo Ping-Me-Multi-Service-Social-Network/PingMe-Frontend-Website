@@ -25,7 +25,7 @@ export function FriendListeningList() {
   const friendSessionsByHostId = useSelector(
     (state: RootState) => state.musicSession.friendSessionsByHostId ?? {}
   );
-  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL as string;
+  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
   const [friendsById, setFriendsById] = useState<Record<string, FriendInfo>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -116,12 +116,12 @@ export function FriendListeningList() {
         const displayName = friend?.name ?? `Người dùng ${session.hostUserId.slice(-4)}`;
 
         return (
-          <div
+          <button
             key={session.hostUserId}
-            className="group flex flex-col gap-3 p-3 rounded-xl bg-zinc-800/40 hover:bg-zinc-800/80 transition-colors border border-zinc-700/50 hover:border-purple-500/30 cursor-pointer"
+            className="w-full text-left group flex flex-col gap-3 p-3 rounded-xl bg-zinc-800/40 hover:bg-zinc-800/80 transition-colors border border-zinc-700/50 hover:border-purple-500/30 cursor-pointer"
             onClick={() => handleJoin(session.hostUserId)}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2.5">
                 <Avatar className="w-8 h-8 ring-2 ring-purple-500/20">
                   <AvatarImage src={friend?.avatarUrl || undefined} />
@@ -134,14 +134,14 @@ export function FriendListeningList() {
                   </p>
                 </div>
               </div>
-
+ 
               <div className="flex items-center gap-1 text-[10px] font-medium text-zinc-400 bg-zinc-900/50 px-2 py-1 rounded-full">
                 <UsersRound className="w-3 h-3" />
                 {session.listenerCount}
               </div>
             </div>
-
-            <div className="flex items-center gap-3 bg-zinc-900/50 p-2.5 rounded-lg">
+ 
+            <div className="flex items-center gap-3 bg-zinc-900/50 p-2.5 rounded-lg w-full">
               {session.track.coverImageUrl ? (
                 <img
                   src={session.track.coverImageUrl}
@@ -161,11 +161,11 @@ export function FriendListeningList() {
                   {session.track.artistName ?? "Unknown Artist"}
                 </p>
               </div>
-              <button className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-md shadow-md">
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-md shadow-md">
                 Tham gia
-              </button>
+              </span>
             </div>
-          </div>
+          </button>
         );
       })}
     </div>

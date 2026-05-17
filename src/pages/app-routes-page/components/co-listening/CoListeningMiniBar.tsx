@@ -51,7 +51,7 @@ const CoListeningMiniBarContent: React.FC = () => {
   };
 
   const handleLeave = () => {
-    if (window.confirm("Bạn có chắc chắn muốn rời khỏi phòng nghe chung?")) {
+    if (globalThis.confirm("Bạn có chắc chắn muốn rời khỏi phòng nghe chung?")) {
       if (isHost && activeHostUserId) {
         MusicSocketManager.sendCommand(activeHostUserId, { command: "STOP_SESSION" });
       }

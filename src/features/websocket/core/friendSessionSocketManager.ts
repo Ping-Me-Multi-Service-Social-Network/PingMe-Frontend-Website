@@ -1,6 +1,6 @@
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
-import type { FriendSessionSummary, MusicSessionEventMessage } from "@/types/music/musicSession";
+import type { FriendSessionSummary, MusicSessionEventType } from "@/types/music/musicSession";
 import {
   friendSessionRemoved,
   friendSessionUpserted,
@@ -8,6 +8,7 @@ import {
 
 interface FriendSessionSocketOptions {
   baseUrl: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: (action: any) => void;
 }
 
@@ -74,9 +75,28 @@ class FriendSessionSocketManagerClass {
   }
 
   private handleMessage(message: IMessage): void {
-    let envelope: MusicSessionEventMessage;
+    let envelope:
+      | {
+        eventType: "FRIEND_SESSION_STARTED" | "FRIEND_SESSION_UPDATED";
+        data: FriendSessionSummary;
+        serverTimeMs: number;
+      }
+      | {
+        eventType: "FRIEND_SESSION_ENDED";
+        data: { hostUserId?: string };
+        serverTimeMs: number;
+      }
+      | {
+        eventType: Exclude<
+          MusicSessionEventType,
+          "FRIEND_SESSION_STARTED" | "FRIEND_SESSION_UPDATED" | "FRIEND_SESSION_ENDED"
+        >;
+        data: unknown;
+        serverTimeMs: number;
+      };
+
     try {
-      envelope = JSON.parse(message.body) as MusicSessionEventMessage;
+      envelope = JSON.parse(message.body) as typeof envelope;
     } catch (err) {
       console.warn("[FriendSessionWS] Invalid payload:", err);
       return;
@@ -85,10 +105,10 @@ class FriendSessionSocketManagerClass {
     switch (envelope.eventType) {
       case "FRIEND_SESSION_STARTED":
       case "FRIEND_SESSION_UPDATED":
-        this.options?.dispatch(friendSessionUpserted(envelope.data as FriendSessionSummary));
+        this.options?.dispatch(friendSessionUpserted(envelope.data));
         break;
       case "FRIEND_SESSION_ENDED": {
-        const hostUserId = (envelope.data as { hostUserId?: string })?.hostUserId;
+        const hostUserId = envelope.data?.hostUserId;
         if (hostUserId) {
           this.options?.dispatch(friendSessionRemoved(hostUserId));
         }
@@ -99,5 +119,4 @@ class FriendSessionSocketManagerClass {
     }
   }
 }
-
 export const FriendSessionSocketManager = new FriendSessionSocketManagerClass();
