@@ -14,6 +14,8 @@ import type { RepeatMode, PlaybackContext } from "@/features/music/audioPlayerSl
 import { songService } from "@/services/music/musicService";
 import { albumApi } from "@/services/music/albumApi";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
+import { leaveSession } from "@/features/music/musicSessionSlice";
+import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 import {
   setCurrentSong,
   setIsPlaying,
@@ -34,7 +36,7 @@ export interface AudioPlayerContextType {
   volume: number;
   repeatMode: RepeatMode;
   playbackContext: PlaybackContext;
-  playSong: (song: Song, context?: PlaybackContext) => void;
+  playSong: (song: Song, context?: PlaybackContext, options?: { force?: boolean; syncSession?: boolean }) => void;
   togglePlayPause: () => void;
   seekTo: (time: number) => void;
   setVolume: (volume: number) => void;
@@ -58,8 +60,12 @@ const trackSongPlayCount = (songId: number) => {
 };
 
 const trackAlbumPlayCount = (song: Song) => {
-  if (!song.album || song.album.length === 0) return;
-  for (const album of song.album) {
+  if (!song.album) return;
+  const albums = Array.isArray(song.album) ? song.album : [song.album];
+  if (albums.length === 0) return;
+  
+  for (const album of albums) {
+    if (!album?.id) continue;
     albumApi.incrementPlayCount(album.id).catch((error) => {
       console.error("[PingMe] Failed to increase album play count:", error);
     });
@@ -75,16 +81,19 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
   const dispatch = useAppDispatch();
   const { currentSong, isPlaying, playlist, volume, repeatMode, playbackContext = { type: null, id: null } } =
     useAppSelector((state) => state.audioPlayer);
+  const { activeHostUserId, isHost, session } = useAppSelector((state) => state.musicSession);
+  const isListener = !!activeHostUserId && !isHost;
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playCountTrackedRef = useRef<Set<number>>(new Set());
   const albumPlayCountTrackedRef = useRef<Set<number>>(new Set());
+  const lastSyncedTrackIdRef = useRef<string | null>(null);
 
   // --- ACTIONS ---
 
   const playSong = useCallback(
-    (song: Song, context?: PlaybackContext) => {
+    (song: Song, context?: PlaybackContext, options?: { force?: boolean; syncSession?: boolean }) => {
       if (!song.songUrl || song.songUrl.trim() === "") {
         console.error(
           "[PingMe] Cannot play song: Invalid or missing songUrl",
@@ -92,22 +101,38 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
         );
         return;
       }
+      
+      // Chặn nếu là Listener đang tự bấm đổi bài (không có cờ force)
+      if (isListener && !options?.force) {
+        console.warn("[PingMe] Listener cannot change song during co-listening");
+        return;
+      }
+
       playCountTrackedRef.current.delete(song.id);
       albumPlayCountTrackedRef.current.delete(song.id);
       dispatch(playSongAction({ song, context }));
+
+      if (isHost && activeHostUserId && options?.syncSession !== false) {
+        MusicSocketManager.sendCommand(activeHostUserId, {
+          command: "PLAY",
+          payload: { currentTrackId: song.id.toString(), positionMs: 0 },
+        });
+      }
     },
-    [dispatch]
+    [activeHostUserId, dispatch, isHost, isListener]
   );
 
   const togglePlayPause = useCallback(() => {
+    if (isListener) return;
     dispatch(togglePlayPauseAction());
-  }, [dispatch]);
+  }, [dispatch, isListener]);
 
   const seekTo = useCallback((time: number) => {
+    if (isListener) return;
     if (audioRef.current) {
       audioRef.current.currentTime = time;
     }
-  }, []);
+  }, [isListener]);
 
   const setVolumeValue = useCallback(
     (newVolume: number) => {
@@ -147,6 +172,117 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     },
     [dispatch]
   );
+
+  // --- CO-LISTENING SYNC LOGIC ---
+
+  // 1. Sync Song
+  useEffect(() => {
+    if (!isListener || !session?.currentTrackId) return;
+
+    const trackId = String(session.currentTrackId);
+    if (!currentSong || String(currentSong.id) !== trackId) {
+      console.log("[MusicSync] Host changed song to:", trackId);
+      
+      // Reset audio state safely
+      if (audioRef.current) {
+        try {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0; // ÉP BUỘC quay về 0 ngay lập tức
+          audioRef.current.load(); 
+        } catch (e) {
+          console.warn("[MusicSync] Error resetting audio:", e);
+        }
+      }
+
+      songService.getById(Number(trackId))
+        .then((res) => {
+          if (res.data) {
+            const songData = res.data as any;
+            playCountTrackedRef.current.delete(songData.id);
+            albumPlayCountTrackedRef.current.delete(songData.id);
+            dispatch(setCurrentSong(songData));
+            dispatch(setPlaybackContextAction({ type: "co-listening", id: session.hostUserId }));
+          }
+        })
+        .catch(err => {
+          console.error("[MusicSync] Failed to fetch host song:", err);
+        });
+    }
+  }, [dispatch, isListener, session?.currentTrackId, currentSong?.id, session?.hostUserId]);
+
+  // 2. Sync Play/Pause
+  useEffect(() => {
+    if (!isListener || !session) return;
+    
+    // Chỉ sync play/pause nếu đã khớp bài
+    if (!currentSong || String(currentSong.id) !== String(session.currentTrackId)) return;
+
+    if (session.isPlaying !== isPlaying) {
+      console.log("[MusicSync] Host toggled play/pause:", session.isPlaying);
+      dispatch(setIsPlaying(session.isPlaying));
+    }
+  }, [isListener, session?.isPlaying, session?.currentTrackId, currentSong?.id, isPlaying, dispatch]);
+
+  // 3. Sync Position (Seek)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!isListener || !session || !audio) return;
+
+    const syncPosition = () => {
+      if (!audio.paused && !session.isPlaying) {
+        audio.pause();
+      }
+
+      // CHỈ đồng bộ nếu bài hát hiện tại đã khớp với Host
+      if (!currentSong || String(currentSong.id) !== String(session.currentTrackId)) {
+        return;
+      }
+
+      let targetTime = session.positionMs / 1000;
+      if (session.isPlaying) {
+        // Sử dụng startedAtEpochMs để tính toán
+        // Nếu targetTime > 0 (Host đã phát một lúc) thì mới tính drift
+        const elapsed = (Date.now() - session.startedAtEpochMs) / 1000;
+        
+        // Nếu elapsed quá lớn hoặc âm (lệch đồng hồ), ta sẽ giới hạn nó
+        // Hoặc nếu mới chuyển bài (positionMs == 0), ta ưu tiên phát từ đầu
+        if (session.positionMs === 0 && Math.abs(elapsed) > 300) {
+           // Lệch đồng hồ quá nặng (> 5 phút), coi như mới bắt đầu
+           targetTime = 0;
+        } else {
+           targetTime += elapsed;
+        }
+      }
+
+      // Log để debug
+      console.log(`[MusicSync] Target: ${targetTime.toFixed(2)}s, Current: ${audio.currentTime.toFixed(2)}s, SessionPos: ${session.positionMs}ms`);
+
+      if (targetTime < 0) targetTime = 0;
+
+      // Ngưỡng sai số 1 giây để khớp hơn
+      if (Math.abs(audio.currentTime - targetTime) > 2.0) {
+        console.log("[MusicSync] Seeking to:", targetTime);
+        audio.currentTime = targetTime;
+      }
+    };
+
+    // Khi state từ server thay đổi -> sync ngay
+    syncPosition();
+
+    // Logic "Ép" đồng bộ khi vừa đổi bài (trong 2 giây đầu)
+    lastSyncedTrackIdRef.current = String(session.currentTrackId);
+
+    const handleCanPlay = () => {
+        console.log("[MusicSync] Can play now, performing final sync");
+        syncPosition();
+    };
+
+    audio.addEventListener("canplay", handleCanPlay);
+    return () => {
+        audio.removeEventListener("canplay", handleCanPlay);
+    };
+
+  }, [isListener, session?.version, session?.currentTrackId, currentSong?.id]);
 
   // --- EFFECTS ---
 
@@ -217,15 +353,29 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
 
     const handleEnded = () => {
-      if (repeatMode === "one") {
-        // Loop is handled by audio.loop = true, but if needed we can force play
+      // Logic đặc biệt cho nghe chung: Nếu host đã thoát (EndingAfterCurrentTrack = true)
+      // thì khi hết bài này, listener cũng tự động rời phòng.
+      if (isListener && session?.isEndingAfterCurrentTrack) {
+        console.log("[MusicSync] Session is ending after this track. Leaving...");
+        dispatch(setIsPlaying(false));
+        dispatch(setCurrentSong(null));
+        MusicSocketManager.disconnect();
+        dispatch(leaveSession());
         return;
       }
-      
+
+      if (repeatMode === "one") {
+        return;
+      }
       if (currentSong && playlist.length > 0) {
         const currentIndex = playlist.findIndex(
           (song) => song.id === currentSong.id
         );
+
+        if (currentIndex < 0) {
+          dispatch(setIsPlaying(false));
+          return;
+        }
 
         if (repeatMode === "off" && currentIndex === playlist.length - 1) {
           // Stop playback at the end of the playlist when repeat is off
@@ -239,6 +389,14 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
         if (!nextSong?.songUrl || nextSong.songUrl.trim() === "") {
           dispatch(setIsPlaying(false));
           return;
+        }
+
+        // Gửi lệnh cho Listener nếu mình là Host và tự động chuyển bài
+        if (isHost && activeHostUserId) {
+          MusicSocketManager.sendCommand(activeHostUserId, {
+            command: "PLAY",
+            payload: { currentTrackId: nextSong.id.toString(), positionMs: 0 },
+          });
         }
 
         playCountTrackedRef.current.delete(nextSong.id);
@@ -267,7 +425,17 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
     };
-  }, [currentSong, playlist, repeatMode, playbackContext, dispatch]);
+  }, [
+    activeHostUserId,
+    currentSong,
+    dispatch,
+    isHost,
+    isListener,
+    playbackContext,
+    playlist,
+    repeatMode,
+    session?.isEndingAfterCurrentTrack,
+  ]);
 
   const contextValue = useMemo(
     () => ({

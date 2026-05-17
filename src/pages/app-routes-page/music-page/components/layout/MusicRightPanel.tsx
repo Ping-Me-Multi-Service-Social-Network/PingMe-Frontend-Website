@@ -1,9 +1,10 @@
 import { useAudio, useAudioTime } from "@/hooks/useAudio.tsx";
 import { useState } from "react";
-import { Heart, MoreVertical, Music2, Disc3, User2, Clock3, Radio } from "lucide-react";
+import { Heart, MoreVertical, Music2, Disc3, User2, Clock3 } from "lucide-react";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
 import { useTranslation } from "react-i18next";
 import { useFavorites } from "@/hooks/useFavorites";
+import CoListeningSection from "../co-listening/CoListeningSection";
 
 function formatDuration(seconds: number): string {
     if (!seconds || Number.isNaN(seconds)) return "0:00";
@@ -20,6 +21,7 @@ export default function MusicRightPanel() {
     const isFavorite = currentSong ? checkFavorite(currentSong.id) : false;
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
+    const [activeTab, setActiveTab] = useState<"playing" | "colistening">("playing");
 
     const [prevSongId, setPrevSongId] = useState(currentSong?.id);
     if (currentSong?.id !== prevSongId) {
@@ -293,15 +295,31 @@ export default function MusicRightPanel() {
         >
             {/* Panel Header */}
             <div className="px-5 pt-5 pb-3">
-                <div className="flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-purple-400" />
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                        {t("sidebar.nowPlaying") || "Đang phát"}
-                    </span>
+                <div className="flex bg-zinc-800/50 p-1 rounded-lg">
+                    <button
+                        onClick={() => setActiveTab("playing")}
+                        className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                            activeTab === "playing"
+                                ? "bg-zinc-700/80 text-white shadow"
+                                : "text-zinc-400 hover:text-zinc-200"
+                        }`}
+                    >
+                        Đang phát
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("colistening")}
+                        className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                            activeTab === "colistening"
+                                ? "bg-zinc-700/80 text-white shadow"
+                                : "text-zinc-400 hover:text-zinc-200"
+                        }`}
+                    >
+                        Nghe chung
+                    </button>
                 </div>
             </div>
 
-            {contentNode}
+            {activeTab === "playing" ? contentNode : <CoListeningSection />}
         </aside>
     );
 }

@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 export default function AlbumsPage() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { playSong } = useAudio();
+    const { playSong, setPlaylist } = useAudio();
     const { allAlbums, cacheExpiry } = useAppSelector(state => state.music);
     const [albumSongs, setAlbumSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);
@@ -74,6 +74,11 @@ export default function AlbumsPage() {
     };
 
     const handleSongPlay = (song: SongResponseWithAllAlbum) => {
+        setPlaylist(
+            Array.from(albumSongs.values())
+                .flat()
+                .map(convertToSong)
+        );
         playSong(convertToSong(song));
     };
 

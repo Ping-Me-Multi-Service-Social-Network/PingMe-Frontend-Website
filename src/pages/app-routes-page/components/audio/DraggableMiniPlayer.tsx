@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useAudio } from "@/hooks/useAudio.tsx";
 import {
   Music2,
@@ -17,6 +18,8 @@ import {
 import type { Song } from "@/types/music/song";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import type { RootState } from "@/features/store";
+import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 
 const MiniPlayerContent: React.FC = () => {
   const {
@@ -34,6 +37,8 @@ const MiniPlayerContent: React.FC = () => {
     setIsPlaying,
     playbackContext
   } = useAudio();
+  const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
+  const isCoListeningHost = useSelector((state: RootState) => state.musicSession.isHost);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: "mini-player",
@@ -45,6 +50,15 @@ const MiniPlayerContent: React.FC = () => {
   };
 
   const handlePlayPause = () => {
+    if (isCoListeningHost && activeHostUserId && currentSong) {
+      MusicSocketManager.sendCommand(activeHostUserId, {
+        command: isPlaying ? "PAUSE" : "PLAY",
+        payload: {
+          currentTrackId: currentSong.id.toString(),
+          positionMs: Math.round((audioRef.current?.currentTime ?? 0) * 1000),
+        },
+      });
+    }
     togglePlayPause();
   };
 
@@ -54,7 +68,8 @@ const MiniPlayerContent: React.FC = () => {
       (song: Song) => song.id === currentSong.id
     );
     const nextIndex = (currentIndex + 1) % playlist.length;
-    playSong(playlist[nextIndex], playbackContext);
+    const nextSong = playlist[nextIndex];
+    playSong(nextSong, playbackContext);
   };
 
   const handlePrevious = () => {
@@ -64,12 +79,16 @@ const MiniPlayerContent: React.FC = () => {
     );
     const prevIndex =
       currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
-    playSong(playlist[prevIndex], playbackContext);
+    const previousSong = playlist[prevIndex];
+    playSong(previousSong, playbackContext);
   };
 
   const handleClose = () => {
     if (audioRef.current) {
       audioRef.current.pause();
+    }
+    if (isCoListeningHost && activeHostUserId) {
+      MusicSocketManager.sendCommand(activeHostUserId, { command: "STOP_SESSION" });
     }
     setIsPlaying(false);
     setCurrentSong(null);
@@ -168,10 +187,10 @@ const MiniPlayerContent: React.FC = () => {
               }`}
             title={
               repeatMode === "off"
-                ? "Enable repeat all"
-                : repeatMode === "all"
-                  ? "Enable repeat one"
-                  : "Disable repeat"
+              ? "Enable repeat all"
+              : repeatMode === "all"
+                ? "Enable repeat one"
+                : "Disable repeat"
             }
           >
             {repeatMode === "one" ? (
@@ -215,6 +234,9 @@ const MiniPlayerContent: React.FC = () => {
 
 const DraggableMiniPlayer: React.FC = () => {
   const { currentSong } = useAudio();
+  const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
+  const isHost = useSelector((state: RootState) => state.musicSession.isHost);
+
   const [position, setPosition] = useState({
     x: globalThis.innerWidth - 320,
     y: globalThis.innerHeight - 140,
@@ -228,7 +250,9 @@ const DraggableMiniPlayer: React.FC = () => {
     }));
   };
 
-  if (!currentSong) return null;
+  // Nếu đang nghe chung với tư cách là Listener -> Ẩn mini player thường này đi
+  // (Listener sẽ dùng CoListeningMiniBar)
+  if (!currentSong || (activeHostUserId && !isHost)) return null;
 
   return (
     <DndContext onDragEnd={handleDragEnd}>

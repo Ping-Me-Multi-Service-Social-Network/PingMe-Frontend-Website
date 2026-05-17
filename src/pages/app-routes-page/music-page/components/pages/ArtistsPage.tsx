@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 export default function ArtistsPage() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { playSong } = useAudio();
+    const { playSong, setPlaylist } = useAudio();
     const { allArtists, cacheExpiry } = useAppSelector(state => state.music);
     const [artistSongs, setArtistSongs] = useState<Map<number, SongResponseWithAllAlbum[]>>(new Map());
     const [loading, setLoading] = useState(true);
@@ -73,6 +73,11 @@ export default function ArtistsPage() {
     };
 
     const handleSongPlay = (song: SongResponseWithAllAlbum) => {
+        setPlaylist(
+            Array.from(artistSongs.values())
+                .flat()
+                .map(convertToSong)
+        );
         playSong(convertToSong(song));
     };
 

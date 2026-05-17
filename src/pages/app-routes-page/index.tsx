@@ -13,6 +13,9 @@ const CallProvider = lazy(() =>
     default: module.CallProvider,
   }))
 );
+import { CoListeningProvider } from "./components/co-listening/CoListeningProvider";
+import { CoListeningMiniBar } from "./components/co-listening/CoListeningMiniBar";
+
 export default function AppPageLayout() {
   const location = useLocation();
 
@@ -58,6 +61,8 @@ export default function AppPageLayout() {
     <AudioPlayerProvider>
       <Suspense fallback={<AppLoader />}>
         <CallProvider>
+          <CoListeningProvider>
+
           <div
             className={`h-screen bg-gray-100 flex overflow-hidden ${!isMusicPage && isTransitioning ? "light-module-enter" : ""
               }`}
@@ -85,7 +90,9 @@ export default function AppPageLayout() {
             </div>
 
             {!isMusicPage && <DraggableMiniPlayer />}
+            <CoListeningMiniBar />
           </div>
+          </CoListeningProvider>
         </CallProvider>
       </Suspense>
     </AudioPlayerProvider>
