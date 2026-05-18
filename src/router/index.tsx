@@ -80,6 +80,10 @@ const DiscoverPlaylistsPage = lazy(
   () =>
     import("@/pages/app-routes-page/music-page/components/pages/DiscoverPlaylistsPage"),
 );
+const MusicGuessPage = lazy(
+  () =>
+    import("@/pages/app-routes-page/music-page/components/pages/MusicGuessPage"),
+);
 
 // ===========================================================
 // APP PAGES - Reels
@@ -351,6 +355,14 @@ export const router = createBrowserRouter([
             element: (
               <LazyElement>
                 <PlaylistDetailPage />
+              </LazyElement>
+            ),
+          },
+          {
+            path: "guess",
+            element: (
+              <LazyElement>
+                <MusicGuessPage />
               </LazyElement>
             ),
           },

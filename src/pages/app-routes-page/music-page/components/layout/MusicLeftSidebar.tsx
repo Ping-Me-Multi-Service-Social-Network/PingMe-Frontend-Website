@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Plus, Music, Heart, ListMusic, ChevronRight, Lock, Globe, Loader2, Library, Compass } from "lucide-react";
+import { Plus, Music, Heart, ListMusic, ChevronRight, Lock, Globe, Loader2, Library, Compass, Trophy } from "lucide-react";
 import { playlistApi } from "@/services/music/playlistApi.ts";
 import type { PlaylistDto } from "@/types/music/playlist.ts";
 import CreatePlaylistDialog from "../dialogs/CreatePlaylistDialog";
@@ -76,6 +76,16 @@ export default function MusicLeftSidebar() {
             classes += "bg-gradient-to-br from-green-500 to-teal-600";
         } else {
             classes += "bg-gradient-to-br from-green-600/70 to-teal-700/70 group-hover:from-green-500 group-hover:to-teal-600";
+        }
+        return classes;
+    };
+
+    const getGuessIconBoxClasses = (path: string) => {
+        let classes = "w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center shadow-lg ";
+        if (isActive(path)) {
+            classes += "bg-gradient-to-br from-amber-400 to-rose-500";
+        } else {
+            classes += "bg-gradient-to-br from-amber-500/80 to-rose-600/80 group-hover:from-amber-400 group-hover:to-rose-500";
         }
         return classes;
     };
@@ -165,7 +175,7 @@ export default function MusicLeftSidebar() {
                 {/* View all playlists */}
                 <button
                     onClick={() => navigate("/app/music/playlists")}
-                    className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-zinc-500 hover:text-purple-400 transition-colors text-xs font-medium mt-1"
+                    className="w-full flex items-center gap-2 p-2 rounded-lg text-zinc-500 hover:text-purple-400 transition-colors text-xs font-medium mt-1"
                 >
                     <ChevronRight className="w-3.5 h-3.5" />
                     {t("sidebar.viewAllPlaylists") || "Xem tất cả"}
@@ -261,6 +271,23 @@ export default function MusicLeftSidebar() {
                         </p>
                         <p className="text-xs text-zinc-500 truncate">
                             {t("home.quickLinks.discoverDesc") || "Cộng đồng chia sẻ"}
+                        </p>
+                    </div>
+                </button>
+
+                <button
+                    onClick={() => navigate("/app/music/guess")}
+                    className={getBtnContainerClasses("/app/music/guess")}
+                >
+                    <div className={getGuessIconBoxClasses("/app/music/guess")}>
+                        <Trophy className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                        <p className={`text-sm font-semibold truncate ${getTextColor("/app/music/guess")}`}>
+                            Đoán âm nhạc
+                        </p>
+                        <p className="text-xs text-zinc-500 truncate">
+                            Solo & phòng đấu
                         </p>
                     </div>
                 </button>
