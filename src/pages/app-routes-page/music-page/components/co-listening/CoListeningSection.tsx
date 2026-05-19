@@ -162,7 +162,7 @@ export default function CoListeningSection() {
           onClick={handleStartSession}
           disabled={!currentSong}
           className="w-full bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/20"
-          title={!currentSong ? "Hãy phát một bài hát ở tab Đang phát trước." : undefined}
+          title={currentSong ? undefined : "Hãy phát một bài hát ở tab Đang phát trước."}
         >
           <PlayCircle className="w-4 h-4 mr-2" />
           Bắt đầu làm Host
