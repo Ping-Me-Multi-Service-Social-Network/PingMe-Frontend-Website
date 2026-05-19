@@ -54,9 +54,25 @@ const SongInfoSection: React.FC<{
     isFavorite: boolean;
     onToggleFavorite: () => void;
 }> = ({ currentSong, isFavorite, onToggleFavorite }) => {
-    const featuredArtistsText = currentSong.featuredArtists?.length
-        ? `, ${currentSong.featuredArtists.map((a) => a.name).join(", ")}`
-        : "";
+    let featuredArtistsText = "";
+    if (currentSong.featuredArtists && currentSong.featuredArtists.length > 0) {
+        featuredArtistsText = `, ${currentSong.featuredArtists.map((a) => a.name).join(", ")}`;
+    }
+
+    let favBtnClass = "text-zinc-500 hover:text-white";
+    if (isFavorite) {
+        favBtnClass = "text-pink-400";
+    }
+
+    let heartIconClass = "";
+    if (isFavorite) {
+        heartIconClass = "fill-current";
+    }
+
+    let favoriteLabel = "Thêm vào thư viện";
+    if (isFavorite) {
+        favoriteLabel = "Xóa khỏi thư viện";
+    }
 
     return (
         <div className="flex items-center gap-3 min-w-0 flex-1 sm:flex-none">
@@ -72,10 +88,13 @@ const SongInfoSection: React.FC<{
                 </p>
             </div>
             <button
+                type="button"
                 onClick={onToggleFavorite}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 ${isFavorite ? "text-pink-400" : "text-zinc-500 hover:text-white"}`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${favBtnClass}`}
+                title={favoriteLabel}
+                aria-label={favoriteLabel}
             >
-                <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
+                <Heart className={`w-4 h-4 ${heartIconClass}`} />
             </button>
         </div>
     );
@@ -110,62 +129,121 @@ const PlayerControlsSection: React.FC<{
 }) => {
     const repeatConfig = REPEAT_CONFIG[repeatMode] || REPEAT_CONFIG.off;
     const RepeatIcon = repeatConfig.Icon;
-    const PlayPauseIcon = isPlaying ? Pause : Play;
+    
+    let PlayPauseIcon = Play;
+    if (isPlaying) {
+        PlayPauseIcon = Pause;
+    }
+
+    let repeatTitle: string = repeatConfig.title;
+    if (isListener) {
+        repeatTitle = "Chế độ người nghe";
+    }
+
+    let repeatBtnClass = `${repeatConfig.color} cursor-pointer`;
+    if (isListener) {
+        repeatBtnClass = "text-zinc-800 cursor-not-allowed";
+    }
+
+    let prevTitle = "Bài trước";
+    if (isListener) {
+        prevTitle = "Chế độ người nghe";
+    }
+
+    let prevBtnClass = "text-zinc-400 hover:text-white";
+    if (isListener) {
+        prevBtnClass = "text-zinc-800 cursor-not-allowed";
+    }
+
+    let playPauseBtnClass =
+        "bg-gradient-to-br from-purple-600 to-fuchsia-600 hover:scale-105 shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white";
+    if (isListener) {
+        playPauseBtnClass = "bg-zinc-800/50 text-zinc-600 cursor-not-allowed";
+    }
+
+    let playPauseIconClass = "ml-0.5";
+    if (isPlaying) {
+        playPauseIconClass = "";
+    }
+
+    let nextTitle = "Bài tiếp theo";
+    if (isListener) {
+        nextTitle = "Chế độ người nghe";
+    }
+
+    let nextBtnClass = "text-zinc-400 hover:text-white";
+    if (isListener) {
+        nextBtnClass = "text-zinc-800 cursor-not-allowed";
+    }
+
+    let playPauseLabel = "Phát";
+    if (isPlaying) {
+        playPauseLabel = "Tạm dừng";
+    }
 
     return (
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
             <div className="flex items-center gap-3 sm:gap-5">
                 <button
+                    type="button"
                     onClick={onCycleRepeatMode}
-                    className={`transition-colors hidden xs:block ${repeatConfig.color}`}
-                    title={repeatConfig.title}
+                    disabled={isListener}
+                    className={`transition-colors hidden xs:block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded ${repeatBtnClass}`}
+                    title={repeatTitle}
+                    aria-label={repeatTitle}
                 >
                     <RepeatIcon className="w-4 h-4" />
                 </button>
 
                 <button
+                    type="button"
                     onClick={onPrevious}
                     disabled={isListener}
-                    className={`${isListener ? "text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-white"} transition-colors`}
-                    title={isListener ? "Chế độ người nghe" : "Bài trước"}
+                    className={`transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded ${prevBtnClass}`}
+                    title={prevTitle}
+                    aria-label={prevTitle}
                 >
                     <SkipBack className="w-5 h-5" />
                 </button>
 
                 <button
+                    type="button"
                     onClick={onPlayPause}
                     disabled={isListener}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shrink-0 
-                        ${isListener 
-                            ? "bg-zinc-800/50 text-zinc-600 cursor-not-allowed" 
-                            : "bg-gradient-to-br from-purple-600 to-fuchsia-600 hover:scale-105 shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white"
-                        }`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${playPauseBtnClass}`}
+                    title={playPauseLabel}
+                    aria-label={playPauseLabel}
                 >
-                    <PlayPauseIcon className={`w-5 h-5 ${isPlaying ? "" : "ml-0.5"}`} />
+                    <PlayPauseIcon className={`w-5 h-5 ${playPauseIconClass}`} />
                 </button>
 
                 <button
+                    type="button"
                     onClick={onNext}
                     disabled={isListener}
-                    className={`${isListener ? "text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-white"} transition-colors`}
-                    title={isListener ? "Chế độ người nghe" : "Bài tiếp theo"}
+                    className={`transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded ${nextBtnClass}`}
+                    title={nextTitle}
+                    aria-label={nextTitle}
                 >
                     <SkipForward className="w-5 h-5" />
                 </button>
 
-                <div className="hidden xs:block">
-                    <PlaylistDropdown
-                        songId={songId}
-                        open={showPlaylistMenu}
-                        onOpenChange={onOpenChange}
-                        variant="full"
-                        trigger={
-                            <button className="text-zinc-500 hover:text-white transition-colors flex items-center">
-                                <MoreVertical className="w-4 h-4" />
-                            </button>
-                        }
-                    />
-                </div>
+                <PlaylistDropdown
+                    songId={songId}
+                    open={showPlaylistMenu}
+                    onOpenChange={onOpenChange}
+                    variant="full"
+                    trigger={
+                        <button
+                            type="button"
+                            className="text-zinc-500 hover:text-white transition-colors flex items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded"
+                            title="Thêm vào danh sách phát"
+                            aria-label="Thêm vào danh sách phát"
+                        >
+                            <MoreVertical className="w-4 h-4" />
+                        </button>
+                    }
+                />
             </div>
 
             <div className="flex items-center gap-2 text-[10px] text-zinc-500 tabular-nums">
@@ -183,21 +261,48 @@ const VolumeControlSection: React.FC<{
     onToggleMute: () => void;
     activeHostUserId: string | null;
     onToggleListenTogether: () => void;
-}> = ({ volume, onVolumeChange, onToggleMute, activeHostUserId, onToggleListenTogether }) => {
-    const VolumeIcon = volume > 0 ? Volume2 : VolumeX;
+}> = ({
+    volume,
+    onVolumeChange,
+    onToggleMute,
+    activeHostUserId,
+    onToggleListenTogether,
+}) => {
+    let VolumeIcon = VolumeX;
+    if (volume > 0) {
+        VolumeIcon = Volume2;
+    }
+
+    let listenTogetherClass = "text-zinc-400 hover:text-purple-400";
+    if (activeHostUserId) {
+        listenTogetherClass = "text-purple-400";
+    }
+
+    let muteLabel = "Tắt tiếng";
+    if (volume === 0) {
+        muteLabel = "Bật tiếng";
+    }
 
     return (
         <div className="hidden sm:flex items-center gap-3 ml-auto min-w-[150px] justify-end">
             <button
+                type="button"
                 onClick={onToggleListenTogether}
-                className={`transition-colors ${activeHostUserId ? "text-purple-400" : "text-zinc-400 hover:text-purple-400"}`}
+                className={`transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded ${listenTogetherClass}`}
                 title="Nghe chung"
+                aria-label="Nghe chung"
             >
                 <UsersRound className="w-4 h-4" />
             </button>
-            
+
             <div className="flex items-center gap-2 group">
-                <button onClick={onToggleMute} className="text-zinc-400 hover:text-white transition-colors">
+                <button
+                    type="button"
+                    onClick={onToggleMute}
+                    className="text-zinc-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded"
+                    title={muteLabel}
+                    aria-label={muteLabel}
+                >
                     <VolumeIcon className="w-4 h-4" />
                 </button>
                 <input
@@ -213,7 +318,9 @@ const VolumeControlSection: React.FC<{
                     }}
                 />
             </div>
-            <span className="text-[10px] text-zinc-500 w-6 tabular-nums">{Math.round(volume * 100)}</span>
+            <span className="text-[10px] text-zinc-500 w-6 tabular-nums">
+                {Math.round(volume * 100)}
+            </span>
         </div>
     );
 };
@@ -266,7 +373,10 @@ const InlineMusicPlayer: React.FC = () => {
     const handleClickPrevious = useCallback(() => {
         if (!currentSong || playlist.length === 0 || isListener) return;
         const currentIndex = playlist.findIndex((s: Song) => s.id === currentSong.id);
-        const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
+        let prevIndex = currentIndex - 1;
+        if (currentIndex === 0) {
+            prevIndex = playlist.length - 1;
+        }
         const previousSong = playlist[prevIndex];
         playSong(previousSong, playbackContext);
     }, [currentSong, isListener, playlist, playSong, playbackContext]);
@@ -295,11 +405,20 @@ const InlineMusicPlayer: React.FC = () => {
         setVolume(Number.parseFloat(e.target.value));
     };
 
-    const toggleMute = () => setVolume(volume > 0 ? 0 : 1);
+    const toggleMute = () => {
+        let nextVolume = 1;
+        if (volume > 0) {
+            nextVolume = 0;
+        }
+        setVolume(nextVolume);
+    };
 
     if (!currentSong) return null;
 
-    const progressValue = duration > 0 ? (currentTime / duration) * 100 : 0;
+    let progressValue = 0;
+    if (duration > 0) {
+        progressValue = (currentTime / duration) * 100;
+    }
 
     return (
         <div className="sticky bottom-0 z-40 shrink-0 w-full h-[88px] bg-gradient-to-b from-[#0d0d1a] to-[#09090f] border-t border-purple-500/15 shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">

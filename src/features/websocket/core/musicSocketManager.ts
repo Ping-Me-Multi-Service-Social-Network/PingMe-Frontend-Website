@@ -12,7 +12,6 @@ import type {
 } from "@/types/music/musicSession";
 import {
   joinSessionSuccess,
-  leaveSession,
   sessionStateReceived,
   presenceChanged,
   queueChanged,
@@ -144,8 +143,6 @@ class MusicSocketManagerClass {
 
     this.client?.deactivate();
     this.client = null;
-
-    this.options?.dispatch(leaveSession());
   }
 
   /**

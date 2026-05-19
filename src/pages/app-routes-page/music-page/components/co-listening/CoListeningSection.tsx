@@ -1,4 +1,4 @@
-import { useSelector, useDispatch } from "react-redux";
+﻿import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/features/store";
 import { clearError, joinSessionStart, leaveSession } from "@/features/music/musicSessionSlice";
 import { ListenerAvatarRow } from "./ListenerAvatarRow";
@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 import { lookupByIdApi } from "@/services/user/userLookupApi";
 import type { UserSummarySimpleResponse } from "@/types/common/userSummarySimpleResponse";
+import { toast } from "sonner";
 
 // Helper function to fetch missing user profiles, keeping function nesting clean
 async function fetchUserProfiles(ids: string[]): Promise<(UserSummarySimpleResponse | null)[]> {
@@ -28,7 +29,7 @@ async function fetchUserProfiles(ids: string[]): Promise<(UserSummarySimpleRespo
 }
 
 // =================================================================
-// CoListeningSection - Nội dung tab "Nghe chung" trong Right Panel
+// CoListeningSection - Ná»™i dung tab "Nghe chung" trong Right Panel
 // =================================================================
 
 export default function CoListeningSection() {
@@ -43,6 +44,7 @@ export default function CoListeningSection() {
   const isConnecting = useSelector((state: RootState) => state.musicSession.isConnecting);
   const isHost = useSelector((state: RootState) => state.musicSession.isHost);
   const error = useSelector((state: RootState) => state.musicSession.error);
+  const currentSong = useSelector((state: RootState) => state.audioPlayer.currentSong);
 
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -111,6 +113,10 @@ export default function CoListeningSection() {
 
   const handleStartSession = () => {
     if (!currentUserId) return;
+    if (!currentSong) {
+      toast.error("Bạn cần phát một bài hát trước khi bắt đầu làm Host.");
+      return;
+    }
     dispatch(joinSessionStart({ hostUserId: currentUserId, currentUserId }));
   };
 
@@ -154,11 +160,18 @@ export default function CoListeningSection() {
         </p>
         <Button
           onClick={handleStartSession}
+          disabled={!currentSong}
           className="w-full bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/20"
+          title={currentSong ? undefined : "Hãy phát một bài hát ở tab Đang phát trước."}
         >
           <PlayCircle className="w-4 h-4 mr-2" />
           Bắt đầu làm Host
         </Button>
+        {!currentSong && (
+          <p className="mt-2 text-[11px] text-zinc-500">
+            Hãy phát một bài ở tab Đang phát trước khi bấm làm Host.
+          </p>
+        )}
 
         {/* Danh sách bạn bè đang nghe */}
         <div className="w-full mt-6 text-left">
@@ -185,7 +198,7 @@ export default function CoListeningSection() {
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-2 rounded mb-3 flex justify-between items-center">
               <span>{error}</span>
-              <button onClick={dismissError} className="text-red-400 hover:text-red-300 px-1">✕</button>
+              <button onClick={dismissError} className="text-red-400 hover:text-red-300 px-1">×</button>
             </div>
           )}
 
@@ -193,17 +206,17 @@ export default function CoListeningSection() {
             <CoListeningBanner visible={true} />
           )}
 
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-zinc-200">
+          <div className="mb-4 flex items-start justify-between gap-2">
+            <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-200">
               {isHost ? "Phiên của bạn" : "Đang nghe cùng"}
             </h3>
-            <div className="flex gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               {isHost && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowShareModal(true)}
-                  className="h-7 text-xs text-zinc-400 hover:text-green-400 hover:bg-green-900/20"
+                  className="h-7 w-7 px-0 text-zinc-400 hover:bg-green-900/20 hover:text-green-400"
                   title="Chia sẻ phiên nghe chung"
                 >
                   <Share2 className="w-3 h-3" />
@@ -213,7 +226,7 @@ export default function CoListeningSection() {
                 variant="ghost"
                 size="sm"
                 onClick={handleLeaveSession}
-                className="h-7 text-xs text-zinc-400 hover:text-white hover:bg-white/10"
+                className="h-7 shrink-0 text-xs text-zinc-400 hover:bg-white/10 hover:text-white"
               >
                 <LogOut className="w-3 h-3 mr-1.5" />
                 Rời đi
@@ -259,3 +272,5 @@ export default function CoListeningSection() {
     </>
   );
 }
+
+
