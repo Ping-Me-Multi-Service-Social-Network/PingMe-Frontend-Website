@@ -147,10 +147,44 @@ function RightActions({
   labelPause,
   labelAddToPlaylist,
 }: Readonly<RightActionsProps>) {
-  const playPauseVisible = isHovered || isCurrent ? "opacity-100" : "opacity-0";
-  const playPauseColor = isCurrent
-    ? "text-purple-400 hover:text-purple-300 hover:bg-purple-800/50"
-    : "text-white hover:bg-purple-600";
+  let playPauseVisible =
+    "opacity-0 pointer-events-none focus-visible:opacity-100 focus-visible:pointer-events-auto";
+  if (isHovered || isCurrent) {
+    playPauseVisible = "opacity-100 pointer-events-auto";
+  }
+
+  let playPauseColor = "text-white hover:bg-purple-600";
+  if (isCurrent) {
+    playPauseColor =
+      "text-purple-400 hover:text-purple-300 hover:bg-purple-800/50";
+  }
+
+  let favoriteBtnClass =
+    "opacity-100 md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto md:focus-visible:opacity-100 md:focus-visible:pointer-events-auto text-gray-400 hover:text-white";
+  if (isFavorite) {
+    favoriteBtnClass = "opacity-100 text-purple-500 hover:text-purple-400";
+  }
+
+  let heartIconClass = "";
+  if (isFavorite) {
+    heartIconClass = "fill-current";
+  }
+
+  let durationColor = "text-gray-400";
+  if (isCurrent) {
+    durationColor = "text-purple-400";
+  }
+
+  let menuBtnClass =
+    "opacity-100 md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto md:focus-visible:opacity-100 md:focus-visible:pointer-events-auto text-gray-400 hover:text-white";
+  if (isMenuOpen) {
+    menuBtnClass = "opacity-100 text-white";
+  }
+
+  let PlayPauseIcon = Play;
+  if (isSongPlaying) {
+    PlayPauseIcon = Pause;
+  }
 
   return (
     <div className="flex items-center gap-2 shrink-0">
@@ -160,21 +194,14 @@ function RightActions({
           type="button"
           aria-label={labelFavorite}
           onClick={onToggleFavorite}
-          className={`transition-all duration-200 cursor-pointer ${
-            isFavorite
-              ? "opacity-100 text-purple-500 hover:text-purple-400"
-              : "opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-400 hover:text-white"
-          }`}
+          className={`transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded ${favoriteBtnClass}`}
         >
-          <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
+          <Heart className={`h-5 w-5 ${heartIconClass}`} />
         </button>
       </div>
 
       {/* Duration */}
-      <div
-        className={`w-16 text-sm text-center font-medium ${isCurrent ? "text-purple-400" : "text-gray-400"
-          }`}
-      >
+      <div className={`w-16 text-sm text-center font-medium ${durationColor}`}>
         {duration}
       </div>
 
@@ -189,11 +216,7 @@ function RightActions({
             <button
               type="button"
               aria-label={labelAddToPlaylist}
-              className={`transition-all duration-200 cursor-pointer ${
-                isMenuOpen
-                  ? "opacity-100 text-white"
-                  : "opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-400 hover:text-white"
-              }`}
+              className={`transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 rounded ${menuBtnClass}`}
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical className="h-5 w-5" />
@@ -208,13 +231,9 @@ function RightActions({
           type="button"
           onClick={onPlayPause}
           aria-label={isSongPlaying ? labelPause : labelPlay}
-          className={`ml-1 flex items-center justify-center h-8 w-8 rounded transition-colors ${playPauseColor} ${playPauseVisible}`}
+          className={`ml-1 flex items-center justify-center h-8 w-8 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${playPauseColor} ${playPauseVisible}`}
         >
-          {isSongPlaying ? (
-            <Pause className="h-4 w-4 fill-current" />
-          ) : (
-            <Play className="h-4 w-4 fill-current" />
-          )}
+          <PlayPauseIcon className="h-4 w-4 fill-current" />
         </button>
       )}
     </div>
