@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/features/store";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
-import { leaveSession, joinSessionStart, clearError, sessionStateReceived } from "@/features/music/musicSessionSlice";
+import { joinSessionStart, clearError, sessionStateReceived } from "@/features/music/musicSessionSlice";
 import type {
   MusicSessionCommandRequest,
   PlayPayload,
@@ -97,7 +97,6 @@ export function useMusicSession({
         MusicSocketManager.sendCommand(hostUserId, { command: "LEAVE_SESSION" });
       }
       MusicSocketManager.disconnect();
-      dispatch(leaveSession());
     };
   }, [hostUserId, currentUserId, baseUrl, dispatch, sessionToken]);
 

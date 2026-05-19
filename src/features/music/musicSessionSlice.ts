@@ -45,6 +45,8 @@ const musicSessionSlice = createSlice({
     ) => {
       state.activeHostUserId = action.payload.hostUserId;
       state.isHost = action.payload.hostUserId === action.payload.currentUserId;
+      // Reset session cũ ngay khi bắt đầu chuyển/join phòng khác
+      state.session = null;
       state.isConnecting = true;
       state.isConnected = false;
       state.error = null;
@@ -59,7 +61,12 @@ const musicSessionSlice = createSlice({
 
     // Nhận toàn bộ Session State từ BE (MUSIC_SESSION_STATE event)
     sessionStateReceived: (state, action: PayloadAction<MusicSessionState>) => {
-      // Bỏ qua nếu version cũ hơn để tránh nhận event lỗi thứ tự
+      // Nếu đổi host thì luôn chấp nhận state mới (không so version chéo phòng)
+      if (state.session && state.session.hostUserId !== action.payload.hostUserId) {
+        state.session = action.payload;
+        return;
+      }
+      // Cùng host: bỏ qua nếu version cũ hơn để tránh nhận event lỗi thứ tự
       if (
         state.session &&
         action.payload.version <= state.session.version
