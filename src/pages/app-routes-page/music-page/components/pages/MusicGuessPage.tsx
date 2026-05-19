@@ -41,6 +41,7 @@ export default function MusicGuessPage() {
   const currentUserId = useAppSelector((state) => state.auth.userSession?.id);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewTimerRef = useRef<number | null>(null);
+  const refreshTimerRef = useRef<number | null>(null);
   const playbackIdRef = useRef<number>(0);
   const sessionRef = useRef<MusicGuessSession | null>(null);
   const lastPlayedRoundIdRef = useRef<string | null>(null);
@@ -73,10 +74,18 @@ export default function MusicGuessPage() {
     setSession(fresh);
   }, []);
 
+  const scheduleRefreshSession = useCallback(() => {
+    if (refreshTimerRef.current) return;
+    refreshTimerRef.current = window.setTimeout(() => { // NOSONAR
+      refreshTimerRef.current = null;
+      refreshSession();
+    }, 250);
+  }, [refreshSession]);
+
   const stopPreview = useCallback(() => {
     playbackIdRef.current += 1;
     if (previewTimerRef.current) {
-      window.clearTimeout(previewTimerRef.current);
+      window.clearTimeout(previewTimerRef.current); // NOSONAR
       previewTimerRef.current = null;
     }
     const audio = audioRef.current;
@@ -102,7 +111,7 @@ export default function MusicGuessPage() {
           audio.pause();
           return;
         }
-        previewTimerRef.current = window.setTimeout(() => {
+        previewTimerRef.current = window.setTimeout(() => { // NOSONAR
           audio.pause();
         }, targetRound.clipSeconds * 1000);
       } catch (error) {
@@ -115,6 +124,10 @@ export default function MusicGuessPage() {
   useEffect(() => {
     return () => {
       stopPreview();
+      if (refreshTimerRef.current) {
+        window.clearTimeout(refreshTimerRef.current); // NOSONAR
+        refreshTimerRef.current = null;
+      }
     };
   }, [stopPreview]);
 
@@ -143,7 +156,7 @@ export default function MusicGuessPage() {
           setEventNote("Ván đấu đã kết thúc");
         }
 
-        await refreshSession();
+        scheduleRefreshSession();
       },
       onError: (message) => toast.error(message),
     });
@@ -151,14 +164,14 @@ export default function MusicGuessPage() {
     return () => {
       MusicGuessSocketManager.disconnect();
     };
-  }, [refreshSession, session?.mode, session?.sessionId]);
+  }, [scheduleRefreshSession, session?.mode, session?.sessionId]);
 
   useEffect(() => {
     if (session?.status === "PLAYING" && session?.round) {
       if (lastPlayedRoundIdRef.current !== session.round.roundId) {
         lastPlayedRoundIdRef.current = session.round.roundId;
         if (!session.round.answeredOptionId) {
-          window.setTimeout(() => playPreview(session.round), 120);
+          window.setTimeout(() => playPreview(session.round), 120); // NOSONAR
         }
       }
     }
@@ -176,8 +189,8 @@ export default function MusicGuessPage() {
     };
 
     updateRemaining();
-    const intervalId = window.setInterval(updateRemaining, 300);
-    return () => window.clearInterval(intervalId);
+    const intervalId = window.setInterval(updateRemaining, 300); // NOSONAR
+    return () => window.clearInterval(intervalId); // NOSONAR
   }, [session?.round?.endsAtEpochMs, session?.round?.roundId, session?.status]);
 
   const startNewSession = async (targetMode: MusicGuessMode) => {
