@@ -1,10 +1,7 @@
-import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
-import SockJS from "sockjs-client/dist/sockjs";
+import type { IMessage, StompSubscription } from "@stomp/stompjs";
 import type { FriendSessionSummary, MusicSessionEventType } from "@/types/music/musicSession";
-import {
-  friendSessionRemoved,
-  friendSessionUpserted,
-} from "@/features/music/musicSessionSlice";
+import { friendSessionRemoved, friendSessionUpserted } from "@/features/music/musicSessionSlice";
+import { MusicStompSharedClient } from "./musicStompSharedClient";
 
 interface FriendSessionSocketOptions {
   baseUrl: string;
@@ -13,13 +10,13 @@ interface FriendSessionSocketOptions {
 }
 
 class FriendSessionSocketManagerClass {
-  private client: Client | null = null;
   private subscription: StompSubscription | null = null;
   private currentUserId: string | null = null;
   private options: FriendSessionSocketOptions | null = null;
+  private readonly consumerId = "friend-session";
 
   connect(userId: string, options: FriendSessionSocketOptions): void {
-    if (this.client?.connected && this.currentUserId === userId) {
+    if (this.currentUserId === userId && MusicStompSharedClient.isConnected()) {
       return;
     }
 
@@ -27,48 +24,27 @@ class FriendSessionSocketManagerClass {
     this.currentUserId = userId;
     this.options = options;
 
-    this.client = new Client({
-      webSocketFactory: () => new SockJS(`${options.baseUrl}/music-service/ws-music`),
-      beforeConnect: async () => {
-        const token = localStorage.getItem("access_token");
-        if (this.client) {
-          this.client.connectHeaders = {
-            Authorization: `Bearer ${token ?? ""}`,
-          };
-        }
+    MusicStompSharedClient.acquire(this.consumerId, options.baseUrl, {
+      onConnect: () => this.subscribe(userId),
+      onStompError: () => {
+        // keep silent, this stream is advisory only
       },
-      heartbeatIncoming: 20000,
-      heartbeatOutgoing: 20000,
-      reconnectDelay: 5000,
     });
-
-    this.client.onConnect = () => {
-      this.subscribe(userId);
-    };
-
-    this.client.onStompError = (frame) => {
-      console.warn("[FriendSessionWS] STOMP error:", frame.headers["message"], frame.body);
-    };
-
-    this.client.activate();
   }
 
   disconnect(): void {
     try {
       this.subscription?.unsubscribe();
-    } catch (err) {
-      console.warn("[FriendSessionWS] Error unsubscribing:", err);
+    } catch {
+      // ignore stale subscription errors
     }
     this.subscription = null;
     this.currentUserId = null;
-    this.client?.deactivate();
-    this.client = null;
+    MusicStompSharedClient.release(this.consumerId);
   }
 
   private subscribe(userId: string): void {
-    if (!this.client) return;
-
-    this.subscription = this.client.subscribe(
+    this.subscription = MusicStompSharedClient.subscribe(
       `/topic/music/users/${userId}/friend-sessions`,
       (message: IMessage) => this.handleMessage(message)
     );
@@ -77,28 +53,27 @@ class FriendSessionSocketManagerClass {
   private handleMessage(message: IMessage): void {
     let envelope:
       | {
-        eventType: "FRIEND_SESSION_STARTED" | "FRIEND_SESSION_UPDATED";
-        data: FriendSessionSummary;
-        serverTimeMs: number;
-      }
+          eventType: "FRIEND_SESSION_STARTED" | "FRIEND_SESSION_UPDATED";
+          data: FriendSessionSummary;
+          serverTimeMs: number;
+        }
       | {
-        eventType: "FRIEND_SESSION_ENDED";
-        data: { hostUserId?: string };
-        serverTimeMs: number;
-      }
+          eventType: "FRIEND_SESSION_ENDED";
+          data: { hostUserId?: string };
+          serverTimeMs: number;
+        }
       | {
-        eventType: Exclude<
-          MusicSessionEventType,
-          "FRIEND_SESSION_STARTED" | "FRIEND_SESSION_UPDATED" | "FRIEND_SESSION_ENDED"
-        >;
-        data: unknown;
-        serverTimeMs: number;
-      };
+          eventType: Exclude<
+            MusicSessionEventType,
+            "FRIEND_SESSION_STARTED" | "FRIEND_SESSION_UPDATED" | "FRIEND_SESSION_ENDED"
+          >;
+          data: unknown;
+          serverTimeMs: number;
+        };
 
     try {
       envelope = JSON.parse(message.body) as typeof envelope;
-    } catch (err) {
-      console.warn("[FriendSessionWS] Invalid payload:", err);
+    } catch {
       return;
     }
 
@@ -119,4 +94,5 @@ class FriendSessionSocketManagerClass {
     }
   }
 }
+
 export const FriendSessionSocketManager = new FriendSessionSocketManagerClass();

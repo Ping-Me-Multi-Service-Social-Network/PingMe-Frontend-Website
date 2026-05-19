@@ -41,6 +41,7 @@ export default function MusicGuessPage() {
   const currentUserId = useAppSelector((state) => state.auth.userSession?.id);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewTimerRef = useRef<number | null>(null);
+  const refreshTimerRef = useRef<number | null>(null);
   const playbackIdRef = useRef<number>(0);
   const sessionRef = useRef<MusicGuessSession | null>(null);
   const lastPlayedRoundIdRef = useRef<string | null>(null);
@@ -72,6 +73,14 @@ export default function MusicGuessPage() {
     const fresh = await guessApi.getSession(active.sessionId);
     setSession(fresh);
   }, []);
+
+  const scheduleRefreshSession = useCallback(() => {
+    if (refreshTimerRef.current) return;
+    refreshTimerRef.current = window.setTimeout(() => {
+      refreshTimerRef.current = null;
+      void refreshSession();
+    }, 250);
+  }, [refreshSession]);
 
   const stopPreview = useCallback(() => {
     playbackIdRef.current += 1;
@@ -115,6 +124,10 @@ export default function MusicGuessPage() {
   useEffect(() => {
     return () => {
       stopPreview();
+      if (refreshTimerRef.current) {
+        window.clearTimeout(refreshTimerRef.current);
+        refreshTimerRef.current = null;
+      }
     };
   }, [stopPreview]);
 
@@ -143,7 +156,7 @@ export default function MusicGuessPage() {
           setEventNote("Ván đấu đã kết thúc");
         }
 
-        await refreshSession();
+        scheduleRefreshSession();
       },
       onError: (message) => toast.error(message),
     });
@@ -151,7 +164,7 @@ export default function MusicGuessPage() {
     return () => {
       MusicGuessSocketManager.disconnect();
     };
-  }, [refreshSession, session?.mode, session?.sessionId]);
+  }, [scheduleRefreshSession, session?.mode, session?.sessionId]);
 
   useEffect(() => {
     if (session?.status === "PLAYING" && session?.round) {
