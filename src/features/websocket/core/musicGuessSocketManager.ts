@@ -40,7 +40,7 @@ class MusicGuessSocketManagerClass {
         );
       },
       onStompError: (frame) => {
-        this.onErrorCallback?.(frame.body || frame.headers.message || "Khong the ket noi game");
+        this.onErrorCallback?.(frame.body || frame.headers.message || "Không thể kết nối game");
       },
     });
   }
@@ -62,7 +62,7 @@ class MusicGuessSocketManagerClass {
     try {
       this.onEventCallback?.(JSON.parse(message.body) as MusicGuessEventMessage);
     } catch {
-      this.onErrorCallback?.("Du lieu realtime khong hop le");
+      this.onErrorCallback?.("Dữ liệu realtime không hợp lệ");
     }
   }
 }

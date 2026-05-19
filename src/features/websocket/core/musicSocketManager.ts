@@ -55,12 +55,12 @@ class MusicSocketManagerClass {
       onStompError: (frame) => {
         opts.dispatch(
           commandErrorReceived(
-            frame.body || frame.headers["message"] || "Khong the ket noi phien nghe chung"
+            frame.body || frame.headers["message"] || "Không thể kết nối phiên nghe chung"
           )
         );
       },
       onWebSocketError: () => {
-        opts.dispatch(commandErrorReceived("Khong the ket noi WebSocket nghe chung"));
+        opts.dispatch(commandErrorReceived("Không thể kết nối WebSocket nghe chung"));
       },
     });
   }
@@ -112,7 +112,7 @@ class MusicSocketManagerClass {
         const err = JSON.parse(msg.body) as MusicCommandError;
         this.options?.dispatch(commandErrorReceived(err.message));
       } catch {
-        this.options?.dispatch(commandErrorReceived("Co loi xay ra khi xu ly lenh"));
+        this.options?.dispatch(commandErrorReceived("Có lỗi xảy ra khi xử lý lệnh"));
       }
     });
   }

@@ -61,6 +61,10 @@ class MusicStompSharedClientClass {
       beforeConnect: async () => {
         const token = localStorage.getItem("access_token");
         if (this.client) {
+          // The shared client only sends the bearer token during the STOMP CONNECT, so the sessionToken used
+          // for non-friend/share-link co-listening sessions is no longer included in the connection headers.
+          // The previous manager added X-Session-Token before connect; expose per-consumer connect headers here
+          // or keep token-based joins on a dedicated client so the backend can validate those sessions.
           this.client.connectHeaders = {
             Authorization: `Bearer ${token ?? ""}`,
           };
