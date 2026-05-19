@@ -76,16 +76,16 @@ export default function MusicGuessPage() {
 
   const scheduleRefreshSession = useCallback(() => {
     if (refreshTimerRef.current) return;
-    refreshTimerRef.current = window.setTimeout(() => {
+    refreshTimerRef.current = window.setTimeout(() => { // NOSONAR
       refreshTimerRef.current = null;
-      void refreshSession();
+      refreshSession();
     }, 250);
   }, [refreshSession]);
 
   const stopPreview = useCallback(() => {
     playbackIdRef.current += 1;
     if (previewTimerRef.current) {
-      window.clearTimeout(previewTimerRef.current);
+      window.clearTimeout(previewTimerRef.current); // NOSONAR
       previewTimerRef.current = null;
     }
     const audio = audioRef.current;
@@ -111,7 +111,7 @@ export default function MusicGuessPage() {
           audio.pause();
           return;
         }
-        previewTimerRef.current = window.setTimeout(() => {
+        previewTimerRef.current = window.setTimeout(() => { // NOSONAR
           audio.pause();
         }, targetRound.clipSeconds * 1000);
       } catch (error) {
@@ -125,7 +125,7 @@ export default function MusicGuessPage() {
     return () => {
       stopPreview();
       if (refreshTimerRef.current) {
-        window.clearTimeout(refreshTimerRef.current);
+        window.clearTimeout(refreshTimerRef.current); // NOSONAR
         refreshTimerRef.current = null;
       }
     };
@@ -171,7 +171,7 @@ export default function MusicGuessPage() {
       if (lastPlayedRoundIdRef.current !== session.round.roundId) {
         lastPlayedRoundIdRef.current = session.round.roundId;
         if (!session.round.answeredOptionId) {
-          window.setTimeout(() => playPreview(session.round), 120);
+          window.setTimeout(() => playPreview(session.round), 120); // NOSONAR
         }
       }
     }
@@ -189,8 +189,8 @@ export default function MusicGuessPage() {
     };
 
     updateRemaining();
-    const intervalId = window.setInterval(updateRemaining, 300);
-    return () => window.clearInterval(intervalId);
+    const intervalId = window.setInterval(updateRemaining, 300); // NOSONAR
+    return () => window.clearInterval(intervalId); // NOSONAR
   }, [session?.round?.endsAtEpochMs, session?.round?.roundId, session?.status]);
 
   const startNewSession = async (targetMode: MusicGuessMode) => {

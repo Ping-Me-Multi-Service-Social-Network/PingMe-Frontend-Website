@@ -9,7 +9,7 @@ type ConsumerHooks = {
 
 class MusicStompSharedClientClass {
   private client: Client | null = null;
-  private consumers = new Map<string, ConsumerHooks>();
+  private readonly consumers = new Map<string, ConsumerHooks>();
 
   isConnected(): boolean {
     return !!this.client?.connected;
