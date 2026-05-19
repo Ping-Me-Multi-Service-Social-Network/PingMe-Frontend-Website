@@ -147,8 +147,6 @@ function RightActions({
   labelPause,
   labelAddToPlaylist,
 }: Readonly<RightActionsProps>) {
-  const showFavoriteButton = isHovered || isFavorite;
-  const showMenuButton = isHovered || isMenuOpen;
   const playPauseVisible = isHovered || isCurrent ? "opacity-100" : "opacity-0";
   const playPauseColor = isCurrent
     ? "text-purple-400 hover:text-purple-300 hover:bg-purple-800/50"
@@ -158,19 +156,18 @@ function RightActions({
     <div className="flex items-center gap-2 shrink-0">
       {/* Heart */}
       <div className="w-14 flex justify-center">
-        {showFavoriteButton && (
-          <button
-            type="button"
-            aria-label={labelFavorite}
-            onClick={onToggleFavorite}
-            className={`transition-colors ${isFavorite
-                ? "text-purple-500 hover:text-purple-400"
-                : "text-gray-400 hover:text-white"
-              }`}
-          >
-            <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
-          </button>
-        )}
+        <button
+          type="button"
+          aria-label={labelFavorite}
+          onClick={onToggleFavorite}
+          className={`transition-all duration-200 cursor-pointer ${
+            isFavorite
+              ? "opacity-100 text-purple-500 hover:text-purple-400"
+              : "opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-400 hover:text-white"
+          }`}
+        >
+          <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
+        </button>
       </div>
 
       {/* Duration */}
@@ -183,24 +180,26 @@ function RightActions({
 
       {/* Three-dot menu */}
       <div className="w-10 flex justify-center">
-        {showMenuButton && (
-          <PlaylistDropdown
-            songId={song.id}
-            open={isMenuOpen}
-            onOpenChange={onMenuChange}
-            variant="full"
-            trigger={
-              <button
-                type="button"
-                aria-label={labelAddToPlaylist}
-                className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreVertical className="h-5 w-5" />
-              </button>
-            }
-          />
-        )}
+        <PlaylistDropdown
+          songId={song.id}
+          open={isMenuOpen}
+          onOpenChange={onMenuChange}
+          variant="full"
+          trigger={
+            <button
+              type="button"
+              aria-label={labelAddToPlaylist}
+              className={`transition-all duration-200 cursor-pointer ${
+                isMenuOpen
+                  ? "opacity-100 text-white"
+                  : "opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-400 hover:text-white"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-5 w-5" />
+            </button>
+          }
+        />
       </div>
 
       {/* Play/Pause (only when there is no index column) */}
