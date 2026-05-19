@@ -117,8 +117,13 @@ const PlayerControlsSection: React.FC<{
             <div className="flex items-center gap-3 sm:gap-5">
                 <button
                     onClick={onCycleRepeatMode}
-                    className={`transition-colors hidden xs:block ${repeatConfig.color}`}
-                    title={repeatConfig.title}
+                    disabled={isListener}
+                    className={`transition-colors hidden xs:block ${
+                        isListener
+                            ? "text-zinc-800 cursor-not-allowed"
+                            : `${repeatConfig.color} cursor-pointer`
+                    }`}
+                    title={isListener ? "Chế độ người nghe" : repeatConfig.title}
                 >
                     <RepeatIcon className="w-4 h-4" />
                 </button>
