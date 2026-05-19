@@ -88,6 +88,9 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
   const playCountTrackedRef = useRef<Set<number>>(new Set());
   const albumPlayCountTrackedRef = useRef<Set<number>>(new Set());
+  const listenedMsBySongRef = useRef<Map<number, number>>(new Map());
+  const lastListenTickAtRef = useRef<number | null>(null);
+  const lastListenTickSongIdRef = useRef<number | null>(null);
   const lastSyncedTrackIdRef = useRef<string | null>(null);
 
   // --- ACTIONS ---
@@ -110,6 +113,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
       playCountTrackedRef.current.delete(song.id);
       albumPlayCountTrackedRef.current.delete(song.id);
+      listenedMsBySongRef.current.delete(song.id);
       dispatch(playSongAction({ song, context }));
 
       if (isHost && activeHostUserId && options?.syncSession !== false) {
@@ -211,6 +215,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
             const songData = res.data as any;
             playCountTrackedRef.current.delete(songData.id);
             albumPlayCountTrackedRef.current.delete(songData.id);
+            listenedMsBySongRef.current.delete(songData.id);
             dispatch(setCurrentSong(songData));
             dispatch(setPlaybackContextAction({ type: "co-listening", id: session.hostUserId }));
           }
@@ -333,6 +338,12 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     audio.loop = repeatMode === "one";
   }, [volume, repeatMode]);
 
+  // Reset listening accumulator when playback state/song context changes.
+  useEffect(() => {
+    lastListenTickAtRef.current = null;
+    lastListenTickSongIdRef.current = null;
+  }, [currentSong?.id, isPlaying]);
+
   // Audio Event Listeners
   useEffect(() => {
     const audio = audioRef.current;
@@ -340,10 +351,30 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
     const handleTimeUpdate = () => {
       if (currentSong && audio.duration > 0) {
+        const now = Date.now();
+        const currentSongId = currentSong.id;
+
+        if (lastListenTickSongIdRef.current !== currentSongId || lastListenTickAtRef.current == null) {
+          lastListenTickSongIdRef.current = currentSongId;
+          lastListenTickAtRef.current = now;
+          return;
+        }
+
+        const deltaMs = now - lastListenTickAtRef.current;
+        lastListenTickAtRef.current = now;
+
+        // Ignore abnormal jumps (tab freeze, network sync seek, manual seek).
+        if (!isPlaying || audio.paused || deltaMs <= 0 || deltaMs > 2000) return;
+
+        const accumulated = (listenedMsBySongRef.current.get(currentSongId) ?? 0) + deltaMs;
+        listenedMsBySongRef.current.set(currentSongId, accumulated);
+
         const progress = audio.currentTime / audio.duration;
 
         if (
-          progress > 0.5 &&
+          // Count as a valid song play only after meaningful real listening time.
+          // 30s OR (>= 50% progress and at least 15s real listening time).
+          (accumulated >= 30_000 || (progress >= 0.5 && accumulated >= 15_000)) &&
           !playCountTrackedRef.current.has(currentSong.id)
         ) {
           playCountTrackedRef.current.add(currentSong.id);
@@ -352,7 +383,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
         // Track album play
         if (
-          audio.currentTime >= 30 &&
+          accumulated >= 30_000 &&
           !albumPlayCountTrackedRef.current.has(currentSong.id)
         ) {
           albumPlayCountTrackedRef.current.add(currentSong.id);
@@ -393,6 +424,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
 
       playCountTrackedRef.current.delete(nextSong.id);
       albumPlayCountTrackedRef.current.delete(nextSong.id);
+      listenedMsBySongRef.current.delete(nextSong.id);
       dispatch(playSongAction({ song: nextSong, context: playbackContext }));
     };
 
@@ -447,6 +479,7 @@ export function AudioPlayerProvider({ children }: Readonly<AudioPlayerProviderPr
     playlist,
     repeatMode,
     session?.isEndingAfterCurrentTrack,
+    isPlaying,
   ]);
 
   const contextValue = useMemo(
