@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link as LinkIcon, UsersRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
