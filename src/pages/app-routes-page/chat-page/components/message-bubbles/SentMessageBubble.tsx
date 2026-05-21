@@ -53,7 +53,8 @@ const SentMessageBubble = memo(function SentMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER";
-  const isInviteMessage = message.type === "TEXT" && !!parseCoListeningInvite(message.content);
+  const coListeningInvite = message.type === "TEXT" ? parseCoListeningInvite(message.content) : null;
+  const isInviteMessage = !!coListeningInvite;
 
   const handleRecallMessage = async () => {
     const messageDate = new Date(message.createdAt);
@@ -160,7 +161,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
       case "TEXT":
       default:
         // Render a compact invite card for co-listening share links (instead of a huge URL).
-        if (parseCoListeningInvite(message.content)) {
+        if (isInviteMessage) {
           contentNode = (
             <div className="flex flex-col relative">
               <CoListeningInviteCard text={message.content} />
