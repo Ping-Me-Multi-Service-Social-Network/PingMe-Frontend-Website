@@ -1,24 +1,13 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+﻿import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { FriendSessionSummary, MusicSessionState } from "@/types/music/musicSession";
 
-// =================================================================
-// Music Session Slice - Lưu trạng thái nghe chung trong Redux
-// =================================================================
-
 interface MusicSessionSliceState {
-  /** null = không có session nào đang hoạt động */
   session: MusicSessionState | null;
-  /** ID của host mà mình đang nghe (null = chưa tham gia) */
   activeHostUserId: string | null;
-  /** Mình có phải là Host không */
   isHost: boolean;
-  /** Đang kết nối tới Music WS */
   isConnecting: boolean;
-  /** Đã kết nối thành công */
   isConnected: boolean;
-  /** Lỗi khi kết nối / nhận command */
   error: string | null;
-  /** Optional JWT token for non-friend session joining */
   sessionToken?: string;
   friendSessionsByHostId: Record<string, FriendSessionSummary>;
 }
@@ -38,14 +27,20 @@ const musicSessionSlice = createSlice({
   name: "musicSession",
   initialState,
   reducers: {
-    // Bắt đầu kết nối tới Music WS
     joinSessionStart: (
       state,
       action: PayloadAction<{ hostUserId: string; currentUserId: string; sessionToken?: string }>
     ) => {
+      // If we're already connected to the same host session, don't reset into a "connecting" state.
+      // This prevents infinite spinner when user clicks an invite link again while already in-room.
+      if (state.isConnected && state.activeHostUserId === action.payload.hostUserId) {
+        state.sessionToken = action.payload.sessionToken;
+        state.error = null;
+        return;
+      }
+
       state.activeHostUserId = action.payload.hostUserId;
       state.isHost = action.payload.hostUserId === action.payload.currentUserId;
-      // Reset session cũ ngay khi bắt đầu chuyển/join phòng khác
       state.session = null;
       state.isConnecting = true;
       state.isConnected = false;
@@ -53,30 +48,30 @@ const musicSessionSlice = createSlice({
       state.sessionToken = action.payload.sessionToken;
     },
 
-    // Kết nối thành công
     joinSessionSuccess: (state) => {
       state.isConnecting = false;
       state.isConnected = true;
     },
 
-    // Nhận toàn bộ Session State từ BE (MUSIC_SESSION_STATE event)
+    joinSessionFailed: (state, action: PayloadAction<string>) => {
+      state.isConnecting = false;
+      state.isConnected = false;
+      state.error = action.payload;
+    },
+
     sessionStateReceived: (state, action: PayloadAction<MusicSessionState>) => {
-      // Nếu đổi host thì luôn chấp nhận state mới (không so version chéo phòng)
       if (state.session && state.session.hostUserId !== action.payload.hostUserId) {
         state.session = action.payload;
         return;
       }
-      // Cùng host: bỏ qua nếu version cũ hơn để tránh nhận event lỗi thứ tự
-      if (
-        state.session &&
-        action.payload.version <= state.session.version
-      ) {
+
+      if (state.session && action.payload.version <= state.session.version) {
         return;
       }
+
       state.session = action.payload;
     },
 
-    // Cập nhật nhanh presence (MUSIC_PRESENCE_CHANGED) - tránh re-render toàn bộ
     presenceChanged: (state, action: PayloadAction<string[]>) => {
       if (state.session) {
         state.session.activeListenerIds = action.payload;
@@ -113,17 +108,17 @@ const musicSessionSlice = createSlice({
       delete state.friendSessionsByHostId[action.payload];
     },
 
-    // Nhận lỗi từ server (/user/queue/music/errors)
     commandErrorReceived: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
+      if (state.isConnecting) {
+        state.isConnecting = false;
+      }
     },
 
-    // Xóa lỗi
     clearError: (state) => {
       state.error = null;
     },
 
-    // Rời / giải tán session
     leaveSession: (state) => {
       state.session = null;
       state.activeHostUserId = null;
@@ -131,6 +126,7 @@ const musicSessionSlice = createSlice({
       state.isConnecting = false;
       state.isConnected = false;
       state.error = null;
+      state.sessionToken = undefined;
     },
   },
 });
@@ -138,6 +134,7 @@ const musicSessionSlice = createSlice({
 export const {
   joinSessionStart,
   joinSessionSuccess,
+  joinSessionFailed,
   sessionStateReceived,
   presenceChanged,
   queueChanged,
@@ -150,3 +147,4 @@ export const {
 } = musicSessionSlice.actions;
 
 export default musicSessionSlice.reducer;
+

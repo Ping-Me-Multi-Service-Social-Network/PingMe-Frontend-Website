@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import { deleteMessageForMeApi, pinMessageApi, unpinMessageApi } from "@/services/chat";
 import { toast } from "sonner";
+import LinkifiedText from "./LinkifiedText.tsx";
+import CoListeningInviteCard, { parseCoListeningInvite } from "./CoListeningInviteCard.tsx";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -55,6 +57,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER"; 
+  const isInviteMessage = message.type === "TEXT" && !!parseCoListeningInvite(message.content);
 
   const handleDeleteForMe = async () => {
     try {
@@ -143,13 +146,19 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         break;
       case "TEXT":
       default:
-        contentNode = (
-          <div className="flex flex-col relative">
-            <p className="text-sm leading-relaxed">
-              {message.content}
-            </p>
-          </div>
-        );
+        if (parseCoListeningInvite(message.content)) {
+          contentNode = (
+            <div className="flex flex-col relative">
+              <CoListeningInviteCard text={message.content} />
+            </div>
+          );
+        } else {
+          contentNode = (
+            <div className="flex flex-col relative">
+              <LinkifiedText text={message.content} className="text-sm leading-relaxed" />
+            </div>
+          );
+        }
         break;
     }
 
@@ -273,6 +282,8 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
             {isWeatherMessage && message.isActive ? (
                 <div>{renderMessageContent()}</div>
             ) : isMediaMessage && message.isActive ? (
+            <div>{renderMessageContent()}</div>
+            ) : isInviteMessage && message.isActive ? (
             <div>{renderMessageContent()}</div>
             ) : (
             <div

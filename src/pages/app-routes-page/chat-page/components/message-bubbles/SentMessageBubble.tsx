@@ -23,6 +23,8 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
+import LinkifiedText from "./LinkifiedText.tsx";
+import CoListeningInviteCard, { parseCoListeningInvite } from "./CoListeningInviteCard.tsx";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
@@ -51,6 +53,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER";
+  const isInviteMessage = message.type === "TEXT" && !!parseCoListeningInvite(message.content);
 
   const handleRecallMessage = async () => {
     const messageDate = new Date(message.createdAt);
@@ -156,11 +159,18 @@ const SentMessageBubble = memo(function SentMessageBubble({
         break;
       case "TEXT":
       default:
+        // Render a compact invite card for co-listening share links (instead of a huge URL).
+        if (parseCoListeningInvite(message.content)) {
+          contentNode = (
+            <div className="flex flex-col relative">
+              <CoListeningInviteCard text={message.content} />
+            </div>
+          );
+          break;
+        }
         contentNode = (
           <div className="flex flex-col relative">
-            <p className="text-sm leading-relaxed" style={{ whiteSpace: "pre-wrap" }}>
-              {message.content}
-            </p>
+            <LinkifiedText text={message.content} className="text-sm leading-relaxed" />
             {message.isEdited && (
               <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center" title={message.editedAt ? new Date(message.editedAt).toLocaleString() : undefined}>
                 <Edit2 className="w-2.5 h-2.5 mr-1" />
@@ -291,6 +301,8 @@ const SentMessageBubble = memo(function SentMessageBubble({
           {isWeatherMessage && message.isActive ? (
             <div>{renderMessageContent()}</div>
           ) : isMediaMessage && message.isActive ? (
+            <div>{renderMessageContent()}</div>
+          ) : isInviteMessage && message.isActive ? (
             <div>{renderMessageContent()}</div>
           ) : (
             <div

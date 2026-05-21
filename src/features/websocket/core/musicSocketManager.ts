@@ -1,4 +1,4 @@
-import type { IMessage, StompSubscription } from "@stomp/stompjs";
+﻿import type { IMessage, StompSubscription } from "@stomp/stompjs";
 import type {
   MusicSessionCommandRequest,
   MusicSessionEventType,
@@ -7,6 +7,7 @@ import type {
 } from "@/types/music/musicSession";
 import {
   joinSessionSuccess,
+  joinSessionFailed,
   sessionStateReceived,
   presenceChanged,
   queueChanged,
@@ -19,6 +20,28 @@ export interface MusicSocketManagerOptions {
   dispatch: (action: unknown) => void;
   onSessionEnded?: (hostUserId: string) => void;
   sessionToken?: string;
+}
+
+function normalizeJoinError(raw: string, usingSessionToken: boolean): string {
+  const msg = (raw || "").toString();
+  const lower = msg.toLowerCase();
+
+  // Friendly message for expired/invalid invite links.
+  if (
+    usingSessionToken &&
+    (lower.includes("access denied") ||
+      lower.includes("forbidden") ||
+      lower.includes("khong co quyen") ||
+      lower.includes("không có quyền") ||
+      lower.includes("token") ||
+      lower.includes("het han") ||
+      lower.includes("hết hạn") ||
+      lower.includes("invalid"))
+  ) {
+    return "Link moi da het han hoac khong con hop le. Hay yeu cau host tao link moi.";
+  }
+
+  return msg || "Khong the ket noi phien nghe chung";
 }
 
 class MusicSocketManagerClass {
@@ -53,14 +76,15 @@ class MusicSocketManagerClass {
         this.flushQueue();
       },
       onStompError: (frame) => {
-        opts.dispatch(
-          commandErrorReceived(
-            frame.body || frame.headers["message"] || "Không thể kết nối phiên nghe chung"
-          )
-        );
+        const raw = frame.body || frame.headers["message"] || "Khong the ket noi phien nghe chung";
+        const message = normalizeJoinError(raw, Boolean(opts.sessionToken));
+        opts.dispatch(joinSessionFailed(message));
+        opts.dispatch(commandErrorReceived(message));
       },
       onWebSocketError: () => {
-        opts.dispatch(commandErrorReceived("Không thể kết nối WebSocket nghe chung"));
+        const message = "Khong the ket noi WebSocket nghe chung";
+        opts.dispatch(joinSessionFailed(message));
+        opts.dispatch(commandErrorReceived(message));
       },
     });
   }
@@ -110,9 +134,10 @@ class MusicSocketManagerClass {
     this.errorSub = MusicStompSharedClient.subscribe("/user/queue/music/errors", (msg: IMessage) => {
       try {
         const err = JSON.parse(msg.body) as MusicCommandError;
-        this.options?.dispatch(commandErrorReceived(err.message));
+        const message = normalizeJoinError(err.message, Boolean(this.options?.sessionToken));
+        this.options?.dispatch(commandErrorReceived(message));
       } catch {
-        this.options?.dispatch(commandErrorReceived("Có lỗi xảy ra khi xử lý lệnh"));
+        this.options?.dispatch(commandErrorReceived("Co loi xay ra khi xu ly lenh"));
       }
     });
   }
@@ -173,3 +198,4 @@ class MusicSocketManagerClass {
 }
 
 export const MusicSocketManager = new MusicSocketManagerClass();
+
