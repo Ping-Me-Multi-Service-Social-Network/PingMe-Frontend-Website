@@ -7,7 +7,6 @@ import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { MessagePoll } from "./MessagePoll.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { getRepliedMessagePreview } from "../../utils/getRepliedMessagePreview.ts";
 import { MoreHorizontal, RotateCcw, Forward, Trash2, Reply, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -26,6 +25,7 @@ import { memo } from "react";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
 import LinkifiedText from "./LinkifiedText.tsx";
 import CoListeningInviteCard, { parseCoListeningInvite } from "./CoListeningInviteCard.tsx";
+import { ForwardedIndicator, RepliedMessagePreview } from "./MessageMetaBlocks.tsx";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
@@ -186,32 +186,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
 
     return (
       <>
-        {message.repliedMessage && (
-          <div 
-            className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/40 bg-black/10 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/20 transition-colors"
-            onClick={() => {
-              const el = document.getElementById(`message-${message.repliedMessage?.id}`);
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('bg-primary/20', 'transition-colors', 'duration-500');
-                setTimeout(() => el.classList.remove('bg-primary/20'), 1500);
-              }
-            }}
-          >
-            <span className="font-bold opacity-100 mb-0.5">
-              {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
-            </span>
-            <span className="truncate max-w-[200px] opacity-90 text-[11px]">
-              {getRepliedMessagePreview(message.repliedMessage, t)}
-            </span>
-          </div>
-        )}
-        {message.isForwarded && (
-          <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
-            <Forward className="h-3 w-3 mr-1" />
-            {t("bubbles.messages.forwarded", "Forwarded")}
-          </div>
-        )}
+        <RepliedMessagePreview
+          repliedMessage={message.repliedMessage}
+          repliedSenderName={repliedSenderName}
+          t={t}
+          className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/40 bg-black/10 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/20 transition-colors"
+        />
+        <ForwardedIndicator isForwarded={message.isForwarded} t={t} />
         {contentNode}
       </>
     );
