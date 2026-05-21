@@ -1,4 +1,4 @@
-﻿import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { FriendSessionSummary, MusicSessionState } from "@/types/music/musicSession";
 
 interface MusicSessionSliceState {
