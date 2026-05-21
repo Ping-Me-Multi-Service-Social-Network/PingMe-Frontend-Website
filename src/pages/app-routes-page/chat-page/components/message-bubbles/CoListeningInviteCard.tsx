@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link as LinkIcon, UsersRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
@@ -16,26 +17,32 @@ export function parseCoListeningInvite(text: string): CoListeningInviteInfo | nu
   return parseCoListeningInviteUtil(text);
 }
 
-function normalizeJoinError(raw: string | null): string | null {
+function normalizeJoinError(raw: string | null): "expired" | "forbidden" | string | null {
+  // Keep the matching rules stable; only the displayed text is translated.
   if (!raw) return null;
 
   const s = raw.toLowerCase();
   if (s.includes("expired") || (s.includes("token") && s.includes("expire"))) {
-    return "Link moi da het han. Hay nho host tao link moi.";
+    return "expired";
   }
 
   if (s.includes("403") || s.includes("forbidden")) {
-    return "Khong the tham gia. Link moi da het han hoac ban khong co quyen.";
+    return "forbidden";
   }
 
   return raw;
 }
 
 export default function CoListeningInviteCard({ text }: { text: string }) {
+  const { t } = useTranslation("chat");
   const dispatch = useAppDispatch();
   const invite = useMemo(() => parseCoListeningInviteUtil(text), [text]);
 
-  const jwtPayload = useMemo(() => (invite?.token ? decodeJwtPayload(invite.token) : null), [invite?.token]);
+  const jwtPayload = useMemo(
+    () => (invite?.token ? decodeJwtPayload(invite.token) : null),
+    [invite?.token]
+  );
+
   const expiresAt = useMemo(() => {
     const exp = jwtPayload?.exp;
     if (typeof exp !== "number") return null;
@@ -58,16 +65,29 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
 
   const expiresAtText = useMemo(() => (expiresAt ? formatDateTimeVi(expiresAt) : null), [expiresAt]);
   const isExpired = useMemo(() => (expiresAt ? Date.now() >= expiresAt.getTime() : null), [expiresAt]);
+
   const remainingText = useMemo(() => {
     if (!expiresAt) return null;
+
     const ms = expiresAt.getTime() - Date.now();
-    if (ms <= 0) return "Da het han";
+    if (ms <= 0) {
+      return t("bubbles.coListeningInvite.remainingExpired", "Da het han");
+    }
+
     const mins = Math.ceil(ms / 60000);
-    if (mins <= 60) return `Con ${mins} phut`;
+    if (mins <= 60) {
+      return t("bubbles.coListeningInvite.remainingMinutes", "Con {{mins}} phut", { mins });
+    }
+
     const hours = Math.floor(mins / 60);
     const rem = mins % 60;
-    return rem ? `Con ${hours} gio ${rem} phut` : `Con ${hours} gio`;
-  }, [expiresAt]);
+    return rem
+      ? t("bubbles.coListeningInvite.remainingHoursMinutes", "Con {{hours}} gio {{mins}} phut", {
+          hours,
+          mins: rem,
+        })
+      : t("bubbles.coListeningInvite.remainingHours", "Con {{hours}} gio", { hours });
+  }, [expiresAt, t]);
 
   const currentUserId = useAppSelector((state) => state.auth.userSession?.id?.toString() ?? null);
   const activeHostUserId = useAppSelector((state) => state.musicSession.activeHostUserId);
@@ -87,26 +107,34 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
     if (!isThisInviteActive) return;
 
     if (isConnecting) {
-      setLocalNote("Dang tham gia phien nghe chung...");
+      setLocalNote(t("bubbles.coListeningInvite.noteJoining", "Dang tham gia phien nghe chung..."));
       return;
     }
 
     if (isConnected) {
       setLocalNote(
-        'Da tham gia. Mo tab "Nghe chung" de bat dau dong bo. (Token het han khong anh huong khi ban dang o trong phong)'
+        t(
+          "bubbles.coListeningInvite.noteJoined",
+          'Da tham gia. Mo tab "Nghe chung" de bat dau dong bo. (Token het han khong anh huong khi ban dang o trong phong)'
+        )
       );
       return;
     }
 
-    const prettyError = normalizeJoinError(error);
-    if (!prettyError) return;
+    const normalized = normalizeJoinError(error);
+    if (!normalized) return;
 
     // Only show the error on the card that initiated this attempt.
     const attemptKey = `${invite.hostUserId}:${invite.token ?? ""}`;
-    if (attemptKeyRef.current === attemptKey) {
-      setLocalNote(prettyError);
+    if (attemptKeyRef.current !== attemptKey) return;
+
+    if (normalized === "expired" || normalized === "forbidden") {
+      setLocalNote(t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi."));
+      return;
     }
-  }, [error, invite?.hostUserId, isConnected, isConnecting, isThisInviteActive]);
+
+    setLocalNote(String(normalized));
+  }, [error, invite?.hostUserId, invite?.token, isConnected, isConnecting, isThisInviteActive, t]);
 
   if (!invite) return null;
 
@@ -117,15 +145,25 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
           <UsersRound className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-zinc-900">Moi tham gia nghe chung</div>
+          <div className="text-sm font-semibold text-zinc-900">
+            {t("bubbles.coListeningInvite.title", "Moi tham gia nghe chung")}
+          </div>
           <div className="mt-0.5 text-xs text-zinc-500">
-            {invite.hostUserId ? `Host: ${invite.hostUserId}` : "Co-listening session"}
+            {invite.hostUserId
+              ? t("bubbles.coListeningInvite.host", "Host: {{hostUserId}}", { hostUserId: invite.hostUserId })
+              : t("bubbles.coListeningInvite.sessionFallback", "Co-listening session")}
           </div>
 
           {linkCode || expiresAtText ? (
             <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
-              {linkCode ? <span>Link {linkCode}</span> : null}
-              {expiresAtText ? <span>Het han: {expiresAtText}</span> : null}
+              {linkCode ? (
+                <span>{t("bubbles.coListeningInvite.link", "Link {{code}}", { code: linkCode })}</span>
+              ) : null}
+              {expiresAtText ? (
+                <span>
+                  {t("bubbles.coListeningInvite.expiresAt", "Het han: {{time}}", { time: expiresAtText })}
+                </span>
+              ) : null}
               {remainingText ? (
                 <span
                   className={[
@@ -135,7 +173,9 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
                       : "border-emerald-200 bg-emerald-50 text-emerald-700",
                   ].join(" ")}
                 >
-                  {isExpired === true ? "Het han" : "Con han"}
+                  {isExpired === true
+                    ? t("bubbles.coListeningInvite.badgeExpired", "Het han")
+                    : t("bubbles.coListeningInvite.badgeValid", "Con han")}
                   {remainingText ? ` • ${remainingText}` : ""}
                 </span>
               ) : null}
@@ -167,26 +207,36 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
             if (!invite.hostUserId || !invite.token) return;
 
             if (isExpired === true) {
-              setLocalNote("Link moi da het han. Hay nho host tao link moi.");
+              setLocalNote(t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi."));
               return;
             }
 
             if (!currentUserId) {
-              setLocalNote("Ban can dang nhap de tham gia phien nghe chung.");
+              setLocalNote(
+                t("bubbles.coListeningInvite.noteLoginRequired", "Ban can dang nhap de tham gia phien nghe chung.")
+              );
               return;
             }
 
             if (isConnected && activeHostUserId === invite.hostUserId) {
               setLocalNote(
-                "Ban dang o trong phong nghe chung nay roi. (Token chi can luc tham gia lan dau; neu dang o trong phong thi token het han khong anh huong)"
+                t(
+                  "bubbles.coListeningInvite.noteAlreadyInRoom",
+                  "Ban dang o trong phong nghe chung nay roi. (Token chi can luc tham gia lan dau; neu dang o trong phong thi token het han khong anh huong)"
+                )
               );
               return;
             }
 
             if (isConnected && activeHostUserId && activeHostUserId !== invite.hostUserId) {
-              setLocalNote(`Dang chuyen tu phong host ${activeHostUserId} sang host ${invite.hostUserId}...`);
+              setLocalNote(
+                t("bubbles.coListeningInvite.noteSwitching", "Dang chuyen tu phong host {{from}} sang host {{to}}...", {
+                  from: activeHostUserId,
+                  to: invite.hostUserId,
+                })
+              );
             } else {
-              setLocalNote("Dang tham gia phien nghe chung...");
+              setLocalNote(t("bubbles.coListeningInvite.noteJoining", "Dang tham gia phien nghe chung..."));
             }
 
             attemptedRef.current = true;
@@ -200,7 +250,7 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
             );
           }}
         >
-          Tham gia
+          {t("bubbles.coListeningInvite.ctaJoin", "Tham gia")}
         </Button>
 
         <a
@@ -210,7 +260,7 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
           rel="noreferrer"
         >
           <LinkIcon className="h-3.5 w-3.5" />
-          Mo link
+          {t("bubbles.coListeningInvite.ctaOpenLink", "Mo link")}
         </a>
       </div>
     </div>
