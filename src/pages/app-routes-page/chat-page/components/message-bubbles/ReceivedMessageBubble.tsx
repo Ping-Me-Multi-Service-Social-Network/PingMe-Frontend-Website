@@ -7,6 +7,7 @@ import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { MessagePoll } from "./MessagePoll.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
+import { getRepliedMessagePreview } from "../../utils/getRepliedMessagePreview.ts";
 import { RotateCcw, Forward, MoreHorizontal, Trash2, Reply, Pin } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
 import { UserAvatarFallback } from "@/components/custom/UserAvatarFallback.tsx";
@@ -86,22 +87,6 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     } catch {
       toast.error(t("bubbles.messages.unpinError", "Could not unpin message"));
     }
-  };
-
-  const getRepliedMessagePreview = () => {
-    const replied = message.repliedMessage;
-    if (!replied) return "Message";
-
-    if (!replied.isActive) return t("bubbles.messages.recalled");
-    if (replied.type === "TEXT") return replied.content;
-    if (replied.type === "IMAGE") return t("bubbles.messages.image", "Image");
-    if (replied.type === "VIDEO") return t("bubbles.messages.video", "Video");
-    if (replied.type === "FILE") return t("bubbles.messages.file", "File");
-    if (replied.type === "WEATHER") return t("bubbles.messages.weather", "Weather");
-    if (replied.type === "POLL") {
-      return `[${t("input.createPollTitle", "Poll")}] ${replied.poll?.question || ""}`;
-    }
-    return "Message";
   };
 
   const renderMessageContent = () => {
@@ -197,7 +182,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
               {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
             </span>
             <span className="truncate max-w-[200px] opacity-90 text-[11px]">
-              {getRepliedMessagePreview()}
+              {getRepliedMessagePreview(message.repliedMessage, t)}
             </span>
           </div>
         )}
