@@ -1,92 +1,19 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link as LinkIcon, UsersRound } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/features/hooks";
 import { joinSessionStart } from "@/features/music/musicSessionSlice";
+import { formatDateTimeVi } from "@/utils/dateTime";
+import { fnv1a32Hex } from "@/utils/hash";
+import { decodeJwtPayload } from "@/utils/jwt";
+import {
+  parseCoListeningInvite as parseCoListeningInviteUtil,
+  type CoListeningInviteInfo,
+} from "@/utils/coListeningInvite";
 
-type InviteInfo = {
-  href: string;
-  joinPath: string;
-  hostUserId: string | null;
-  token: string | null;
-};
-
-function safeAtob(input: string): string {
-  // JWT uses base64url (no padding, '-' and '_' instead of '+' and '/')
-  const normalized = input.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = normalized + "===".slice((normalized.length + 3) % 4);
-  // `atob` is available in the browser. Guard for safety in unexpected runtimes.
-  if (typeof atob !== "function") throw new Error("atob is not available");
-  return atob(padded);
-}
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
-  try {
-    const json = safeAtob(parts[1]);
-    return JSON.parse(json) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-}
-
-function fnv1a32Hex(input: string): string {
-  // Stable, non-cryptographic hash just to distinguish links without exposing token content.
-  // Reference: FNV-1a 32-bit.
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < input.length; i++) {
-    hash ^= input.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  // Convert to unsigned and hex.
-  return (hash >>> 0).toString(16).padStart(8, "0");
-}
-
-function formatDateTimeVi(d: Date): string {
-  try {
-    return d.toLocaleString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return d.toLocaleString();
-  }
-}
-
-export function parseCoListeningInvite(text: string): InviteInfo | null {
-  const trimmed = text.trim();
-  if (!trimmed) return null;
-
-  // Only transform when the message is essentially a single URL (avoid surprising rewrites).
-  const tokens = trimmed.split(/\s+/);
-  if (tokens.length !== 1) return null;
-
-  const rawUrl = tokens[0];
-  if (!/^https?:\/\//i.test(rawUrl)) return null;
-
-  let url: URL;
-  try {
-    url = new URL(rawUrl);
-  } catch {
-    return null;
-  }
-
-  if (!url.pathname.startsWith("/app/music")) return null;
-
-  const hostUserId = url.searchParams.get("join-session");
-  const token = url.searchParams.get("token");
-  if (!hostUserId || !token) return null;
-
-  return {
-    href: url.toString(),
-    joinPath: `${url.pathname}${url.search}${url.hash}`,
-    hostUserId,
-    token,
-  };
+export function parseCoListeningInvite(text: string): CoListeningInviteInfo | null {
+  return parseCoListeningInviteUtil(text);
 }
 
 function normalizeJoinError(raw: string | null): string | null {
@@ -106,7 +33,8 @@ function normalizeJoinError(raw: string | null): string | null {
 
 export default function CoListeningInviteCard({ text }: { text: string }) {
   const dispatch = useAppDispatch();
-  const invite = useMemo(() => parseCoListeningInvite(text), [text]);
+  const invite = useMemo(() => parseCoListeningInviteUtil(text), [text]);
+
   const jwtPayload = useMemo(() => (invite?.token ? decodeJwtPayload(invite.token) : null), [invite?.token]);
   const expiresAt = useMemo(() => {
     const exp = jwtPayload?.exp;
@@ -115,16 +43,19 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
     if (Number.isNaN(d.getTime())) return null;
     return d;
   }, [jwtPayload]);
+
   const linkJti = useMemo(() => {
     const jti = jwtPayload?.jti;
     return typeof jti === "string" && jti.trim() ? jti : null;
   }, [jwtPayload]);
+
   const linkCode = useMemo(() => {
     if (!invite?.token) return null;
     // Prefer server-provided unique id when present.
     if (linkJti) return `#${linkJti.slice(0, 10)}`;
     return `#${fnv1a32Hex(invite.token)}`;
   }, [invite?.token, linkJti]);
+
   const expiresAtText = useMemo(() => (expiresAt ? formatDateTimeVi(expiresAt) : null), [expiresAt]);
   const isExpired = useMemo(() => (expiresAt ? Date.now() >= expiresAt.getTime() : null), [expiresAt]);
   const remainingText = useMemo(() => {
@@ -161,7 +92,9 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
     }
 
     if (isConnected) {
-      setLocalNote('Da tham gia. Mo tab "Nghe chung" de bat dau dong bo. (Token het han khong anh huong khi ban dang o trong phong)');
+      setLocalNote(
+        'Da tham gia. Mo tab "Nghe chung" de bat dau dong bo. (Token het han khong anh huong khi ban dang o trong phong)'
+      );
       return;
     }
 
@@ -188,6 +121,7 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
           <div className="mt-0.5 text-xs text-zinc-500">
             {invite.hostUserId ? `Host: ${invite.hostUserId}` : "Co-listening session"}
           </div>
+
           {linkCode || expiresAtText ? (
             <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
               {linkCode ? <span>Link {linkCode}</span> : null}
@@ -201,11 +135,13 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
                       : "border-emerald-200 bg-emerald-50 text-emerald-700",
                   ].join(" ")}
                 >
-                  {isExpired === true ? "Het han" : "Con han"}{remainingText ? ` • ${remainingText}` : ""}
+                  {isExpired === true ? "Het han" : "Con han"}
+                  {remainingText ? ` • ${remainingText}` : ""}
                 </span>
               ) : null}
             </div>
           ) : null}
+
           {localNote ? (
             <div
               className={[
@@ -226,13 +162,7 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
         <Button
           size="sm"
           className="h-8 bg-purple-600 hover:bg-purple-500"
-          disabled={
-            !invite.hostUserId ||
-            !invite.token ||
-            isExpired === true ||
-            // Global connecting means we're already in the middle of joining/switching.
-            isConnecting
-          }
+          disabled={!invite.hostUserId || !invite.token || isExpired === true || isConnecting}
           onClick={() => {
             if (!invite.hostUserId || !invite.token) return;
 
@@ -242,15 +172,14 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
             }
 
             if (!currentUserId) {
-              const msg = "Ban can dang nhap de tham gia phien nghe chung.";
-              setLocalNote(msg);
+              setLocalNote("Ban can dang nhap de tham gia phien nghe chung.");
               return;
             }
 
             if (isConnected && activeHostUserId === invite.hostUserId) {
-              const msg =
-                "Ban dang o trong phong nghe chung nay roi. (Token chi can luc tham gia lan dau; neu dang o trong phong thi token het han khong anh huong)";
-              setLocalNote(msg);
+              setLocalNote(
+                "Ban dang o trong phong nghe chung nay roi. (Token chi can luc tham gia lan dau; neu dang o trong phong thi token het han khong anh huong)"
+              );
               return;
             }
 

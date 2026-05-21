@@ -19,7 +19,8 @@ export default function LinkifiedText({ text, className }: LinkifiedTextProps) {
 
     try {
       const target = new URL(rawUrl, window.location.origin);
-      if (target.origin === window.location.origin) {
+      // Only treat real app routes as SPA navigations. Everything else should behave like a normal link.
+      if (target.origin === window.location.origin && target.pathname.startsWith("/app/")) {
         event.preventDefault();
         navigate(`${target.pathname}${target.search}${target.hash}`);
       }
