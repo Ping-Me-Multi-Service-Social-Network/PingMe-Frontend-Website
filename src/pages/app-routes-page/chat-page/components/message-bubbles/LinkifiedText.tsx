@@ -8,7 +8,7 @@ interface LinkifiedTextProps {
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/gi;
 
-export default function LinkifiedText({ text, className }: LinkifiedTextProps) {
+export default function LinkifiedText({ text, className }: Readonly<LinkifiedTextProps>) {
   const navigate = useNavigate();
   const parts = text.split(URL_REGEX);
 
@@ -18,9 +18,9 @@ export default function LinkifiedText({ text, className }: LinkifiedTextProps) {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
     try {
-      const target = new URL(rawUrl, window.location.origin);
+      const target = new URL(rawUrl, globalThis.location.origin);
       // Only treat real app routes as SPA navigations. Everything else should behave like a normal link.
-      if (target.origin === window.location.origin && target.pathname.startsWith("/app/")) {
+      if (target.origin === globalThis.location.origin && target.pathname.startsWith("/app/")) {
         event.preventDefault();
         navigate(`${target.pathname}${target.search}${target.hash}`);
       }

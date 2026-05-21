@@ -19,7 +19,7 @@ interface SessionTokenResponse {
 
 function normalizeShareLink(rawLink: string): string {
   try {
-    const currentOrigin = window.location.origin;
+    const currentOrigin = globalThis.location.origin;
     const parsed = new URL(rawLink, currentOrigin);
     // Force invite links to open on current app host to avoid landing-page 404 on other domains.
     return `${currentOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
@@ -96,7 +96,7 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
         break;
     }
 
-    window.open(url, '_blank');
+    globalThis.open(url, '_blank');
   };
 
   return (

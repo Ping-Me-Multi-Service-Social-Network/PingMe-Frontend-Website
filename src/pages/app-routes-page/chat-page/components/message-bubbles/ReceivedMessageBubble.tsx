@@ -88,6 +88,22 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     }
   };
 
+  const getRepliedMessagePreview = () => {
+    const replied = message.repliedMessage;
+    if (!replied) return "Message";
+
+    if (!replied.isActive) return t("bubbles.messages.recalled");
+    if (replied.type === "TEXT") return replied.content;
+    if (replied.type === "IMAGE") return t("bubbles.messages.image", "Image");
+    if (replied.type === "VIDEO") return t("bubbles.messages.video", "Video");
+    if (replied.type === "FILE") return t("bubbles.messages.file", "File");
+    if (replied.type === "WEATHER") return t("bubbles.messages.weather", "Weather");
+    if (replied.type === "POLL") {
+      return `[${t("input.createPollTitle", "Poll")}] ${replied.poll?.question || ""}`;
+    }
+    return "Message";
+  };
+
   const renderMessageContent = () => {
     if (!message.isActive) {
       return (
@@ -181,14 +197,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
               {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
             </span>
             <span className="truncate max-w-[200px] opacity-90 text-[11px]">
-              {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
-               message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
-               message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-               message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-               message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
-               message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
-               message.repliedMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${message.repliedMessage.poll?.question || ''}` : 
-               "Message"}
+              {getRepliedMessagePreview()}
             </span>
           </div>
         )}

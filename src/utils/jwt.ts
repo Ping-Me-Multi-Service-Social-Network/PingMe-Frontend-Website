@@ -1,6 +1,6 @@
 export function safeAtobBase64Url(input: string): string {
   // JWT uses base64url (no padding, '-' and '_' instead of '+' and '/')
-  const normalized = input.replace(/-/g, "+").replace(/_/g, "/");
+  const normalized = input.replaceAll("-", "+").replaceAll("_", "/");
   const padded = normalized + "===".slice((normalized.length + 3) % 4);
 
   // `atob` is available in the browser. Guard for safety in unexpected runtimes.
@@ -18,4 +18,3 @@ export function decodeJwtPayload(token: string): Record<string, unknown> | null 
     return null;
   }
 }
-

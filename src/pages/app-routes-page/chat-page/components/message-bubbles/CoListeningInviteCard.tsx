@@ -17,23 +17,96 @@ export function parseCoListeningInvite(text: string): CoListeningInviteInfo | nu
   return parseCoListeningInviteUtil(text);
 }
 
-function normalizeJoinError(raw: string | null): "expired" | "forbidden" | string | null {
+type JoinErrorNormalized =
+  | { kind: "expired" }
+  | { kind: "forbidden" }
+  | { kind: "raw"; message: string };
+
+function normalizeJoinError(raw: string | null): JoinErrorNormalized | null {
   // Keep the matching rules stable; only the displayed text is translated.
   if (!raw) return null;
 
   const s = raw.toLowerCase();
   if (s.includes("expired") || (s.includes("token") && s.includes("expire"))) {
-    return "expired";
+    return { kind: "expired" };
   }
 
   if (s.includes("403") || s.includes("forbidden")) {
-    return "forbidden";
+    return { kind: "forbidden" };
   }
 
-  return raw;
+  return { kind: "raw", message: raw };
 }
 
-export default function CoListeningInviteCard({ text }: { text: string }) {
+function getAttemptKey(hostUserId: string, token: string) {
+  return `${hostUserId}:${token}`;
+}
+
+function getPendingJoinNote(params: {
+  currentUserId: string | null;
+  isConnected: boolean;
+  activeHostUserId: string | null;
+  inviteHostUserId: string;
+  t: ReturnType<typeof useTranslation>["t"];
+}): string | null {
+  const { currentUserId, isConnected, activeHostUserId, inviteHostUserId, t } = params;
+
+  if (!currentUserId) {
+    return t("bubbles.coListeningInvite.noteLoginRequired", "Ban can dang nhap de tham gia phien nghe chung.");
+  }
+
+  if (isConnected && activeHostUserId === inviteHostUserId) {
+    return t(
+      "bubbles.coListeningInvite.noteAlreadyInRoom",
+      "Ban dang o trong phong nghe chung nay roi. (Token chi can luc tham gia lan dau; neu dang o trong phong thi token het han khong anh huong)"
+    );
+  }
+
+  return null;
+}
+
+function getJoinProgressNote(params: {
+  isConnected: boolean;
+  activeHostUserId: string | null;
+  inviteHostUserId: string;
+  t: ReturnType<typeof useTranslation>["t"];
+}): string {
+  const { isConnected, activeHostUserId, inviteHostUserId, t } = params;
+  if (isConnected && activeHostUserId && activeHostUserId !== inviteHostUserId) {
+    return t("bubbles.coListeningInvite.noteSwitching", "Dang chuyen tu phong host {{from}} sang host {{to}}...", {
+      from: activeHostUserId,
+      to: inviteHostUserId,
+    });
+  }
+  return t("bubbles.coListeningInvite.noteJoining", "Dang tham gia phien nghe chung...");
+}
+
+function resolveJoinAttemptNote(params: {
+  isConnecting: boolean;
+  isConnected: boolean;
+  error: string | null;
+  t: ReturnType<typeof useTranslation>["t"];
+}): string | null {
+  const { isConnecting, isConnected, error, t } = params;
+  if (isConnecting) {
+    return t("bubbles.coListeningInvite.noteJoining", "Dang tham gia phien nghe chung...");
+  }
+  if (isConnected) {
+    return t(
+      "bubbles.coListeningInvite.noteJoined",
+      'Da tham gia. Mo tab "Nghe chung" de bat dau dong bo. (Token het han khong anh huong khi ban dang o trong phong)'
+    );
+  }
+
+  const normalized = normalizeJoinError(error);
+  if (!normalized) return null;
+  if (normalized.kind === "expired" || normalized.kind === "forbidden") {
+    return t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi.");
+  }
+  return normalized.message;
+}
+
+export default function CoListeningInviteCard({ text }: Readonly<{ text: string }>) {
   const { t } = useTranslation("chat");
   const dispatch = useAppDispatch();
   const invite = useMemo(() => parseCoListeningInviteUtil(text), [text]);
@@ -106,34 +179,13 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
     if (!attemptedRef.current) return;
     if (!isThisInviteActive) return;
 
-    if (isConnecting) {
-      setLocalNote(t("bubbles.coListeningInvite.noteJoining", "Dang tham gia phien nghe chung..."));
-      return;
-    }
-
-    if (isConnected) {
-      setLocalNote(
-        t(
-          "bubbles.coListeningInvite.noteJoined",
-          'Da tham gia. Mo tab "Nghe chung" de bat dau dong bo. (Token het han khong anh huong khi ban dang o trong phong)'
-        )
-      );
-      return;
-    }
-
-    const normalized = normalizeJoinError(error);
-    if (!normalized) return;
-
     // Only show the error on the card that initiated this attempt.
-    const attemptKey = `${invite.hostUserId}:${invite.token ?? ""}`;
+    const attemptKey = getAttemptKey(invite.hostUserId, invite.token ?? "");
     if (attemptKeyRef.current !== attemptKey) return;
 
-    if (normalized === "expired" || normalized === "forbidden") {
-      setLocalNote(t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi."));
-      return;
-    }
-
-    setLocalNote(String(normalized));
+    const note = resolveJoinAttemptNote({ isConnecting, isConnected, error, t });
+    if (!note) return;
+    setLocalNote(note);
   }, [error, invite?.hostUserId, invite?.token, isConnected, isConnecting, isThisInviteActive, t]);
 
   if (!invite) return null;
@@ -211,36 +263,29 @@ export default function CoListeningInviteCard({ text }: { text: string }) {
               return;
             }
 
-            if (!currentUserId) {
-              setLocalNote(
-                t("bubbles.coListeningInvite.noteLoginRequired", "Ban can dang nhap de tham gia phien nghe chung.")
-              );
+            const blockedNote = getPendingJoinNote({
+              currentUserId,
+              isConnected,
+              activeHostUserId,
+              inviteHostUserId: invite.hostUserId,
+              t,
+            });
+            if (blockedNote) {
+              setLocalNote(blockedNote);
               return;
             }
 
-            if (isConnected && activeHostUserId === invite.hostUserId) {
-              setLocalNote(
-                t(
-                  "bubbles.coListeningInvite.noteAlreadyInRoom",
-                  "Ban dang o trong phong nghe chung nay roi. (Token chi can luc tham gia lan dau; neu dang o trong phong thi token het han khong anh huong)"
-                )
-              );
-              return;
-            }
-
-            if (isConnected && activeHostUserId && activeHostUserId !== invite.hostUserId) {
-              setLocalNote(
-                t("bubbles.coListeningInvite.noteSwitching", "Dang chuyen tu phong host {{from}} sang host {{to}}...", {
-                  from: activeHostUserId,
-                  to: invite.hostUserId,
-                })
-              );
-            } else {
-              setLocalNote(t("bubbles.coListeningInvite.noteJoining", "Dang tham gia phien nghe chung..."));
-            }
+            setLocalNote(
+              getJoinProgressNote({
+                isConnected,
+                activeHostUserId,
+                inviteHostUserId: invite.hostUserId,
+                t,
+              })
+            );
 
             attemptedRef.current = true;
-            attemptKeyRef.current = `${invite.hostUserId}:${invite.token}`;
+            attemptKeyRef.current = getAttemptKey(invite.hostUserId, invite.token);
             dispatch(
               joinSessionStart({
                 hostUserId: invite.hostUserId,
