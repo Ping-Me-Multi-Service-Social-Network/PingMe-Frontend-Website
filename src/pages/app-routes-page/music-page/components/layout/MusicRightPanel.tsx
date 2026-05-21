@@ -1,10 +1,13 @@
 import { useAudio, useAudioTime } from "@/hooks/useAudio.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, MoreVertical, Music2, Disc3, User2, Clock3 } from "lucide-react";
 import PlaylistDropdown from "../dialogs/PlaylistDropdown";
 import { useTranslation } from "react-i18next";
 import { useFavorites } from "@/hooks/useFavorites";
 import CoListeningSection from "../co-listening/CoListeningSection";
+import { useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/features/store";
 
 function formatDuration(seconds: number): string {
     if (!seconds || Number.isNaN(seconds)) return "0:00";
@@ -22,6 +25,15 @@ export default function MusicRightPanel() {
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const [activeTab, setActiveTab] = useState<"playing" | "colistening">("playing");
+    const [searchParams] = useSearchParams();
+    const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
+
+    useEffect(() => {
+        const hasJoinIntent = Boolean(searchParams.get("join-session") && searchParams.get("token"));
+        if (hasJoinIntent || activeHostUserId) {
+            setActiveTab("colistening");
+        }
+    }, [searchParams, activeHostUserId]);
 
     const [prevSongId, setPrevSongId] = useState(currentSong?.id);
     if (currentSong?.id !== prevSongId) {

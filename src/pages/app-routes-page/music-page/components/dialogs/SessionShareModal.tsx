@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Copy, Share2, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import axiosClient from '@/lib/axiosClient';
 
 interface SessionShareModalProps {
   open: boolean;
@@ -14,6 +15,17 @@ interface SessionTokenResponse {
   token: string;
   shareLink: string;
   expiresAt: string;
+}
+
+function normalizeShareLink(rawLink: string): string {
+  try {
+    const currentOrigin = globalThis.location.origin;
+    const parsed = new URL(rawLink, currentOrigin);
+    // Force invite links to open on current app host to avoid landing-page 404 on other domains.
+    return `${currentOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return rawLink;
+  }
 }
 
 /**
@@ -42,22 +54,13 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `/music-service/music/sessions/${sessionId}/share-token`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        }
+      const response = await axiosClient.post<SessionTokenResponse>(
+        `/music-service/music/sessions/${sessionId}/share-token`
       );
-
-      if (!response.ok) {
-        throw new Error(`Failed to generate share token: ${response.statusText}`);
-      }
-
-      const data: SessionTokenResponse = await response.json();
-      setShareData(data);
+      setShareData({
+        ...response.data,
+        shareLink: normalizeShareLink(response.data.shareLink),
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to generate share token';
       setError(message);
@@ -93,7 +96,7 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
         break;
     }
 
-    window.open(url, '_blank');
+    globalThis.open(url, '_blank');
   };
 
   return (
@@ -104,6 +107,9 @@ export const SessionShareModal: React.FC<SessionShareModalProps> = ({
             <Share2 className="w-5 h-5 text-green-500" />
             Share Session
           </DialogTitle>
+          <DialogDescription className="text-zinc-400">
+            Generate a temporary invite link for non-friends to join your listening session.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

@@ -23,6 +23,9 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
 import type { ChatTheme } from "../../utils/chatThemes.ts";
+import LinkifiedText from "./LinkifiedText.tsx";
+import CoListeningInviteCard, { parseCoListeningInvite } from "./CoListeningInviteCard.tsx";
+import { ForwardedIndicator, RepliedMessagePreview } from "./MessageMetaBlocks.tsx";
 
 interface SentMessageBubbleProps {
   message: MessageResponse;
@@ -51,6 +54,8 @@ const SentMessageBubble = memo(function SentMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER";
+  const coListeningInvite = message.type === "TEXT" ? parseCoListeningInvite(message.content) : null;
+  const isInviteMessage = !!coListeningInvite;
 
   const handleRecallMessage = async () => {
     const messageDate = new Date(message.createdAt);
@@ -156,11 +161,18 @@ const SentMessageBubble = memo(function SentMessageBubble({
         break;
       case "TEXT":
       default:
+        // Render a compact invite card for co-listening share links (instead of a huge URL).
+        if (isInviteMessage) {
+          contentNode = (
+            <div className="flex flex-col relative">
+              <CoListeningInviteCard text={message.content} />
+            </div>
+          );
+          break;
+        }
         contentNode = (
           <div className="flex flex-col relative">
-            <p className="text-sm leading-relaxed" style={{ whiteSpace: "pre-wrap" }}>
-              {message.content}
-            </p>
+            <LinkifiedText text={message.content} className="text-sm leading-relaxed" />
             {message.isEdited && (
               <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center" title={message.editedAt ? new Date(message.editedAt).toLocaleString() : undefined}>
                 <Edit2 className="w-2.5 h-2.5 mr-1" />
@@ -174,43 +186,20 @@ const SentMessageBubble = memo(function SentMessageBubble({
 
     return (
       <>
-        {message.repliedMessage && (
-          <div 
-            className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/40 bg-black/10 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/20 transition-colors"
-            onClick={() => {
-              const el = document.getElementById(`message-${message.repliedMessage?.id}`);
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('bg-primary/20', 'transition-colors', 'duration-500');
-                setTimeout(() => el.classList.remove('bg-primary/20'), 1500);
-              }
-            }}
-          >
-            <span className="font-bold opacity-100 mb-0.5">
-              {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
-            </span>
-            <span className="truncate max-w-[200px] opacity-90 text-[11px]">
-              {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
-               message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
-               message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-               message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-               message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
-               message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
-               message.repliedMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${message.repliedMessage.poll?.question || ''}` : 
-               "Message"}
-            </span>
-          </div>
-        )}
-        {message.isForwarded && (
-          <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
-            <Forward className="h-3 w-3 mr-1" />
-            {t("bubbles.messages.forwarded", "Forwarded")}
-          </div>
-        )}
+        <RepliedMessagePreview
+          repliedMessage={message.repliedMessage}
+          repliedSenderName={repliedSenderName}
+          t={t}
+          className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/40 bg-black/10 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/20 transition-colors"
+        />
+        <ForwardedIndicator isForwarded={message.isForwarded} t={t} />
         {contentNode}
       </>
     );
   };
+
+  const shouldRenderBareContentContainer =
+    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage);
 
   return (
     <motion.div
@@ -288,9 +277,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
         </AnimatePresence>
 
         <motion.div transition={{ type: "spring", stiffness: 400, damping: 30 }}>
-          {isWeatherMessage && message.isActive ? (
-            <div>{renderMessageContent()}</div>
-          ) : isMediaMessage && message.isActive ? (
+          {shouldRenderBareContentContainer ? (
             <div>{renderMessageContent()}</div>
           ) : (
             <div

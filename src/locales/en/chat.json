@@ -169,6 +169,27 @@
         "video": {
             "unsupported": "Your browser does not support the video tag."
         },
+        "coListeningInvite": {
+            "title": "Invite to co-listen",
+            "host": "Host: {{hostUserId}}",
+            "sessionFallback": "Co-listening session",
+            "link": "Link {{code}}",
+            "expiresAt": "Expires: {{time}}",
+            "badgeExpired": "Expired",
+            "badgeValid": "Valid",
+            "remainingExpired": "Expired",
+            "remainingMinutes": "{{mins}} min left",
+            "remainingHours": "{{hours}} hr left",
+            "remainingHoursMinutes": "{{hours}} hr {{mins}} min left",
+            "ctaJoin": "Join",
+            "ctaOpenLink": "Open link",
+            "noteJoining": "Joining co-listening session...",
+            "noteJoined": "Joined. Open the \"Co-listen\" tab to sync. (Token expiration does not affect while you are in the room)",
+            "noteExpired": "Invite link has expired. Ask the host to create a new link.",
+            "noteLoginRequired": "Please sign in to join the co-listening session.",
+            "noteAlreadyInRoom": "You are already in this co-listening room. (Token is only needed for the first join; expiration won't affect while you stay in-room)",
+            "noteSwitching": "Switching from host {{from}} to host {{to}}..."
+        },
         "messages": {
             "replyTo": "Replying to:",
             "replyBtn": "Reply",

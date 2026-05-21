@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import { deleteMessageForMeApi, pinMessageApi, unpinMessageApi } from "@/services/chat";
 import { toast } from "sonner";
+import LinkifiedText from "./LinkifiedText.tsx";
+import CoListeningInviteCard, { parseCoListeningInvite } from "./CoListeningInviteCard.tsx";
+import { ForwardedIndicator, RepliedMessagePreview } from "./MessageMetaBlocks.tsx";
 
 interface ReceivedMessageBubbleProps {
   message: MessageResponse;
@@ -55,6 +58,8 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER"; 
+  const inviteInfo = message.type === "TEXT" ? parseCoListeningInvite(message.content) : null;
+  const isInviteMessage = !!inviteInfo;
 
   const handleDeleteForMe = async () => {
     try {
@@ -143,55 +148,38 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         break;
       case "TEXT":
       default:
-        contentNode = (
-          <div className="flex flex-col relative">
-            <p className="text-sm leading-relaxed">
-              {message.content}
-            </p>
-          </div>
-        );
+        if (isInviteMessage) {
+          contentNode = (
+            <div className="flex flex-col relative">
+              <CoListeningInviteCard text={message.content} />
+            </div>
+          );
+        } else {
+          contentNode = (
+            <div className="flex flex-col relative">
+              <LinkifiedText text={message.content} className="text-sm leading-relaxed" />
+            </div>
+          );
+        }
         break;
     }
 
     return (
       <>
-        {message.repliedMessage && (
-          <div 
-            className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/30 bg-black/5 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/10 transition-colors"
-            onClick={() => {
-              const el = document.getElementById(`message-${message.repliedMessage?.id}`);
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('bg-primary/20', 'transition-colors', 'duration-500');
-                setTimeout(() => el.classList.remove('bg-primary/20'), 1500);
-              }
-            }}
-          >
-            <span className="font-bold opacity-100 mb-0.5">
-              {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
-            </span>
-            <span className="truncate max-w-[200px] opacity-90 text-[11px]">
-              {!message.repliedMessage.isActive ? t("bubbles.messages.recalled") :
-               message.repliedMessage.type === "TEXT" ? message.repliedMessage.content : 
-               message.repliedMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-               message.repliedMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-               message.repliedMessage.type === "FILE" ? t("bubbles.messages.file", "File") : 
-               message.repliedMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") : 
-               message.repliedMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${message.repliedMessage.poll?.question || ''}` : 
-               "Message"}
-            </span>
-          </div>
-        )}
-        {message.isForwarded && (
-          <div className="flex items-center text-[11px] opacity-70 mb-1 italic">
-            <Forward className="h-3 w-3 mr-1" />
-            {t("bubbles.messages.forwarded", "Forwarded")}
-          </div>
-        )}
+        <RepliedMessagePreview
+          repliedMessage={message.repliedMessage}
+          repliedSenderName={repliedSenderName}
+          t={t}
+          className="flex flex-col text-xs mb-1.5 border-l-[3px] border-current/30 bg-black/5 rounded-r-md px-2 py-1.5 cursor-pointer hover:bg-black/10 transition-colors"
+        />
+        <ForwardedIndicator isForwarded={message.isForwarded} t={t} />
         {contentNode}
       </>
     );
   };
+
+  const shouldRenderBareContentContainer =
+    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage);
 
 
   return (
@@ -270,9 +258,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         </AnimatePresence>
 
         <motion.div transition={{ type: "spring", stiffness: 400, damping: 30 }}>
-            {isWeatherMessage && message.isActive ? (
-                <div>{renderMessageContent()}</div>
-            ) : isMediaMessage && message.isActive ? (
+            {shouldRenderBareContentContainer ? (
             <div>{renderMessageContent()}</div>
             ) : (
             <div

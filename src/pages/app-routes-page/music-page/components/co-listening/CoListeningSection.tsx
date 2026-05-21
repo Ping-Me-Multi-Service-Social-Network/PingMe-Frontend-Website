@@ -7,8 +7,8 @@ import { FriendListeningList } from "./FriendListeningList";
 import { Button } from "@/components/ui/button";
 import { SessionShareModal } from "../dialogs/SessionShareModal";
 import { UsersRound, PlayCircle, LogOut, Share2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 import { lookupByIdApi } from "@/services/user/userLookupApi";
 import type { UserSummarySimpleResponse } from "@/types/common/userSummarySimpleResponse";
@@ -42,14 +42,23 @@ export default function CoListeningSection() {
   const sessionState = useSelector((state: RootState) => state.musicSession.session);
   const activeHostUserId = useSelector((state: RootState) => state.musicSession.activeHostUserId);
   const isConnecting = useSelector((state: RootState) => state.musicSession.isConnecting);
+  const isConnected = useSelector((state: RootState) => state.musicSession.isConnected);
   const isHost = useSelector((state: RootState) => state.musicSession.isHost);
   const error = useSelector((state: RootState) => state.musicSession.error);
+  const sessionToken = useSelector((state: RootState) => state.musicSession.sessionToken);
   const currentSong = useSelector((state: RootState) => state.audioPlayer.currentSong);
 
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
   const [usersById, setUsersById] = useState<Record<string, UserSummarySimpleResponse>>({});
+  const lastToastErrorRef = useRef<string | null>(null);
+
+  const handleJoinWithToken = useCallback((hostId: string, token: string) => {
+    if (!currentUserId) return;
+    dispatch(joinSessionStart({ hostUserId: hostId, currentUserId, sessionToken: token }));
+  }, [currentUserId, dispatch]);
 
   // Handle URL-based session joining (share link)
   useEffect(() => {
@@ -59,8 +68,21 @@ export default function CoListeningSection() {
     if (token && hostId) {
       // Auto-join session with token
       handleJoinWithToken(hostId, token);
+      // Remove query params so clicking the same invite again doesn't re-trigger join logic.
+      navigate("/app/music", { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate, handleJoinWithToken]);
+
+  useEffect(() => {
+    // When joining via invite token and it fails (expired/revoked), notify user immediately.
+    if (!sessionToken) return;
+    if (isConnected) return;
+    if (!error) return;
+
+    if (lastToastErrorRef.current === error) return;
+    lastToastErrorRef.current = error;
+    toast.error(error);
+  }, [sessionToken, isConnected, error]);
 
   useEffect(() => {
     const participantIds = [activeHostUserId, ...(sessionState?.activeListenerIds ?? [])]
@@ -118,11 +140,6 @@ export default function CoListeningSection() {
       return;
     }
     dispatch(joinSessionStart({ hostUserId: currentUserId, currentUserId }));
-  };
-
-  const handleJoinWithToken = (hostId: string, token: string) => {
-    if (!currentUserId) return;
-    dispatch(joinSessionStart({ hostUserId: hostId, currentUserId, sessionToken: token }));
   };
 
   const handleLeaveSession = () => {
@@ -272,5 +289,3 @@ export default function CoListeningSection() {
     </>
   );
 }
-
-
