@@ -7,7 +7,7 @@ import { FriendListeningList } from "./FriendListeningList";
 import { Button } from "@/components/ui/button";
 import { SessionShareModal } from "../dialogs/SessionShareModal";
 import { UsersRound, PlayCircle, LogOut, Share2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MusicSocketManager } from "@/features/websocket/core/musicSocketManager";
 import { lookupByIdApi } from "@/services/user/userLookupApi";
@@ -55,6 +55,11 @@ export default function CoListeningSection() {
   const [usersById, setUsersById] = useState<Record<string, UserSummarySimpleResponse>>({});
   const lastToastErrorRef = useRef<string | null>(null);
 
+  const handleJoinWithToken = useCallback((hostId: string, token: string) => {
+    if (!currentUserId) return;
+    dispatch(joinSessionStart({ hostUserId: hostId, currentUserId, sessionToken: token }));
+  }, [currentUserId, dispatch]);
+
   // Handle URL-based session joining (share link)
   useEffect(() => {
     const token = searchParams.get("token");
@@ -66,7 +71,7 @@ export default function CoListeningSection() {
       // Remove query params so clicking the same invite again doesn't re-trigger join logic.
       navigate("/app/music", { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate, handleJoinWithToken]);
 
   useEffect(() => {
     // When joining via invite token and it fails (expired/revoked), notify user immediately.
@@ -135,11 +140,6 @@ export default function CoListeningSection() {
       return;
     }
     dispatch(joinSessionStart({ hostUserId: currentUserId, currentUserId }));
-  };
-
-  const handleJoinWithToken = (hostId: string, token: string) => {
-    if (!currentUserId) return;
-    dispatch(joinSessionStart({ hostUserId: hostId, currentUserId, sessionToken: token }));
   };
 
   const handleLeaveSession = () => {
