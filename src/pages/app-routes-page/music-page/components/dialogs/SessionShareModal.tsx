@@ -19,8 +19,8 @@ interface SessionTokenResponse {
 
 function normalizeShareLink(rawLink: string): string {
   try {
-    const parsed = new URL(rawLink);
     const currentOrigin = window.location.origin;
+    const parsed = new URL(rawLink, currentOrigin);
     // Force invite links to open on current app host to avoid landing-page 404 on other domains.
     return `${currentOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
   } catch {
