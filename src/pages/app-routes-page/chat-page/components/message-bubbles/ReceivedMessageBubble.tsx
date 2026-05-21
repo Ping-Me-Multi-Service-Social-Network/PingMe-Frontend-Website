@@ -212,6 +212,9 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     );
   };
 
+  const shouldRenderBareContentContainer =
+    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage);
+
 
   return (
     <motion.div
@@ -289,11 +292,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         </AnimatePresence>
 
         <motion.div transition={{ type: "spring", stiffness: 400, damping: 30 }}>
-            {isWeatherMessage && message.isActive ? (
-                <div>{renderMessageContent()}</div>
-            ) : isMediaMessage && message.isActive ? (
-            <div>{renderMessageContent()}</div>
-            ) : isInviteMessage && message.isActive ? (
+            {shouldRenderBareContentContainer ? (
             <div>{renderMessageContent()}</div>
             ) : (
             <div

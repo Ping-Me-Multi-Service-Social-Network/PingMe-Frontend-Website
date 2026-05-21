@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { Link as LinkIcon, UsersRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -104,6 +104,85 @@ function resolveJoinAttemptNote(params: {
     return t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi.");
   }
   return normalized.message;
+}
+
+function getLocalNoteTone(params: {
+  isThisInviteActive: boolean;
+  isConnecting: boolean;
+  isConnected: boolean;
+  error: string | null;
+}): string {
+  const { isThisInviteActive, isConnecting, isConnected, error } = params;
+  if (isThisInviteActive && !isConnecting && !isConnected && error) {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+  return "border-zinc-200 bg-zinc-50 text-zinc-700";
+}
+
+function handleJoinInvite(params: {
+  inviteHostUserId: string | null;
+  inviteToken: string | null;
+  isExpired: boolean | null;
+  currentUserId: string | null;
+  isConnected: boolean;
+  activeHostUserId: string | null;
+  t: ReturnType<typeof useTranslation>["t"];
+  setLocalNote: (note: string | null) => void;
+  attemptedRef: MutableRefObject<boolean>;
+  attemptKeyRef: MutableRefObject<string | null>;
+  dispatch: ReturnType<typeof useAppDispatch>;
+}): void {
+  const {
+    inviteHostUserId,
+    inviteToken,
+    isExpired,
+    currentUserId,
+    isConnected,
+    activeHostUserId,
+    t,
+    setLocalNote,
+    attemptedRef,
+    attemptKeyRef,
+    dispatch,
+  } = params;
+
+  if (!inviteHostUserId || !inviteToken) return;
+
+  if (isExpired === true) {
+    setLocalNote(t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi."));
+    return;
+  }
+
+  const blockedNote = getPendingJoinNote({
+    currentUserId,
+    isConnected,
+    activeHostUserId,
+    inviteHostUserId,
+    t,
+  });
+  if (blockedNote) {
+    setLocalNote(blockedNote);
+    return;
+  }
+
+  setLocalNote(
+    getJoinProgressNote({
+      isConnected,
+      activeHostUserId,
+      inviteHostUserId,
+      t,
+    })
+  );
+
+  attemptedRef.current = true;
+  attemptKeyRef.current = getAttemptKey(inviteHostUserId, inviteToken);
+  dispatch(
+    joinSessionStart({
+      hostUserId: inviteHostUserId,
+      currentUserId,
+      sessionToken: inviteToken,
+    })
+  );
 }
 
 export default function CoListeningInviteCard({ text }: Readonly<{ text: string }>) {
@@ -238,9 +317,7 @@ export default function CoListeningInviteCard({ text }: Readonly<{ text: string 
             <div
               className={[
                 "mt-2 rounded-md border px-2.5 py-2 text-xs",
-                isThisInviteActive && !isConnecting && !isConnected && error
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-zinc-200 bg-zinc-50 text-zinc-700",
+                getLocalNoteTone({ isThisInviteActive, isConnecting, isConnected, error }),
               ].join(" ")}
               role="alert"
             >
@@ -255,45 +332,21 @@ export default function CoListeningInviteCard({ text }: Readonly<{ text: string 
           size="sm"
           className="h-8 bg-purple-600 hover:bg-purple-500"
           disabled={!invite.hostUserId || !invite.token || isExpired === true || isConnecting}
-          onClick={() => {
-            if (!invite.hostUserId || !invite.token) return;
-
-            if (isExpired === true) {
-              setLocalNote(t("bubbles.coListeningInvite.noteExpired", "Link moi da het han. Hay nho host tao link moi."));
-              return;
-            }
-
-            const blockedNote = getPendingJoinNote({
+          onClick={() =>
+            handleJoinInvite({
+              inviteHostUserId: invite.hostUserId,
+              inviteToken: invite.token,
+              isExpired,
               currentUserId,
               isConnected,
               activeHostUserId,
-              inviteHostUserId: invite.hostUserId,
               t,
-            });
-            if (blockedNote) {
-              setLocalNote(blockedNote);
-              return;
-            }
-
-            setLocalNote(
-              getJoinProgressNote({
-                isConnected,
-                activeHostUserId,
-                inviteHostUserId: invite.hostUserId,
-                t,
-              })
-            );
-
-            attemptedRef.current = true;
-            attemptKeyRef.current = getAttemptKey(invite.hostUserId, invite.token);
-            dispatch(
-              joinSessionStart({
-                hostUserId: invite.hostUserId,
-                currentUserId,
-                sessionToken: invite.token,
-              })
-            );
-          }}
+              setLocalNote,
+              attemptedRef,
+              attemptKeyRef,
+              dispatch,
+            })
+          }
         >
           {t("bubbles.coListeningInvite.ctaJoin", "Tham gia")}
         </Button>
