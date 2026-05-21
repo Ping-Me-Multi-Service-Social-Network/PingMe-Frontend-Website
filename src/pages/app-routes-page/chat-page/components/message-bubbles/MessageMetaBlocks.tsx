@@ -2,6 +2,7 @@
 import { getRepliedMessagePreview } from "../../utils/getRepliedMessagePreview.ts";
 import type { MessageResponse } from "@/types/chat/message";
 import type { TFunction } from "i18next";
+import type { KeyboardEvent } from "react";
 
 interface RepliedMessagePreviewProps {
   repliedMessage: MessageResponse["repliedMessage"];
@@ -15,7 +16,7 @@ export function RepliedMessagePreview({
   repliedSenderName,
   t,
   className,
-}: RepliedMessagePreviewProps) {
+}: Readonly<RepliedMessagePreviewProps>) {
   if (!repliedMessage) return null;
 
   const scrollToRepliedMessage = () => {
@@ -27,8 +28,21 @@ export function RepliedMessagePreview({
     setTimeout(() => el.classList.remove("bg-primary/20"), 1500);
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    scrollToRepliedMessage();
+  };
+
   return (
-    <div className={className} onClick={scrollToRepliedMessage}>
+    <div
+      className={className}
+      role="button"
+      tabIndex={0}
+      onClick={scrollToRepliedMessage}
+      onKeyDown={handleKeyDown}
+      aria-label={t("bubbles.messages.jumpToOriginal", "Jump to original message")}
+    >
       <span className="font-bold opacity-100 mb-0.5">
         {t("bubbles.messages.replyTo", "Replying to")} {repliedSenderName || "User"}
       </span>
@@ -39,7 +53,7 @@ export function RepliedMessagePreview({
   );
 }
 
-export function ForwardedIndicator({ isForwarded, t }: { isForwarded?: boolean; t: TFunction }) {
+export function ForwardedIndicator({ isForwarded, t }: Readonly<{ isForwarded?: boolean; t: TFunction }>) {
   if (!isForwarded) return null;
 
   return (
