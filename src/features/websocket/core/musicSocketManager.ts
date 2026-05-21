@@ -1,4 +1,4 @@
-﻿import type { IMessage, StompSubscription } from "@stomp/stompjs";
+import type { IMessage, StompSubscription } from "@stomp/stompjs";
 import type {
   MusicSessionCommandRequest,
   MusicSessionEventType,
