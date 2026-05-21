@@ -2,7 +2,6 @@
 import { getRepliedMessagePreview } from "../../utils/getRepliedMessagePreview.ts";
 import type { MessageResponse } from "@/types/chat/message";
 import type { TFunction } from "i18next";
-import type { KeyboardEvent } from "react";
 
 interface RepliedMessagePreviewProps {
   repliedMessage: MessageResponse["repliedMessage"];
@@ -28,19 +27,11 @@ export function RepliedMessagePreview({
     setTimeout(() => el.classList.remove("bg-primary/20"), 1500);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault();
-    scrollToRepliedMessage();
-  };
-
   return (
-    <div
+    <button
+      type="button"
       className={className}
-      role="button"
-      tabIndex={0}
       onClick={scrollToRepliedMessage}
-      onKeyDown={handleKeyDown}
       aria-label={t("bubbles.messages.jumpToOriginal", "Jump to original message")}
     >
       <span className="font-bold opacity-100 mb-0.5">
@@ -49,7 +40,7 @@ export function RepliedMessagePreview({
       <span className="truncate max-w-[200px] opacity-90 text-[11px]">
         {getRepliedMessagePreview(repliedMessage, t)}
       </span>
-    </div>
+    </button>
   );
 }
 
