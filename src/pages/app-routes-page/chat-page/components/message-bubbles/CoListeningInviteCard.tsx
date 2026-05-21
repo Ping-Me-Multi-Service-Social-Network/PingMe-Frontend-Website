@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+﻿import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { Link as LinkIcon, UsersRound } from "lucide-react";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,50 @@ function normalizeJoinError(raw: string | null): JoinErrorNormalized | null {
 
 function getAttemptKey(hostUserId: string, token: string) {
   return `${hostUserId}:${token}`;
+}
+
+function renderRemainingBadge(params: {
+  remainingText: string | null;
+  isExpired: boolean | null;
+  t: TFunction;
+}) {
+  const { remainingText, isExpired, t } = params;
+  if (!remainingText) return null;
+
+  const isExpiredBadge = isExpired === true;
+  const badgeTone = isExpiredBadge
+    ? "border-red-200 bg-red-50 text-red-700"
+    : "border-emerald-200 bg-emerald-50 text-emerald-700";
+
+  return (
+    <span className={["rounded-full border px-2 py-0.5", badgeTone].join(" ")}>
+      {isExpiredBadge
+        ? t("bubbles.coListeningInvite.badgeExpired", "Het han")
+        : t("bubbles.coListeningInvite.badgeValid", "Con han")}
+      {` - ${remainingText}`}
+    </span>
+  );
+}
+
+function renderInviteMeta(params: {
+  linkCode: string | null;
+  expiresAtText: string | null;
+  remainingText: string | null;
+  isExpired: boolean | null;
+  t: TFunction;
+}) {
+  const { linkCode, expiresAtText, remainingText, isExpired, t } = params;
+  if (!linkCode && !expiresAtText) return null;
+
+  return (
+    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+      {linkCode ? <span>{t("bubbles.coListeningInvite.link", "Link {{code}}", { code: linkCode })}</span> : null}
+      {expiresAtText ? (
+        <span>{t("bubbles.coListeningInvite.expiresAt", "Het han: {{time}}", { time: expiresAtText })}</span>
+      ) : null}
+      {renderRemainingBadge({ remainingText, isExpired, t })}
+    </div>
+  );
 }
 
 function getPendingJoinNote(params: {
@@ -249,6 +294,10 @@ export default function CoListeningInviteCard({ text }: Readonly<{ text: string 
   const error = useAppSelector((state) => state.musicSession.error);
 
   const isThisInviteActive = !!invite?.hostUserId && activeHostUserId === invite.hostUserId;
+  const inviteHostLabel = invite?.hostUserId
+    ? t("bubbles.coListeningInvite.host", "Host: {{hostUserId}}", { hostUserId: invite.hostUserId })
+    : t("bubbles.coListeningInvite.sessionFallback", "Co-listening session");
+  const joinDisabled = !invite?.hostUserId || !invite?.token || isExpired === true || isConnecting;
 
   const [localNote, setLocalNote] = useState<string | null>(null);
   const attemptedRef = useRef(false);
@@ -280,39 +329,8 @@ export default function CoListeningInviteCard({ text }: Readonly<{ text: string 
           <div className="text-sm font-semibold text-zinc-900">
             {t("bubbles.coListeningInvite.title", "Moi tham gia nghe chung")}
           </div>
-          <div className="mt-0.5 text-xs text-zinc-500">
-            {invite.hostUserId
-              ? t("bubbles.coListeningInvite.host", "Host: {{hostUserId}}", { hostUserId: invite.hostUserId })
-              : t("bubbles.coListeningInvite.sessionFallback", "Co-listening session")}
-          </div>
-
-          {linkCode || expiresAtText ? (
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
-              {linkCode ? (
-                <span>{t("bubbles.coListeningInvite.link", "Link {{code}}", { code: linkCode })}</span>
-              ) : null}
-              {expiresAtText ? (
-                <span>
-                  {t("bubbles.coListeningInvite.expiresAt", "Het han: {{time}}", { time: expiresAtText })}
-                </span>
-              ) : null}
-              {remainingText ? (
-                <span
-                  className={[
-                    "rounded-full border px-2 py-0.5",
-                    isExpired === true
-                      ? "border-red-200 bg-red-50 text-red-700"
-                      : "border-emerald-200 bg-emerald-50 text-emerald-700",
-                  ].join(" ")}
-                >
-                  {isExpired === true
-                    ? t("bubbles.coListeningInvite.badgeExpired", "Het han")
-                    : t("bubbles.coListeningInvite.badgeValid", "Con han")}
-                  {remainingText ? ` • ${remainingText}` : ""}
-                </span>
-              ) : null}
-            </div>
-          ) : null}
+          <div className="mt-0.5 text-xs text-zinc-500">{inviteHostLabel}</div>
+          {renderInviteMeta({ linkCode, expiresAtText, remainingText, isExpired, t })}
 
           {localNote ? (
             <div
@@ -332,7 +350,7 @@ export default function CoListeningInviteCard({ text }: Readonly<{ text: string 
         <Button
           size="sm"
           className="h-8 bg-purple-600 hover:bg-purple-500"
-          disabled={!invite.hostUserId || !invite.token || isExpired === true || isConnecting}
+          disabled={joinDisabled}
           onClick={() =>
             handleJoinInvite({
               inviteHostUserId: invite.hostUserId,
