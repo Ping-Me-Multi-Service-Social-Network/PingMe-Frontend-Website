@@ -164,6 +164,7 @@ function handleJoinInvite(params: {
     setLocalNote(blockedNote);
     return;
   }
+  if (!currentUserId) return;
 
   setLocalNote(
     getJoinProgressNote({
