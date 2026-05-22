@@ -23,6 +23,26 @@ import {
   getRoomTextEncryptionMaterial,
 } from "../utils/textMessageCrypto";
 
+function upsertMessageByClientMsgId(
+  prev: MessageResponse[],
+  nextMessage: MessageResponse,
+): MessageResponse[] {
+  if (!nextMessage.clientMsgId) {
+    return addUniqueMessage(prev, nextMessage);
+  }
+
+  const hasClientMatch = prev.some((m) => m.clientMsgId === nextMessage.clientMsgId);
+  if (!hasClientMatch) {
+    return addUniqueMessage(prev, nextMessage);
+  }
+
+  return prev.map((m) =>
+    m.clientMsgId === nextMessage.clientMsgId
+      ? { ...nextMessage, localStatus: undefined, localError: null }
+      : m,
+  );
+}
+
 interface UseMessagesReturn {
   messages: MessageResponse[];
   isLoadingMessages: boolean;
@@ -77,29 +97,36 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
   useEffect(() => {
     let active = true;
 
+    const toDecryptedEditedEntry = async (
+      id: string,
+      patch: Partial<MessageResponse>,
+    ) => {
+      if (!patch.content) {
+        return [id, patch] as const;
+      }
+
+      const decrypted = await decryptTextMessageForRoom(
+        {
+          id,
+          roomId,
+          clientMsgId: "",
+          senderId: 0,
+          content: patch.content,
+          type: "TEXT",
+          createdAt: "",
+          isActive: true,
+        },
+        roomRef.current,
+      );
+
+      return [id, { ...patch, content: decrypted.content }] as const;
+    };
+
     const decryptEditedMessages = async () => {
       const entries = await Promise.all(
-        Object.entries(editedMessages).map(async ([id, patch]) => {
-          if (!patch.content) {
-            return [id, patch] as const;
-          }
-
-          const decrypted = await decryptTextMessageForRoom(
-            {
-              id,
-              roomId,
-              clientMsgId: "",
-              senderId: 0,
-              content: patch.content,
-              type: "TEXT",
-              createdAt: "",
-              isActive: true,
-            },
-            roomRef.current,
-          );
-
-          return [id, { ...patch, content: decrypted.content }] as const;
-        }),
+        Object.entries(editedMessages).map(([id, patch]) =>
+          toDecryptedEditedEntry(id, patch),
+        ),
       );
 
       if (active) {
@@ -200,41 +227,21 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     return merged;
   }, [historyMessages, liveMessages, recalledMessageIds, decryptedEditedMessages]);
 
+  const addToHistoryIfSameRoom = useCallback(
+    (nextMessage: MessageResponse) => {
+      setHistoryMessages((prev) => {
+        if (nextMessage.roomId !== roomId) return prev;
+        return upsertMessageByClientMsgId(prev, nextMessage);
+      });
+    },
+    [roomId],
+  );
+
   const addMessage = useCallback((message: MessageResponse) => {
     decryptTextMessageForRoom(message, roomRef.current)
-      .then((decrypted) => {
-        setHistoryMessages((prev) => {
-          if (decrypted.roomId !== roomId) return prev;
-          if (decrypted.clientMsgId) {
-            const existing = prev.find((m) => m.clientMsgId === decrypted.clientMsgId);
-            if (existing) {
-              return prev.map((m) =>
-                m.clientMsgId === decrypted.clientMsgId
-                  ? { ...decrypted, localStatus: undefined, localError: null }
-                  : m
-              );
-            }
-          }
-          return addUniqueMessage(prev, decrypted);
-        });
-      })
-      .catch(() => {
-        setHistoryMessages((prev) => {
-          if (message.roomId !== roomId) return prev;
-          if (message.clientMsgId) {
-            const existing = prev.find((m) => m.clientMsgId === message.clientMsgId);
-            if (existing) {
-              return prev.map((m) =>
-                m.clientMsgId === message.clientMsgId
-                  ? { ...message, localStatus: undefined, localError: null }
-                  : m
-              );
-            }
-          }
-          return addUniqueMessage(prev, message);
-        });
-      });
-  }, [roomId]);
+      .then(addToHistoryIfSameRoom)
+      .catch(() => addToHistoryIfSameRoom(message));
+  }, [addToHistoryIfSameRoom]);
 
   const patchMessageByClientMsgId = useCallback(
     (clientMsgId: string, patch: Partial<MessageResponse>) => {
