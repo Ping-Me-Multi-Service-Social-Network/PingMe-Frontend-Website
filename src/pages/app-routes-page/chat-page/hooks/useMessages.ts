@@ -23,7 +23,6 @@ import {
   getRoomTextEncryptionMaterial,
 } from "../utils/textMessageCrypto";
 
-
 interface UseMessagesReturn {
   messages: MessageResponse[];
   isLoadingMessages: boolean;
@@ -31,6 +30,10 @@ interface UseMessagesReturn {
   hasMoreMessages: boolean;
   handleLoadMore: (beforeMessageId?: string) => void;
   addMessage: (message: MessageResponse) => void;
+  patchMessageByClientMsgId: (
+    clientMsgId: string,
+    patch: Partial<MessageResponse>
+  ) => void;
   removeMessageLocally: (messageId: string) => void;
 }
 
@@ -43,16 +46,11 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
   const editedMessages = useAppSelector(selectEditedMessages);
   const { t } = useTranslation("chat");
 
-  // Keep a ref to the latest room so callbacks don't need `room` in their deps.
-  // This prevents fetchMessages from being re-created on every room metadata update
-  // (e.g., ROOM_UPDATED events), which previously caused the initial-fetch effect
-  // to clear all messages and re-fetch from API — looking like a page refresh.
   const roomRef = useRef(room);
   useEffect(() => {
     roomRef.current = room;
   }, [room]);
 
-  // Local state for history messages (fetched via API)
   const [historyMessages, setHistoryMessages] = useState<MessageResponse[]>([]);
   const [liveMessages, setLiveMessages] = useState<MessageResponse[]>([]);
   const [decryptedEditedMessages, setDecryptedEditedMessages] = useState<
@@ -157,12 +155,10 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     [roomId, t]
   );
 
-  // Set current room in Redux
   useEffect(() => {
     dispatch(setCurrentRoom(roomId));
   }, [roomId, dispatch]);
 
-  // Fetch initial messages when room changes
   useEffect(() => {
     if (roomId) {
       setHistoryMessages([]);
@@ -178,8 +174,6 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     [fetchMessages]
   );
 
-  // Merge history messages + Redux real-time messages
-  // History = loaded from API, Redux = from WebSocket
   const messages = useMemo(() => {
     const recalledIds = new Set(recalledMessageIds);
     const updatedHistory = historyMessages.map((m) => {
@@ -197,39 +191,59 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
       historyMessages.map((m) => m.clientMsgId).filter(Boolean)
     );
 
-    // Get new messages from Redux that are not in history
     const newFromRedux = liveMessages.filter(
       (m) => !historyIds.has(m.id) && !historyClientIds.has(m.clientMsgId)
     );
 
-    // Merge and sort by createdAt to maintain correct chronological order.
-    // Without sorting, optimistically-added messages (via addMessage → historyMessages)
-    // can appear before WebSocket-only messages (in Redux), causing bubbles to jump.
     const merged = [...updatedHistory, ...newFromRedux];
     merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     return merged;
   }, [historyMessages, liveMessages, recalledMessageIds, decryptedEditedMessages]);
 
-  /**
-   * Optimistic add for sent messages (API response).
-   * Messages also arrive via WebSocket → Redux, so dedup is applied.
-   */
   const addMessage = useCallback((message: MessageResponse) => {
     decryptTextMessageForRoom(message, roomRef.current)
       .then((decrypted) => {
         setHistoryMessages((prev) => {
           if (decrypted.roomId !== roomId) return prev;
+          if (decrypted.clientMsgId) {
+            const existing = prev.find((m) => m.clientMsgId === decrypted.clientMsgId);
+            if (existing) {
+              return prev.map((m) =>
+                m.clientMsgId === decrypted.clientMsgId
+                  ? { ...decrypted, localStatus: undefined, localError: null }
+                  : m
+              );
+            }
+          }
           return addUniqueMessage(prev, decrypted);
         });
       })
       .catch(() => {
-        // Decrypt failed — add message as-is so it still appears in chat
         setHistoryMessages((prev) => {
           if (message.roomId !== roomId) return prev;
+          if (message.clientMsgId) {
+            const existing = prev.find((m) => m.clientMsgId === message.clientMsgId);
+            if (existing) {
+              return prev.map((m) =>
+                m.clientMsgId === message.clientMsgId
+                  ? { ...message, localStatus: undefined, localError: null }
+                  : m
+              );
+            }
+          }
           return addUniqueMessage(prev, message);
         });
       });
   }, [roomId]);
+
+  const patchMessageByClientMsgId = useCallback(
+    (clientMsgId: string, patch: Partial<MessageResponse>) => {
+      setHistoryMessages((prev) =>
+        prev.map((m) => (m.clientMsgId === clientMsgId ? { ...m, ...patch } : m))
+      );
+    },
+    []
+  );
 
   const removeMessageLocally = useCallback((messageId: string) => {
     setHistoryMessages((prev) => prev.filter((m) => m.id !== messageId));
@@ -243,6 +257,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     hasMoreMessages,
     handleLoadMore,
     addMessage,
+    patchMessageByClientMsgId,
     removeMessageLocally,
   };
 }

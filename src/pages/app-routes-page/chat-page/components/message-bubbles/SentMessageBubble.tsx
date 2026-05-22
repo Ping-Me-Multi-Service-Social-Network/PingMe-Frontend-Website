@@ -56,6 +56,8 @@ const SentMessageBubble = memo(function SentMessageBubble({
   const isWeatherMessage = message.type === "WEATHER";
   const coListeningInvite = message.type === "TEXT" ? parseCoListeningInvite(message.content) : null;
   const isInviteMessage = !!coListeningInvite;
+  const isLocalPending = message.localStatus === "encrypting" || message.localStatus === "sending";
+  const isLocalFailed = message.localStatus === "failed";
 
   const handleRecallMessage = async () => {
     const messageDate = new Date(message.createdAt);
@@ -211,7 +213,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
     >
       <div className="msg-bubble-wrapper relative" id={`message-${message.id}`}>
         <AnimatePresence>
-          {message.isActive && (
+          {message.isActive && !isLocalPending && !isLocalFailed && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -307,6 +309,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
           )}
           {formatMessageTime(message.createdAt)}
         </div>
+        {(isLocalPending || isLocalFailed) && (
+          <div className="mr-1 mt-1 text-[11px] text-right text-muted-foreground">
+            {message.localStatus === "encrypting" && t("bubbles.messages.encrypting", "Encrypting...")}
+            {message.localStatus === "sending" && t("bubbles.messages.sending", "Sending...")}
+            {message.localStatus === "failed" && t("bubbles.messages.sendFailed", "Send failed")}
+          </div>
+        )}
       </div>
     </motion.div>
   );

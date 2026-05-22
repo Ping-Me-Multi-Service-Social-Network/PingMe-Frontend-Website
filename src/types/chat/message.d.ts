@@ -32,6 +32,8 @@ export interface MessageResponse {
     poll?: PollResponse | null;
   } | null;
   poll?: PollResponse | null;
+  localStatus?: "encrypting" | "sending" | "failed";
+  localError?: string | null;
 }
 
 export interface PollOptionResponse {

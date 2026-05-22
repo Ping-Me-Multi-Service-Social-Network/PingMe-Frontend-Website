@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+﻿import { useState, useCallback, useEffect, useRef } from "react";
 import type { GroupMessageSummaryResponse, MessageResponse } from "@/types/chat/message";
 import type { GroupSettingsResponse, RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
@@ -45,6 +45,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     hasMoreMessages,
     handleLoadMore,
     addMessage,
+    patchMessageByClientMsgId,
     removeMessageLocally,
   } = useMessages(selectedChat);
 
@@ -59,6 +60,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const [isLoadingGroupSummary, setIsLoadingGroupSummary] = useState(false);
   const [dismissedSummaryRoomId, setDismissedSummaryRoomId] = useState<number | null>(null);
   const latestMessageId = messages[messages.length - 1]?.id;
+  const currentUserId = Number(userSession?.id ?? 0);
 
   const isCurrentUserMessage = useCallback(
     (senderId: number) => {
@@ -77,36 +79,82 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     const trimmedText = msgText.trim();
 
     if (trimmedText) {
-      try {
-        const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
-
-        if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
-          toast.error("Tin nhắn quá dài để mã hóa, vui lòng rút ngắn nội dung.");
-          return;
-        }
-
-        if (editingMessage) {
+      if (editingMessage) {
+        try {
+          const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
+          if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
+            toast.error(t("box.encryptTooLong", "Message is too long after encryption."));
+            return;
+          }
           const response = await editMessageApi(editingMessage.id, { content: encryptedContent });
-          // Note: local state update could be done here or handled via websocket.
-          // Since the slice has messageUpdated via websocket, we could wait for it.
-          // But doing optimistic update is better:
           addMessage(response.data.data as MessageResponse);
           setEditingMessage(null);
+        } catch (err) {
+          toast.error(getErrorMessage(err));
+        }
+        return;
+      }
+
+      const clientMsgId = crypto.randomUUID();
+      const repliedMessageSnapshot = replyMessage
+        ? {
+            id: replyMessage.id,
+            senderId: replyMessage.senderId,
+            content: replyMessage.content,
+            type: replyMessage.type,
+            isActive: replyMessage.isActive,
+            fileFormat: replyMessage.fileFormat ?? null,
+            mediaUrls: replyMessage.mediaUrls ?? null,
+            poll: replyMessage.poll ?? null,
+          }
+        : null;
+
+      addMessage({
+        id: `tmp-${clientMsgId}`,
+        roomId: selectedChat.roomId,
+        clientMsgId,
+        senderId: currentUserId,
+        content: trimmedText,
+        type: "TEXT",
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        repliedMessage: repliedMessageSnapshot,
+        localStatus: "encrypting",
+        localError: null,
+      });
+      setReplyMessage(null);
+
+      try {
+        const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
+        patchMessageByClientMsgId(clientMsgId, {
+          localStatus: "sending",
+          localError: null,
+        });
+
+        if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
+          toast.error(t("box.encryptTooLong", "Message is too long after encryption."));
+          patchMessageByClientMsgId(clientMsgId, {
+            localStatus: "failed",
+            localError: "Message too long after encryption.",
+          });
           return;
         }
 
         const messageData = {
           content: encryptedContent,
-          clientMsgId: crypto.randomUUID(),
+          clientMsgId,
           type: "TEXT" as const,
           roomId: selectedChat.roomId,
-          repliedMessageId: replyMessage?.id || null,
+          repliedMessageId: repliedMessageSnapshot?.id || null,
         };
 
         const response = await sendMessageApi(messageData);
         addMessage(response.data.data as MessageResponse);
-        setReplyMessage(null);
       } catch (err) {
+        patchMessageByClientMsgId(clientMsgId, {
+          localStatus: "failed",
+          localError: getErrorMessage(err),
+        });
         toast.error(getErrorMessage(err));
       }
     }
@@ -341,7 +389,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           >
             <div className="bg-white p-8 rounded-2xl flex flex-col items-center gap-4 text-purple-600 shadow-2xl scale-110">
               <Upload className="w-16 h-16 animate-bounce" />
-              <p className="text-xl font-bold">{t("bubbles.file.dropToUpload", "Thả file vào đây để gửi")}</p>
+              <p className="text-xl font-bold">{t("bubbles.file.dropToUpload", "Tháº£ file vÃ o Ä‘Ã¢y Ä‘á»ƒ gá»­i")}</p>
             </div>
           </motion.div>
         )}
@@ -364,7 +412,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           <div className="mx-4 mt-3 mb-1 rounded-xl border border-fuchsia-200 bg-fuchsia-50 px-3 py-2.5">
             <div className="flex items-center gap-1.5 text-fuchsia-700 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              <p className="text-xs font-semibold flex-1">Tóm tắt AI (20 tin nhắn gần nhất)</p>
+              <p className="text-xs font-semibold flex-1">TÃ³m táº¯t AI (20 tin nháº¯n gáº§n nháº¥t)</p>
               <button
                 type="button"
                 onClick={() => setDismissedSummaryRoomId(selectedChat.roomId)}
@@ -376,7 +424,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
             {isLoadingGroupSummary ? (
               <div className="flex items-center gap-2 text-zinc-500">
                 <div className="w-3.5 h-3.5 border-2 border-fuchsia-300 border-t-fuchsia-600 rounded-full animate-spin" />
-                <p className="text-xs">AI đang tóm tắt cuộc trò chuyện...</p>
+                <p className="text-xs">AI Ä‘ang tÃ³m táº¯t cuá»™c trÃ² chuyá»‡n...</p>
               </div>
             ) : (
               <p className="text-[13px] leading-5 text-zinc-700 whitespace-pre-line">
@@ -441,3 +489,5 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     </div>
   );
 }
+
+
