@@ -45,53 +45,64 @@ const SettingRow = ({
   hasInfo = false,
   onToggle,
   disabled = false,
-}: SettingRowProps) => (
-  <div
-    role={isInteractive ? "button" : undefined}
-    onClick={() => {
-      if (isInteractive && !disabled && onToggle) onToggle();
-    }}
-    className={`flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors ${
-      isInteractive ? "cursor-pointer" : "opacity-60 cursor-not-allowed"
-    }`}
-  >
-    <div className="flex items-center gap-2 flex-1 mr-4">
-      <span
-        className={`text-[14px] leading-tight ${
-          isInteractive ? "text-gray-800" : "text-gray-500"
-        }`}
-      >
-        {label}
-      </span>
-      {hasInfo && <Info className="w-4 h-4 text-gray-400 cursor-help" />}
-    </div>
-
-    {type === "checkbox" ? (
-      <div
-        className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-          checked ? "bg-purple-600 border-purple-600" : "bg-white border-gray-300"
-        }`}
-      >
-        {checked && (
-          <div className="w-2.5 h-1.5 border-l-2 border-b-2 border-white -rotate-45 mb-0.5" />
-        )}
-      </div>
-    ) : (
-      <div
-        className={`w-10 h-5 rounded-full relative transition-colors ${
-          checked ? "bg-purple-600" : "bg-gray-300"
-        }`}
-      >
-        <div
-          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${
-            checked ? "left-5.5" : "left-0.5"
+}: SettingRowProps) => {
+  const content = (
+    <>
+      <div className="flex items-center gap-2 flex-1 mr-4">
+        <span
+          className={`text-[14px] leading-tight ${
+            isInteractive ? "text-gray-800" : "text-gray-500"
           }`}
-          style={{ left: checked ? "22px" : "2px" }}
-        />
+        >
+          {label}
+        </span>
+        {hasInfo && <Info className="w-4 h-4 text-gray-400 cursor-help" />}
       </div>
-    )}
-  </div>
-);
+
+      {type === "checkbox" ? (
+        <div
+          className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+            checked ? "bg-purple-600 border-purple-600" : "bg-white border-gray-300"
+          }`}
+        >
+          {checked && (
+            <div className="w-2.5 h-1.5 border-l-2 border-b-2 border-white -rotate-45 mb-0.5" />
+          )}
+        </div>
+      ) : (
+        <div
+          className={`w-10 h-5 rounded-full relative transition-colors ${
+            checked ? "bg-purple-600" : "bg-gray-300"
+          }`}
+        >
+          <div
+            className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${
+              checked ? "left-5.5" : "left-0.5"
+            }`}
+            style={{ left: checked ? "22px" : "2px" }}
+          />
+        </div>
+      )}
+    </>
+  );
+
+  if (isInteractive) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          if (!disabled && onToggle) onToggle();
+        }}
+        disabled={disabled}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className="flex items-center justify-between px-4 py-3 opacity-60 cursor-not-allowed">{content}</div>;
+};
 
 const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementProps) => {
   const { t } = useTranslation("chat");
@@ -399,7 +410,7 @@ const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementPro
 
         <div className="h-2 bg-gray-100" />
 
-        <button className="w-full px-4 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors">
+        <button type="button" className="w-full px-4 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors">
           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
             <Ban className="w-4 h-4 text-gray-600" />
           </div>
