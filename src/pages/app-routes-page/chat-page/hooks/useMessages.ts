@@ -23,6 +23,25 @@ import {
   getRoomTextEncryptionMaterial,
 } from "../utils/textMessageCrypto";
 
+function upsertMessageByClientMsgId(
+  prev: MessageResponse[],
+  nextMessage: MessageResponse,
+): MessageResponse[] {
+  if (!nextMessage.clientMsgId) {
+    return addUniqueMessage(prev, nextMessage);
+  }
+
+  const hasClientMatch = prev.some((m) => m.clientMsgId === nextMessage.clientMsgId);
+  if (!hasClientMatch) {
+    return addUniqueMessage(prev, nextMessage);
+  }
+
+  return prev.map((m) =>
+    m.clientMsgId === nextMessage.clientMsgId
+      ? { ...nextMessage, localStatus: undefined, localError: null }
+      : m,
+  );
+}
 
 interface UseMessagesReturn {
   messages: MessageResponse[];
@@ -31,6 +50,10 @@ interface UseMessagesReturn {
   hasMoreMessages: boolean;
   handleLoadMore: (beforeMessageId?: string) => void;
   addMessage: (message: MessageResponse) => void;
+  patchMessageByClientMsgId: (
+    clientMsgId: string,
+    patch: Partial<MessageResponse>
+  ) => void;
   removeMessageLocally: (messageId: string) => void;
 }
 
@@ -43,16 +66,11 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
   const editedMessages = useAppSelector(selectEditedMessages);
   const { t } = useTranslation("chat");
 
-  // Keep a ref to the latest room so callbacks don't need `room` in their deps.
-  // This prevents fetchMessages from being re-created on every room metadata update
-  // (e.g., ROOM_UPDATED events), which previously caused the initial-fetch effect
-  // to clear all messages and re-fetch from API — looking like a page refresh.
   const roomRef = useRef(room);
   useEffect(() => {
     roomRef.current = room;
   }, [room]);
 
-  // Local state for history messages (fetched via API)
   const [historyMessages, setHistoryMessages] = useState<MessageResponse[]>([]);
   const [liveMessages, setLiveMessages] = useState<MessageResponse[]>([]);
   const [decryptedEditedMessages, setDecryptedEditedMessages] = useState<
@@ -79,29 +97,36 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
   useEffect(() => {
     let active = true;
 
+    const toDecryptedEditedEntry = async (
+      id: string,
+      patch: Partial<MessageResponse>,
+    ) => {
+      if (!patch.content) {
+        return [id, patch] as const;
+      }
+
+      const decrypted = await decryptTextMessageForRoom(
+        {
+          id,
+          roomId,
+          clientMsgId: "",
+          senderId: 0,
+          content: patch.content,
+          type: "TEXT",
+          createdAt: "",
+          isActive: true,
+        },
+        roomRef.current,
+      );
+
+      return [id, { ...patch, content: decrypted.content }] as const;
+    };
+
     const decryptEditedMessages = async () => {
       const entries = await Promise.all(
-        Object.entries(editedMessages).map(async ([id, patch]) => {
-          if (!patch.content) {
-            return [id, patch] as const;
-          }
-
-          const decrypted = await decryptTextMessageForRoom(
-            {
-              id,
-              roomId,
-              clientMsgId: "",
-              senderId: 0,
-              content: patch.content,
-              type: "TEXT",
-              createdAt: "",
-              isActive: true,
-            },
-            roomRef.current,
-          );
-
-          return [id, { ...patch, content: decrypted.content }] as const;
-        }),
+        Object.entries(editedMessages).map(([id, patch]) =>
+          toDecryptedEditedEntry(id, patch),
+        ),
       );
 
       if (active) {
@@ -157,12 +182,10 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     [roomId, t]
   );
 
-  // Set current room in Redux
   useEffect(() => {
     dispatch(setCurrentRoom(roomId));
   }, [roomId, dispatch]);
 
-  // Fetch initial messages when room changes
   useEffect(() => {
     if (roomId) {
       setHistoryMessages([]);
@@ -178,8 +201,6 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     [fetchMessages]
   );
 
-  // Merge history messages + Redux real-time messages
-  // History = loaded from API, Redux = from WebSocket
   const messages = useMemo(() => {
     const recalledIds = new Set(recalledMessageIds);
     const updatedHistory = historyMessages.map((m) => {
@@ -197,39 +218,39 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
       historyMessages.map((m) => m.clientMsgId).filter(Boolean)
     );
 
-    // Get new messages from Redux that are not in history
     const newFromRedux = liveMessages.filter(
       (m) => !historyIds.has(m.id) && !historyClientIds.has(m.clientMsgId)
     );
 
-    // Merge and sort by createdAt to maintain correct chronological order.
-    // Without sorting, optimistically-added messages (via addMessage → historyMessages)
-    // can appear before WebSocket-only messages (in Redux), causing bubbles to jump.
     const merged = [...updatedHistory, ...newFromRedux];
     merged.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     return merged;
   }, [historyMessages, liveMessages, recalledMessageIds, decryptedEditedMessages]);
 
-  /**
-   * Optimistic add for sent messages (API response).
-   * Messages also arrive via WebSocket → Redux, so dedup is applied.
-   */
+  const addToHistoryIfSameRoom = useCallback(
+    (nextMessage: MessageResponse) => {
+      setHistoryMessages((prev) => {
+        if (nextMessage.roomId !== roomId) return prev;
+        return upsertMessageByClientMsgId(prev, nextMessage);
+      });
+    },
+    [roomId],
+  );
+
   const addMessage = useCallback((message: MessageResponse) => {
     decryptTextMessageForRoom(message, roomRef.current)
-      .then((decrypted) => {
-        setHistoryMessages((prev) => {
-          if (decrypted.roomId !== roomId) return prev;
-          return addUniqueMessage(prev, decrypted);
-        });
-      })
-      .catch(() => {
-        // Decrypt failed — add message as-is so it still appears in chat
-        setHistoryMessages((prev) => {
-          if (message.roomId !== roomId) return prev;
-          return addUniqueMessage(prev, message);
-        });
-      });
-  }, [roomId]);
+      .then(addToHistoryIfSameRoom)
+      .catch(() => addToHistoryIfSameRoom(message));
+  }, [addToHistoryIfSameRoom]);
+
+  const patchMessageByClientMsgId = useCallback(
+    (clientMsgId: string, patch: Partial<MessageResponse>) => {
+      setHistoryMessages((prev) =>
+        prev.map((m) => (m.clientMsgId === clientMsgId ? { ...m, ...patch } : m))
+      );
+    },
+    []
+  );
 
   const removeMessageLocally = useCallback((messageId: string) => {
     setHistoryMessages((prev) => prev.filter((m) => m.id !== messageId));
@@ -243,6 +264,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
     hasMoreMessages,
     handleLoadMore,
     addMessage,
+    patchMessageByClientMsgId,
     removeMessageLocally,
   };
 }
