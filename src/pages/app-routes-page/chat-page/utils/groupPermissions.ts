@@ -2,13 +2,23 @@ import type { RoomResponse, RoomParticipantResponse } from "@/types/chat/room";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER";
 
+const normalizeId = (value: unknown): number | null => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
+
 export const getMyParticipant = (room: RoomResponse, currentUserId: number): RoomParticipantResponse | undefined => {
-  return room.participants.find((p) => p.userId === currentUserId);
+  const targetId = normalizeId(currentUserId);
+  return room.participants.find((p) => normalizeId(p.userId) === targetId);
 };
 
 export const getMyRoomRole = (room: RoomResponse, currentUserId: number): Role => {
   const me = getMyParticipant(room, currentUserId);
-  return me?.role || "MEMBER";
+  const role = (me?.role ?? "MEMBER").toUpperCase();
+  if (role === "OWNER" || role === "ADMIN" || role === "MEMBER") {
+    return role;
+  }
+  return "MEMBER";
 };
 
 export const canManageGroup = (room: RoomResponse, currentUserId: number): boolean => {

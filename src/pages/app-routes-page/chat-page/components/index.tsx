@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { GroupMessageSummaryResponse, MessageResponse } from "@/types/chat/message";
-import type { RoomResponse } from "@/types/chat/room";
+import type { GroupSettingsResponse, RoomResponse } from "@/types/chat/room";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import {
@@ -11,6 +11,7 @@ import {
   editMessageApi,
   createPollMessageApi,
   getGroupMessageSummaryApi,
+  getGroupSettingsApi,
 } from "@/services/chat";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatBoxInput } from "./chat-box/ChatBoxInput.tsx";
@@ -53,9 +54,11 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const [replyMessage, setReplyMessage] = useState<MessageResponse | null>(null);
   const [editingMessage, setEditingMessage] = useState<MessageResponse | null>(null);
   const [groupSummary, setGroupSummary] = useState<GroupMessageSummaryResponse | null>(null);
+  const [groupSettings, setGroupSettings] = useState<GroupSettingsResponse | null>(null);
   const [groupSummaryRoomId, setGroupSummaryRoomId] = useState<number | null>(null);
   const [isLoadingGroupSummary, setIsLoadingGroupSummary] = useState(false);
   const [dismissedSummaryRoomId, setDismissedSummaryRoomId] = useState<number | null>(null);
+  const latestMessageId = messages[messages.length - 1]?.id;
 
   const isCurrentUserMessage = useCallback(
     (senderId: number) => {
@@ -245,6 +248,49 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     };
   }, [selectedChat.roomId, selectedChat.roomType]);
 
+  useEffect(() => {
+    let active = true;
+    if (selectedChat.roomType !== "GROUP") return () => { active = false; };
+    if (!latestMessageId) return () => { active = false; };
+
+    getGroupSettingsApi(selectedChat.roomId)
+      .then((response) => {
+        if (!active) return;
+        setGroupSettings(response.data?.data ?? null);
+      })
+      .catch(() => {
+        // Keep current settings when refresh fails.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedChat.roomId, selectedChat.roomType, latestMessageId]);
+
+  useEffect(() => {
+    let active = true;
+    if (selectedChat.roomType !== "GROUP") {
+      setGroupSettings(null);
+      return () => {
+        active = false;
+      };
+    }
+
+    getGroupSettingsApi(selectedChat.roomId)
+      .then((response) => {
+        if (!active) return;
+        setGroupSettings(response.data?.data ?? null);
+      })
+      .catch(() => {
+        if (!active) return;
+        setGroupSettings(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedChat.roomId, selectedChat.roomType]);
+
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     dragCounter.current += 1;
@@ -359,6 +405,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
 
         <ChatBoxInput
           selectedChat={selectedChat}
+          groupSettings={groupSettings}
           onSendMessage={handleSendMessage}
           onSendFile={handleSendFile}
           onSendMultipleImages={handleSendMultipleImages}
@@ -386,6 +433,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
               selectedChat={selectedChat}
               isOpen={true}
               onClose={() => setIsSidebarOpen(false)}
+              onGroupSettingsUpdated={(nextSettings) => setGroupSettings(nextSettings)}
             />
           </motion.div>
         )}

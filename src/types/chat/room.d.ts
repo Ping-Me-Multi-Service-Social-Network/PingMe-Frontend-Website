@@ -67,3 +67,52 @@ export interface DissolveGroupResponse {
   dissolvedByUserId: number;
   dissolved: boolean;
 }
+
+export interface GroupSettingsResponse {
+  roomId: number;
+  allowMemberEditGroupProfile: boolean;
+  allowMemberPinMessage: boolean;
+  allowMemberCreatePoll: boolean;
+  allowMemberSendMessage: boolean;
+  joinApprovalEnabled: boolean;
+  highlightAdminMessageOnly: boolean;
+  allowNewMemberReadRecent: boolean;
+  joinLinkEnabled: boolean;
+  joinLink: string | null;
+}
+
+export interface UpdateGroupSettingsRequest {
+  allowMemberEditGroupProfile?: boolean;
+  allowMemberPinMessage?: boolean;
+  allowMemberCreatePoll?: boolean;
+  allowMemberSendMessage?: boolean;
+  joinApprovalEnabled?: boolean;
+  highlightAdminMessageOnly?: boolean;
+  allowNewMemberReadRecent?: boolean;
+  joinLinkEnabled?: boolean;
+}
+
+export type GroupJoinRequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELED";
+
+export interface GroupJoinRequestResponse {
+  id: number;
+  roomId: number;
+  requesterId: number;
+  requesterName: string;
+  requesterAvatarUrl: string | null;
+  status: GroupJoinRequestStatus;
+  reviewedByUserId: number | null;
+  reviewedAt: string | null;
+  createdAt: string;
+}
+
+export interface JoinGroupByLinkRequest {
+  joinLinkToken: string;
+}
+
+export interface JoinGroupByLinkResponse {
+  approvedImmediately: boolean;
+  message: string;
+  room: RoomResponse | null;
+  joinRequest: GroupJoinRequestResponse | null;
+}

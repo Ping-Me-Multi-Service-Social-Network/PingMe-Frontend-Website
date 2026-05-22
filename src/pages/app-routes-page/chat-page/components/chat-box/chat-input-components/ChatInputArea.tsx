@@ -7,6 +7,7 @@ interface ChatInputAreaProps {
   newMessage: string;
   hasFiles: boolean;
   disabled: boolean;
+  canSendMessage: boolean;
   isSending: boolean;
   targetName?: string;
   onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -22,6 +23,7 @@ export function ChatInputArea({
   newMessage,
   hasFiles,
   disabled,
+  canSendMessage,
   isSending,
   targetName,
   onKeyDown,
@@ -47,7 +49,7 @@ export function ChatInputArea({
     counterColorClass = "text-orange-500";
   }
 
-  const isSendDisabled = disabled || isSending || (charCount === 0 && !hasFiles);
+  const isSendDisabled = disabled || isSending || !canSendMessage || (charCount === 0 && !hasFiles);
 
   return (
     <div className="flex flex-col w-full bg-white">
@@ -62,7 +64,7 @@ export function ChatInputArea({
             maxLength={MAX_CHARS}
             onKeyDown={onKeyDown}
             onPaste={onPaste}
-            disabled={disabled || isSending}
+            disabled={disabled || isSending || !canSendMessage}
             style={{ minHeight: '40px', border: 'none', outline: 'none', boxShadow: 'none', fontFamily: "'Inter', sans-serif" }}
           />
 
@@ -79,7 +81,7 @@ export function ChatInputArea({
             size="icon"
             onClick={onToggleEmojiPicker}
             className="h-9 w-9 text-muted-foreground hover:text-primary emoji-toggle-btn"
-            disabled={isSending}
+            disabled={isSending || !canSendMessage}
           >
             <Smile className="w-6 h-6" />
           </Button>
