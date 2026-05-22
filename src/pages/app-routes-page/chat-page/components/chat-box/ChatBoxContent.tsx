@@ -198,12 +198,12 @@ export const ChatBoxContent = memo(({
             <div className="chat-typing animate-in fade-in duration-200">
               <span className="chat-typing__text">
                 {otherUsersTyping.length === 1
-                  ? `${otherUsersTyping[0].name}`
+                  ? `${otherUsersTyping[0].name} ${t("messages.typing", "is typing...")}`
                   : otherUsersTyping.length === 2
-                    ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`
+                    ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name} ${t("messages.typing", "are typing...")}`
                     : `${otherUsersTyping[0].name} ${t("messages.andOthers", {
                       count: otherUsersTyping.length - 1
-                    })}`}
+                    })} ${t("messages.typing", "are typing...")}`}
               </span>
               <div className="chat-typing__dots">
                 <span className="chat-typing__dot" />
