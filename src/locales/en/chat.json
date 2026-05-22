@@ -12,15 +12,18 @@
     "messages": {
         "emptyTitle": "No messages yet",
         "emptyDesc": "Start the conversation by sending the first message!",
-        "andOthers": "and {{count}} others"
+        "andOthers": "and {{count}} others",
+        "typing": "is typing..."
     },
     "box": {
         "historyError": "Failed to load message history",
         "sendFileError": "Failed to send file",
-        "sendWeatherError": "Failed to send weather information"
+        "sendWeatherError": "Failed to send weather information",
+        "encryptTooLong": "Message is too long after encryption."
     },
     "input": {
         "placeholder": "Type a message...",
+        "placeholderTarget": "Type @, message to {{targetName}}",
         "sendWeatherTitle": "Send Weather",
         "createPollTitle": "Create Poll",
         "gettingLocation": "Getting your location...",
@@ -218,7 +221,10 @@
             "pinError": "Could not pin message",
             "unpinSuccess": "Message unpinned",
             "unpinError": "Could not unpin message",
-            "messageNotLoaded": "Message not loaded"
+            "messageNotLoaded": "Message not loaded",
+            "encrypting": "Encrypting...",
+            "sending": "Sending...",
+            "sendFailed": "Send failed"
         },
         "weather": {
             "error": "Cannot display weather information",

@@ -1,4 +1,4 @@
-import type React from "react";
+﻿import type React from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Smile, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,7 @@ interface ChatInputAreaProps {
   onToggleEmojiPicker: () => void;
   onSend: () => void;
   onPaste?: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
+  onBlur?: () => void;
 }
 
 const MAX_CHARS = 1000;
@@ -31,15 +32,15 @@ export function ChatInputArea({
   onToggleEmojiPicker,
   onSend,
   onPaste,
+  onBlur,
 }: ChatInputAreaProps) {
   const { t } = useTranslation("chat");
   const charCount = newMessage.length;
   const isNearLimit = charCount > MAX_CHARS * 0.9;
   const isAtLimit = charCount >= MAX_CHARS;
 
-  // Extract logic for better readability
   const placeholderText = targetName
-    ? `Nhập @, tin nhắn tới ${targetName}`
+    ? t("input.placeholderTarget", { targetName })
     : t("input.placeholder");
 
   let counterColorClass = "text-gray-400";
@@ -64,8 +65,9 @@ export function ChatInputArea({
             maxLength={MAX_CHARS}
             onKeyDown={onKeyDown}
             onPaste={onPaste}
+            onBlur={onBlur}
             disabled={disabled || isSending || !canSendMessage}
-            style={{ minHeight: '40px', border: 'none', outline: 'none', boxShadow: 'none', fontFamily: "'Inter', sans-serif" }}
+            style={{ minHeight: "40px", border: "none", outline: "none", boxShadow: "none", fontFamily: "'Inter', sans-serif" }}
           />
 
           <div className="absolute bottom-1 right-2 pointer-events-none">

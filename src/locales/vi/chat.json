@@ -1,4 +1,4 @@
-{
+﻿{
     "layout": {
         "loadingMore": "Đang tải thêm...",
         "selectChatTitle": "Chọn một cuộc trò chuyện",
@@ -12,15 +12,18 @@
     "messages": {
         "emptyTitle": "Chưa có tin nhắn",
         "emptyDesc": "Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn đầu tiên!",
-        "andOthers": "và {{count}} người khác"
+        "andOthers": "và {{count}} người khác",
+        "typing": "đang gõ tin nhắn..."
     },
     "box": {
         "historyError": "Không thể lấy lịch sử tin nhắn",
         "sendFileError": "Không thể gửi file",
-        "sendWeatherError": "Không thể gửi thông tin thời tiết"
+        "sendWeatherError": "Không thể gửi thông tin thời tiết",
+        "encryptTooLong": "Tin nhắn quá dài sau khi mã hóa."
     },
     "input": {
         "placeholder": "Nhập tin nhắn...",
+        "placeholderTarget": "Nhập @, tin nhắn tới {{targetName}}",
         "sendWeatherTitle": "Gửi thông tin thời tiết",
         "createPollTitle": "Tạo bình chọn",
         "gettingLocation": "Đang lấy vị trí của bạn...",
@@ -35,10 +38,10 @@
     },
     "preview": {
         "noMessages": "Chưa có tin nhắn",
-        "image": "[Image]",
+        "image": "[Hình ảnh]",
         "video": "[Video]",
-        "file": "[File]",
-        "weather": "[Thời Tiết]",
+        "file": "[Tệp tin]",
+        "weather": "[Thời tiết]",
         "you": "Bạn"
     },
     "sidebar": {
@@ -47,7 +50,7 @@
         "voiceCall": "Gọi thoại",
         "videoCall": "Gọi video",
         "members": "Thành viên phòng chat",
-        "media": "File phương tiện & File",
+        "media": "File phương tiện & Tệp",
         "theme": "Chủ đề",
         "nickname": "Biệt danh",
         "pinnedMessages": "Tin nhắn đã ghim",
@@ -148,8 +151,8 @@
             "confirm": "Thoát nhóm",
             "processing": "Đang xử lý...",
             "requireNewOwner": "Vui lòng chọn trưởng nhóm mới",
-            "success": "Đã thoát nhóm",
-            "transferSuccess": "Đã chuyển trưởng nhóm và thoát nhóm",
+            "success": "Đã thoát nhóm thành công",
+            "transferSuccess": "Đã chuyển trưởng nhóm và thoát nhóm thành công",
             "error": "Không thể thoát nhóm"
         },
         "dissolveGroup": {
@@ -158,7 +161,7 @@
             "cancel": "Hủy",
             "confirm": "Giải tán",
             "processing": "Đang xử lý...",
-            "success": "Đã giải tán nhóm",
+            "success": "Đã giải tán nhóm thành công",
             "error": "Không thể giải tán nhóm"
         }
     },
@@ -167,7 +170,28 @@
             "downloading": "Đang tải xuống"
         },
         "video": {
-            "unsupported": "Trình duyệt của bạn không hỗ trợ video."
+            "unsupported": "Trình duyệt của bạn không hỗ trợ thẻ video."
+        },
+        "coListeningInvite": {
+            "title": "Mời cùng nghe nhạc",
+            "host": "Trưởng phòng: {{hostUserId}}",
+            "sessionFallback": "Phòng nghe chung",
+            "link": "Liên kết {{code}}",
+            "expiresAt": "Hết hạn lúc: {{time}}",
+            "badgeExpired": "Đã hết hạn",
+            "badgeValid": "Hợp lệ",
+            "remainingExpired": "Đã hết hạn",
+            "remainingMinutes": "Còn {{mins}} phút",
+            "remainingHours": "Còn {{hours}} giờ",
+            "remainingHoursMinutes": "Còn {{hours}} giờ {{mins}} phút",
+            "ctaJoin": "Tham gia",
+            "ctaOpenLink": "Mở liên kết",
+            "noteJoining": "Đang tham gia phòng nghe chung...",
+            "noteJoined": "Đã tham gia. Mở tab \"Nghe chung\" để đồng bộ. (Mã hết hạn không ảnh hưởng khi bạn đang ở trong phòng)",
+            "noteExpired": "Liên kết mời đã hết hạn. Hãy yêu cầu trưởng phòng tạo liên kết mới.",
+            "noteLoginRequired": "Vui lòng đăng nhập để tham gia phòng nghe chung.",
+            "noteAlreadyInRoom": "Bạn đã ở trong phòng nghe chung này rồi. (Mã chỉ cần thiết cho lần đầu tham gia, việc hết hạn sẽ không ảnh hưởng khi bạn tiếp tục ở lại phòng)",
+            "noteSwitching": "Đang chuyển từ trưởng phòng {{from}} sang trưởng phòng {{to}}..."
         },
         "messages": {
             "replyTo": "Đang trả lời:",
@@ -179,7 +203,7 @@
             "you": "Bạn",
             "recalled": "Tin nhắn đã được thu hồi",
             "recallErrorTime": "Không thể thu hồi tin nhắn quá 24 giờ",
-            "recallSuccess": "Đã thu hồi tin nhắn",
+            "recallSuccess": "Đã thu hồi tin nhắn thành công",
             "recallError": "Không thể thu hồi tin nhắn",
             "recallBtn": "Thu hồi tin nhắn",
             "forwardBtn": "Chuyển tiếp",
@@ -197,7 +221,10 @@
             "pinError": "Không thể ghim tin nhắn",
             "unpinSuccess": "Đã bỏ ghim tin nhắn",
             "unpinError": "Không thể bỏ ghim tin nhắn",
-            "messageNotLoaded": "Tin nhắn chưa được tải"
+            "messageNotLoaded": "Tin nhắn chưa được tải",
+            "encrypting": "Đang mã hóa...",
+            "sending": "Đang gửi...",
+            "sendFailed": "Gửi thất bại"
         },
         "weather": {
             "error": "Không thể hiển thị thông tin thời tiết",
@@ -216,7 +243,7 @@
     "introCarousel": {
         "slide1": {
             "title": "Kết nối tức thì",
-            "description": "PingMe mang đến trải nghiệm nhắn tin thời gian thực đa chiều, mượt mà và không độ trễ. Giữ mọi cuộc hội thoại luôn sống động.",
+            "description": "PingMe mang đến trải nghiệm nhắn tin thời gian thực mượt mà và không độ trễ. Giữ mọi cuộc hội thoại luôn sống động.",
             "bubble1": "Cà phê chiều nay không cậu? ☕",
             "bubble2": "Uki nha! 4h ở chỗ cũ nhé! 🙌"
         },
@@ -226,7 +253,7 @@
         },
         "slide3": {
             "title": "Trợ lý AI Thông Minh",
-            "description": "Chat trực tiếp với AI để lấy thông tin thời tiết toàn cầu, dịch thuật hay tóm tắt công việc một cách tự động, tối ưu."
+            "description": "Chat trực tiếp với AI để lấy thông tin thời tiết toàn cầu, dịch thuật hay tóm tắt công việc một cách tự động và tối ưu."
         },
         "sidebarNotice": "Chọn một cuộc hội thoại ở thanh bên"
     }

@@ -265,6 +265,17 @@ export function ChatBoxInput({
       const value = e.target.value;
       dispatch({ type: "SET_MESSAGE", payload: value });
 
+      if (!value.trim()) {
+        if (isTyping) {
+          dispatch({ type: "SET_TYPING", payload: false });
+          SocketManager.sendTyping(selectedChat.roomId, false);
+        }
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+        return;
+      }
+
       if (!isTyping && value.trim()) {
         dispatch({ type: "SET_TYPING", payload: true });
         SocketManager.sendTyping(selectedChat.roomId, true);
@@ -281,6 +292,15 @@ export function ChatBoxInput({
     },
     [selectedChat.roomId, isTyping],
   );
+
+  const handleInputBlur = useCallback(() => {
+    if (!isTyping) return;
+    dispatch({ type: "SET_TYPING", payload: false });
+    SocketManager.sendTyping(selectedChat.roomId, false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+  }, [isTyping, selectedChat.roomId]);
 
   useEffect(() => {
     return () => {
@@ -601,6 +621,7 @@ export function ChatBoxInput({
             onPaste={handlePaste}
             onToggleEmojiPicker={toggleEmojiPicker}
             onSend={handleSend}
+            onBlur={handleInputBlur}
             targetName={selectedChat?.name || ""}
           />
         )}
