@@ -1,13 +1,24 @@
-import { ChevronLeft, Info, Copy, Share2, Lock, Ban } from "lucide-react";
+import { ChevronLeft, Info, Copy, Share2, Lock, Ban, RefreshCw, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import type { RoomResponse } from "@/types/chat/room";
+import type { GroupJoinRequestResponse, GroupSettingsResponse, RoomResponse } from "@/types/chat/room";
 import { canManageGroup } from "../../utils/groupPermissions.ts";
 import { useAppSelector } from "@/features/hooks.ts";
 import { useTranslation } from "react-i18next";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getGroupJoinRequestsApi,
+  getGroupSettingsApi,
+  regenerateGroupJoinLinkApi,
+  reviewGroupJoinRequestApi,
+  updateGroupSettingsApi,
+} from "@/services/chat";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 
 interface GroupManagementProps {
   room: RoomResponse;
   onBack: () => void;
+  onSettingsChanged?: (settings: GroupSettingsResponse) => void;
 }
 
 const SectionHeader = ({ title }: { title: string }) => (
@@ -19,27 +30,35 @@ const SectionHeader = ({ title }: { title: string }) => (
 interface SettingRowProps {
   label: string;
   checked: boolean;
-  isAdmin: boolean;
+  isInteractive: boolean;
   type?: "checkbox" | "switch";
   hasInfo?: boolean;
+  onToggle?: () => void;
+  disabled?: boolean;
 }
 
 const SettingRow = ({
   label,
   checked,
-  isAdmin,
+  isInteractive,
   type = "checkbox",
   hasInfo = false,
+  onToggle,
+  disabled = false,
 }: SettingRowProps) => (
   <div
+    role={isInteractive ? "button" : undefined}
+    onClick={() => {
+      if (isInteractive && !disabled && onToggle) onToggle();
+    }}
     className={`flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors ${
-      isAdmin ? "cursor-pointer" : "opacity-60 cursor-not-allowed"
+      isInteractive ? "cursor-pointer" : "opacity-60 cursor-not-allowed"
     }`}
   >
     <div className="flex items-center gap-2 flex-1 mr-4">
       <span
         className={`text-[14px] leading-tight ${
-          isAdmin ? "text-gray-800" : "text-gray-500"
+          isInteractive ? "text-gray-800" : "text-gray-500"
         }`}
       >
         {label}
@@ -74,11 +93,134 @@ const SettingRow = ({
   </div>
 );
 
-const GroupManagement = ({ room, onBack }: GroupManagementProps) => {
+const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementProps) => {
   const { t } = useTranslation("chat");
   const { userSession } = useAppSelector((state) => state.auth);
-  const currentUserId = userSession?.id || 0;
-  const isAdmin = canManageGroup(room, currentUserId);
+  const currentUserId = Number(userSession?.id ?? 0);
+  const isAdmin = useMemo(() => {
+    if (canManageGroup(room, currentUserId)) return true;
+    if (!userSession?.name) return false;
+    const meByName = room.participants.find(
+      (p) => p.name === userSession.name
+    );
+    return meByName?.role === "OWNER" || meByName?.role === "ADMIN";
+  }, [room, currentUserId, userSession?.name]);
+  const [settings, setSettings] = useState<GroupSettingsResponse | null>(null);
+  const [pendingRequests, setPendingRequests] = useState<GroupJoinRequestResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
+  const [pendingSettingKey, setPendingSettingKey] = useState<string | null>(null);
+
+  const isBusy = isLoading || isMutating;
+
+  const loadData = async () => {
+    if (room.roomType !== "GROUP") return;
+    setIsLoading(true);
+    try {
+      const settingsRes = await getGroupSettingsApi(room.roomId);
+      setSettings(settingsRes.data.data);
+      onSettingsChanged?.(settingsRes.data.data);
+
+      if (isAdmin) {
+        const reqRes = await getGroupJoinRequestsApi(room.roomId, "PENDING");
+        setPendingRequests(reqRes.data.data ?? []);
+      }
+    } catch (err) {
+      toast.error(
+        getErrorMessage(
+          err,
+          `${t("management.loadFailed", "Không tải được cài đặt nhóm")} (roomId=${room.roomId})`
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadData();
+  }, [room.roomId, room.roomType, isAdmin]);
+
+  const toggleSetting = async (key: keyof Omit<GroupSettingsResponse, "roomId" | "joinLink">) => {
+    if (!settings) return;
+    if (pendingSettingKey) return;
+
+    const previousValue = settings[key];
+    const nextSettings = { ...settings, [key]: !previousValue };
+    setPendingSettingKey(key);
+    setSettings(nextSettings);
+    onSettingsChanged?.(nextSettings);
+
+    try {
+      await updateGroupSettingsApi(room.roomId, {
+        [key]: !previousValue,
+      });
+    } catch (err) {
+      const rollbackSettings = { ...nextSettings, [key]: previousValue };
+      setSettings(rollbackSettings);
+      onSettingsChanged?.(rollbackSettings);
+      toast.error(getErrorMessage(err, t("management.updateFailed", "Cập nhật cài đặt thất bại")));
+    } finally {
+      setPendingSettingKey(null);
+    }
+  };
+
+  const handleRegenerateLink = async () => {
+    setIsMutating(true);
+    try {
+      const response = await regenerateGroupJoinLinkApi(room.roomId);
+      setSettings(response.data.data);
+      onSettingsChanged?.(response.data.data);
+      toast.success(t("management.linkRegenerated", "Đã tạo lại link nhóm"));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("management.regenerateFailed", "Không thể tạo lại link")));
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!settings?.joinLink) return;
+    try {
+      await navigator.clipboard.writeText(settings.joinLink);
+      toast.success(t("management.linkCopied", "Đã sao chép link nhóm"));
+    } catch {
+      toast.error(t("management.linkCopyFailed", "Không thể sao chép link"));
+    }
+  };
+
+  const handleShareLink = async () => {
+    if (!settings?.joinLink) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "PingMe Group", url: settings.joinLink });
+        return;
+      } catch {
+        // ignore and fallback to copy
+      }
+    }
+    await handleCopyLink();
+  };
+
+  const handleReviewRequest = async (requestId: number, approved: boolean) => {
+    setIsMutating(true);
+    try {
+      await reviewGroupJoinRequestApi(room.roomId, requestId, approved);
+      setPendingRequests((prev) => prev.filter((req) => req.id !== requestId));
+      toast.success(
+        approved
+          ? t("management.requestApproved", "Đã duyệt yêu cầu")
+          : t("management.requestRejected", "Đã từ chối yêu cầu")
+      );
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("management.reviewFailed", "Xử lý yêu cầu thất bại")));
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const joinLink = useMemo(() => settings?.joinLink ?? "", [settings?.joinLink]);
+  const canInteract = isAdmin;
 
 
   return (
@@ -101,36 +243,159 @@ const GroupManagement = ({ room, onBack }: GroupManagementProps) => {
         )}
 
         <SectionHeader title={t("management.memberPermissions")} />
-        <SettingRow label={t("management.changeNameAvatar")} checked={true} isAdmin={isAdmin} />
-        <SettingRow label={t("management.pinMessages")} checked={true} isAdmin={isAdmin} />
-        <SettingRow label={t("management.createNotes")} checked={true} isAdmin={isAdmin} />
-        <SettingRow label={t("management.createPolls")} checked={true} isAdmin={isAdmin} />
-        <SettingRow label={t("management.sendMessages")} checked={true} isAdmin={isAdmin} />
+        <SettingRow
+          label={t("management.changeNameAvatar")}
+          checked={Boolean(settings?.allowMemberEditGroupProfile)}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("allowMemberEditGroupProfile")}
+          disabled={pendingSettingKey !== null}
+        />
+        <SettingRow
+          label={t("management.pinMessages")}
+          checked={Boolean(settings?.allowMemberPinMessage)}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("allowMemberPinMessage")}
+          disabled={pendingSettingKey !== null}
+        />
+        <SettingRow label={t("management.createNotes")} checked={false} isInteractive={false} />
+        <SettingRow
+          label={t("management.createPolls")}
+          checked={Boolean(settings?.allowMemberCreatePoll)}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("allowMemberCreatePoll")}
+          disabled={pendingSettingKey !== null}
+        />
+        <SettingRow
+          label={t("management.sendMessages")}
+          checked={Boolean(settings?.allowMemberSendMessage)}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("allowMemberSendMessage")}
+          disabled={pendingSettingKey !== null}
+        />
 
         <div className="h-2 bg-gray-100" />
 
-        <SettingRow label={t("management.approvalMode")} checked={false} type="switch" hasInfo={true} isAdmin={isAdmin} />
+        <SettingRow
+          label={t("management.approvalMode")}
+          checked={Boolean(settings?.joinApprovalEnabled)}
+          type="switch"
+          hasInfo={true}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("joinApprovalEnabled")}
+          disabled={pendingSettingKey !== null}
+        />
         <div className="mx-4 border-t border-gray-100" />
-        <SettingRow label={t("management.highlightAdmins")} checked={true} type="switch" hasInfo={true} isAdmin={isAdmin} />
+        <SettingRow
+          label={t("management.highlightAdmins")}
+          checked={Boolean(settings?.highlightAdminMessageOnly)}
+          type="switch"
+          hasInfo={true}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("highlightAdminMessageOnly")}
+          disabled={pendingSettingKey !== null}
+        />
         <div className="mx-4 border-t border-gray-100" />
-        <SettingRow label={t("management.readRecentMessages")} checked={true} type="switch" hasInfo={true} isAdmin={isAdmin} />
+        <SettingRow
+          label={t("management.readRecentMessages")}
+          checked={Boolean(settings?.allowNewMemberReadRecent)}
+          type="switch"
+          hasInfo={true}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("allowNewMemberReadRecent")}
+          disabled={pendingSettingKey !== null}
+        />
         <div className="mx-4 border-t border-gray-100" />
-        <SettingRow label={t("management.useGroupLink")} checked={true} type="switch" hasInfo={true} isAdmin={isAdmin} />
-
-        {/* Group Link Box */}
-        <div className="px-4 py-3">
-          <div className="bg-purple-50/50 border border-purple-100 rounded-lg p-3 flex items-center gap-3">
-            <span className="text-[13px] text-purple-700 font-medium flex-1 truncate">pingme.me/g/krgusp113</span>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-600 hover:bg-purple-100">
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-600 hover:bg-purple-100">
-                <Share2 className="w-4 h-4" />
-              </Button>
+        <SettingRow
+          label={t("management.useGroupLink")}
+          checked={Boolean(settings?.joinLinkEnabled)}
+          type="switch"
+          hasInfo={true}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("joinLinkEnabled")}
+          disabled={pendingSettingKey !== null}
+        />        {Boolean(settings?.joinLinkEnabled) && (
+          <div className="px-4 py-3">
+            <div className="bg-purple-50/50 border border-purple-100 rounded-lg p-3 flex items-center gap-3">
+              <span className="text-[13px] text-purple-700 font-medium flex-1 truncate">
+                {joinLink}
+              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-purple-600 hover:bg-purple-100"
+                  onClick={() => void handleCopyLink()}
+                  disabled={!joinLink}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-purple-600 hover:bg-purple-100"
+                  onClick={() => void handleShareLink()}
+                  disabled={!joinLink}
+                >
+                  <Share2 className="w-4 h-4" />
+                </Button>
+                {canInteract && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-purple-600 hover:bg-purple-100"
+                    onClick={() => void handleRegenerateLink()}
+                    disabled={isBusy}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isBusy ? "animate-spin" : ""}`} />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {isAdmin && (          <>
+            <div className="h-2 bg-gray-100" />
+            <SectionHeader title={t("management.joinRequests", "Yêu cầu vào nhóm")} />
+            <div className="px-4 py-3 space-y-2">
+              {pendingRequests.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  {t("management.noPendingRequests", "Không có yêu cầu chờ duyệt")}
+                </p>
+              ) : (
+                pendingRequests.map((req) => (
+                  <div key={req.id} className="rounded-lg border border-gray-200 px-3 py-2">
+                    <div className="text-sm font-medium text-gray-800">{req.requesterName}</div>
+                    <div className="text-xs text-gray-500">
+                      {new Date(req.createdAt).toLocaleString()}
+                    </div>
+                    <div className="mt-2 flex gap-2">
+                      <Button
+                        size="sm"
+                        className="h-8 px-2 bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => void handleReviewRequest(req.id, true)}
+                        disabled={isMutating}
+                      >
+                        <Check className="w-3.5 h-3.5 mr-1" />
+                        {t("management.approve", "Duyệt")}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 px-2"
+                        onClick={() => void handleReviewRequest(req.id, false)}
+                        disabled={isMutating}
+                      >
+                        <X className="w-3.5 h-3.5 mr-1" />
+                        {t("management.reject", "Từ chối")}
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
 
         <div className="h-2 bg-gray-100" />
 
@@ -146,3 +411,6 @@ const GroupManagement = ({ room, onBack }: GroupManagementProps) => {
 };
 
 export default GroupManagement;
+
+
+

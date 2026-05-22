@@ -1,6 +1,6 @@
 import type React from "react";
 import { getTheme } from "../../utils/chatThemes.ts";
-import type { RoomResponse } from "@/types/chat/room";
+import type { GroupSettingsResponse, RoomResponse } from "@/types/chat/room";
 import type { MessageResponse } from "@/types/chat/message";
 import { useAppSelector } from "@/features/hooks.ts";
 import { useReducer, useRef, useEffect, useCallback } from "react";
@@ -10,6 +10,7 @@ import { getErrorMessage } from "@/utils/errorMessageHandler.ts";
 import { SocketManager } from "@/features/websocket";
 import { useTranslation } from "react-i18next";
 import { useVoiceRecorder } from "../../hooks/useVoiceRecorder";
+import { canManageGroup } from "../../utils/groupPermissions.ts";
 
 import {
   ChatInputToolbar,
@@ -28,6 +29,7 @@ interface FilePreview {
 
 interface ChatInputProps {
   selectedChat: RoomResponse;
+  groupSettings?: GroupSettingsResponse | null;
   onSendMessage: (msg: string) => Promise<void> | void;
   onSendFile: (file: File, type: "IMAGE" | "VIDEO" | "FILE") => Promise<void>;
   onSendMultipleImages: (files: File[]) => Promise<void>;
@@ -117,6 +119,7 @@ const initialState: ChatInputState = {
 
 export function ChatBoxInput({
   selectedChat,
+  groupSettings,
   onSendMessage,
   onSendFile,
   onSendMultipleImages,
@@ -133,6 +136,11 @@ export function ChatBoxInput({
   const theme = getTheme(selectedChat.theme);
   const { t } = useTranslation("chat");
   const { userSession } = useAppSelector((state) => state.auth);
+  const currentUserId = Number(userSession?.id ?? 0);
+  const isGroup = selectedChat.roomType === "GROUP";
+  const isAdmin = isGroup ? canManageGroup(selectedChat, currentUserId) : false;
+  const canSendMessage = !isGroup || isAdmin || Boolean(groupSettings?.allowMemberSendMessage);
+  const canCreatePoll = !isGroup || isAdmin || Boolean(groupSettings?.allowMemberCreatePoll);
 
   const [state, dispatch] = useReducer(chatInputReducer, initialState);
   const {
@@ -286,6 +294,7 @@ export function ChatBoxInput({
   }, [selectedChat.roomId, isTyping]);
 
   const handleSend = async () => {
+    if (!canSendMessage) return;
     if ((!newMessage.trim() && selectedFiles.length === 0) || isSending) {
       return;
     }
@@ -439,6 +448,7 @@ export function ChatBoxInput({
   };
 
   const handlePollClick = () => {
+    if (!canCreatePoll) return;
     dispatch({ type: "SET_POLL_MODAL", payload: true });
   };
 
@@ -458,6 +468,7 @@ export function ChatBoxInput({
     <div className="chat-box-input flex flex-col bg-white border-t border-gray-100">
       <ChatInputToolbar
         disabled={disabled}
+        canCreatePoll={canCreatePoll}
         isSending={isSending}
         isRecording={isRecording}
         isTranscribing={isTranscribing}
@@ -583,6 +594,7 @@ export function ChatBoxInput({
             newMessage={newMessage}
             hasFiles={selectedFiles.length > 0}
             disabled={disabled}
+            canSendMessage={canSendMessage}
             isSending={isSending}
             onInputChange={handleInputChange}
             onKeyDown={handleKeyDown}

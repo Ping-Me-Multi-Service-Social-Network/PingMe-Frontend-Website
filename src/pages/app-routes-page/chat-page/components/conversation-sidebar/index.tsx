@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/features/hooks.ts";
-import type { RoomResponse } from "@/types/chat/room";
+import type { GroupSettingsResponse, RoomResponse } from "@/types/chat/room";
 import {
   Avatar,
   AvatarFallback,
@@ -16,7 +16,7 @@ import {
   Settings,
   UserPlus,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MemberList from "./member-list.tsx";
 import SidebarPinnedMessages from "./sidebar-pinned-messages.tsx";
 import RenameGroupModal from "./rename-group-modal.tsx";
@@ -29,8 +29,7 @@ import { motion } from "framer-motion";
 import { Edit2, LogOut, Trash2 } from "lucide-react";
 import GroupManagement from "./group-management.tsx";
 import {
-  canRenameGroup,
-  canChangeGroupAvatar,
+  canManageGroup,
   canChangeTheme,
   canLeaveGroup,
   canDissolveGroup,
@@ -38,17 +37,20 @@ import {
 import LeaveGroupModal from "./leave-group-modal.tsx";
 import DissolveGroupModal from "./dissolve-group-modal.tsx";
 import { GroupMemberModal } from "@/pages/app-routes-page/components/chat-shared-components/GroupMemberModal.tsx";
+import { getGroupSettingsApi } from "@/services/chat";
 
 interface ConversationSidebarProps {
   selectedChat: RoomResponse;
   isOpen: boolean;
   onClose: () => void;
+  onGroupSettingsUpdated?: (settings: GroupSettingsResponse) => void;
 }
 
 const ConversationSidebar = ({
   selectedChat,
   isOpen,
   onClose,
+  onGroupSettingsUpdated,
 }: ConversationSidebarProps) => {
   const { userSession } = useAppSelector((state) => state.auth);
   const [currentView, setCurrentView] = useState<"main" | "members" | "pinned" | "management">("main");
@@ -57,6 +59,7 @@ const ConversationSidebar = ({
   const [isUpdateImageModalOpen, setIsUpdateImageModalOpen] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isDissolveModalOpen, setIsDissolveModalOpen] = useState(false);
+  const [groupSettings, setGroupSettings] = useState<GroupSettingsResponse | null>(null);
   const { t } = useTranslation("chat");
   const currentUserId = userSession?.id || 0;
 
@@ -70,6 +73,52 @@ const ConversationSidebar = ({
   };
 
   const otherParticipant = getOtherParticipant();
+
+  useEffect(() => {
+    setCurrentView("main");
+    setIsRenameModalOpen(false);
+    setIsThemeModalOpen(false);
+    setIsUpdateImageModalOpen(false);
+    setIsLeaveModalOpen(false);
+    setIsDissolveModalOpen(false);
+  }, [selectedChat.roomId]);
+
+  useEffect(() => {
+    let active = true;
+    if (selectedChat.roomType !== "GROUP") {
+      setGroupSettings(null);
+      return;
+    }
+    // Re-fetch group settings whenever returning from management view so
+    // sidebar permissions (rename/avatar) are immediately in sync.
+    if (currentView !== "main") return;
+
+    getGroupSettingsApi(selectedChat.roomId)
+      .then((res) => {
+        if (!active) return;
+        const nextSettings = res.data.data ?? null;
+        setGroupSettings(nextSettings);
+        if (nextSettings) onGroupSettingsUpdated?.(nextSettings);
+      })
+      .catch(() => {
+        if (!active) return;
+        setGroupSettings(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedChat.roomId, selectedChat.roomType, currentView]);
+
+  const canEditGroupProfile =
+    selectedChat.roomType === "GROUP" &&
+    (canManageGroup(selectedChat, currentUserId) ||
+      Boolean(groupSettings?.allowMemberEditGroupProfile));
+
+  useEffect(() => {
+    if (selectedChat.roomType !== "GROUP" && currentView === "management") {
+      setCurrentView("main");
+    }
+  }, [selectedChat.roomType, currentView]);
 
   if (!isOpen) return null;
 
@@ -95,12 +144,16 @@ const ConversationSidebar = ({
     );
   }
 
-  if (currentView === "management") {
+  if (currentView === "management" && selectedChat.roomType === "GROUP") {
     return (
       <div className={`conv-sidebar ${theme.sidebar.background}`}>
         <GroupManagement
           room={selectedChat}
           onBack={() => setCurrentView("main")}
+          onSettingsChanged={(nextSettings) => {
+            setGroupSettings(nextSettings);
+            onGroupSettingsUpdated?.(nextSettings);
+          }}
         />
       </div>
     );
@@ -155,7 +208,7 @@ const ConversationSidebar = ({
                   : selectedChat.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {selectedChat.roomType === "GROUP" && canChangeGroupAvatar(selectedChat, currentUserId) && (
+            {selectedChat.roomType === "GROUP" && canEditGroupProfile && (
               <Button
                 size="icon"
                 variant="ghost"
@@ -175,7 +228,7 @@ const ConversationSidebar = ({
                 >
                   {selectedChat.name}
                 </h4>
-                {canRenameGroup(selectedChat, currentUserId) && (
+                {canEditGroupProfile && (
                   <Button
                     size="icon"
                     variant="ghost"

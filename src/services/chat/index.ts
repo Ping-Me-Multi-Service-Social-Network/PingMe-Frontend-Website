@@ -25,6 +25,12 @@ import type {
   LeaveGroupRequest,
   LeaveGroupResponse,
   DissolveGroupResponse,
+  GroupSettingsResponse,
+  UpdateGroupSettingsRequest,
+  GroupJoinRequestResponse,
+  GroupJoinRequestStatus,
+  JoinGroupByLinkRequest,
+  JoinGroupByLinkResponse,
 } from "@/types/chat/room";
 
 // ==================================================================================
@@ -117,6 +123,62 @@ export const getCurrentUserRoomsApi = ({
 
   return axiosClient.get<ApiResponse<PageResponse<RoomResponse>>>(
     `/core-service/rooms?${params.toString()}`
+  );
+};
+
+export const getGroupSettingsApi = (roomId: number) => {
+  return axiosClient.get<ApiResponse<GroupSettingsResponse>>(
+    `/core-service/rooms/group/${roomId}/settings`
+  );
+};
+
+export const updateGroupSettingsApi = (
+  roomId: number,
+  data: UpdateGroupSettingsRequest
+) => {
+  return axiosClient.patch<ApiResponse<GroupSettingsResponse>>(
+    `/core-service/rooms/group/${roomId}/settings`,
+    data
+  );
+};
+
+export const regenerateGroupJoinLinkApi = (roomId: number) => {
+  return axiosClient.post<ApiResponse<GroupSettingsResponse>>(
+    `/core-service/rooms/group/${roomId}/settings/join-link/regenerate`
+  );
+};
+
+export const joinGroupByLinkApi = (data: JoinGroupByLinkRequest) => {
+  return axiosClient.post<ApiResponse<JoinGroupByLinkResponse>>(
+    `/core-service/rooms/group/join-by-link`,
+    data
+  );
+};
+
+export const getGroupJoinRequestsApi = (
+  roomId: number,
+  status?: GroupJoinRequestStatus
+) => {
+  const suffix = status ? `?status=${status}` : "";
+  return axiosClient.get<ApiResponse<GroupJoinRequestResponse[]>>(
+    `/core-service/rooms/group/${roomId}/join-requests${suffix}`
+  );
+};
+
+export const reviewGroupJoinRequestApi = (
+  roomId: number,
+  joinRequestId: number,
+  approved: boolean
+) => {
+  return axiosClient.patch<ApiResponse<GroupJoinRequestResponse>>(
+    `/core-service/rooms/group/${roomId}/join-requests/${joinRequestId}`,
+    { approved }
+  );
+};
+
+export const cancelMyGroupJoinRequestApi = (roomId: number) => {
+  return axiosClient.delete<ApiResponse<GroupJoinRequestResponse>>(
+    `/core-service/rooms/group/${roomId}/join-requests/me`
   );
 };
 

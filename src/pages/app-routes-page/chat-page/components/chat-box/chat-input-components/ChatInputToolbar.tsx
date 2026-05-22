@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button.tsx";
 
 interface ChatInputToolbarProps {
   disabled: boolean;
+  canCreatePoll: boolean;
   isSending: boolean;
   isRecording: boolean;
   isTranscribing: boolean;
@@ -29,6 +30,7 @@ interface ChatInputToolbarProps {
 
 export function ChatInputToolbar({
   disabled,
+  canCreatePoll,
   isSending,
   isRecording,
   isTranscribing,
@@ -99,7 +101,7 @@ export function ChatInputToolbar({
         className={btnClass} 
         title={t("input.createPollTitle", "Bình chọn")}
         onClick={onPollClick}
-        disabled={disabled || isSending || isRecording || isTranscribing}
+        disabled={disabled || isSending || isRecording || isTranscribing || !canCreatePoll}
       >
         <Vote className={iconSize} strokeWidth={1.5} />
       </Button>
@@ -133,3 +135,5 @@ export function ChatInputToolbar({
     </div>
   );
 }
+
+
