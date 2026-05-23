@@ -59,11 +59,12 @@ export const ChatBoxContent = memo(({
 
   const currentUser = useSelector(selectUser);
   const currentUserId = currentUser?.id ?? 0;
+  const currentUserIdString = String(currentUser?.id ?? "");
   const typingUsers = useSelector(selectTypingUsers(selectedChat.roomId));
 
-  const otherUsersTyping = typingUsers.filter((u) => {
-    return u.userId !== currentUser?.id && u.isTyping;
-  });
+  const otherUsersTyping = typingUsers.filter((u) =>
+    u.isTyping ? String(u.userId) !== currentUserIdString : false,
+  );
   let typingNames = "";
 
   if (otherUsersTyping.length === 1) {
@@ -78,7 +79,7 @@ export const ChatBoxContent = memo(({
 
   const getRepliedSenderName = (senderId?: number) => {
     if (!senderId) return "";
-    if (senderId === currentUser?.id) return t("bubbles.messages.you", "You");
+    if (String(senderId) === currentUserIdString) return t("bubbles.messages.you", "You");
     return selectedChat.participants.find((p) => p.userId === senderId)?.name || "User";
   };
 

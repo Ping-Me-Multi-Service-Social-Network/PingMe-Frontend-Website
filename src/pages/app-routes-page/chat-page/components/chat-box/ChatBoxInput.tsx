@@ -302,6 +302,12 @@ export function ChatBoxInput({
     }
   }, [isTyping, selectedChat.roomId]);
 
+  const handleInputFocus = useCallback(() => {
+    if (!newMessage.trim()) return;
+    dispatch({ type: "SET_TYPING", payload: true });
+    SocketManager.sendTyping(selectedChat.roomId, true);
+  }, [newMessage, selectedChat.roomId]);
+
   useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) {
@@ -622,6 +628,7 @@ export function ChatBoxInput({
             onToggleEmojiPicker={toggleEmojiPicker}
             onSend={handleSend}
             onBlur={handleInputBlur}
+            onFocus={handleInputFocus}
             targetName={selectedChat?.name || ""}
           />
         )}

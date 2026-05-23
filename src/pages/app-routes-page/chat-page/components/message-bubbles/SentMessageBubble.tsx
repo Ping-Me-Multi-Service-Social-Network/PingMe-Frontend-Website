@@ -1,5 +1,18 @@
 import type { MessageResponse } from "@/types/chat/message";
 import type { WeatherResponse } from "@/types/weather";
+import {
+  MoreHorizontal,
+  RotateCcw,
+  Forward,
+  Trash2,
+  Reply,
+  Edit2,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+  CloudSun,
+  Pin,
+} from "lucide-react";
 import MessageImage from "./MessageImage.tsx";
 import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
@@ -7,7 +20,6 @@ import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { MessagePoll } from "./MessagePoll.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
-import { MoreHorizontal, RotateCcw, Forward, Trash2, Reply, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -15,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { Pin } from "lucide-react";
+import { Progress } from "@/components/ui/progress.tsx";
 import { recallMessageApi, deleteMessageForMeApi, pinMessageApi, unpinMessageApi } from "@/services/chat";
 import { toast } from "sonner";
 import { differenceInHours } from "date-fns";
@@ -60,6 +72,11 @@ const SentMessageBubble = memo(function SentMessageBubble({
   const isInviteMessage = !!coListeningInvite;
   const isLocalPending = message.localStatus === "encrypting" || message.localStatus === "sending";
   const isLocalFailed = message.localStatus === "failed";
+  const localUploadProgress =
+    typeof message.localUploadProgress === "number" ? Math.max(0, Math.min(message.localUploadProgress, 100)) : null;
+  const isUploadingMedia =
+    isMediaMessage && isLocalPending && localUploadProgress !== null;
+  const isWeatherPending = isWeatherMessage && isLocalPending;
 
   const handleRecallMessage = async () => {
     const messageDate = new Date(message.createdAt);
@@ -123,23 +140,80 @@ const SentMessageBubble = memo(function SentMessageBubble({
     let contentNode = null;
     switch (message.type) {
       case "IMAGE":
-        contentNode = <MessageImage src={message.content} mediaUrls={message.mediaUrls} alt="Sent image" />;
+        contentNode = (
+          <div className="flex flex-col gap-2">
+            <MessageImage src={message.content} mediaUrls={message.mediaUrls} alt="Sent image" />
+            {isUploadingMedia && renderUploadProgress()}
+          </div>
+        );
         break;
       case "VIDEO":
-        contentNode = <MessageVideo src={message.content} />;
+        contentNode = (
+          <div className="flex flex-col gap-2">
+            <MessageVideo src={message.content} />
+            {isUploadingMedia && renderUploadProgress()}
+          </div>
+        );
         break;
       case "FILE": {
-        const fileName = getDisplayFileName(message.content, message.fileFormat);
+        const fileName = message.localFileName ?? getDisplayFileName(message.content, message.fileFormat);
         contentNode = (
-          <MessageFile
-            src={message.content}
-            fileName={fileName}
-            isSent={true}
-          />
+          <div className="flex flex-col gap-2">
+            <MessageFile
+              src={message.content}
+              fileName={fileName}
+              isSent={true}
+            />
+            {isUploadingMedia && renderUploadProgress()}
+          </div>
         );
         break;
       }
       case "WEATHER": {
+        if (isLocalFailed) {
+          contentNode = (
+            <div className="rounded-2xl rounded-br-md px-4 py-3 shadow-sm max-w-sm min-w-[240px] border border-red-200 bg-red-50/80">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 shadow-sm">
+                  <AlertCircle className="h-6 w-6" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-red-700">
+                    {t("bubbles.weather.title")}
+                  </div>
+                  <div className="text-xs text-red-600">
+                    {message.localError ?? t("bubbles.messages.sendFailed")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+          break;
+        }
+
+        if (isWeatherPending) {
+          contentNode = (
+            <div className="rounded-2xl rounded-br-md px-4 py-3 shadow-sm max-w-sm min-w-[240px] border border-white/20 bg-white/20 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/70 text-purple-600 shadow-sm">
+                  <CloudSun className="h-6 w-6 animate-pulse" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold">
+                    {t("bubbles.weather.title")}
+                  </div>
+                  <div className="text-xs opacity-80">
+                    {message.localStatus === "encrypting"
+                      ? t("bubbles.messages.encrypting")
+                      : t("bubbles.messages.sending")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+          break;
+        }
+
         try {
           const weatherData: WeatherResponse = JSON.parse(message.content);
           contentNode = (
@@ -202,6 +276,49 @@ const SentMessageBubble = memo(function SentMessageBubble({
     );
   };
 
+  const renderUploadProgress = () => {
+    if (!isUploadingMedia) return null;
+
+    return (
+      <div className="space-y-1">
+        <Progress
+          value={localUploadProgress ?? 0}
+          className="h-1.5 bg-white/25 [&_[data-slot=progress-indicator]]:bg-white"
+        />
+        <div className="flex items-center justify-between gap-2 text-[11px] opacity-80">
+          <span>{t("bubbles.messages.sending")}</span>
+          <span>{localUploadProgress}%</span>
+        </div>
+      </div>
+    );
+  };
+
+  const canRetry = message.type === "TEXT" || message.type === "WEATHER";
+
+  const renderLocalStatusIcon = () => {
+    if (!isLocalPending && !isLocalFailed) return null;
+
+    const iconClass =
+      "h-3.5 w-3.5";
+
+    return (
+      <div
+        className={`absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border shadow-sm ${
+          isLocalFailed
+            ? "border-red-200 bg-red-50 text-red-600"
+            : "border-purple-200 bg-white text-purple-600"
+        }`}
+        aria-hidden="true"
+      >
+        {isLocalFailed ? (
+          <AlertCircle className={iconClass} />
+        ) : (
+          <Loader2 className={`${iconClass} animate-spin`} />
+        )}
+      </div>
+    );
+  };
+
   const shouldRenderBareContentContainer =
     message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage);
 
@@ -214,6 +331,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
       className="msg-row msg-row--sent group mb-4"
     >
       <div className="msg-bubble-wrapper relative" id={`message-${message.id}`}>
+        {renderLocalStatusIcon()}
         <AnimatePresence>
           {message.isActive && !isLocalPending && !isLocalFailed && (
             <DropdownMenu>
@@ -318,15 +436,17 @@ const SentMessageBubble = memo(function SentMessageBubble({
             {message.localStatus === "failed" && (
               <>
                 <span>{t("bubbles.messages.sendFailed")}</span>
-                {onRetrySend && (
+                {onRetrySend && canRetry && (
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => onRetrySend(message)}
-                    className="h-6 px-2 text-[11px] text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    aria-label={t("bubbles.messages.retrySend")}
+                    className="h-6 w-6 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    title={t("bubbles.messages.retrySend")}
                   >
-                    {t("bubbles.messages.retrySend")}
+                    <RefreshCw className="h-3.5 w-3.5" />
                   </Button>
                 )}
               </>
