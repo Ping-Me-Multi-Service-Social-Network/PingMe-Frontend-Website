@@ -27,7 +27,8 @@ export const MessagePoll = ({ message, currentUserId }: MessagePollProps) => {
   const selectedIds = hasLocalChanges ? localSelectedIds : currentSelectedIds;
 
   const isExpired = poll.expired || (poll.expiresAt && new Date(poll.expiresAt).getTime() < Date.now());
-  const canVote = message.isActive && !isExpired;
+  const isPendingLocalMessage = message.localStatus === "encrypting" || message.localStatus === "sending";
+  const canVote = message.isActive && !isExpired && !isPendingLocalMessage;
 
   const handleOptionClick = async (optionId: string) => {
     if (!canVote || isVoting) return;
@@ -144,6 +145,13 @@ export const MessagePoll = ({ message, currentUserId }: MessagePollProps) => {
       <div className="text-xs opacity-80">
         {poll.totalVotes} {poll.totalVotes === 1 ? t("bubbles.messages.vote", "vote") : t("bubbles.messages.votes", "votes")}
       </div>
+      {isPendingLocalMessage && (
+        <div className="text-[11px] opacity-80 italic">
+          {message.localStatus === "encrypting"
+            ? t("bubbles.messages.encrypting")
+            : t("bubbles.messages.sending")}
+        </div>
+      )}
     </div>
   );
 };

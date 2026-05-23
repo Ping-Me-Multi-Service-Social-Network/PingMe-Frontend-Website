@@ -73,6 +73,29 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     [selectedChat.participants, userSession]
   );
 
+  const buildRepliedMessageSnapshot = useCallback(
+    (message?: MessageResponse | null): MessageResponse["repliedMessage"] => {
+      if (!message) return null;
+      return {
+        id: message.id,
+        senderId: message.senderId,
+        content: message.content,
+        type: message.type,
+        isActive: message.isActive,
+        fileFormat: message.fileFormat ?? null,
+        mediaUrls: message.mediaUrls ?? null,
+        poll: message.poll ?? null,
+      };
+    },
+    [],
+  );
+
+  const buildFileMeta = useCallback((file: File) => {
+    const fileName = file.name || "File";
+    const fileFormat = fileName.includes(".") ? fileName.split(".").pop() ?? null : null;
+    return { fileName, fileFormat };
+  }, []);
+
   // ---- Send Handlers ----
 
   const sendTextMessage = useCallback(
@@ -171,18 +194,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
       return;
     }
 
-    const repliedMessageSnapshot = replyMessage
-      ? {
-          id: replyMessage.id,
-          senderId: replyMessage.senderId,
-          content: replyMessage.content,
-          type: replyMessage.type,
-          isActive: replyMessage.isActive,
-          fileFormat: replyMessage.fileFormat ?? null,
-          mediaUrls: replyMessage.mediaUrls ?? null,
-          poll: replyMessage.poll ?? null,
-        }
-      : null;
+    const repliedMessageSnapshot = buildRepliedMessageSnapshot(replyMessage);
 
     const clientMsgId = crypto.randomUUID();
     await sendTextMessage({
@@ -195,113 +207,254 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   };
 
   const handleRetrySendMessage = async (message: MessageResponse) => {
-    if (!message.clientMsgId || message.type !== "TEXT") return;
+    if (!message.clientMsgId) return;
 
-    await sendTextMessage({
-      text: message.content,
-      clientMsgId: message.clientMsgId,
-      repliedMessageSnapshot: message.repliedMessage ?? null,
-      createOptimisticBubble: false,
-    });
+    if (message.type === "TEXT") {
+      await sendTextMessage({
+        text: message.content,
+        clientMsgId: message.clientMsgId,
+        repliedMessageSnapshot: message.repliedMessage ?? null,
+        createOptimisticBubble: false,
+      });
+      return;
+    }
+
+    if (message.type === "WEATHER" && message.localWeatherRequest) {
+      await handleSendWeather(
+        message.localWeatherRequest.lat,
+        message.localWeatherRequest.lon,
+        message.clientMsgId,
+        message.repliedMessage ?? null,
+        false,
+      );
+    }
   };
 
-  const handleSendFile = async (
-    file: File,
-    type: "IMAGE" | "VIDEO" | "FILE"
-  ) => {
-    try {
-      const formData = new FormData();
-      const messageRequest = {
-        content: type.toLowerCase(),
-        clientMsgId: crypto.randomUUID(),
-        type: type,
-        roomId: selectedChat.roomId,
-        repliedMessageId: replyMessage?.id || null,
-      };
+  const sendMediaMessage = useCallback(
+    async ({
+      file,
+      type,
+      clientMsgId,
+      repliedMessageSnapshot,
+      multipleImageFiles,
+      localFileName,
+      createOptimisticBubble,
+    }: {
+      file?: File;
+      type: "IMAGE" | "VIDEO" | "FILE";
+      clientMsgId: string;
+      repliedMessageSnapshot: MessageResponse["repliedMessage"];
+      multipleImageFiles?: File[];
+      localFileName?: string;
+      createOptimisticBubble?: boolean;
+    }) => {
+      const previewUrl = file ? URL.createObjectURL(file) : undefined;
+      const mediaUrls =
+        multipleImageFiles?.map((item) => URL.createObjectURL(item)) ?? (previewUrl ? [previewUrl] : null);
 
-      formData.append(
-        "message",
-        new Blob([JSON.stringify(messageRequest)], {
-          type: "application/json",
-        })
-      );
-      formData.append("file", file);
+      if (createOptimisticBubble !== false) {
+        addMessage({
+          id: `tmp-${clientMsgId}`,
+          roomId: selectedChat.roomId,
+          clientMsgId,
+          senderId: currentUserId,
+          content: previewUrl ?? "",
+          type,
+          createdAt: new Date().toISOString(),
+          isActive: true,
+          repliedMessage: repliedMessageSnapshot,
+          fileFormat: file ? buildFileMeta(file).fileFormat : null,
+          mediaUrls,
+          localStatus: "sending",
+          localError: null,
+          localFileName: localFileName ?? file?.name ?? null,
+          localUploadProgress: 0,
+        });
+      } else {
+        patchMessageByClientMsgId(clientMsgId, {
+          localStatus: "sending",
+          localError: null,
+          localUploadProgress: 0,
+        });
+      }
 
-      const response = await sendFileMessageApi(formData);
-      const sentMessage = response.data.data as MessageResponse;
-      addMessage(sentMessage);
-      setReplyMessage(null);
-    } catch (err) {
-      toast.error(getErrorMessage(err, t("box.sendFileError")));
-    }
+      try {
+        const formData = new FormData();
+        const messageRequest = {
+          content: type.toLowerCase(),
+          clientMsgId,
+          type,
+          roomId: selectedChat.roomId,
+          repliedMessageId: repliedMessageSnapshot?.id || null,
+        };
+
+        formData.append(
+          "message",
+          new Blob([JSON.stringify(messageRequest)], {
+            type: "application/json",
+          })
+        );
+
+        if (type === "IMAGE" && multipleImageFiles && multipleImageFiles.length > 0) {
+          multipleImageFiles.forEach((item) => {
+            formData.append("files", item);
+          });
+          const response = await sendMultipleImageMessageApi(formData, (progress) => {
+            patchMessageByClientMsgId(clientMsgId, { localUploadProgress: progress });
+          });
+          addMessage(response.data.data as MessageResponse);
+          return;
+        }
+
+        if (!file) return;
+
+        formData.append("file", file);
+        const response = await sendFileMessageApi(formData, (progress) => {
+          patchMessageByClientMsgId(clientMsgId, { localUploadProgress: progress });
+        });
+        addMessage(response.data.data as MessageResponse);
+      } catch (err) {
+        patchMessageByClientMsgId(clientMsgId, {
+          localStatus: "failed",
+          localError: getErrorMessage(err, t("box.sendFileError")),
+        });
+        toast.error(getErrorMessage(err, t("box.sendFileError")));
+      }
+    },
+    [
+      addMessage,
+      buildFileMeta,
+      currentUserId,
+      patchMessageByClientMsgId,
+      selectedChat.roomId,
+      t,
+    ],
+  );
+
+  const handleSendFile = async (file: File, type: "IMAGE" | "VIDEO" | "FILE") => {
+    const clientMsgId = crypto.randomUUID();
+    await sendMediaMessage({
+      file,
+      type,
+      clientMsgId,
+      repliedMessageSnapshot: buildRepliedMessageSnapshot(replyMessage),
+      localFileName: file.name,
+    });
+    setReplyMessage(null);
   };
 
   const handleSendMultipleImages = async (files: File[]) => {
-    try {
-      const formData = new FormData();
-      const messageRequest = {
-        content: "image",
-        clientMsgId: crypto.randomUUID(),
-        type: "IMAGE",
-        roomId: selectedChat.roomId,
-        repliedMessageId: replyMessage?.id || null,
-      };
-
-      formData.append(
-        "message",
-        new Blob([JSON.stringify(messageRequest)], {
-          type: "application/json",
-        })
-      );
-      
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
-
-      const response = await sendMultipleImageMessageApi(formData);
-      const sentMessage = response.data.data as MessageResponse;
-      addMessage(sentMessage);
-      setReplyMessage(null);
-    } catch (err) {
-      toast.error(getErrorMessage(err, t("box.sendFileError")));
-    }
+    const clientMsgId = crypto.randomUUID();
+    await sendMediaMessage({
+      type: "IMAGE",
+      clientMsgId,
+      repliedMessageSnapshot: buildRepliedMessageSnapshot(replyMessage),
+      multipleImageFiles: files,
+    });
+    setReplyMessage(null);
   };
 
-  const handleSendWeather = async (latitude: number, longitude: number) => {
+  const handleSendWeather = async (
+    latitude: number,
+    longitude: number,
+    clientMsgId: string = crypto.randomUUID(),
+    repliedMessageSnapshot: MessageResponse["repliedMessage"] = buildRepliedMessageSnapshot(replyMessage),
+    createOptimisticBubble = true,
+  ) => {
+    if (createOptimisticBubble) {
+      addMessage({
+        id: `tmp-${clientMsgId}`,
+        roomId: selectedChat.roomId,
+        clientMsgId,
+        senderId: currentUserId,
+        content: "",
+        type: "WEATHER",
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        repliedMessage: repliedMessageSnapshot,
+        localStatus: "sending",
+        localError: null,
+        localWeatherRequest: { lat: latitude, lon: longitude },
+      });
+    } else {
+      patchMessageByClientMsgId(clientMsgId, {
+        localStatus: "sending",
+        localError: null,
+        localWeatherRequest: { lat: latitude, lon: longitude },
+      });
+    }
+
     try {
       const weatherRequest = {
         roomId: selectedChat.roomId,
         lat: latitude,
         lon: longitude,
-        clientMsgId: crypto.randomUUID(),
+        clientMsgId,
       };
 
       const response = await sendWeatherMessage(weatherRequest);
       const sentMessage = response.data.data as MessageResponse;
       addMessage(sentMessage);
+      setReplyMessage(null);
     } catch (err) {
+      patchMessageByClientMsgId(clientMsgId, {
+        localStatus: "failed",
+        localError: getErrorMessage(err, t("box.sendWeatherError")),
+      });
       toast.error(getErrorMessage(err, t("box.sendWeatherError")));
     }
   };
 
   const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
+    const clientMsgId = crypto.randomUUID();
+    const repliedMessageSnapshot = buildRepliedMessageSnapshot(replyMessage);
+    const optimisticPoll = {
+      question,
+      allowMultiple,
+      expiresAt: null,
+      expired: false,
+      totalVotes: 0,
+      options: options.map((optionText, idx) => ({
+        id: `tmp-option-${idx}`,
+        text: optionText,
+        voteCount: 0,
+        voterIds: [],
+      })),
+    };
+
+    addMessage({
+      id: `tmp-${clientMsgId}`,
+      roomId: selectedChat.roomId,
+      clientMsgId,
+      senderId: currentUserId,
+      content: question,
+      type: "POLL",
+      createdAt: new Date().toISOString(),
+      isActive: true,
+      repliedMessage: repliedMessageSnapshot,
+      poll: optimisticPoll as MessageResponse["poll"],
+      localStatus: "sending",
+      localError: null,
+    });
+
     try {
-      const pollRequest = {
+      const response = await createPollMessageApi({
         roomId: selectedChat.roomId,
-        clientMsgId: crypto.randomUUID(),
+        clientMsgId,
         question,
         options,
         allowMultiple,
         repliedMessageId: replyMessage?.id || null,
-      };
-
-      const response = await createPollMessageApi(pollRequest);
-      const sentMessage = response.data.data as MessageResponse;
-      addMessage(sentMessage);
+      });
+      addMessage(response.data.data as MessageResponse);
       setReplyMessage(null);
     } catch (err) {
+      patchMessageByClientMsgId(clientMsgId, {
+        localStatus: "failed",
+        localError: getErrorMessage(err, t("box.createPollError", "Failed to create poll")),
+      });
       toast.error(getErrorMessage(err, t("box.createPollError", "Failed to create poll")));
-      throw err; // Re-throw to handle in UI
+      throw err;
     }
   };
 

@@ -34,6 +34,12 @@ export interface MessageResponse {
   poll?: PollResponse | null;
   localStatus?: "encrypting" | "sending" | "failed";
   localError?: string | null;
+  localFileName?: string | null;
+  localUploadProgress?: number | null;
+  localWeatherRequest?: {
+    lat: number;
+    lon: number;
+  } | null;
 }
 
 export interface PollOptionResponse {

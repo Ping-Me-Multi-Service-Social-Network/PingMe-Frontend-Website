@@ -1,4 +1,5 @@
 import axiosClient from "@/lib/axiosClient.ts";
+import type { AxiosProgressEvent } from "axios";
 import type {
   ApiResponse,
   PageResponse,
@@ -190,7 +191,10 @@ export const sendMessageApi = (data: SendMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages", data);
 };
 
-export const sendFileMessageApi = (data: FormData) => {
+export const sendFileMessageApi = (
+  data: FormData,
+  onUploadProgress?: (progress: number) => void,
+) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
     "/core-service/messages/files",
     data,
@@ -198,11 +202,20 @@ export const sendFileMessageApi = (data: FormData) => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress: onUploadProgress
+        ? (event: AxiosProgressEvent) => {
+            if (!event.total || event.total <= 0) return;
+            onUploadProgress(Math.round((event.loaded * 100) / event.total));
+          }
+        : undefined,
     }
   );
 };
 
-export const sendMultipleImageMessageApi = (data: FormData) => {
+export const sendMultipleImageMessageApi = (
+  data: FormData,
+  onUploadProgress?: (progress: number) => void,
+) => {
   return axiosClient.post<ApiResponse<MessageResponse>>(
     "/core-service/messages/files/images",
     data,
@@ -210,6 +223,12 @@ export const sendMultipleImageMessageApi = (data: FormData) => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress: onUploadProgress
+        ? (event: AxiosProgressEvent) => {
+            if (!event.total || event.total <= 0) return;
+            onUploadProgress(Math.round((event.loaded * 100) / event.total));
+          }
+        : undefined,
     }
   );
 };

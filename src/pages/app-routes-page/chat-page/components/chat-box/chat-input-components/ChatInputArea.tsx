@@ -16,6 +16,7 @@ interface ChatInputAreaProps {
   onSend: () => void;
   onPaste?: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 const MAX_CHARS = 1000;
@@ -33,6 +34,7 @@ export function ChatInputArea({
   onSend,
   onPaste,
   onBlur,
+  onFocus,
 }: ChatInputAreaProps) {
   const { t } = useTranslation("chat");
   const charCount = newMessage.length;
@@ -66,6 +68,7 @@ export function ChatInputArea({
             onKeyDown={onKeyDown}
             onPaste={onPaste}
             onBlur={onBlur}
+            onFocus={onFocus}
             disabled={disabled || isSending || !canSendMessage}
             style={{ minHeight: "40px", border: "none", outline: "none", boxShadow: "none", fontFamily: "'Inter', sans-serif" }}
           />
