@@ -209,9 +209,6 @@ const SentMessageBubble = memo(function SentMessageBubble({
                   </div>
                 </div>
               </div>
-              {isLocalFailed && message.localError && (
-                <p className="mt-2 text-xs text-red-200">{message.localError}</p>
-              )}
             </div>
           );
           break;
@@ -295,6 +292,8 @@ const SentMessageBubble = memo(function SentMessageBubble({
       </div>
     );
   };
+
+  const canRetry = message.type === "TEXT" || message.type === "WEATHER";
 
   const renderLocalStatusIcon = () => {
     if (!isLocalPending && !isLocalFailed) return null;
@@ -437,12 +436,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
             {message.localStatus === "failed" && (
               <>
                 <span>{t("bubbles.messages.sendFailed")}</span>
-                {onRetrySend && (
+                {onRetrySend && canRetry && (
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     onClick={() => onRetrySend(message)}
+                    aria-label={t("bubbles.messages.retrySend")}
                     className="h-6 w-6 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                     title={t("bubbles.messages.retrySend")}
                   >

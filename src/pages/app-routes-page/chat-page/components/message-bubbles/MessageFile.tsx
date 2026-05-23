@@ -1,4 +1,4 @@
-﻿import { Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

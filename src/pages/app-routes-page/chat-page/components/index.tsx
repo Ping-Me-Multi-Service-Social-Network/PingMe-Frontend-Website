@@ -251,6 +251,21 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
       const previewUrl = file ? URL.createObjectURL(file) : undefined;
       const mediaUrls =
         multipleImageFiles?.map((item) => URL.createObjectURL(item)) ?? (previewUrl ? [previewUrl] : null);
+      const previewObjectUrls = new Set(
+        [previewUrl, ...(mediaUrls ?? [])].filter((url): url is string => Boolean(url)),
+      );
+      const revokePreviewObjectUrls = () => {
+        previewObjectUrls.forEach((url) => {
+          try {
+            URL.revokeObjectURL(url);
+          } catch {
+            // Ignore cleanup failures.
+          }
+        });
+      };
+      const schedulePreviewCleanup = () => {
+        window.setTimeout(revokePreviewObjectUrls, 30000);
+      };
 
       if (createOptimisticBubble !== false) {
         addMessage({
@@ -303,6 +318,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
             patchMessageByClientMsgId(clientMsgId, { localUploadProgress: progress });
           });
           addMessage(response.data.data as MessageResponse);
+          schedulePreviewCleanup();
           return;
         }
 
@@ -313,7 +329,9 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           patchMessageByClientMsgId(clientMsgId, { localUploadProgress: progress });
         });
         addMessage(response.data.data as MessageResponse);
+        schedulePreviewCleanup();
       } catch (err) {
+        revokePreviewObjectUrls();
         patchMessageByClientMsgId(clientMsgId, {
           localStatus: "failed",
           localError: getErrorMessage(err, t("box.sendFileError")),

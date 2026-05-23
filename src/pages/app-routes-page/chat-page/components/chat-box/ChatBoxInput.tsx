@@ -276,7 +276,7 @@ export function ChatBoxInput({
         return;
       }
 
-      if (value.trim()) {
+      if (!isTyping && value.trim()) {
         dispatch({ type: "SET_TYPING", payload: true });
         SocketManager.sendTyping(selectedChat.roomId, true);
       }
