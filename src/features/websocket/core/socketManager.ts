@@ -280,12 +280,15 @@ class SocketManagerClass {
   // =================================================================
 
   enterRoom(roomId: number): void {
+    const alreadySelected = this.currentRoomIdRef === roomId;
+    this.currentRoomIdRef = roomId;
+
     if (!this.isConnected() || !this.client) {
       console.warn("[PingMe] Cannot enter room: not connected");
       return;
     }
 
-    if (this.currentRoomIdRef === roomId) {
+    if (alreadySelected) {
       console.log("[PingMe] Already in room:", roomId);
       return;
     }
@@ -299,7 +302,6 @@ class SocketManagerClass {
     this.subscribeRoomMessages(roomId);
     this.subscribeRoomReadStates(roomId);
     this.subscribeRoomTyping(roomId);
-    this.currentRoomIdRef = roomId;
   }
 
   leaveRoom(): void {
