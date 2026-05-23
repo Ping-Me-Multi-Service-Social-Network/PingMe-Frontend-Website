@@ -264,10 +264,16 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
         });
       };
       const schedulePreviewCleanup = () => {
-        window.setTimeout(revokePreviewObjectUrls, 30000);
+        globalThis.setTimeout(revokePreviewObjectUrls, 30000);
       };
 
-      if (createOptimisticBubble !== false) {
+      if (createOptimisticBubble === false) {
+        patchMessageByClientMsgId(clientMsgId, {
+          localStatus: "sending",
+          localError: null,
+          localUploadProgress: 0,
+        });
+      } else {
         addMessage({
           id: `tmp-${clientMsgId}`,
           roomId: selectedChat.roomId,
@@ -283,12 +289,6 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           localStatus: "sending",
           localError: null,
           localFileName: localFileName ?? file?.name ?? null,
-          localUploadProgress: 0,
-        });
-      } else {
-        patchMessageByClientMsgId(clientMsgId, {
-          localStatus: "sending",
-          localError: null,
           localUploadProgress: 0,
         });
       }
@@ -426,7 +426,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
     const clientMsgId = crypto.randomUUID();
     const repliedMessageSnapshot = buildRepliedMessageSnapshot(replyMessage);
-    const optimisticPoll = {
+    const optimisticPoll: NonNullable<MessageResponse["poll"]> = {
       question,
       allowMultiple,
       expiresAt: null,
@@ -450,7 +450,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
       createdAt: new Date().toISOString(),
       isActive: true,
       repliedMessage: repliedMessageSnapshot,
-      poll: optimisticPoll as MessageResponse["poll"],
+      poll: optimisticPoll,
       localStatus: "sending",
       localError: null,
     });

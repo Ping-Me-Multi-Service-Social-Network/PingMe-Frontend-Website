@@ -59,12 +59,12 @@ export const ChatBoxContent = memo(({
 
   const currentUser = useSelector(selectUser);
   const currentUserId = currentUser?.id ?? 0;
-  const currentUserIdString = currentUser?.id != null ? String(currentUser.id) : null;
+  const currentUserIdString = String(currentUser?.id ?? "");
   const typingUsers = useSelector(selectTypingUsers(selectedChat.roomId));
 
-  const otherUsersTyping = typingUsers.filter((u) => {
-    return u.isTyping && String(u.userId) !== currentUserIdString;
-  });
+  const otherUsersTyping = typingUsers.filter((u) =>
+    u.isTyping ? String(u.userId) !== currentUserIdString : false,
+  );
   let typingNames = "";
 
   if (otherUsersTyping.length === 1) {

@@ -1,12 +1,5 @@
 import type { MessageResponse } from "@/types/chat/message";
 import type { WeatherResponse } from "@/types/weather";
-import MessageImage from "./MessageImage.tsx";
-import MessageVideo from "./MessageVideo.tsx";
-import MessageFile from "./MessageFile.tsx";
-import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
-import { MessagePoll } from "./MessagePoll.tsx";
-import { formatMessageTime } from "../../utils/formatMessageTime.ts";
-import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import {
   MoreHorizontal,
   RotateCcw,
@@ -18,7 +11,15 @@ import {
   Loader2,
   AlertCircle,
   CloudSun,
+  Pin,
 } from "lucide-react";
+import MessageImage from "./MessageImage.tsx";
+import MessageVideo from "./MessageVideo.tsx";
+import MessageFile from "./MessageFile.tsx";
+import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
+import { MessagePoll } from "./MessagePoll.tsx";
+import { formatMessageTime } from "../../utils/formatMessageTime.ts";
+import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
   DropdownMenu,
@@ -26,7 +27,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { Pin } from "lucide-react";
 import { Progress } from "@/components/ui/progress.tsx";
 import { recallMessageApi, deleteMessageForMeApi, pinMessageApi, unpinMessageApi } from "@/services/chat";
 import { toast } from "sonner";
