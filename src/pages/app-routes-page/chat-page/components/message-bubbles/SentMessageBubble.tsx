@@ -222,6 +222,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
               createdAt={message.createdAt}
               isSent={true}
               theme={theme}
+              showTime={false}
             />
           );
         } catch (error) {
