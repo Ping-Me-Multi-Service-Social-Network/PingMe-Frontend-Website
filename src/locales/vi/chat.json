@@ -13,7 +13,9 @@
         "emptyTitle": "Chưa có tin nhắn",
         "emptyDesc": "Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn đầu tiên!",
         "andOthers": "và {{count}} người khác",
-        "typing": "đang gõ tin nhắn..."
+        "typing": "đang gõ tin nhắn...",
+        "typingOne": "{{name}} đang gõ tin nhắn...",
+        "typingMany": "{{names}} đang gõ tin nhắn..."
     },
     "box": {
         "historyError": "Không thể lấy lịch sử tin nhắn",
@@ -224,7 +226,8 @@
             "messageNotLoaded": "Tin nhắn chưa được tải",
             "encrypting": "Đang mã hóa...",
             "sending": "Đang gửi...",
-            "sendFailed": "Gửi thất bại"
+            "sendFailed": "Gửi thất bại",
+            "retrySend": "Gửi lại"
         },
         "weather": {
             "error": "Không thể hiển thị thông tin thời tiết",

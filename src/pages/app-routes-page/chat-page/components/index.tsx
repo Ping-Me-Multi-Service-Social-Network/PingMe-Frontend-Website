@@ -75,80 +75,63 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
 
   // ---- Send Handlers ----
 
-  const handleSendMessage = async (msgText: string) => {
-    const trimmedText = msgText.trim();
-
-    if (trimmedText) {
-      if (editingMessage) {
-        try {
-          const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
-          if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
-            toast.error(t("box.encryptTooLong", "Message is too long after encryption."));
-            return;
-          }
-          const response = await editMessageApi(editingMessage.id, { content: encryptedContent });
-          addMessage(response.data.data as MessageResponse);
-          setEditingMessage(null);
-        } catch (err) {
-          toast.error(getErrorMessage(err));
-        }
-        return;
+  const sendTextMessage = useCallback(
+    async ({
+      text,
+      clientMsgId,
+      repliedMessageSnapshot,
+      createOptimisticBubble,
+    }: {
+      text: string;
+      clientMsgId: string;
+      repliedMessageSnapshot: MessageResponse["repliedMessage"];
+      createOptimisticBubble: boolean;
+    }) => {
+      if (createOptimisticBubble) {
+        addMessage({
+          id: `tmp-${clientMsgId}`,
+          roomId: selectedChat.roomId,
+          clientMsgId,
+          senderId: currentUserId,
+          content: text,
+          type: "TEXT",
+          createdAt: new Date().toISOString(),
+          isActive: true,
+          repliedMessage: repliedMessageSnapshot,
+          localStatus: "encrypting",
+          localError: null,
+        });
+      } else {
+        patchMessageByClientMsgId(clientMsgId, {
+          localStatus: "encrypting",
+          localError: null,
+        });
       }
 
-      const clientMsgId = crypto.randomUUID();
-      const repliedMessageSnapshot = replyMessage
-        ? {
-            id: replyMessage.id,
-            senderId: replyMessage.senderId,
-            content: replyMessage.content,
-            type: replyMessage.type,
-            isActive: replyMessage.isActive,
-            fileFormat: replyMessage.fileFormat ?? null,
-            mediaUrls: replyMessage.mediaUrls ?? null,
-            poll: replyMessage.poll ?? null,
-          }
-        : null;
-
-      addMessage({
-        id: `tmp-${clientMsgId}`,
-        roomId: selectedChat.roomId,
-        clientMsgId,
-        senderId: currentUserId,
-        content: trimmedText,
-        type: "TEXT",
-        createdAt: new Date().toISOString(),
-        isActive: true,
-        repliedMessage: repliedMessageSnapshot,
-        localStatus: "encrypting",
-        localError: null,
-      });
-      setReplyMessage(null);
-
       try {
-        const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
+        const encryptedContent = await encryptTextMessageContent(text, selectedChat);
         patchMessageByClientMsgId(clientMsgId, {
           localStatus: "sending",
           localError: null,
         });
 
         if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
-          toast.error(t("box.encryptTooLong", "Message is too long after encryption."));
+          toast.error(t("box.encryptTooLong"));
           patchMessageByClientMsgId(clientMsgId, {
             localStatus: "failed",
-            localError: "Message too long after encryption.",
+            localError: t("box.encryptTooLong"),
           });
           return;
         }
 
-        const messageData = {
+        const response = await sendMessageApi({
           content: encryptedContent,
           clientMsgId,
           type: "TEXT" as const,
           roomId: selectedChat.roomId,
           repliedMessageId: repliedMessageSnapshot?.id || null,
-        };
+        });
 
-        const response = await sendMessageApi(messageData);
         addMessage(response.data.data as MessageResponse);
       } catch (err) {
         patchMessageByClientMsgId(clientMsgId, {
@@ -157,7 +140,69 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
         });
         toast.error(getErrorMessage(err));
       }
+    },
+    [
+      addMessage,
+      currentUserId,
+      patchMessageByClientMsgId,
+      selectedChat,
+      t,
+    ],
+  );
+
+  const handleSendMessage = async (msgText: string) => {
+    const trimmedText = msgText.trim();
+
+    if (!trimmedText) return;
+
+    if (editingMessage) {
+      try {
+        const encryptedContent = await encryptTextMessageContent(trimmedText, selectedChat);
+        if (encryptedContent.length > MAX_ENCRYPTED_TEXT_CONTENT_LENGTH) {
+          toast.error(t("box.encryptTooLong"));
+          return;
+        }
+        const response = await editMessageApi(editingMessage.id, { content: encryptedContent });
+        addMessage(response.data.data as MessageResponse);
+        setEditingMessage(null);
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      }
+      return;
     }
+
+    const repliedMessageSnapshot = replyMessage
+      ? {
+          id: replyMessage.id,
+          senderId: replyMessage.senderId,
+          content: replyMessage.content,
+          type: replyMessage.type,
+          isActive: replyMessage.isActive,
+          fileFormat: replyMessage.fileFormat ?? null,
+          mediaUrls: replyMessage.mediaUrls ?? null,
+          poll: replyMessage.poll ?? null,
+        }
+      : null;
+
+    const clientMsgId = crypto.randomUUID();
+    await sendTextMessage({
+      text: trimmedText,
+      clientMsgId,
+      repliedMessageSnapshot,
+      createOptimisticBubble: true,
+    });
+    setReplyMessage(null);
+  };
+
+  const handleRetrySendMessage = async (message: MessageResponse) => {
+    if (!message.clientMsgId || message.type !== "TEXT") return;
+
+    await sendTextMessage({
+      text: message.content,
+      clientMsgId: message.clientMsgId,
+      repliedMessageSnapshot: message.repliedMessage ?? null,
+      createOptimisticBubble: false,
+    });
   };
 
   const handleSendFile = async (
@@ -442,13 +487,20 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
             messages={messages}
             isLoadingMessages={isLoadingMessages}
             isLoadingMore={isLoadingMore}
-            hasMoreMessages={hasMoreMessages}
-            onLoadMore={handleLoadMore}
-            isCurrentUserMessage={isCurrentUserMessage}
-            onDeleteForMeClick={removeMessageLocally}
-            onReplyClick={(msg) => { setReplyMessage(msg); setEditingMessage(null); }}
-            onEditClick={(msg) => { setEditingMessage(msg); setReplyMessage(null); }}
-          />
+          hasMoreMessages={hasMoreMessages}
+          onLoadMore={handleLoadMore}
+          isCurrentUserMessage={isCurrentUserMessage}
+          onDeleteForMeClick={removeMessageLocally}
+          onReplyClick={(msg) => {
+            setReplyMessage(msg);
+            setEditingMessage(null);
+          }}
+          onEditClick={(msg) => {
+            setEditingMessage(msg);
+            setReplyMessage(null);
+          }}
+          onRetrySend={handleRetrySendMessage}
+        />
         </div>
 
         <ChatBoxInput
