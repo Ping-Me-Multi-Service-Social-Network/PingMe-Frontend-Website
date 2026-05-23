@@ -58,21 +58,23 @@ export const ChatBoxContent = memo(({
   const theme = getTheme(selectedChat.theme);
 
   const currentUser = useSelector(selectUser);
+  const currentUserId = currentUser?.id ?? 0;
   const typingUsers = useSelector(selectTypingUsers(selectedChat.roomId));
 
   const otherUsersTyping = typingUsers.filter((u) => {
     return u.userId !== currentUser?.id && u.isTyping;
   });
-  const typingNames =
-    otherUsersTyping.length === 1
-      ? otherUsersTyping[0].name
-      : otherUsersTyping.length === 2
-        ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`
-        : otherUsersTyping.length > 2
-          ? `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name} ${t("messages.andOthers", {
-              count: otherUsersTyping.length - 2,
-            })}`
-          : "";
+  let typingNames = "";
+
+  if (otherUsersTyping.length === 1) {
+    typingNames = otherUsersTyping[0].name;
+  } else if (otherUsersTyping.length === 2) {
+    typingNames = `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name}`;
+  } else if (otherUsersTyping.length > 2) {
+    typingNames = `${otherUsersTyping[0].name}, ${otherUsersTyping[1].name} ${t("messages.andOthers", {
+      count: otherUsersTyping.length - 2,
+    })}`;
+  }
 
   const getRepliedSenderName = (senderId?: number) => {
     if (!senderId) return "";
@@ -200,7 +202,7 @@ export const ChatBoxContent = memo(({
                   onDeleteForMe={onDeleteForMeClick}
                   onReplyClick={() => onReplyClick?.(message)}
                   repliedSenderName={getRepliedSenderName(message.repliedMessage?.senderId)}
-                  currentUserId={currentUser?.id!}
+                  currentUserId={currentUserId}
                 />
               )}
             </div>
