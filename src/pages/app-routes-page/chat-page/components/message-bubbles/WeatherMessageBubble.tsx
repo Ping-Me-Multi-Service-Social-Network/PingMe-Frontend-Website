@@ -32,7 +32,7 @@ export default function WeatherMessageBubble({
   createdAt,
   isSent,
   theme,
-  showTime = true,
+  showTime = false,
 }: WeatherMessageBubbleProps) {
   const [showModal, setShowModal] = useState(false);
   const { t } = useTranslation("chat");
