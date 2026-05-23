@@ -24,6 +24,7 @@ interface WeatherMessageBubbleProps {
   createdAt: string;
   isSent: boolean;
   theme: ChatTheme;
+  showTime?: boolean;
 }
 
 export default function WeatherMessageBubble({
@@ -31,6 +32,7 @@ export default function WeatherMessageBubble({
   createdAt,
   isSent,
   theme,
+  showTime = true,
 }: WeatherMessageBubbleProps) {
   const [showModal, setShowModal] = useState(false);
   const { t } = useTranslation("chat");
@@ -192,12 +194,14 @@ export default function WeatherMessageBubble({
       <div className="max-w-[80%]">
         {renderWeatherSummary()}
         {renderWeatherDetail()}
-        <div
-          className={`text-xs text-muted-foreground mt-1.5 ${isSent ? "text-right" : ""
-            } opacity-70`}
-        >
-          {formatMessageTime(createdAt)}
-        </div>
+        {showTime && (
+          <div
+            className={`text-xs text-muted-foreground mt-1.5 ${isSent ? "text-right" : ""
+              } opacity-70`}
+          >
+            {formatMessageTime(createdAt)}
+          </div>
+        )}
       </div>
     </div>
   );

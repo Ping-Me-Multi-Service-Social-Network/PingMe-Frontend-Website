@@ -217,12 +217,13 @@ const SentMessageBubble = memo(function SentMessageBubble({
         try {
           const weatherData: WeatherResponse = JSON.parse(message.content);
           contentNode = (
-            <WeatherMessageBubble
-              weather={weatherData}
-              createdAt={message.createdAt}
-              isSent={true}
-              theme={theme}
-            />
+          <WeatherMessageBubble
+            weather={weatherData}
+            createdAt={message.createdAt}
+            isSent={true}
+            theme={theme}
+            showTime={false}
+          />
           );
         } catch (error) {
           console.error("Failed to parse weather data:", error);
