@@ -35,6 +35,7 @@ interface SentMessageBubbleProps {
   onDeleteForMe?: (messageId: string) => void;
   onReplyClick?: () => void;
   onEditClick?: () => void;
+  onRetrySend?: (message: MessageResponse) => void;
   repliedSenderName?: string;
 }
 
@@ -46,6 +47,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
   onDeleteForMe,
   onReplyClick,
   onEditClick,
+  onRetrySend,
   repliedSenderName,
 }: SentMessageBubbleProps) {
   const { t } = useTranslation("chat");
@@ -310,10 +312,25 @@ const SentMessageBubble = memo(function SentMessageBubble({
           {formatMessageTime(message.createdAt)}
         </div>
         {(isLocalPending || isLocalFailed) && (
-          <div className="mr-1 mt-1 text-[11px] text-right text-muted-foreground">
-            {message.localStatus === "encrypting" && t("bubbles.messages.encrypting", "Encrypting...")}
-            {message.localStatus === "sending" && t("bubbles.messages.sending", "Sending...")}
-            {message.localStatus === "failed" && t("bubbles.messages.sendFailed", "Send failed")}
+          <div className="mr-1 mt-1 flex items-center justify-end gap-2 text-[11px] text-right text-muted-foreground">
+            {message.localStatus === "encrypting" && t("bubbles.messages.encrypting")}
+            {message.localStatus === "sending" && t("bubbles.messages.sending")}
+            {message.localStatus === "failed" && (
+              <>
+                <span>{t("bubbles.messages.sendFailed")}</span>
+                {onRetrySend && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onRetrySend(message)}
+                    className="h-6 px-2 text-[11px] text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                  >
+                    {t("bubbles.messages.retrySend")}
+                  </Button>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

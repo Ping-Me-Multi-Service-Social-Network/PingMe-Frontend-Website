@@ -13,7 +13,9 @@
         "emptyTitle": "No messages yet",
         "emptyDesc": "Start the conversation by sending the first message!",
         "andOthers": "and {{count}} others",
-        "typing": "is typing..."
+        "typing": "is typing...",
+        "typingOne": "{{name}} is typing...",
+        "typingMany": "{{names}} are typing..."
     },
     "box": {
         "historyError": "Failed to load message history",
@@ -224,7 +226,8 @@
             "messageNotLoaded": "Message not loaded",
             "encrypting": "Encrypting...",
             "sending": "Sending...",
-            "sendFailed": "Send failed"
+            "sendFailed": "Send failed",
+            "retrySend": "Retry"
         },
         "weather": {
             "error": "Cannot display weather information",
