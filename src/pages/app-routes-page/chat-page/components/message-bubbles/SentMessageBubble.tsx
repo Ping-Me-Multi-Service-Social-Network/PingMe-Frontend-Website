@@ -304,7 +304,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
 
     return (
       <div
-        className={`absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border shadow-sm ${
+        className={`absolute -left-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full border shadow-sm ${
           isLocalFailed
             ? "border-red-200 bg-red-50 text-red-600"
             : "border-purple-200 bg-white text-purple-600"
