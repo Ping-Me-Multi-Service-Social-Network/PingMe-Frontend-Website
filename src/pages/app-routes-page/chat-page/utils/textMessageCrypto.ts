@@ -11,6 +11,8 @@ export const DECRYPT_TEXT_FAILURE = "Không thể giải mã tin nhắn";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
+const warnedDecryptFailures = new Set<string>();
+const aesKeyCache = new Map<string, Promise<CryptoKey>>();
 
 export function isEncryptedTextContent(content?: string | null): boolean {
   return typeof content === "string" && content.startsWith(ENCRYPTED_TEXT_PREFIX);
@@ -120,18 +122,34 @@ async function decryptSafely(content: string, room: RoomResponse): Promise<strin
   try {
     return await decryptTextMessageContent(content, room);
   } catch (error) {
-    console.warn("[ChatCrypto] Failed to decrypt text message", error);
+    if (import.meta.env.DEV) {
+      const warningKey = `${room.roomId}:${content.slice(0, 80)}`;
+      if (!warnedDecryptFailures.has(warningKey)) {
+        warnedDecryptFailures.add(warningKey);
+        console.warn("[ChatCrypto] Failed to decrypt text message", error);
+      }
+    }
     return DECRYPT_TEXT_FAILURE;
   }
 }
 
 async function deriveAesKey(room: RoomResponse): Promise<CryptoKey> {
-  const material = encoder.encode(getRoomTextEncryptionMaterial(room));
-  const digest = await crypto.subtle.digest("SHA-256", material);
-  return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, [
-    "encrypt",
-    "decrypt",
-  ]);
+  const material = getRoomTextEncryptionMaterial(room);
+  let keyPromise = aesKeyCache.get(material);
+
+  if (!keyPromise) {
+    keyPromise = crypto.subtle
+      .digest("SHA-256", encoder.encode(material))
+      .then((digest) =>
+        crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, [
+          "encrypt",
+          "decrypt",
+        ]),
+      );
+    aesKeyCache.set(material, keyPromise);
+  }
+
+  return keyPromise;
 }
 
 function assertWebCryptoAvailable(): void {

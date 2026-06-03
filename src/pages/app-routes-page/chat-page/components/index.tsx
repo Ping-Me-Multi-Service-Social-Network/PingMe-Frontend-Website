@@ -59,7 +59,6 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
   const [groupSummaryRoomId, setGroupSummaryRoomId] = useState<number | null>(null);
   const [isLoadingGroupSummary, setIsLoadingGroupSummary] = useState(false);
   const [dismissedSummaryRoomId, setDismissedSummaryRoomId] = useState<number | null>(null);
-  const latestMessageId = messages[messages.length - 1]?.id;
   const currentUserId = Number(userSession?.id ?? 0);
 
   const isCurrentUserMessage = useCallback(
@@ -511,25 +510,6 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
       active = false;
     };
   }, [selectedChat.roomId, selectedChat.roomType]);
-
-  useEffect(() => {
-    let active = true;
-    if (selectedChat.roomType !== "GROUP") return () => { active = false; };
-    if (!latestMessageId) return () => { active = false; };
-
-    getGroupSettingsApi(selectedChat.roomId)
-      .then((response) => {
-        if (!active) return;
-        setGroupSettings(response.data?.data ?? null);
-      })
-      .catch(() => {
-        // Keep current settings when refresh fails.
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [selectedChat.roomId, selectedChat.roomType, latestMessageId]);
 
   useEffect(() => {
     let active = true;

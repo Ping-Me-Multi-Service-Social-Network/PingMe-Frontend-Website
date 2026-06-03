@@ -3,6 +3,7 @@ import type React from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector } from "@/features/hooks.ts";
 import { ChatActionBar } from "../components/chat-shared-components/ChatActionBar.tsx";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { ChatBox } from "./components";
 import { ChatCard } from "./components/chat-card";
@@ -26,6 +27,8 @@ import "./chat.css";
 export default function MessagesPage() {
   const { userSession } = useAppSelector((state) => state.auth);
   const { t } = useTranslation("chat");
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [rooms, setRooms] = useState<RoomResponse[]>([]);
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
@@ -125,6 +128,7 @@ export default function MessagesPage() {
 
   const [selectedChat, setSelectedChat] = useState<RoomResponse | null>(null);
   const selectedRoomIdRef = useRef<number | null>(null);
+  const pendingRoomIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleRoomLeftOrDissolved = (e: CustomEvent<number>) => {
@@ -142,6 +146,40 @@ export default function MessagesPage() {
   const handleSetSelectedChat = (room: RoomResponse) => {
     setSelectedChat(room);
   };
+
+  useEffect(() => {
+    const roomIdParam = searchParams.get("roomId");
+    if (!roomIdParam) {
+      pendingRoomIdRef.current = null;
+      return;
+    }
+
+    const roomId = Number(roomIdParam);
+    pendingRoomIdRef.current = Number.isFinite(roomId) ? roomId : null;
+  }, [searchParams]);
+
+  useEffect(() => {
+    const targetRoomId = pendingRoomIdRef.current;
+    if (!targetRoomId) return;
+
+    const targetRoom = rooms.find((room) => room.roomId === targetRoomId);
+    if (!targetRoom) return;
+
+    if (selectedChat?.roomId !== targetRoom.roomId) {
+      setSelectedChat(targetRoom);
+    }
+
+    pendingRoomIdRef.current = null;
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.delete("roomId");
+    navigate(
+      {
+        pathname: "/app/chat",
+        search: nextSearchParams.toString() ? `?${nextSearchParams.toString()}` : "",
+      },
+      { replace: true },
+    );
+  }, [rooms, selectedChat?.roomId, navigate, searchParams]);
 
   useChatSocketHandler({
     setRooms,
