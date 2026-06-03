@@ -39,10 +39,12 @@ function normalizeGroupJoinLink(rawLink: string): string {
     }
   }
 
-  const tokenMatch = rawLink.match(/(?:^|\/)g\/([^/?#]+)/i);
-  if (tokenMatch?.[1]) {
-    return `${currentOrigin}/g/${tokenMatch[1]}`;
-  }
+const groupLinkRegex = /(?:^|\/)g\/([^/?#]+)/i;
+const tokenMatch = groupLinkRegex.exec(rawLink);
+
+if (tokenMatch?.[1]) {
+  return `${currentOrigin}/g/${tokenMatch[1]}`;
+}
 
   if (rawLink.startsWith("/")) {
     return `${currentOrigin}${rawLink}`;

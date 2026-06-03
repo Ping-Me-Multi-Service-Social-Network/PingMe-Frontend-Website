@@ -29,6 +29,34 @@ const PersistLoader = () => (
 );
 
 const MOBILE_BLOCK_MEDIA_QUERY = "(max-width: 720px)";
+const PENDING_GROUP_INVITE_STORAGE_KEY = "pending_group_invite_path";
+const GROUP_INVITE_TOKEN_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+function getSafePendingInvitePath(pendingInvitePath: string | null) {
+  if (!pendingInvitePath) return null;
+
+  try {
+    const pendingInviteUrl = new URL(
+      pendingInvitePath,
+      globalThis.location.origin,
+    );
+
+    if (pendingInviteUrl.origin !== globalThis.location.origin) {
+      return null;
+    }
+
+    const match = pendingInviteUrl.pathname.match(/^\/g\/([^/]+)$/);
+    const inviteToken = match?.[1];
+
+    if (!inviteToken || !GROUP_INVITE_TOKEN_PATTERN.test(inviteToken)) {
+      return null;
+    }
+
+    return `/g/${encodeURIComponent(inviteToken)}`;
+  } catch {
+    return null;
+  }
+}
 
 function useIsUnsupportedViewport() {
   const [isUnsupportedViewport, setIsUnsupportedViewport] =
@@ -66,12 +94,20 @@ function SessionBootstrap() {
     if (isLogin && token) {
       dispatch(getCurrentUserSession());
 
-      const pendingInvitePath = sessionStorage.getItem("pending_group_invite_path");
+      const pendingInvitePath = sessionStorage.getItem(
+        PENDING_GROUP_INVITE_STORAGE_KEY,
+      );
+      const safePendingInvitePath = getSafePendingInvitePath(pendingInvitePath);
+
+      if (pendingInvitePath && !safePendingInvitePath) {
+        sessionStorage.removeItem(PENDING_GROUP_INVITE_STORAGE_KEY);
+      }
+
       if (
-        pendingInvitePath &&
-        globalThis.location.pathname + globalThis.location.search !== pendingInvitePath
+        safePendingInvitePath &&
+        globalThis.location.pathname !== safePendingInvitePath
       ) {
-        globalThis.location.replace(pendingInvitePath);
+        globalThis.location.replace(safePendingInvitePath);
       }
     }
   }, [isLogin, dispatch]);
@@ -111,7 +147,7 @@ function AppInner() {
         const isLogin = store.getState().auth.isLogin;
         if (!isLogin) {
           sessionStorage.setItem(
-            "pending_group_invite_path",
+            PENDING_GROUP_INVITE_STORAGE_KEY,
             globalThis.location.pathname + globalThis.location.search,
           );
           globalThis.location.replace("/?mode=login");
