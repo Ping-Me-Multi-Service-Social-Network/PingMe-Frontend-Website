@@ -27,6 +27,32 @@ const SectionHeader = ({ title }: { title: string }) => (
   </div>
 );
 
+function normalizeGroupJoinLink(rawLink: string): string {
+  const currentOrigin = globalThis.location.origin;
+
+  if (/^https?:\/\//i.test(rawLink)) {
+    try {
+      const parsed = new URL(rawLink);
+      return `${currentOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch {
+      return rawLink;
+    }
+  }
+
+const groupLinkRegex = /(?:^|\/)g\/([^/?#]+)/i;
+const tokenMatch = groupLinkRegex.exec(rawLink);
+
+if (tokenMatch?.[1]) {
+  return `${currentOrigin}/g/${tokenMatch[1]}`;
+}
+
+  if (rawLink.startsWith("/")) {
+    return `${currentOrigin}${rawLink}`;
+  }
+
+  return `${currentOrigin}/${rawLink}`;
+}
+
 interface SettingRowProps {
   label: string;
   checked: boolean;
@@ -193,7 +219,7 @@ const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementPro
   const handleCopyLink = async () => {
     if (!settings?.joinLink) return;
     try {
-      await navigator.clipboard.writeText(settings.joinLink);
+      await navigator.clipboard.writeText(normalizeGroupJoinLink(settings.joinLink));
       toast.success(t("management.linkCopied", "Đã sao chép link nhóm"));
     } catch {
       toast.error(t("management.linkCopyFailed", "Không thể sao chép link"));
@@ -202,9 +228,10 @@ const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementPro
 
   const handleShareLink = async () => {
     if (!settings?.joinLink) return;
+    const shareUrl = normalizeGroupJoinLink(settings.joinLink);
     if (navigator.share) {
       try {
-        await navigator.share({ title: "PingMe Group", url: settings.joinLink });
+        await navigator.share({ title: "PingMe Group", url: shareUrl });
         return;
       } catch {
         // ignore and fallback to copy
@@ -230,7 +257,10 @@ const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementPro
     }
   };
 
-  const joinLink = useMemo(() => settings?.joinLink ?? "", [settings?.joinLink]);
+  const joinLink = useMemo(
+    () => (settings?.joinLink ? normalizeGroupJoinLink(settings.joinLink) : ""),
+    [settings?.joinLink],
+  );
   const canInteract = isAdmin;
 
 

@@ -15,6 +15,9 @@ const LandingPage = lazy(
 const RegisterPage = lazy(
   () => import("@/pages/public-routes-page/register-page"),
 );
+const GroupInvitePage = lazy(
+  () => import("@/pages/public-routes-page/group-invite-page"),
+);
 
 // ===========================================================
 // APP PAGES - Layout
@@ -139,6 +142,15 @@ export const router = createBrowserRouter([
     element: (
       <LazyElement>
         <RegisterPage />
+      </LazyElement>
+    ),
+  },
+  {
+    path: "/g/:token",
+    errorElement: <GlobalErrorBoundary />,
+    element: (
+      <LazyElement>
+        <GroupInvitePage />
       </LazyElement>
     ),
   },
