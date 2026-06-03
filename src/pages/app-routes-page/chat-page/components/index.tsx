@@ -209,6 +209,8 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     if (!message.clientMsgId) return;
 
     if (message.type === "TEXT") {
+      if (!message.content) return;
+
       await sendTextMessage({
         text: message.content,
         clientMsgId: message.clientMsgId,

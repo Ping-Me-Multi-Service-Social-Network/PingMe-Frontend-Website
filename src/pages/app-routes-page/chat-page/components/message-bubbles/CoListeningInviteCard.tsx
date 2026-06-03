@@ -14,7 +14,7 @@ import {
   type CoListeningInviteInfo,
 } from "@/utils/coListeningInvite";
 
-export function parseCoListeningInvite(text: string): CoListeningInviteInfo | null {
+export function parseCoListeningInvite(text: string | null | undefined): CoListeningInviteInfo | null {
   return parseCoListeningInviteUtil(text);
 }
 
@@ -231,7 +231,7 @@ function handleJoinInvite(params: {
   );
 }
 
-export default function CoListeningInviteCard({ text }: Readonly<{ text: string }>) {
+export default function CoListeningInviteCard({ text }: Readonly<{ text: string | null | undefined }>) {
   const { t } = useTranslation("chat");
   const dispatch = useAppDispatch();
   const invite = useMemo(() => parseCoListeningInviteUtil(text), [text]);

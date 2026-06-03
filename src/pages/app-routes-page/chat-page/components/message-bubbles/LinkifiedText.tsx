@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface LinkifiedTextProps {
-  text: string;
+  text: string | null | undefined;
   className?: string;
 }
 
@@ -10,7 +10,7 @@ const URL_REGEX = /(https?:\/\/[^\s]+)/gi;
 
 export default function LinkifiedText({ text, className }: Readonly<LinkifiedTextProps>) {
   const navigate = useNavigate();
-  const parts = text.split(URL_REGEX);
+  const parts = (text ?? "").split(URL_REGEX);
 
   const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>, rawUrl: string) => {
     if (event.defaultPrevented) return;
