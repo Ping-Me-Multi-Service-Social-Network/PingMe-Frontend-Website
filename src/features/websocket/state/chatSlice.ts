@@ -85,6 +85,8 @@ const chatSlice = createSlice({
           pinnedAt: message.pinnedAt,
           pinnedByUserId: message.pinnedByUserId,
           poll: message.poll,
+          note: message.note,
+          reminder: message.reminder,
         };
 
         // Also update local list if it exists
@@ -98,6 +100,12 @@ const chatSlice = createSlice({
           state.messages[idx].pinnedByUserId = message.pinnedByUserId;
           if (message.poll) {
             state.messages[idx].poll = message.poll;
+          }
+          if (message.note) {
+            state.messages[idx].note = message.note;
+          }
+          if (message.reminder) {
+            state.messages[idx].reminder = message.reminder;
           }
         }
       }
