@@ -31,6 +31,8 @@ const PersistLoader = () => (
 const MOBILE_BLOCK_MEDIA_QUERY = "(max-width: 720px)";
 const PENDING_GROUP_INVITE_STORAGE_KEY = "pending_group_invite_path";
 const GROUP_INVITE_TOKEN_PATTERN = /^[A-Za-z0-9_-]+$/;
+const GROUP_INVITE_PATH_PATTERN = /^\/g\/([^/]+)$/;
+const GROUP_INVITE_CLICK_PATH_PATTERN = /^\/g\/(?<token>[^/]+)/i;
 
 function getSafePendingInvitePath(pendingInvitePath: string | null) {
   if (!pendingInvitePath) return null;
@@ -45,7 +47,7 @@ function getSafePendingInvitePath(pendingInvitePath: string | null) {
       return null;
     }
 
-    const match = pendingInviteUrl.pathname.match(/^\/g\/([^/]+)$/);
+    const match = GROUP_INVITE_PATH_PATTERN.exec(pendingInviteUrl.pathname);
     const inviteToken = match?.[1];
 
     if (!inviteToken || !GROUP_INVITE_TOKEN_PATTERN.test(inviteToken)) {
@@ -53,7 +55,11 @@ function getSafePendingInvitePath(pendingInvitePath: string | null) {
     }
 
     return `/g/${encodeURIComponent(inviteToken)}`;
-  } catch {
+  } catch (error) {
+    if (!(error instanceof TypeError)) {
+      throw error;
+    }
+
     return null;
   }
 }
@@ -124,43 +130,38 @@ function AppInner() {
   useEffect(() => {
     // Intercept same-origin /g/:token clicks and show a confirmation modal for logged-in users
     const onDocClick = async (ev: MouseEvent) => {
-      try {
-        if (ev.defaultPrevented) return;
-        if ((ev as any).button !== 0) return;
-        if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      if (ev.defaultPrevented) return;
+      if (ev.button !== 0) return;
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
 
-        const target = ev.target as HTMLElement | null;
-        if (!target) return;
-        const anchor = target.closest && (target.closest('a') as HTMLAnchorElement | null);
-        if (!anchor) return;
-        const href = anchor.getAttribute('href') || anchor.href;
-        if (!href) return;
+      if (!(ev.target instanceof Element)) return;
+      const anchor = ev.target.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href") || anchor.href;
+      if (!href) return;
 
-        const url = new URL(href, globalThis.location.href);
-        if (url.origin !== globalThis.location.origin) return;
-        const match = url.pathname.match(/^\/g\/(?<token>[^\/]+)/i);
-        if (!match || !match.groups) return;
+      const url = new URL(href, globalThis.location.href);
+      if (url.origin !== globalThis.location.origin) return;
+      const match = GROUP_INVITE_CLICK_PATH_PATTERN.exec(url.pathname);
+      if (!match?.groups) return;
 
-        const token = match.groups.token;
+      const token = match.groups.token;
 
-        // If user not logged in, preserve pending invite and redirect to login
-        const isLogin = store.getState().auth.isLogin;
-        if (!isLogin) {
-          sessionStorage.setItem(
-            PENDING_GROUP_INVITE_STORAGE_KEY,
-            globalThis.location.pathname + globalThis.location.search,
-          );
-          globalThis.location.replace("/?mode=login");
-          return;
-        }
-
-        // prevent default navigation and open modal via custom event
-        ev.preventDefault();
-        const event = new CustomEvent('pingme:open-invite-modal', { detail: { token } });
-        document.dispatchEvent(event);
-      } catch (err) {
-        // ignore
+      // If user not logged in, preserve pending invite and redirect to login
+      const isLogin = store.getState().auth.isLogin;
+      if (!isLogin) {
+        sessionStorage.setItem(
+          PENDING_GROUP_INVITE_STORAGE_KEY,
+          globalThis.location.pathname + globalThis.location.search,
+        );
+        globalThis.location.replace("/?mode=login");
+        return;
       }
+
+      // prevent default navigation and open modal via custom event
+      ev.preventDefault();
+      const event = new CustomEvent("pingme:open-invite-modal", { detail: { token } });
+      document.dispatchEvent(event);
     };
 
     document.addEventListener("click", onDocClick);
@@ -169,16 +170,15 @@ function AppInner() {
 
   // Listen for modal open events and handle with React state
   useEffect(() => {
-    const onOpen = (e: Event) => {
-      const ce = e as CustomEvent;
-      const token = ce.detail?.token as string | undefined;
+    const onOpen: EventListener = (event) => {
+      const token = event instanceof CustomEvent ? event.detail?.token : undefined;
       if (token) {
         setInviteToken(token);
         setInviteModalOpen(true);
       }
     };
-    document.addEventListener('pingme:open-invite-modal', onOpen as EventListener);
-    return () => document.removeEventListener('pingme:open-invite-modal', onOpen as EventListener);
+    document.addEventListener("pingme:open-invite-modal", onOpen);
+    return () => document.removeEventListener("pingme:open-invite-modal", onOpen);
   }, []);
 
   useEffect(() => {
