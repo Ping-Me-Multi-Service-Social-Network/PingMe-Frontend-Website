@@ -533,9 +533,7 @@ export function ChatBoxInput({
 
   let replyMessagePreview = "";
   if (replyMessage) {
-    if (!replyMessage.isActive) {
-      replyMessagePreview = t("bubbles.messages.recalled");
-    } else {
+    if (replyMessage.isActive) {
       switch (replyMessage.type) {
         case "TEXT":
           replyMessagePreview = replyMessage.content ?? "";
@@ -564,6 +562,8 @@ export function ChatBoxInput({
         default:
           replyMessagePreview = "Message";
       }
+    } else {
+      replyMessagePreview = t("bubbles.messages.recalled");
     }
   }
 
