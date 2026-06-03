@@ -16,6 +16,8 @@ export const getRepliedMessagePreview = (
   if (repliedMessage.type === "POLL") {
     return `[${t("input.createPollTitle", "Poll")}] ${repliedMessage.poll?.question || ""}`;
   }
+  if (repliedMessage.type === "NOTE") return `[${t("input.note", "Note")}] ${repliedMessage.content || ""}`;
+  if (repliedMessage.type === "REMINDER") return `[${t("input.reminder", "Reminder")}] ${repliedMessage.content || ""}`;
 
   return "Message";
 };

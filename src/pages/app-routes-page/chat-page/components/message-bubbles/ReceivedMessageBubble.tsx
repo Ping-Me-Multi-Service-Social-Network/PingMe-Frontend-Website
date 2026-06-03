@@ -5,6 +5,7 @@ import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { MessagePoll } from "./MessagePoll.tsx";
+import { MessageNoteReminder } from "./MessageNoteReminder.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import { RotateCcw, Forward, MoreHorizontal, Trash2, Reply, Pin } from "lucide-react";
@@ -147,6 +148,10 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       case "POLL":
         contentNode = <MessagePoll message={message} currentUserId={currentUserId} />;
         break;
+      case "NOTE":
+      case "REMINDER":
+        contentNode = <MessageNoteReminder message={message} isSent={false} />;
+        break;
       case "TEXT":
       default:
         if (isInviteMessage) {
@@ -180,7 +185,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
   };
 
   const shouldRenderBareContentContainer =
-    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage);
+    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage || message.type === "NOTE" || message.type === "REMINDER");
 
 
   return (
@@ -228,7 +233,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
                   <Reply className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.replyBtn", "Reply")}
                 </DropdownMenuItem>
-                {message.type !== "POLL" && !message.isEncryptedText && (
+                {message.type !== "POLL" && message.type !== "NOTE" && message.type !== "REMINDER" && !message.isEncryptedText && (
                   <DropdownMenuItem
                     onClick={() => onForwardClick?.(message.id)}
                     className="cursor-pointer"

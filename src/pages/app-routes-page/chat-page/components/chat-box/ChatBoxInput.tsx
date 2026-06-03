@@ -18,6 +18,8 @@ import {
   ChatInputArea,
   RecordingState,
   CreatePollModal,
+  CreateNoteReminderModal,
+  type NoteReminderSubmitPayload,
 } from "./chat-input-components";
 import { X, Reply, Edit2 } from "lucide-react";
 
@@ -35,6 +37,7 @@ interface ChatInputProps {
   onSendMultipleImages: (files: File[]) => Promise<void>;
   onSendWeather: (lat: number, lon: number) => Promise<void>;
   onCreatePoll: (question: string, options: string[], allowMultiple: boolean) => Promise<void>;
+  onCreateNoteReminder: (payload: NoteReminderSubmitPayload) => Promise<void>;
   disabled?: boolean;
   droppedFiles?: File[];
   onDroppedFilesProcessed?: () => void;
@@ -52,6 +55,8 @@ interface ChatInputState {
   newMessage: string;
   isTyping: boolean;
   showPollModal: boolean;
+  showNoteReminderModal: boolean;
+  noteReminderMode: "NOTE" | "REMINDER";
 }
 
 type ChatInputAction =
@@ -64,7 +69,9 @@ type ChatInputAction =
   | { type: "SET_SENDING"; payload: boolean }
   | { type: "SET_MESSAGE"; payload: string }
   | { type: "SET_TYPING"; payload: boolean }
-  | { type: "SET_POLL_MODAL"; payload: boolean };
+  | { type: "SET_POLL_MODAL"; payload: boolean }
+  | { type: "SET_NOTE_REMINDER_MODAL"; payload: boolean }
+  | { type: "SET_NOTE_REMINDER_MODE"; payload: "NOTE" | "REMINDER" };
 
 const chatInputReducer = (
   state: ChatInputState,
@@ -103,6 +110,10 @@ const chatInputReducer = (
       return { ...state, isTyping: action.payload };
     case "SET_POLL_MODAL":
       return { ...state, showPollModal: action.payload };
+    case "SET_NOTE_REMINDER_MODAL":
+      return { ...state, showNoteReminderModal: action.payload };
+    case "SET_NOTE_REMINDER_MODE":
+      return { ...state, noteReminderMode: action.payload };
     default:
       return state;
   }
@@ -115,6 +126,8 @@ const initialState: ChatInputState = {
   newMessage: "",
   isTyping: false,
   showPollModal: false,
+  showNoteReminderModal: false,
+  noteReminderMode: "NOTE",
 };
 
 export function ChatBoxInput({
@@ -125,6 +138,7 @@ export function ChatBoxInput({
   onSendMultipleImages,
   onSendWeather,
   onCreatePoll,
+  onCreateNoteReminder,
   disabled = false,
   droppedFiles,
   onDroppedFilesProcessed,
@@ -141,6 +155,7 @@ export function ChatBoxInput({
   const isAdmin = isGroup ? canManageGroup(selectedChat, currentUserId) : false;
   const canSendMessage = !isGroup || isAdmin || Boolean(groupSettings?.allowMemberSendMessage);
   const canCreatePoll = !isGroup || isAdmin || Boolean(groupSettings?.allowMemberCreatePoll);
+  const canCreateNote = !isGroup || isAdmin || Boolean(groupSettings?.allowMemberCreateNote);
 
   const [state, dispatch] = useReducer(chatInputReducer, initialState);
   const {
@@ -150,6 +165,8 @@ export function ChatBoxInput({
     newMessage,
     isTyping,
     showPollModal,
+    showNoteReminderModal,
+    noteReminderMode,
   } = state;
 
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -478,6 +495,18 @@ export function ChatBoxInput({
     dispatch({ type: "SET_POLL_MODAL", payload: true });
   };
 
+  const handleNoteClick = () => {
+    if (!canCreateNote) return;
+    dispatch({ type: "SET_NOTE_REMINDER_MODE", payload: "NOTE" });
+    dispatch({ type: "SET_NOTE_REMINDER_MODAL", payload: true });
+  };
+
+  const handleReminderClick = () => {
+    if (!canCreateNote) return;
+    dispatch({ type: "SET_NOTE_REMINDER_MODE", payload: "REMINDER" });
+    dispatch({ type: "SET_NOTE_REMINDER_MODAL", payload: true });
+  };
+
   const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
     try {
       dispatch({ type: "SET_SENDING", payload: true });
@@ -490,10 +519,59 @@ export function ChatBoxInput({
     }
   };
 
+  const handleCreateNoteReminder = async (payload: NoteReminderSubmitPayload) => {
+    try {
+      dispatch({ type: "SET_SENDING", payload: true });
+      await onCreateNoteReminder(payload);
+      dispatch({ type: "SET_NOTE_REMINDER_MODAL", payload: false });
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("input.createNoteReminderError", "Failed to create note or reminder")));
+    } finally {
+      dispatch({ type: "SET_SENDING", payload: false });
+    }
+  };
+
+  let replyMessagePreview = "";
+  if (replyMessage) {
+    if (replyMessage.isActive) {
+      switch (replyMessage.type) {
+        case "TEXT":
+          replyMessagePreview = replyMessage.content ?? "";
+          break;
+        case "IMAGE":
+          replyMessagePreview = t("bubbles.messages.image", "Image");
+          break;
+        case "VIDEO":
+          replyMessagePreview = t("bubbles.messages.video", "Video");
+          break;
+        case "FILE":
+          replyMessagePreview = t("bubbles.messages.file", "File");
+          break;
+        case "WEATHER":
+          replyMessagePreview = t("bubbles.messages.weather", "Weather");
+          break;
+        case "POLL":
+          replyMessagePreview = `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}`;
+          break;
+        case "NOTE":
+          replyMessagePreview = `[${t("input.note", "Note")}] ${replyMessage.note?.title || replyMessage.content || ''}`;
+          break;
+        case "REMINDER":
+          replyMessagePreview = `[${t("input.reminder", "Reminder")}] ${replyMessage.reminder?.title || replyMessage.content || ''}`;
+          break;
+        default:
+          replyMessagePreview = "Message";
+      }
+    } else {
+      replyMessagePreview = t("bubbles.messages.recalled");
+    }
+  }
+
   return (
     <div className="chat-box-input flex flex-col bg-white border-t border-gray-100">
       <ChatInputToolbar
         disabled={disabled}
+        canCreateNote={canCreateNote}
         canCreatePoll={canCreatePoll}
         isSending={isSending}
         isRecording={isRecording}
@@ -501,6 +579,8 @@ export function ChatBoxInput({
         onImageClick={handleImageClick}
         onFileClick={handleFileClick}
         onWeatherClick={handleWeatherClick}
+        onNoteClick={handleNoteClick}
+        onReminderClick={handleReminderClick}
         onPollClick={handlePollClick}
         onRecordingClick={startRecording}
         onToggleEmojiPicker={toggleEmojiPicker}
@@ -525,14 +605,7 @@ export function ChatBoxInput({
               {t("input.replyTo", "Replying to")} {replyMessage.senderId === userSession?.id ? t("bubbles.messages.you", "You") : selectedChat.participants.find(p => p.userId === replyMessage.senderId)?.name || "User"}
             </span>
             <span className="text-sm text-gray-600 truncate mt-0.5">
-              {!replyMessage.isActive ? t("bubbles.messages.recalled") :
-                replyMessage.type === "TEXT" ? replyMessage.content :
-                  replyMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-                    replyMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-                      replyMessage.type === "FILE" ? t("bubbles.messages.file", "File") :
-                        replyMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") :
-                          replyMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}` :
-                            "Message"}
+              {replyMessagePreview}
             </span>
           </div>
           <button
@@ -638,6 +711,13 @@ export function ChatBoxInput({
         isOpen={showPollModal}
         onClose={() => dispatch({ type: "SET_POLL_MODAL", payload: false })}
         onSubmit={handleCreatePoll}
+      />
+
+      <CreateNoteReminderModal
+        isOpen={showNoteReminderModal}
+        mode={noteReminderMode}
+        onClose={() => dispatch({ type: "SET_NOTE_REMINDER_MODAL", payload: false })}
+        onSubmit={handleCreateNoteReminder}
       />
 
       {/* Inline keyframes for recording animations */}

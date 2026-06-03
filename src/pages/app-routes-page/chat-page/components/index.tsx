@@ -10,6 +10,8 @@ import {
   sendMultipleImageMessageApi,
   editMessageApi,
   createPollMessageApi,
+  createNoteMessageApi,
+  createReminderMessageApi,
   getGroupMessageSummaryApi,
   getGroupSettingsApi,
 } from "@/services/chat";
@@ -27,6 +29,7 @@ import {
   encryptTextMessageContent,
   MAX_ENCRYPTED_TEXT_CONTENT_LENGTH,
 } from "../utils/textMessageCrypto";
+import type { NoteReminderSubmitPayload } from "./chat-box/chat-input-components";
 
 interface ChatBoxProps {
   selectedChat: RoomResponse;
@@ -477,6 +480,86 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
     }
   };
 
+  const toBackendLocalDateTime = (value: string) => {
+    const date = new Date(value);
+    const pad = (num: number) => String(num).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+  };
+
+  const handleCreateNoteReminder = async (payload: NoteReminderSubmitPayload) => {
+    const clientMsgId = crypto.randomUUID();
+    const repliedMessageSnapshot = buildRepliedMessageSnapshot(replyMessage);
+    const nowIso = new Date().toISOString();
+    const title = payload.body.length > 80 ? `${payload.body.slice(0, 77)}...` : payload.body;
+
+    addMessage({
+      id: `tmp-${clientMsgId}`,
+      roomId: selectedChat.roomId,
+      clientMsgId,
+      senderId: currentUserId,
+      content: title,
+      type: payload.type,
+      createdAt: nowIso,
+      isActive: true,
+      isPinned: payload.type === "NOTE" ? payload.pinToTop : false,
+      pinnedAt: payload.type === "NOTE" && payload.pinToTop ? nowIso : null,
+      pinnedByUserId: payload.type === "NOTE" && payload.pinToTop ? currentUserId : null,
+      repliedMessage: repliedMessageSnapshot,
+      note: payload.type === "NOTE" ? {
+        id: -1,
+        messageId: `tmp-${clientMsgId}`,
+        roomId: selectedChat.roomId,
+        createdByUserId: currentUserId,
+        title,
+        body: payload.body,
+      } : null,
+      reminder: payload.type === "REMINDER" ? {
+        id: -1,
+        messageId: `tmp-${clientMsgId}`,
+        roomId: selectedChat.roomId,
+        createdByUserId: currentUserId,
+        title,
+        body: payload.body,
+        remindAt: toBackendLocalDateTime(payload.remindAt),
+        timezone: payload.timezone,
+        repeatRule: payload.repeatRule,
+        status: "PENDING",
+      } : null,
+      localStatus: "sending",
+      localError: null,
+    });
+
+    try {
+      const common = {
+        roomId: selectedChat.roomId,
+        clientMsgId,
+        title,
+        body: payload.body,
+        pinToTop: payload.type === "NOTE" ? payload.pinToTop : false,
+        repliedMessageId: replyMessage?.id || null,
+      };
+
+      const response = payload.type === "NOTE"
+        ? await createNoteMessageApi(common)
+        : await createReminderMessageApi({
+            ...common,
+            remindAt: toBackendLocalDateTime(payload.remindAt),
+            timezone: payload.timezone,
+            repeatRule: payload.repeatRule,
+          });
+
+      addMessage(response.data.data as MessageResponse);
+      setReplyMessage(null);
+    } catch (err) {
+      patchMessageByClientMsgId(clientMsgId, {
+        localStatus: "failed",
+        localError: getErrorMessage(err, t("box.createNoteReminderError", "Failed to create note or reminder")),
+      });
+      toast.error(getErrorMessage(err, t("box.createNoteReminderError", "Failed to create note or reminder")));
+      throw err;
+    }
+  };
+
   useEffect(() => {
     let active = true;
 
@@ -664,6 +747,7 @@ export function ChatBox({ selectedChat }: ChatBoxProps) {
           onSendMultipleImages={handleSendMultipleImages}
           onSendWeather={handleSendWeather}
           onCreatePoll={handleCreatePoll}
+          onCreateNoteReminder={handleCreateNoteReminder}
           disabled={isLoadingMessages}
           droppedFiles={droppedFiles}
           onDroppedFilesProcessed={() => setDroppedFiles([])}

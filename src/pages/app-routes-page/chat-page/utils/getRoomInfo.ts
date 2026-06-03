@@ -69,6 +69,12 @@ export const getLastMessagePreview = (
     case "POLL":
       messageContent = `[${i18n.t("chat:input.createPollTitle", "Poll")}] ${room.lastMessage.preview}`;
       break;
+    case "NOTE":
+      messageContent = `[${i18n.t("chat:input.note", "Note")}] ${room.lastMessage.preview}`;
+      break;
+    case "REMINDER":
+      messageContent = `[${i18n.t("chat:input.reminder", "Reminder")}] ${room.lastMessage.preview}`;
+      break;
     case "TEXT":
     default:
       messageContent = isEncryptedTextContent(room.lastMessage.preview)

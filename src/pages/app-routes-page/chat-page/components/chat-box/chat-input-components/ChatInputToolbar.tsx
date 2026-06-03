@@ -5,13 +5,16 @@ import {
   Paperclip, 
   CloudSun,
   Vote,
-  Mic
+  Mic,
+  StickyNote,
+  Bell
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button.tsx";
 
 interface ChatInputToolbarProps {
   disabled: boolean;
+  canCreateNote: boolean;
   canCreatePoll: boolean;
   isSending: boolean;
   isRecording: boolean;
@@ -19,6 +22,8 @@ interface ChatInputToolbarProps {
   onImageClick: () => void;
   onFileClick: () => void;
   onWeatherClick: () => void;
+  onNoteClick: () => void;
+  onReminderClick: () => void;
   onPollClick: () => void;
   onRecordingClick: () => void;
   onToggleEmojiPicker: () => void;
@@ -30,6 +35,7 @@ interface ChatInputToolbarProps {
 
 export function ChatInputToolbar({
   disabled,
+  canCreateNote,
   canCreatePoll,
   isSending,
   isRecording,
@@ -37,6 +43,8 @@ export function ChatInputToolbar({
   onImageClick,
   onFileClick,
   onWeatherClick,
+  onNoteClick,
+  onReminderClick,
   onPollClick,
   onRecordingClick,
   onToggleEmojiPicker,
@@ -104,6 +112,28 @@ export function ChatInputToolbar({
         disabled={disabled || isSending || isRecording || isTranscribing || !canCreatePoll}
       >
         <Vote className={iconSize} strokeWidth={1.5} />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className={btnClass}
+        title={t("input.createNote", "Tạo ghi chú")}
+        onClick={onNoteClick}
+        disabled={disabled || isSending || isRecording || isTranscribing || !canCreateNote}
+      >
+        <StickyNote className={iconSize} strokeWidth={1.5} />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className={btnClass}
+        title={t("input.createReminder", "Tạo nhắc hẹn")}
+        onClick={onReminderClick}
+        disabled={disabled || isSending || isRecording || isTranscribing || !canCreateNote}
+      >
+        <Bell className={iconSize} strokeWidth={1.5} />
       </Button>
 
       <Button 

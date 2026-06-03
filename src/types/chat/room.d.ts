@@ -29,7 +29,7 @@ export interface LastMessage {
   messageId: string;
   senderId: number;
   preview: string;
-  messageType: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "WEATHER" | "SYSTEM" | "POLL";
+  messageType: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "WEATHER" | "SYSTEM" | "POLL" | "NOTE" | "REMINDER";
   createdAt: string;
 }
 
@@ -72,6 +72,7 @@ export interface GroupSettingsResponse {
   roomId: number;
   allowMemberEditGroupProfile: boolean;
   allowMemberPinMessage: boolean;
+  allowMemberCreateNote: boolean;
   allowMemberCreatePoll: boolean;
   allowMemberSendMessage: boolean;
   joinApprovalEnabled: boolean;
@@ -84,6 +85,7 @@ export interface GroupSettingsResponse {
 export interface UpdateGroupSettingsRequest {
   allowMemberEditGroupProfile?: boolean;
   allowMemberPinMessage?: boolean;
+  allowMemberCreateNote?: boolean;
   allowMemberCreatePoll?: boolean;
   allowMemberSendMessage?: boolean;
   joinApprovalEnabled?: boolean;
