@@ -49,7 +49,7 @@ function formatReminderDate(value: string) {
   });
 }
 
-export function CreateNoteReminderModal({ isOpen, mode, onClose, onSubmit }: CreateNoteReminderModalProps) {
+export function CreateNoteReminderModal({ isOpen, mode, onClose, onSubmit }: Readonly<CreateNoteReminderModalProps>) {
   const { t } = useTranslation("chat");
   const [body, setBody] = useState("");
   const [pinToTop, setPinToTop] = useState(false);
@@ -142,17 +142,7 @@ export function CreateNoteReminderModal({ isOpen, mode, onClose, onSubmit }: Cre
             />
           </div>
 
-          {!isReminder ? (
-            <label className="flex items-center gap-3 text-lg font-semibold text-slate-700">
-              <input
-                type="checkbox"
-                checked={pinToTop}
-                onChange={(event) => setPinToTop(event.target.checked)}
-                className="h-5 w-5 rounded border-slate-300 bg-white accent-purple-600"
-              />
-              {t("input.pinToTop", "Ghim lên đầu trò chuyện")}
-            </label>
-          ) : (
+          {isReminder ? (
             <>
               <div className="space-y-3">
                 <div className="text-lg font-semibold text-slate-700">{t("input.chooseTime", "Chọn thời gian")}</div>
@@ -226,6 +216,16 @@ export function CreateNoteReminderModal({ isOpen, mode, onClose, onSubmit }: Cre
                 </select>
               </div>
             </>
+          ) : (
+            <label className="flex items-center gap-3 text-lg font-semibold text-slate-700">
+              <input
+                type="checkbox"
+                checked={pinToTop}
+                onChange={(event) => setPinToTop(event.target.checked)}
+                className="h-5 w-5 rounded border-slate-300 bg-white accent-purple-600"
+              />
+              {t("input.pinToTop", "Ghim lên đầu trò chuyện")}
+            </label>
           )}
         </div>
 

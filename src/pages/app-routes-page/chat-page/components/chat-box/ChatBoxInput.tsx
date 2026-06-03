@@ -531,6 +531,42 @@ export function ChatBoxInput({
     }
   };
 
+  let replyMessagePreview = "";
+  if (replyMessage) {
+    if (!replyMessage.isActive) {
+      replyMessagePreview = t("bubbles.messages.recalled");
+    } else {
+      switch (replyMessage.type) {
+        case "TEXT":
+          replyMessagePreview = replyMessage.content ?? "";
+          break;
+        case "IMAGE":
+          replyMessagePreview = t("bubbles.messages.image", "Image");
+          break;
+        case "VIDEO":
+          replyMessagePreview = t("bubbles.messages.video", "Video");
+          break;
+        case "FILE":
+          replyMessagePreview = t("bubbles.messages.file", "File");
+          break;
+        case "WEATHER":
+          replyMessagePreview = t("bubbles.messages.weather", "Weather");
+          break;
+        case "POLL":
+          replyMessagePreview = `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}`;
+          break;
+        case "NOTE":
+          replyMessagePreview = `[${t("input.note", "Note")}] ${replyMessage.note?.title || replyMessage.content || ''}`;
+          break;
+        case "REMINDER":
+          replyMessagePreview = `[${t("input.reminder", "Reminder")}] ${replyMessage.reminder?.title || replyMessage.content || ''}`;
+          break;
+        default:
+          replyMessagePreview = "Message";
+      }
+    }
+  }
+
   return (
     <div className="chat-box-input flex flex-col bg-white border-t border-gray-100">
       <ChatInputToolbar
@@ -569,16 +605,7 @@ export function ChatBoxInput({
               {t("input.replyTo", "Replying to")} {replyMessage.senderId === userSession?.id ? t("bubbles.messages.you", "You") : selectedChat.participants.find(p => p.userId === replyMessage.senderId)?.name || "User"}
             </span>
             <span className="text-sm text-gray-600 truncate mt-0.5">
-              {!replyMessage.isActive ? t("bubbles.messages.recalled") :
-                replyMessage.type === "TEXT" ? replyMessage.content :
-                  replyMessage.type === "IMAGE" ? t("bubbles.messages.image", "Image") :
-                    replyMessage.type === "VIDEO" ? t("bubbles.messages.video", "Video") :
-                      replyMessage.type === "FILE" ? t("bubbles.messages.file", "File") :
-                        replyMessage.type === "WEATHER" ? t("bubbles.messages.weather", "Weather") :
-                          replyMessage.type === "POLL" ? `[${t("input.createPollTitle", "Poll")}] ${replyMessage.poll?.question || ''}` :
-                            replyMessage.type === "NOTE" ? `[${t("input.note", "Note")}] ${replyMessage.note?.title || replyMessage.content || ''}` :
-                              replyMessage.type === "REMINDER" ? `[${t("input.reminder", "Reminder")}] ${replyMessage.reminder?.title || replyMessage.content || ''}` :
-                            "Message"}
+              {replyMessagePreview}
             </span>
           </div>
           <button

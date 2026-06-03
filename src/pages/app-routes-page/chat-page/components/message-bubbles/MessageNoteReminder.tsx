@@ -7,7 +7,7 @@ interface MessageNoteReminderProps {
   isSent: boolean;
 }
 
-export function MessageNoteReminder({ message, isSent }: MessageNoteReminderProps) {
+export function MessageNoteReminder({ message, isSent }: Readonly<MessageNoteReminderProps>) {
   const { t } = useTranslation("chat");
   const isReminder = message.type === "REMINDER";
   const note = message.note;
