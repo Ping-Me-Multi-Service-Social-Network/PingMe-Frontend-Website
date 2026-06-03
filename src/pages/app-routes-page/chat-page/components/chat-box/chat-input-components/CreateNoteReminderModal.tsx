@@ -22,7 +22,11 @@ interface CreateNoteReminderModalProps {
   onSubmit: (payload: NoteReminderSubmitPayload) => void | Promise<void>;
 }
 
-const quickOptions = [
+type QuickReminderOption =
+  | { label: string; minutes: number }
+  | { label: string; tomorrowAtHour: number };
+
+const quickOptions: QuickReminderOption[] = [
   { label: "15 phút nữa", minutes: 15 },
   { label: "30 phút nữa", minutes: 30 },
   { label: "9:00 ngày mai", tomorrowAtHour: 9 },
@@ -70,7 +74,7 @@ export function CreateNoteReminderModal({ isOpen, mode, onClose, onSubmit }: Cre
   const isReminder = mode === "REMINDER";
   const canSubmit = body.trim().length > 0 && (!isReminder || new Date(remindAt).getTime() > Date.now());
 
-  const applyQuickOption = (option: (typeof quickOptions)[number], index: number) => {
+  const applyQuickOption = (option: QuickReminderOption, index: number) => {
     const next = new Date();
     if ("minutes" in option) {
       next.setMinutes(next.getMinutes() + option.minutes);
