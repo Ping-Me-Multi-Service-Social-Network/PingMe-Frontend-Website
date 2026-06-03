@@ -68,7 +68,8 @@ const SentMessageBubble = memo(function SentMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER";
-  const coListeningInvite = message.type === "TEXT" ? parseCoListeningInvite(message.content) : null;
+  const messageContent = message.content ?? "";
+  const coListeningInvite = message.type === "TEXT" ? parseCoListeningInvite(messageContent) : null;
   const isInviteMessage = !!coListeningInvite;
   const isLocalPending = message.localStatus === "encrypting" || message.localStatus === "sending";
   const isLocalFailed = message.localStatus === "failed";
@@ -142,7 +143,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
       case "IMAGE":
         contentNode = (
           <div className="flex flex-col gap-2">
-            <MessageImage src={message.content} mediaUrls={message.mediaUrls} alt="Sent image" />
+            <MessageImage src={messageContent} mediaUrls={message.mediaUrls} alt="Sent image" />
             {isUploadingMedia && renderUploadProgress()}
           </div>
         );
@@ -150,17 +151,17 @@ const SentMessageBubble = memo(function SentMessageBubble({
       case "VIDEO":
         contentNode = (
           <div className="flex flex-col gap-2">
-            <MessageVideo src={message.content} />
+            <MessageVideo src={messageContent} />
             {isUploadingMedia && renderUploadProgress()}
           </div>
         );
         break;
       case "FILE": {
-        const fileName = message.localFileName ?? getDisplayFileName(message.content, message.fileFormat);
+        const fileName = message.localFileName ?? getDisplayFileName(messageContent, message.fileFormat);
         contentNode = (
           <div className="flex flex-col gap-2">
             <MessageFile
-              src={message.content}
+              src={messageContent}
               fileName={fileName}
               isSent={true}
             />
@@ -215,7 +216,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
         }
 
         try {
-          const weatherData: WeatherResponse = JSON.parse(message.content);
+          const weatherData: WeatherResponse = JSON.parse(messageContent);
           contentNode = (
             <WeatherMessageBubble
               weather={weatherData}
@@ -244,14 +245,14 @@ const SentMessageBubble = memo(function SentMessageBubble({
         if (isInviteMessage) {
           contentNode = (
             <div className="flex flex-col relative">
-              <CoListeningInviteCard text={message.content} />
+              <CoListeningInviteCard text={messageContent} />
             </div>
           );
           break;
         }
         contentNode = (
           <div className="flex flex-col relative">
-            <LinkifiedText text={message.content} className="text-sm leading-relaxed" />
+            <LinkifiedText text={messageContent} className="text-sm leading-relaxed" />
             {message.isEdited && (
               <span className="text-[10px] opacity-60 mt-1 self-end leading-none inline-flex items-center" title={message.editedAt ? new Date(message.editedAt).toLocaleString() : undefined}>
                 <Edit2 className="w-2.5 h-2.5 mr-1" />

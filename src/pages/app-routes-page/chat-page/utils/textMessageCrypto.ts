@@ -51,10 +51,14 @@ export async function encryptTextMessageContent(
 }
 
 export async function decryptTextMessageContent(
-  content: string,
+  content: string | null,
   room: RoomResponse,
 ): Promise<string> {
   assertWebCryptoAvailable();
+
+  if (content == null) {
+    return "";
+  }
 
   if (!isEncryptedTextContent(content)) {
     return content;
@@ -80,7 +84,7 @@ export async function decryptTextMessageForRoom(
   message: MessageResponse,
   room: RoomResponse,
 ): Promise<MessageResponse> {
-  let content = message.content;
+  let content = message.content ?? "";
   let repliedMessage = message.repliedMessage;
   const isEncryptedText = message.type === "TEXT" && isEncryptedTextContent(content);
 

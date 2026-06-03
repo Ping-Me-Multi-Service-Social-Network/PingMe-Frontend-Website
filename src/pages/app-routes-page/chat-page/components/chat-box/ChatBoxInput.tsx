@@ -154,7 +154,7 @@ export function ChatBoxInput({
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef(newMessage);
 
@@ -207,7 +207,7 @@ export function ChatBoxInput({
 
   useEffect(() => {
     if (editingMessage) {
-      dispatch({ type: "SET_MESSAGE", payload: editingMessage.content });
+      dispatch({ type: "SET_MESSAGE", payload: editingMessage.content ?? "" });
       // clear files if editing? Actually, usually you just don't edit files but we can clear them.
       dispatch({ type: "CLEAR_FILES" });
     }
@@ -553,7 +553,7 @@ export function ChatBoxInput({
               {t("bubbles.messages.editBtn", "Edit message")}
             </span>
             <span className="text-sm text-gray-600 truncate mt-0.5">
-              {editingMessage.content}
+              {editingMessage.content ?? ""}
             </span>
           </div>
           <button

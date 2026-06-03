@@ -27,6 +27,8 @@ function upsertMessageByClientMsgId(
   prev: MessageResponse[],
   nextMessage: MessageResponse,
 ): MessageResponse[] {
+  nextMessage = normalizeMessageContent(nextMessage);
+
   if (!nextMessage.clientMsgId) {
     return addUniqueMessage(prev, nextMessage);
   }
@@ -41,6 +43,19 @@ function upsertMessageByClientMsgId(
       ? { ...nextMessage, localStatus: undefined, localError: null }
       : m,
   );
+}
+
+function normalizeMessageContent(message: MessageResponse): MessageResponse {
+  return {
+    ...message,
+    content: message.content ?? "",
+    repliedMessage: message.repliedMessage
+      ? {
+          ...message.repliedMessage,
+          content: message.repliedMessage.content ?? "",
+        }
+      : message.repliedMessage,
+  };
 }
 
 interface UseMessagesReturn {
@@ -85,7 +100,7 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
 
     decryptTextMessagesForRoom(reduxMessages, room).then((decrypted) => {
       if (active) {
-        setLiveMessages(decrypted);
+        setLiveMessages(decrypted.map(normalizeMessageContent));
       }
     });
 
@@ -154,10 +169,11 @@ export function useMessages(room: RoomResponse): UseMessagesReturn {
         );
 
         const historyResponse: HistoryMessageResponse = response.data.data;
-        const newMessages = await decryptTextMessagesForRoom(
+        const decryptedMessages = await decryptTextMessagesForRoom(
           historyResponse.messageResponses,
           roomRef.current,
         );
+        const newMessages = decryptedMessages.map(normalizeMessageContent);
 
         if (append) {
           setHistoryMessages((prev) => {

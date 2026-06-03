@@ -3,7 +3,7 @@ export interface MessageResponse {
   roomId: number;
   clientMsgId: string;
   senderId: number;
-  content: string;
+  content: string | null;
   type: "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM" | "WEATHER" | "POLL";
   createdAt: string;
   isActive: boolean;

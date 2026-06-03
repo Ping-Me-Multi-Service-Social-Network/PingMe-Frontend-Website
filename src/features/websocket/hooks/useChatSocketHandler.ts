@@ -102,8 +102,9 @@ export const useChatSocketHandler = ({
   const handleNewMessage = useCallback(
     (event: MessageCreatedEventPayload) => {
       const message = event.messageResponse;
+      const messageContent = message.content ?? "";
       const isEncrypted =
-        message.type === "TEXT" && isEncryptedTextContent(message.content);
+        message.type === "TEXT" && isEncryptedTextContent(messageContent);
 
       // Update room list (move room to top, update lastMessage)
       let roomForDecrypt: RoomResponse | undefined;
@@ -117,7 +118,7 @@ export const useChatSocketHandler = ({
           lastMessage: {
             messageId: message.id,
             senderId: message.senderId,
-            preview: isEncrypted ? ENCRYPTED_TEXT_PREVIEW : message.content,
+            preview: isEncrypted ? ENCRYPTED_TEXT_PREVIEW : messageContent,
             messageType: message.type === "SYSTEM" ? "TEXT" : message.type,
             createdAt: message.createdAt,
           },
@@ -128,7 +129,7 @@ export const useChatSocketHandler = ({
 
       // Async decrypt to replace placeholder preview with real text
       if (isEncrypted && roomForDecrypt) {
-        decryptTextMessageContent(message.content, roomForDecrypt)
+        decryptTextMessageContent(messageContent, roomForDecrypt)
           .then((decrypted) => {
             setRooms((prev) =>
               prev.map((r) =>
@@ -156,8 +157,9 @@ export const useChatSocketHandler = ({
   const handleMessageUpdated = useCallback(
     (event: MessageUpdatedEventPayload) => {
       const message = event.messageResponse;
+      const messageContent = message.content ?? "";
       const isEncrypted =
-        message.type === "TEXT" && isEncryptedTextContent(message.content);
+        message.type === "TEXT" && isEncryptedTextContent(messageContent);
 
       let roomForDecrypt: RoomResponse | undefined;
       setRooms((prev) => {
@@ -170,7 +172,7 @@ export const useChatSocketHandler = ({
             ...targetRoom,
             lastMessage: {
               ...targetRoom.lastMessage,
-              preview: isEncrypted ? ENCRYPTED_TEXT_PREVIEW : message.content,
+              preview: isEncrypted ? ENCRYPTED_TEXT_PREVIEW : messageContent,
             },
           };
           const otherRooms = prev.filter((r) => r.roomId !== message.roomId);
@@ -181,7 +183,7 @@ export const useChatSocketHandler = ({
 
       // Async decrypt for updated preview
       if (isEncrypted && roomForDecrypt) {
-        decryptTextMessageContent(message.content, roomForDecrypt)
+        decryptTextMessageContent(messageContent, roomForDecrypt)
           .then((decrypted) => {
             setRooms((prev) =>
               prev.map((r) =>

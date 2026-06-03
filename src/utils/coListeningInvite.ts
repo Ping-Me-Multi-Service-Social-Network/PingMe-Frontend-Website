@@ -5,7 +5,9 @@ export type CoListeningInviteInfo = {
   token: string | null;
 };
 
-export function parseCoListeningInvite(text: string): CoListeningInviteInfo | null {
+export function parseCoListeningInvite(text: string | null | undefined): CoListeningInviteInfo | null {
+  if (typeof text !== "string") return null;
+
   const trimmed = text.trim();
   if (!trimmed) return null;
 
@@ -36,4 +38,3 @@ export function parseCoListeningInvite(text: string): CoListeningInviteInfo | nu
     token,
   };
 }
-

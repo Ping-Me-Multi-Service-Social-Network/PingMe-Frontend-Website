@@ -58,7 +58,8 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     message.type === "VIDEO" ||
     message.type === "FILE";
   const isWeatherMessage = message.type === "WEATHER"; 
-  const inviteInfo = message.type === "TEXT" ? parseCoListeningInvite(message.content) : null;
+  const messageContent = message.content ?? "";
+  const inviteInfo = message.type === "TEXT" ? parseCoListeningInvite(messageContent) : null;
   const isInviteMessage = !!inviteInfo;
 
   const handleDeleteForMe = async () => {
@@ -106,16 +107,16 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
     let contentNode = null;
     switch (message.type) {
       case "IMAGE":
-        contentNode = <MessageImage src={message.content} mediaUrls={message.mediaUrls} alt="Received image" />;
+        contentNode = <MessageImage src={messageContent} mediaUrls={message.mediaUrls} alt="Received image" />;
         break;
       case "VIDEO":
-        contentNode = <MessageVideo src={message.content} />;
+        contentNode = <MessageVideo src={messageContent} />;
         break;
       case "FILE": {
-        const fileName = getDisplayFileName(message.content, message.fileFormat);
+        const fileName = getDisplayFileName(messageContent, message.fileFormat);
         contentNode = (
           <MessageFile
-            src={message.content}
+            src={messageContent}
             fileName={fileName}
             isSent={false}
           />
@@ -124,7 +125,7 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
       }
       case "WEATHER": {
         try {
-          const weatherData: WeatherResponse = JSON.parse(message.content);
+          const weatherData: WeatherResponse = JSON.parse(messageContent);
           contentNode = (
             <WeatherMessageBubble
               weather={weatherData}
@@ -151,13 +152,13 @@ const ReceivedMessageBubble = memo(function ReceivedMessageBubble({
         if (isInviteMessage) {
           contentNode = (
             <div className="flex flex-col relative">
-              <CoListeningInviteCard text={message.content} />
+              <CoListeningInviteCard text={messageContent} />
             </div>
           );
         } else {
           contentNode = (
             <div className="flex flex-col relative">
-              <LinkifiedText text={message.content} className="text-sm leading-relaxed" />
+              <LinkifiedText text={messageContent} className="text-sm leading-relaxed" />
             </div>
           );
         }
