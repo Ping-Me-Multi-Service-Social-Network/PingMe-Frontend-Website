@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { getPinnedMessagesApi, unpinMessageApi } from "@/services/chat";
 import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
-import { Pin, ChevronDown, ChevronUp, X, Image as ImageIcon, File, Video, CloudRain } from "lucide-react";
+import { Pin, ChevronDown, ChevronUp, X, Image as ImageIcon, File, Video, CloudRain, StickyNote, Bell } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/features/hooks.ts";
 import { selectMessages, selectEditedMessages } from "@/features/websocket/chat";
@@ -160,6 +160,8 @@ export const ChatPinnedMessages = memo(({ room }: ChatPinnedMessagesProps) => {
       case "FILE": return <span className="flex items-center gap-1"><File className="w-3 h-3" /> {t("bubbles.messages.file", "File")}</span>;
       case "WEATHER": return <span className="flex items-center gap-1"><CloudRain className="w-3 h-3" /> {t("bubbles.messages.weather", "Weather")}</span>;
       case "POLL": return <span className="flex items-center gap-1">[{t("input.createPollTitle", "Poll")}] {message.poll?.question}</span>;
+      case "NOTE": return <span className="flex items-center gap-1"><StickyNote className="w-3 h-3" /> {message.note?.title ?? message.content}</span>;
+      case "REMINDER": return <span className="flex items-center gap-1"><Bell className="w-3 h-3" /> {message.reminder?.title ?? message.content}</span>;
       default: return message.content;
     }
   };

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { getPinnedMessagesApi, unpinMessageApi } from "@/services/chat";
 import type { MessageResponse } from "@/types/chat/message";
 import type { RoomResponse } from "@/types/chat/room";
-import { ArrowLeft, Pin, X, Image as ImageIcon, File, Video, CloudRain } from "lucide-react";
+import { ArrowLeft, Pin, X, Image as ImageIcon, File, Video, CloudRain, StickyNote, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/features/hooks.ts";
@@ -26,6 +26,8 @@ const getMessagePreview = (msg: MessageResponse) => {
   if (msg.type === "FILE") return <span className="flex items-center gap-1 text-orange-500"><File className="w-3 h-3" /> File</span>;
   if (msg.type === "WEATHER") return <span className="flex items-center gap-1 text-sky-500"><CloudRain className="w-3 h-3" /> Weather</span>;
   if (msg.type === "POLL") return <span className="flex items-center gap-1 font-medium">[Poll] {msg.poll?.question}</span>;
+  if (msg.type === "NOTE") return <span className="flex items-center gap-1 font-medium"><StickyNote className="w-3 h-3" /> {msg.note?.title ?? msg.content}</span>;
+  if (msg.type === "REMINDER") return <span className="flex items-center gap-1 font-medium"><Bell className="w-3 h-3" /> {msg.reminder?.title ?? msg.content}</span>;
   return msg.content || "";
 };
 

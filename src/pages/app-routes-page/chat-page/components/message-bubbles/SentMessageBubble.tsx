@@ -18,6 +18,7 @@ import MessageVideo from "./MessageVideo.tsx";
 import MessageFile from "./MessageFile.tsx";
 import WeatherMessageBubble from "./WeatherMessageBubble.tsx";
 import { MessagePoll } from "./MessagePoll.tsx";
+import { MessageNoteReminder } from "./MessageNoteReminder.tsx";
 import { formatMessageTime } from "../../utils/formatMessageTime.ts";
 import { getDisplayFileName } from "../../utils/getDisplayFileName.ts";
 import { Button } from "@/components/ui/button.tsx";
@@ -239,6 +240,10 @@ const SentMessageBubble = memo(function SentMessageBubble({
       case "POLL":
         contentNode = <MessagePoll message={message} currentUserId={message.senderId} />;
         break;
+      case "NOTE":
+      case "REMINDER":
+        contentNode = <MessageNoteReminder message={message} isSent={true} />;
+        break;
       case "TEXT":
       default:
         // Render a compact invite card for co-listening share links (instead of a huge URL).
@@ -322,7 +327,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
   };
 
   const shouldRenderBareContentContainer =
-    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage);
+    message.isActive && (isWeatherMessage || isMediaMessage || isInviteMessage || message.type === "NOTE" || message.type === "REMINDER");
 
   return (
     <motion.div
@@ -354,7 +359,7 @@ const SentMessageBubble = memo(function SentMessageBubble({
                   <Reply className="mr-2 h-4 w-4" />
                   {t("bubbles.messages.replyBtn", "Reply")}
                 </DropdownMenuItem>
-                {message.type !== "POLL" && !message.isEncryptedText && (
+                {message.type !== "POLL" && message.type !== "NOTE" && message.type !== "REMINDER" && !message.isEncryptedText && (
                   <DropdownMenuItem
                     onClick={() => onForwardClick?.(message.id)}
                     className="cursor-pointer"

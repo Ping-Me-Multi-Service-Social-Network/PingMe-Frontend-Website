@@ -15,7 +15,9 @@ import type {
   ForwardMessageRequest,
   GroupMessageSummaryResponse,
   BulkForwardMessageRequest,
+  CreateNoteMessageRequest,
   CreatePollMessageRequest,
+  CreateReminderMessageRequest,
   VotePollRequest,
 } from "@/types/chat/message";
 import type {
@@ -302,6 +304,14 @@ export const getPinnedMessagesApi = (roomId: number) => {
 
 export const createPollMessageApi = (data: CreatePollMessageRequest) => {
   return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/polls", data);
+};
+
+export const createNoteMessageApi = (data: CreateNoteMessageRequest) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/notes", data);
+};
+
+export const createReminderMessageApi = (data: CreateReminderMessageRequest) => {
+  return axiosClient.post<ApiResponse<MessageResponse>>("/core-service/messages/reminders", data);
 };
 
 export const votePollApi = (messageId: string, data: VotePollRequest) => {

@@ -298,7 +298,13 @@ const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementPro
           onToggle={() => void toggleSetting("allowMemberPinMessage")}
           disabled={pendingSettingKey !== null}
         />
-        <SettingRow label={t("management.createNotes")} checked={false} isInteractive={false} />
+        <SettingRow
+          label={t("management.createNotes")}
+          checked={Boolean(settings?.allowMemberCreateNote)}
+          isInteractive={canInteract}
+          onToggle={() => void toggleSetting("allowMemberCreateNote")}
+          disabled={pendingSettingKey !== null}
+        />
         <SettingRow
           label={t("management.createPolls")}
           checked={Boolean(settings?.allowMemberCreatePoll)}
@@ -452,6 +458,5 @@ const GroupManagement = ({ room, onBack, onSettingsChanged }: GroupManagementPro
 };
 
 export default GroupManagement;
-
 
 
