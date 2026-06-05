@@ -20,6 +20,10 @@
             "title": "Ping AI",
             "desc": "Trợ lý AI thông minh"
         },
+        "aiCrawler": {
+            "title": "AI Crawler",
+            "desc": "Cào & trích xuất dữ liệu"
+        },
         "guide": {
             "title": "Hướng dẫn",
             "desc": "Xem lại tour giới thiệu",

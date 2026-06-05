@@ -22,6 +22,8 @@ import landingVI from "./locales/vi/landing.json";
 import landingEN from "./locales/en/landing.json";
 import callVI from "./locales/vi/call.json";
 import callEN from "./locales/en/call.json";
+import aiCrawlerVI from "./locales/vi/ai-crawler.json";
+import aiCrawlerEN from "./locales/en/ai-crawler.json";
 
 const savedLanguage = localStorage.getItem("appLanguage") || "vi";
 
@@ -40,6 +42,7 @@ i18n
                 tours: toursVI,
                 landing: landingVI,
                 call: callVI,
+                "ai-crawler": aiCrawlerVI,
             },
             en: {
                 profile: profileEN,
@@ -52,6 +55,7 @@ i18n
                 tours: toursEN,
                 landing: landingEN,
                 call: callEN,
+                "ai-crawler": aiCrawlerEN,
             },
         },
         lng: savedLanguage,

@@ -1,0 +1,46 @@
+{
+  "page": {
+    "title": "AI Crawler",
+    "description": "Cào dữ liệu website bất kỳ và trích xuất bằng AI"
+  },
+  "urlInput": {
+    "title": "AI Web Crawler",
+    "subtitle": "Nhập URL website và để AI cào, phân tích, và trích xuất dữ liệu có cấu trúc cho bạn.",
+    "placeholder": "https://example.com",
+    "startButton": "Bắt đầu cào",
+    "starting": "Đang bắt đầu...",
+    "invalidUrl": "Vui lòng nhập URL hợp lệ (ví dụ: https://example.com)"
+  },
+  "progress": {
+    "title": "Đang cào dữ liệu...",
+    "status": "Đang cào",
+    "pagesCrawled": "{{crawled}} / {{total}} trang đã cào",
+    "pleaseWait": "Con nhện đang dệt qua mạng lưới...",
+    "error": "Cào dữ liệu gặp lỗi",
+    "success": "Cào dữ liệu hoàn tất!"
+  },
+  "chat": {
+    "title": "Chat với AI",
+    "placeholder": "Hỏi AI để trích xuất dữ liệu... (ví dụ: \"Liệt kê sản phẩm giá dưới 40.000đ\")",
+    "send": "Gửi",
+    "sending": "Đang suy nghĩ...",
+    "recrawl": "Cào lại",
+    "recrawling": "Đang cào lại...",
+    "disabledHint": "Chat sẽ khả dụng sau khi cào hoàn tất",
+    "emptyState": "Hỏi AI một câu về website đã cào để tạo widget",
+    "you": "Bạn",
+    "ai": "AI"
+  },
+  "widget": {
+    "title": "Xem trước Widget",
+    "jsonTab": "JSON Gốc",
+    "previewTab": "Xem trước",
+    "noImage": "Không có ảnh",
+    "emptyState": "Xem trước widget sẽ xuất hiện ở đây sau khi bạn đặt câu hỏi"
+  },
+  "error": {
+    "connection": "Lỗi kết nối. Vui lòng kiểm tra mạng.",
+    "generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "tryAgain": "Thử lại"
+  }
+}

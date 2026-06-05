@@ -9,6 +9,7 @@ import {
   X,
   Stars,
   HelpCircle,
+  Bug,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -64,6 +65,14 @@ const mediaNavigationItems = [
     icon: Stars,
     href: "/app/ping-ai",
     descriptionKey: "nav.pingAi.desc",
+    external: false,
+  },
+  {
+    id: "nav-ai-crawler",
+    titleKey: "nav.aiCrawler.title",
+    icon: Bug,
+    href: "/app/ai-crawler",
+    descriptionKey: "nav.aiCrawler.desc",
     external: false,
   },
 ];

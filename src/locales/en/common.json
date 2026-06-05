@@ -20,6 +20,10 @@
             "title": "Ping AI",
             "desc": "Smart AI Assistant"
         },
+        "aiCrawler": {
+            "title": "AI Crawler",
+            "desc": "Crawl & extract data"
+        },
         "guide": {
             "title": "Guide",
             "desc": "Replay intro tour",

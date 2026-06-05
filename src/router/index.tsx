@@ -104,6 +104,9 @@ const SearchResultsPage = lazy(
 const AIChatBoxPage = lazy(
   () => import("@/pages/app-routes-page/ai-chatbox/index"),
 );
+const AICrawlerPage = lazy(
+  () => import("@/pages/app-routes-page/ai-crawler"),
+);
 // ===========================================================
 // FORGET PASSWORD PAGES
 // ===========================================================
@@ -415,6 +418,17 @@ export const router = createBrowserRouter([
         element: (
           <LazyElement>
             <AIChatBoxPage />
+          </LazyElement>
+        ),
+      },
+      // ---------------------------------------------------------
+      // AI Crawler Routes
+      // ---------------------------------------------------------
+      {
+        path: "ai-crawler",
+        element: (
+          <LazyElement>
+            <AICrawlerPage />
           </LazyElement>
         ),
       },

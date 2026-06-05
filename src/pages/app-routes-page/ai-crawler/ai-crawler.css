@@ -1,0 +1,267 @@
+/* ============================================================
+   AI CRAWLER — Custom Styles
+   ============================================================ */
+
+/* --- Spider crawl animation --- */
+@keyframes spider-crawl {
+  0%   { transform: translateX(-100%) rotate(0deg); }
+  25%  { transform: translateX(0%) rotate(5deg); }
+  50%  { transform: translateX(100%) rotate(-5deg); }
+  75%  { transform: translateX(200%) rotate(5deg); }
+  100% { transform: translateX(300%) rotate(0deg); }
+}
+
+@keyframes spider-bounce {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+
+.spider-crawl {
+  animation: spider-bounce 0.8s ease-in-out infinite;
+}
+
+/* --- Progress bar fill animation --- */
+@keyframes progress-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes progress-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.crawl-progress-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+
+.crawl-progress-fill {
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    #7c3aed 0%,
+    #a78bfa 50%,
+    #7c3aed 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  background-image: linear-gradient(
+    90deg,
+    #7c3aed 0%,
+    #a78bfa 50%,
+    #7c3aed 100%
+  ) !important;
+  animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+/* --- URL input card glow --- */
+@keyframes card-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(124, 58, 237, 0.08); }
+  50%      { box-shadow: 0 0 50px rgba(124, 58, 237, 0.18); }
+}
+
+.crawler-card-glow {
+  animation: card-glow 3s ease-in-out infinite;
+}
+
+/* --- Entry animation --- */
+@keyframes crawler-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.crawler-enter {
+  animation: crawler-fade-in 0.4s ease-out;
+}
+
+/* --- Widget card hover --- */
+.widget-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.widget-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Widget image --- */
+.widget-card-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  background: rgba(124, 58, 237, 0.05);
+}
+
+.widget-card-img-placeholder {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px 8px 0 0;
+  background: rgba(124, 58, 237, 0.06);
+  color: rgba(124, 58, 237, 0.4);
+  font-size: 13px;
+}
+
+/* --- JSON view --- */
+.crawler-json-view {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.crawler-json-view::-webkit-scrollbar {
+  width: 6px;
+}
+.crawler-json-view::-webkit-scrollbar-track {
+  background: transparent;
+}
+.crawler-json-view::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 160, 0.25);
+  border-radius: 999px;
+}
+
+/* --- Chat message --- */
+@keyframes chat-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.crawler-msg-enter {
+  animation: chat-msg-in 0.3s ease-out;
+}
+
+/* --- Scrollbar for chat --- */
+.crawler-chat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.crawler-chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.crawler-chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 160, 0.2);
+  border-radius: 999px;
+}
+.crawler-chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 140, 160, 0.4);
+}
+
+/* --- Pulse dot for crawling status --- */
+@keyframes crawl-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 0 8px rgba(124, 58, 237, 0);
+  }
+}
+
+.crawl-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #7c3aed;
+  animation: crawl-pulse 1.5s ease-in-out infinite;
+}
+
+.crawl-status-dot-success {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.crawl-status-dot-error {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* --- Send button active pulse --- */
+@keyframes crawler-send-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+}
+
+.crawler-send-active {
+  animation: crawler-send-pulse 1.5s ease-out infinite;
+}
+
+/* --- Tab toggle --- */
+.crawler-tab {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.crawler-tab-active {
+  background-color: #7c3aed;
+  color: white;
+}
+
+.crawler-tab-inactive {
+  background-color: transparent;
+  color: #6b7280;
+}
+
+.crawler-tab-inactive:hover {
+  background-color: rgba(124, 58, 237, 0.08);
+  color: #7c3aed;
+}
+
+/* --- Loading dots for chat --- */
+@keyframes crawl-dot-bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40%           { transform: scale(1); }
+}
+
+.crawl-typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  display: inline-block;
+  margin: 0 2px;
+  animation: crawl-dot-bounce 1.4s infinite ease-in-out both;
+}
+
+.crawl-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.crawl-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.crawl-typing-dot:nth-child(3) { animation-delay: 0s; }
+
+/* --- Textarea --- */
+.crawler-textarea {
+  resize: none;
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.crawler-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+.crawler-textarea::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 160, 0.2);
+  border-radius: 999px;
+}

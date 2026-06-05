@@ -1,0 +1,46 @@
+{
+  "page": {
+    "title": "AI Crawler",
+    "description": "Crawl any website and extract data with AI"
+  },
+  "urlInput": {
+    "title": "AI Web Crawler",
+    "subtitle": "Enter a website URL and let AI crawl, analyze, and extract structured data for you.",
+    "placeholder": "https://example.com",
+    "startButton": "Start Crawling",
+    "starting": "Starting...",
+    "invalidUrl": "Please enter a valid URL (e.g. https://example.com)"
+  },
+  "progress": {
+    "title": "Crawling in progress...",
+    "status": "Crawling",
+    "pagesCrawled": "{{crawled}} / {{total}} pages crawled",
+    "pleaseWait": "The spider is weaving through the web...",
+    "error": "Crawl encountered an error",
+    "success": "Crawl completed successfully!"
+  },
+  "chat": {
+    "title": "Chat with AI",
+    "placeholder": "Ask AI to extract data... (e.g. \"List all products under $40\")",
+    "send": "Send",
+    "sending": "Thinking...",
+    "recrawl": "Recrawl",
+    "recrawling": "Recrawling...",
+    "disabledHint": "Chat will be available after crawling completes",
+    "emptyState": "Ask AI a question about the crawled website to generate a widget",
+    "you": "You",
+    "ai": "AI"
+  },
+  "widget": {
+    "title": "Widget Preview",
+    "jsonTab": "JSON Raw",
+    "previewTab": "Preview",
+    "noImage": "No image",
+    "emptyState": "Widget preview will appear here after you ask a question"
+  },
+  "error": {
+    "connection": "Connection error. Please check your network.",
+    "generic": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try Again"
+  }
+}
