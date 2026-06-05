@@ -8,7 +8,8 @@ export interface CreateCrawlRoomResponse {
 }
 
 export interface CrawlStatusResponse {
-  status: "crawling" | "success" | "error";
+  status: "crawling" | "success" | "failed";
+  error_message?: string | null;
   pages_crawled: number;
   total_pages: number;
 }

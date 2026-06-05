@@ -15,7 +15,7 @@ export default function AICrawlerPage() {
   // --- Core state ---
   const [phase, setPhase] = useState<Phase>("input");
   const [roomId, setRoomId] = useState<number | null>(null);
-  const [crawlStatus, setCrawlStatus] = useState<"crawling" | "success" | "error">("crawling");
+  const [crawlStatus, setCrawlStatus] = useState<"crawling" | "success" | "failed">("crawling");
   const [pagesCrawled, setPagesCrawled] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -55,17 +55,21 @@ export default function AICrawlerPage() {
         setTotalPages(status.total_pages);
         setCrawlStatus(status.status);
 
-        if (status.status === "success" || status.status === "error") {
+        if (status.status === "success" || status.status === "failed") {
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
             pollingRef.current = null;
           }
 
           if (status.status === "success") {
+            setError(null);
             // Small delay so the user sees 100% before switching
             setTimeout(() => setPhase("ready"), 800);
           } else {
-            setError("Crawl failed");
+            setError(
+              status.error_message ||
+              "Crawler thất bại, vui lòng thử URL khác hoặc cào lại."
+            );
           }
         }
       } catch (err) {
@@ -180,6 +184,8 @@ export default function AICrawlerPage() {
             pagesCrawled={pagesCrawled}
             totalPages={totalPages}
             error={error}
+            onRecrawl={handleRecrawl}
+            recrawling={recrawling}
           />
         </div>
       )}
